@@ -612,5 +612,27 @@ sub parse_cron {
 	return $ret;
 }
 
+
+sub extractErrorFromHash {
+	my $hash = shift;
+	my $ret = '';
+	
+	if (ref($hash) eq 'HASH') {
+		if (defined($hash->{details})) {
+			$ret = $hash->{details};
+		} else {
+			for my $h (keys %{$hash}) {
+				$ret = $h . "->" . $ret . extractErrorFromHash($hash->{$h});
+			}
+		}
+	} else {
+		$ret = $hash;
+	}
+	
+	return $ret;	
+		
+	
+}
+
 # end of package
 1;

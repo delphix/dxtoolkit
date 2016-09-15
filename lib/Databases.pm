@@ -195,8 +195,7 @@ sub LoadDBList
 
         if ($db->getDBType eq 'oracle') {
             my %orainst;
-
-
+            
             if ( $db->getInstances() ne 'UNKNOWN') {
 
                 for my $inst (@{$db->getInstances()}) {
@@ -206,8 +205,10 @@ sub LoadDBList
                         $orainst{$inst->{instanceNumber}}{name} = $inst->{instanceName};
                     } elsif ($inst->{type} eq 'OracleRACInstance') {
                         my $insthost = $self->{_environments}->getHost($inst->{node});
+                        my $instnode = $self->{_environments}->getName($inst->{node});
                         $orainst{$inst->{instanceNumber}}{host} = $self->{_hosts}->getHost($insthost)->{name};
                         $orainst{$inst->{instanceNumber}}{name} = $inst->{instanceName};
+                        $orainst{$inst->{instanceNumber}}{nodename} = $instnode;
                     }
                 }
 

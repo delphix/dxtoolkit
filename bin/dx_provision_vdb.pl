@@ -54,9 +54,11 @@ GetOptions(
   'instname=s'  => \(my $instname), 
   'uniqname=s'  => \(my $uniqname), 
   'environment=s' => \(my $environment), 
+  'envUser=s' => \(my $envUser), 
   'type=s' => \(my $type), 
   'group=s' => \(my $group), 
   'creategroup' => \(my $creategroup),
+  'listeners=s'  => \(my $listeners),
   'srcgroup=s' => \(my $srcgroup), 
   'envinst=s' => \(my $envinst),
   'template=s' => \(my $template),
@@ -201,6 +203,22 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if ( $type eq 'oracle' ) {
+    
+    if (length($dbname) > 8) {
+      print "Max. size of dbname for Oracle is 8 characters\n.";
+      print "VDB won't be created\n";
+      $ret = $ret + 1;
+      last;
+    }
+
+    if (defined($instname) && (length($instname) > 12)) {
+      print "Max. size of instance name for Oracle is 12 characters\n.";
+      print "VDB won't be created\n";
+      $ret = $ret + 1;
+      last;
+    }
+
+     
     $db = new OracleVDB_obj($engine_obj,$debug);
 
 
@@ -303,6 +321,19 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
     $db->setName($targetname,$dbname, $uniqname, $instname);
+    
+    if ( $db->setEnvironment($environment,$envUser) ) {
+        print "Environment $environment or user user not found. VDB won't be created\n";
+        $ret = $ret + 1;
+        next; 
+    }
+    
+    if ( $db->setListener($listeners) ) {
+      print "Listener not found. VDB won't be created\n";
+      $ret = $ret + 1;
+      next; 
+    }
+        
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance);
   } 
   elsif ($type eq 'mssql') {
