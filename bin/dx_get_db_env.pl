@@ -216,7 +216,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ($dbobj->{_dbtype} eq 'oracle') {
         $other = $other . $dbobj->getArchivelog();
       }
-      if ( ( $dbobj->getType() eq 'dSource')  && ( $dbobj->{_dbtype} ne 'oracle' ) && ( $dbobj->{_dbtype} ne  'appdata' ) ) {
+      if ( ( $dbobj->getType() eq 'dSource')  && ( $dbobj->{_dbtype} ne 'oracle' ) && ( $dbobj->{_dbtype} ne  'vFiles' ) ) {
         $other = $other . $dbobj->getStagingEnvironment() . "," . $dbobj->getStagingInst();
       }
       $output->addLine(
@@ -242,7 +242,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $dbtype = $dbobj->getType();
       my $groupname = $groups->getName($dbobj->getGroup());
       my $dbn = $dbobj->getName();
-      my $dbhostname = $dbobj->getSourceName() ? $dbobj->getSourceName() : 'detached';
+      my $dbhostname;
       my $vendor = $dbobj->{_dbtype};
       my $rephome = $dbobj->getHome();
 
@@ -251,16 +251,49 @@ for my $engine ( sort (@{$engine_list}) ) {
       
       if ($dbtype eq 'VDB') {
         # VDB
+        
+        $dbhostname = $dbobj->getDatabaseName();
+        
         $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";
+        $restore_args = $restore_args . " -envUser \"" . $dbobj->getEnvironmentUserName() . "\" ";
+        
+        
+        
         if ($vendor eq 'oracle') {
           my $mntpoint = $dbobj->getMountPoint();
           my $archlog = $dbobj->getArchivelog();
           my $tempref = $dbobj->getTemplateRef();
+          my $listnames = $dbobj->getListenersNames();
+                    
           if (defined($tempref)) {
             my $tempname = $templates->getTemplate($tempref)->{name};
             $restore_args = $restore_args . " -template $tempname";
           }
-          $restore_args = $restore_args . " -mntpoint \"$mntpoint\" $archlog" ;
+          $restore_args = $restore_args . " -mntpoint \"$mntpoint\" -$archlog " ;
+          if (defined($listnames) && ($listnames ne '')) {
+            $restore_args = $restore_args . " -listeners $listnames ";
+          }
+          
+          #if one instance use -instanceName
+          my $instances = $dbobj->getInstances();
+                              
+          if ($dbobj->isRAC()) {
+            #rac 
+            my $rac = '';
+            for my $inst (@{$instances}) {
+              $rac = $rac . "-rac_instance " . $dbobj->getInstanceNode($inst->{instanceNumber}) . "," . $inst->{instanceName} . "," . $inst->{instanceNumber} . " "; 
+            }
+            $restore_args = $restore_args . " " . $rac;
+          } else {
+            $restore_args = $restore_args . " -instname " . $instances->[-1]->{instanceName} . " ";
+          }
+          
+          my $unique = $dbobj->getUniqueName();
+          if ($unique ne 'N/A') {
+            $restore_args = $restore_args . " -uniqname $unique ";
+          }
+          
+          
         }
         
         if ($vendor eq "mssql") {
@@ -271,6 +304,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
         # dSource export
         #my $users = new 
+        $dbhostname = $dbobj->getSourceName() ? $dbobj->getSourceName() : 'detached';
         my $osuser = $dbobj->getOSUser();
         $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup -dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" -sourceinst \"$rephome\" -sourceenv \"$hostenv_line\" -source_os_user \"$osuser\" ";
         

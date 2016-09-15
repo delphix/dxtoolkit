@@ -284,6 +284,28 @@ sub getGroup
 #     return $self->{repository}->{version};
 # }
 
+# Procedure getEnvironmentUserName
+# parameters: none
+# Return database environment
+
+sub getEnvironmentUserName
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getEnvironmentUserName",1);
+
+    my $ret;
+    
+    if (defined($self->{_environment})) {
+        $ret = $self->{_environment}->getEnvironmentUserByRef($self->{environment}->{reference}, $self->{sourceConfig}->{environmentUser});
+    } else {
+        $ret = 'NA';
+    }
+
+    return $ret;
+}
+
+
+
 
 # Procedure getEnvironmentName
 # parameters: none
@@ -304,6 +326,19 @@ sub getEnvironmentName
 
     return $ret;
 }
+
+
+# Procedure getDatabaseName
+# parameters: none
+# Return database name
+
+sub getDatabaseName 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getDatabaseName",1);
+    return $self->{sourceConfig}->{databaseName};
+}
+
 
 # Procedure getSourceName
 # parameters: none
@@ -496,7 +531,7 @@ sub runJobOperation {
     
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
     my $jobno;
-
+    
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
         if (defined($action) && $action eq 'ACTION') {
             $jobno = $result->{action};
@@ -504,9 +539,11 @@ sub runJobOperation {
             $jobno = $result->{job};
         }
     } else {
-        if (defined($result->{error})) {
-            print "Problem with job " . $result->{error}->{details} . "\n";
+        if (defined($result->{error})) {          
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
             logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
             logger($self->{_debug}, $result->{error}->{action} ,1);
         } else {
             print "Unknown error. Try with debug flag\n";
@@ -727,20 +764,28 @@ sub refresh
     logger($self->{_debug}, "Entering VDB_obj::refresh",1);
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/refresh";
 
-    $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"} = $self->{container}->{provisionContainer};
+    if (defined($self->{container}->{provisionContainer})) {
+      $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"} = $self->{container}->{provisionContainer};
+    } else {
+      print "Parent database not found.\n";
+      return undef;
+    }
+    
+    
+    
     if (defined($timestamp)) {
         if ($self->setTimestamp($timestamp)) {
             print "Error with setting point in time for refresh \n";
-            exit 1;
+            return undef;
         }
     } elsif (defined($changenum)) {
         if ($self->setChangeNum($changenum)) {
             print "Error with setting location for refresh \n";
-            exit 1;
+            return undef;
         }
     } else {
         print "Point in time not defined\n";
-        exit 1;
+        return undef;
     }
 
     my %timeflow = (
@@ -759,12 +804,14 @@ sub refresh
 # Procedure setEnvironment
 # parameters: 
 # - name - environment name
+# - envUser - user name
 # Set environment reference by name for new db
 # Return 0 if success, 1 if not found
 
 sub setEnvironment {
     my $self = shift; 
     my $name = shift;
+    my $envUser = shift;
     logger($self->{_debug}, "Entering VDB_obj::setEnvironment",1);
 
     my $dlpxObject = $self->{_dlpxObject};
@@ -784,6 +831,16 @@ sub setEnvironment {
         $self->{'_newenv'} = $envitem->{'reference'};
         $self->{'_hosts'} = $envitem->{'host'};
         $self->{'_newenvtype'} = $envitem->{'type'};
+        
+        if (defined($envUser)) {
+          my $envUser_ref = $environments->getEnvironmentUserByName($envitem->{'reference'}, $envUser);
+          if (defined($envUser_ref)) {
+            $self->{NEWDB}->{sourceConfig}->{environmentUser} = $envUser_ref;
+          } else {
+            print "Environment user $envUser not found in environment $name.\n";
+            return 1;
+          }
+        }
         return 0;
     } else {
         return 1;
@@ -1499,6 +1556,28 @@ sub getInstances
     return $ret;
 }
 
+# Procedure getInstanceNode
+# parameters: 
+# - instanceNumber
+# Return instance host
+
+sub getInstanceNode 
+{
+    my $self = shift;
+    my $instanceNumber = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getInstanceHost",1);
+
+    my $ret;
+
+    if (defined($self->{instances}->{$instanceNumber})) {
+        $ret = $self->{instances}->{$instanceNumber}->{nodename};
+    } else {
+        $ret = 'UNKNOWN';
+    }
+
+    return $ret;
+}
+
 
 # Procedure getInstanceHost
 # parameters: 
@@ -1717,6 +1796,110 @@ sub setSource {
         return 1;
     }       
 
+}
+
+# Procedure getListenersNames
+# parameters: none
+# Return database listeners names
+
+sub getListenersNames
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getListenersNames",1);
+
+    my $ret = '';
+    
+    my $envref;
+    
+    if (defined($self->{environment})) {
+        $envref = $self->{environment}->{reference};
+    } 
+    
+    if (defined($self->{_environment})) {
+      if (defined($self->{source}->{nodeListenerList})) {
+        my @listarr;
+        for my $listref (@{$self->{source}->{nodeListenerList}}) {
+          push(@listarr, $self->{_environment}->getListenerName($envref, $listref));
+        }
+        $ret = join(',', @listarr);
+      }
+    } else {
+        $ret = 'NA';
+    }
+
+    return $ret;
+}
+
+
+# Procedure setListener
+# parameters: 
+# - name - list of listeners names separated by commas
+# Set listeners for new db
+# Return 0 if success, 1 if not found
+
+sub setListener {
+    my $self = shift; 
+    my $name = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setListener",1);
+
+    my $environments;
+    if (defined($self->{_environment})) {
+        $environments = $self->{_environment};
+    } else {
+        $environments = new Environment_obj($self->{_dlpxObject}, $self->{_debug});
+        $self->{_environment} = $environments;
+    }
+
+    if (!defined ($self->{'_newenv'})) {
+      print "Environment not set\n";
+      return 1;
+    }
+
+    my @listrefarray;
+    
+    for my $listname (split(',', $name)) {
+      my $listref = $environments->getListenerByName($self->{'_newenv'}, $listname);
+      if (defined($listref)) {
+        push(@listrefarray, $listref);
+      } else {
+        print "Listener $listname not found\n.";
+        return 1;
+      }
+    }
+        
+    $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
+    return 0;
+  }
+
+  # Procedure isRAC
+  # parameters: 
+  # Return 1 if RAC database
+
+  sub isRAC {
+      my $self = shift;
+      my $ret = 0;
+      if (defined($self->{sourceConfig}) && defined($self->{sourceConfig}->{type}) ) {
+        if ($self->{sourceConfig}->{type} eq 'OracleRACConfig') {
+          $ret = 1
+        }
+      } 
+      return $ret;
+  }
+
+
+# Procedure getUniqueName
+# parameters: 
+# Get unique name of Oracle database
+
+sub getUniqueName {
+    my $self = shift;
+    my $ret;
+    if (defined($self->{sourceConfig}) && defined($self->{sourceConfig}->{uniqueName}) ) {
+      $ret = $self->{sourceConfig}->{uniqueName};
+    } else {
+      $ret = 'N/A';
+    }
+    return $ret;
 }
 
 
@@ -2250,10 +2433,10 @@ sub createVDB {
         return undef;
     }
 
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. VDB won't be created\n";
-        return undef;
-    }
+    # if ( $self->setEnvironment($env) ) {
+    #     print "Environment $env not found. VDB won't be created\n";
+    #     return undef;
+    # }
 
     if ( $self->setHome($home) ) {
         print "Home $home in environment $env not found. VDB won't be created\n";
@@ -2787,11 +2970,6 @@ sub createVDB {
 
     if ( $self->setGroup($group) ) {
         print "Group $group not found. VDB won't be created\n";
-        return undef;
-    }
-
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. VDB won't be created\n";
         return undef;
     }
 
@@ -4008,7 +4186,7 @@ sub new {
     );
 
     $self->{"NEWDB"} = \%prov; 
-    $self->{_dbtype} = 'appdata';
+    $self->{_dbtype} = 'vFiles';
 
     if ($self->{_dlpxObject}->getApi() gt "1.6") {
         $prov{"source"}{"parameters"} = {};

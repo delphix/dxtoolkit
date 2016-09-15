@@ -517,6 +517,60 @@ sub getEnvironmentListenerPorts {
 }
 
 
+#procedure getListenerByName
+#parameters: 
+# - env refrence
+# - list name
+#return listener refrence for name
+
+sub getListenerByName {
+    my $self = shift;
+    my $envref = shift;
+    my $listname = shift;
+    logger($self->{_debug}, "Entering Environment_obj::getListenerByName",1);
+    my $envlisteners = $self->{_envlisteners};
+    
+    my $ret;
+    
+    my @listref = grep { lc $envlisteners->{$envref}->{$_}->{name} eq lc $listname } keys %{$envlisteners->{$envref}};
+    
+    if (scalar(@listref) eq 1) {
+      $ret = $listref[-1];
+    };
+    
+    return $ret;
+  
+}
+
+
+
+#procedure getListenerName
+#parameters: 
+# - env refrence
+# - list reference
+#return listener name for refrence
+
+sub getListenerName {
+    my $self = shift;
+    my $envref = shift;
+    my $listref = shift;
+    logger($self->{_debug}, "Entering Environment_obj::getListenerName",1);
+    my $envlisteners = $self->{_envlisteners};
+    
+    my $ret;
+    
+    #my $listref = { $envlisteners->{$envref}->{$_}->{reference} eq $listref } keys %{$envlisteners->{$envref}};
+    
+    if (defined($envlisteners->{$envref}->{$listref})) {
+      $ret = $envlisteners->{$envref}->{$listref}->{name};
+    } else {
+      $ret = 'N/A';
+    }
+    
+    return $ret;
+  
+}
+
 
 
 #procedure getAllEnvironmentListenersPorts

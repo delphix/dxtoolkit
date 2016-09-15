@@ -145,6 +145,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
       }
     } else {
+      print "Problem with defining refresh job\n";
       $ret = $ret + 1;
     }
 
