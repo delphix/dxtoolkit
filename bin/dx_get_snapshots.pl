@@ -189,8 +189,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
 
     my $snaplist = $snapshots->getSnapshots($snapshotname);
-
-    if (scalar(@{$snaplist}) < 1) {
+    
+    if ( (!defined($snaplist)) || (scalar(@{$snaplist}) < 1) ) {
       if (defined($dbname) || defined($group) || defined($type) || defined($host) ) {
         print "There is no snapshots selected for database " . $dbobj->getName() ." on $engine . Please check filter definitions. \n";
         $ret = $ret + 1;
