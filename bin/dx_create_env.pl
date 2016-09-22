@@ -53,6 +53,11 @@ GetOptions(
   'authtype=s' => \(my $authtype),
   'password=s' => \(my $password),
   'proxy=s' => \(my $proxy),
+  'clustername=s' => \(my $crsname),
+  'clusterloc=s' => \(my $crshome),
+  'sshport=n' => \(my $sshport),
+  'asedbuser=s' => \(my $asedbuser),
+  'asedbpass=s' => \(my $asedbpass),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -85,7 +90,7 @@ if (defined($proxy) && defined($toolkitdir)) {
 }
 
 if ( ! ( defined($envname) && defined($envtype) && defined($host) && (defined($toolkitdir) || defined($proxy)  ) && defined($username) && defined($authtype) ) ) {
-  print "Options -envname, -envtype, -host, -dbname, -toolkitdir, -username and -authtype are required. \n";
+  print "Options -envname, -envtype, -host, -toolkitdir, -username and -authtype are required. \n";
   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
   exit (1);
 }
@@ -96,10 +101,22 @@ if ( ! ( ( $authtype eq 'password') || ( $authtype eq 'systemkey') ) )  {
   exit (1);
 }
 
-if ( ! ( ( $envtype eq 'unix') || ( $envtype eq 'windows') ) )  {
+if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtype eq 'rac') ) )  {
   print "Option -envtype has invalid parameter - $envtype \n";
   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
   exit (1);
+}
+
+if ((lc $envtype eq 'rac' ) && ((!defined($crsname)) || (!defined($crshome))) ) {
+  print "Type RAC required clustername and cluserloc to be defined \n";
+  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  exit (1);   
+}
+
+if ( defined($asedbuser) xor defined($asedbpass) ) {
+  print "Option -asedbuser and -asedbpass are required \n";
+  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  exit (1);  
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -128,7 +145,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $jobno;
 
   my $env = new Environment_obj ($engine_obj);
-  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref);
+  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref, $crsname, $crshome, $sshport, $asedbuser, $asedbpass);
 
 
   if (defined($jobno)) {
@@ -157,7 +174,14 @@ __DATA__
 
  dx_create_env.pl [ -engine|d <delphix identifier> | -all ]  -envname environmentname -envtype unix | windows -host hostname 
                    -toolkitdir toolkit_directory | -proxy proxy
-                   -username user_name -authtype password | systemkey [ -password password ] [ -version ] [ -help ] [ -debug ]
+                   -username user_name -authtype password | systemkey [ -password password ] 
+                   [-clustername name]
+                   [-clusterloc loc]
+                   [-sshport port]
+                   [-asedbuser user]
+                   [-asedbpass password]
+                   [ -version ] [ -help ] [ -debug ]
+
 
 =head1 DESCRIPTION
 
@@ -198,6 +222,22 @@ Authorization type - password or SSH key
 
 =item B<-password password>
 If password is specified as authtype - a user password has to be specified
+
+=item B<-clustername name>
+Cluser name (CRS name for RAC)
+
+=item B<-clusterloc loc>
+Cluser location (CRS home for RAC)
+
+=item B<-sshport port>
+SSH port
+
+=item B<-asedbuser user>
+ASE DB user for source detection
+
+=item B<-asedbpass password>
+ASE DB password for source detection
+
 
 =back
 

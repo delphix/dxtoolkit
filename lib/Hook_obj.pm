@@ -38,6 +38,7 @@ use Toolkit_helpers qw (logger);
 sub new {
     my $classname  = shift;
     my $dlpxObject = shift;
+    my $dbonly = shift;
     my $debug = shift;
     logger($debug, "Entering Hook_obj::constructor",1);
 
@@ -50,7 +51,9 @@ sub new {
     
     bless($self,$classname);
     
-    $self->loadHooksList($debug);
+    if (!defined($dbonly)) {
+      $self->loadHooksList($debug);
+    }
     return $self;
 }
 
@@ -222,14 +225,15 @@ sub exportDBHooks {
 
     logger($self->{_debug}, "Entering Hook_obj::exportDBHooks",1);   
 
+
     my $hooks = $dbobj->{source}->{operations};
-    my $dbname = $dbobj->getName();
-
-    my $filename =  $location . "/" . $dbname . ".dbhooks";
-
-    print "Exporting database $dbname hooks into  $filename \n";
-
-    $self->exportHook($hooks, $filename);
+    
+    if (defined($hooks)) {
+      my $dbname = $dbobj->getName();
+      my $filename =  $location . "/" . $dbname . ".dbhooks";
+      print "Exporting database $dbname hooks into  $filename \n";
+      $self->exportHook($hooks, $filename);
+    }
 
     return 0;
 }
@@ -305,7 +309,6 @@ sub exportHook {
     my $location = shift;
 
     logger($self->{_debug}, "Entering Hook_obj::exportHook",1);   
-
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
 

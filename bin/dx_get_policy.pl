@@ -57,7 +57,7 @@ GetOptions(
   'format=s' => \(my $format), 
   'outdir=s' => \(my $outdir),
   'export' => \(my $export),
-  'mapping:s' => \(my $mapping),
+  'mapping=s' => \(my $mapping),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -114,7 +114,7 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
 
-if (! defined($export)) {
+if (! (defined($export) || defined($mapping) ) ) {
   if (defined($policyname)) {
     $output->addHeader(
           {'Appliance',     20},

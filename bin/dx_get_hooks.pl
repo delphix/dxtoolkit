@@ -110,7 +110,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
 
-  my $hooks = new Hook_obj (  $engine_obj, $debug );
+
+  my $hooks;
+  
+  if (defined($exportDBHooks)) {
+    $hooks = new Hook_obj (  $engine_obj, 1, $debug );
+  } else {
+    $hooks = new Hook_obj (  $engine_obj, undef, $debug );
+  }
 
   if (defined($exportDBHooks)) {
     my $databases = new Databases ( $engine_obj );

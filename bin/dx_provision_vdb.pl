@@ -30,6 +30,7 @@ use File::Basename;
 use Pod::Usage;
 use FindBin;
 use Data::Dumper;
+use Try::Tiny;
 
 my $abspath = $FindBin::Bin;
 
@@ -49,6 +50,7 @@ GetOptions(
   'help|?' => \(my $help), 
   'd|engine=s' => \(my $dx_host), 
   'sourcename=s' => \(my $sourcename), 
+  'empty' => \(my $empty), 
   'targetname=s' => \(my $targetname), 
   'dbname|path=s'  => \(my $dbname), 
   'instname=s'  => \(my $instname), 
@@ -67,12 +69,19 @@ GetOptions(
   'postrefresh=s' =>\(my $postrefresh),
   'rac_instance=s@' => \(my $rac_instance),
   'configureclone=s' => \(my $configureclone),
-  'prerefresh=s' =>\(my $prerefresh), 
+  'prerefresh=s' =>\(my $prerefresh),
+  'prerewind=s' =>\(my $prerewind), 
+  'postrewind=s' =>\(my $postrewind), 
+  'presnapshot=s' =>\(my $presnapshot), 
+  'postsnapshot=s' =>\(my $postsnapshot),
+  'hooks=s' => \(my $hooks),
   'prescript=s' => \(my $prescript),
   'postscript=s' => \(my $postscript),  
   'timestamp=s' => \(my $timestamp),
   'location=s' => \(my $changenum),
   'mntpoint=s' => \(my $mntpoint),
+  'redoGroup=s' => \(my $redoGroup),
+  'redoSize=s' => \(my $redoSize),
   'archivelog=s' => \($archivelog),
   'truncateLogOnCheckpoint' => \(my $truncateLogOnCheckpoint),
   'recoveryModel=s' => \(my $recoveryModel),
@@ -108,11 +117,11 @@ if (( $type eq 'vFiles' ) && (!defined($envinst)) ) {
 
 
 
-if ( ! ( defined($type) && defined($sourcename) && defined($targetname) && defined($dbname) && defined($environment) && defined($group) && defined($envinst)  ) ) {
-  print "Options -type, -sourcename, -targetname, -dbname, -environment, -group and -envinst are required. \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
+# if ( ! ( defined($type) && defined($sourcename) && defined($targetname) && defined($dbname) && defined($environment) && defined($group) && defined($envinst)  ) ) {
+#   print "Options -type, -sourcename, -targetname, -dbname, -environment, -group and -envinst are required. \n";
+#   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+#   exit (1);
+# }
 
 
 
@@ -176,34 +185,185 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   } 
   
-  my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, $debug);
+  my $source;
+  
+  if (defined($sourcename)) {
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, $debug);
 
-  if (!defined($source_ref)) {
-    print "Source database not found.\n";
-    $ret = $ret + 1;
-    next;
+    if (!defined($source_ref)) {
+      print "Source database not found.\n";
+      $ret = $ret + 1;
+      next;
+    }
+
+    if (scalar(@{$source_ref})>1) {
+      print "Source database not unique defined.\n";
+      $ret = $ret + 1;
+      next;
+    } elsif (scalar(@{$source_ref}) eq 0) {
+      print "Source database not found.\n";
+      $ret = $ret + 1;
+      next;
+    }
+
+    $source = ($databases->getDB($source_ref->[0]));
   }
-
-  if (scalar(@{$source_ref})>1) {
-    print "Source database not unique defined.\n";
-    $ret = $ret + 1;
-    next;
-  } elsif (scalar(@{$source_ref}) eq 0) {
-    print "Source database not found.\n";
-    $ret = $ret + 1;
-    next;
-  }
-
-  my $source = ($databases->getDB($source_ref->[0]));
   
-  
-  
-  
-  
-
-
+  # create a new DB object
   if ( $type eq 'oracle' ) {
+    $db = new OracleVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'mssql') {
+      $db = new MSSQLVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'sybase') {
+    $db = new SybaseVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'mysql') {
+    $db = new MySQLVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'vFiles') {
+    $db = new AppDataVDB_obj($engine_obj,$debug);
+  }
+  
+  # common database code
+  
+  if (defined($source)) {
+    if ( $db->setSource($source) ) {
+      print "Problem with setting source $source . VDB won't be created.\n";
+      $ret = $ret + 1;
+      next;
+    }
+    if ( defined ($timestamp) ) {
+      if ( $db->setTimestamp($timestamp) ) {
+        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
+        $ret = $ret + 1;
+        next;
+      }
+    } elsif ( defined ($changenum) ) {
+        if ($db->setChangeNum($changenum)) {
+            print "Error with location format.  VDB won't be created.\n";
+            $ret = $ret + 1;
+            next;
+        }
+    }
     
+  } elsif (($type eq 'vFiles') && (defined($empty))) {
+    $db->setEmpty();
+  } else {
+    print "There is no source configured\n";
+    $ret = $ret + 1;
+    last;
+  }
+
+
+  
+  if ( $db->setEnvironment($environment,$envUser) ) {
+      print "Environment $environment or user user not found. VDB won't be created\n";
+      $ret = $ret + 1;
+      next; 
+  }
+  
+  if ( defined($postrefresh) ) {
+    my $oneline = Toolkit_helpers::readHook('postrefresh', $postrefresh);
+    if (defined($oneline)) {
+      $db->setPostRefreshHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }    
+  } 
+
+  if ( defined($configureclone) ) {
+    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone);
+    if (defined($oneline)) {
+      $db->setconfigureCloneHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+
+  if ( defined($prerefresh) ) {
+    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh);
+    if (defined($oneline)) {
+      $db->setPreRefreshHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($prerewind) ) {
+    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind);
+    if (defined($oneline)) {
+      $db->setPreRewindHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+
+  if ( defined($postrewind) ) {
+    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind);
+    if (defined($oneline)) {
+      $db->setPostRewindHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($presnapshot) ) {
+    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot);
+    if (defined($oneline)) {
+      $db->setPreSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($postsnapshot) ) {
+    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot);
+    if (defined($oneline)) {
+      $db->setPostSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if (defined($hooks)) {
+    my $FD;
+    if (!open ($FD, '<', "$hooks")) {
+      print "Can't open a file with hooks: $hooks\n";
+      $ret = $ret + 1;
+      last;
+    } 
+    local $/ = undef;
+    my $json = JSON->new();
+    my $loadedHooks;
+    
+    try {
+       $loadedHooks = $json->decode(<$FD>);
+    } catch {
+       print 'Error parsing hooks file. Please check it. ' . $_ . " \n" ;
+       close $FD;
+       $ret = $ret + 1;
+       last;
+    };
+    close $FD;
+    
+    if ($loadedHooks->{type} ne 'VirtualSourceOperations') {
+      print '$hooks is not a export file from dx_get_hooks\n' ;
+      $ret = $ret + 1;
+      last;
+    }
+        
+    $db->setHooksfromJSON($loadedHooks);  
+    
+    
+  }
+
+  # Database specific code
+  if ( $type eq 'oracle' ) {  
     if (length($dbname) > 8) {
       print "Max. size of dbname for Oracle is 8 characters\n.";
       print "VDB won't be created\n";
@@ -218,10 +378,6 @@ for my $engine ( sort (@{$engine_list}) ) {
       last;
     }
 
-     
-    $db = new OracleVDB_obj($engine_obj,$debug);
-
-
     if ( defined($map_file) ) {
       my $filemap_obj = new FileMap($engine_obj,$debug);
       $filemap_obj->loadMapFile($map_file);
@@ -232,6 +388,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       $db->setMapFile($filemap_obj->GetMapping_rule());
 
+    }
+    
+    if (defined($redoSize)) {
+      $db->setRedoGroupSize($redoSize);
+    }
+
+    if (defined($redoGroup)) {
+      $db->setRedoGroupNumber($redoGroup);
     }
 
     if (defined($archivelog)) {
@@ -244,26 +408,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (defined($noopen)) {
       $db->setNoOpen();
-    }
-
-    if ( $db->setSource($source) ) {
-      print "Problem with setting source $source . VDB won't be created.\n";
-      $ret = $ret + 1;
-      next;
-    }
-
-    if ( defined ($timestamp) ) {
-      if ( $db->setTimestamp($timestamp) ) {
-        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
-        $ret = $ret + 1;
-        next;
-      }
-    } elsif ( defined ($changenum) ) {
-        if ($db->setChangeNum($changenum)) {
-            print "Error with location format.  VDB won't be created.\n";
-            $ret = $ret + 1;
-            next;
-        }
     }
 
     if ( defined($template) ) {
@@ -280,89 +424,23 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
-    if ( defined($postrefresh) ) {
-      my $FD;
-      if (open ($FD, $postrefresh)) {
-        print "Can't open a file with postrefresh script: $postrefresh";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-    if ( defined($configureclone) ) {
-      my $FD;
-      if (open ($FD, $configureclone)) {
-        print "Can't open a file with configureclone script: $configureclone";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setconfigureCloneHook($onelien);
-    } 
-
-    if ( defined($prerefresh) ) {
-      my $FD;
-      if (open ($FD, $prerefresh)) {
-        print "Can't open a file with prerefresh script: $prerefresh";
-        $ret = $ret + 1;
-        last;  
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-
     $db->setName($targetname,$dbname, $uniqname, $instname);
     
-    if ( $db->setEnvironment($environment,$envUser) ) {
-        print "Environment $environment or user user not found. VDB won't be created\n";
+    if (defined($listeners)) {    
+      if ( $db->setListener($listeners) ) {
+        print "Listener not found. VDB won't be created\n";
         $ret = $ret + 1;
         next; 
-    }
-    
-    if ( $db->setListener($listeners) ) {
-      print "Listener not found. VDB won't be created\n";
-      $ret = $ret + 1;
-      next; 
+      }
     }
         
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance);
   } 
   elsif ($type eq 'mssql') {
-    $db = new MSSQLVDB_obj($engine_obj,$debug);
-    if ( $db->setSource($source) )  {
-      print "Problem with setting source $sourcename. VDB won't be created.\n";
-      $ret = $ret + 1;
-      next; 
-    }
-
-    if ( defined ($timestamp) ) {
-      if ( $db->setTimestamp($timestamp) ) {
-        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
-        $ret = $ret + 1;
-        next; 
-      }
-    } elsif ( defined ($changenum) ) {
-        if ($db->setChangeNum($changenum)) {
-            print "Error with location format\n";
-            $ret = $ret + 1;
-            next; 
-        }
-    }
 
     if ( defined($postscript) ) {
       $db->setPostScript($postscript)
     } 
-
-
 
     if ( defined($prescript) ) {
       $db->setPreScript($prescript)
@@ -378,93 +456,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
-  }
-  elsif ($type eq 'sybase') {
-    $db = new SybaseVDB_obj($engine_obj,$debug);
-    if ( $db->setSource($source) ) {
-      print "Problem with setting source $sourcename. VDB won't be created.\n";
-      $ret = $ret + 1;
-      next; 
-    }
-
-    if ( defined ($timestamp) ) {
-      if ( $db->setTimestamp($timestamp) ) {
-        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
-        $ret = $ret + 1;
-        next; 
-      }
-    } elsif ( defined ($changenum) ) {
-        if ($db->setChangeNum($changenum)) {
-            print "Error with location format\n";
-            $ret = $ret + 1;
-            next; 
-        }
-    }
-
-    if ( defined($postrefresh) ) {
-      my $FD;
-      if (open ($FD, $postrefresh)) {
-        print "Can't open a file with postrefresh script: $postrefresh";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-    if ( defined($configureclone) ) {
-      my $FD;
-      if (open ($FD, $configureclone)) {
-        print "Can't open a file with configureclone script: $configureclone";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setconfigureCloneHook($onelien);
-    } 
-
-    if ( defined($prerefresh) ) {
-      my $FD;
-      if (open ($FD, $prerefresh)) {
-        print "Can't open a file with prerefresh script: $prerefresh";
-        $ret = $ret + 1;
-        last;  
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
+    
+  } elsif ($type eq 'sybase') {
+     
     $db->setName($targetname, $dbname);
     $db->setLogTruncate($truncateLogOnCheckpoint);
     $jobno = $db->createVDB($group,$environment,$envinst);
   } elsif ($type eq 'mysql') {
-
-    $db = new MySQLVDB_obj($engine_obj,$debug);
-    if ( $db->setSource($source) ) {
-      print "Problem with setting source $sourcename. VDB won't be created.\n";
-      $ret = $ret + 1;
-      next; 
-    }
-
-    if ( defined ($timestamp) ) {
-      if ( $db->setTimestamp($timestamp) ) {
-        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
-        $ret = $ret + 1;
-        next; 
-      }
-    } elsif ( defined ($changenum) ) {
-        if ($db->setChangeNum($changenum)) {
-            print "Error with location format\n";
-            $ret = $ret + 1;
-            next; 
-        }
-    }
 
     if (! defined($port)) {
         print "Port not defined. VDB won't be created.\n";
@@ -472,110 +470,9 @@ for my $engine ( sort (@{$engine_list}) ) {
         next; 
     }
 
-    if ( defined($postrefresh) ) {
-      my $FD;
-      if (open ($FD, $postrefresh)) {
-        print "Can't open a file with postrefresh script: $postrefresh";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-    if ( defined($configureclone) ) {
-      my $FD;
-      if (open ($FD, $configureclone)) {
-        print "Can't open a file with configureclone script: $configureclone";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setconfigureCloneHook($onelien);
-    } 
-
-    if ( defined($prerefresh) ) {
-      my $FD;
-      if (open ($FD, $prerefresh)) {
-        print "Can't open a file with prerefresh script: $prerefresh";
-        $ret = $ret + 1;
-        last;  
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst,$port, $mntpoint);
   } elsif ($type eq 'vFiles') {
-
-    $db = new AppDataVDB_obj($engine_obj,$debug);
-    if ( $db->setSource($source) ) {
-      print "Problem with setting source $sourcename. VDB won't be created.\n";
-      $ret = $ret + 1;
-      next; 
-    }
-
-    if ( defined ($timestamp) ) {
-      if ( $db->setTimestamp($timestamp) ) {
-        print "Problem with setting timestamp $timestamp. VDB won't be created.\n";
-        $ret = $ret + 1;
-        next; 
-      }
-    } elsif ( defined ($changenum) ) {
-        if ($db->setChangeNum($changenum)) {
-            print "Error with location format\n";
-            $ret = $ret + 1;
-            next; 
-        }
-    }
-
-    if ( defined($postrefresh) ) {
-      my $FD;
-      if (open ($FD, $postrefresh)) {
-        print "Can't open a file with postrefresh script: $postrefresh";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
-    if ( defined($configureclone) ) {
-      my $FD;
-      if (open ($FD, $configureclone)) {
-        print "Can't open a file with configureclone script: $configureclone";
-        $ret = $ret + 1;
-        last;
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setconfigureCloneHook($onelien);
-    } 
-
-    if ( defined($prerefresh) ) {
-      my $FD;
-      if (open ($FD, $prerefresh)) {
-        print "Can't open a file with prerefresh script: $prerefresh";
-        $ret = $ret + 1;
-        last;  
-      } 
-      my @script = <$FD>;
-      close($FD);  
-      my $onelien = join('', @script);
-      $db->setPostRefreshHook($onelien);
-    } 
-
 
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);

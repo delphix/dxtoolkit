@@ -337,6 +337,9 @@ sub exportPolicy {
     if (($name eq 'Customized') || ($name eq 'None') || ($name eq 'N/A')) {
         return 1;
     }
+    
+    $name =~ s/\//_/g;
+    $name =~ s/\\/_/g;
 
     my $filename =  $location . "/" . $name . ".policy";
 

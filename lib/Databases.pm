@@ -162,14 +162,20 @@ sub LoadDBList
         
         # load repostory information ( home / env )
         my $repository = $self->{_sourceconfigs}->getRepository($configname); # Source Config name is inside source object
-        logger($self->{_debug},"repository name - $repository ",2);
-        $db->{"repository"}  = $self->{_repositories}->getRepository($repository);
+
+        if (defined($repository)) {
+          #unlinked dSource 
+          logger($self->{_debug},"repository name - $repository ",2);
+          $db->{"repository"}  = $self->{_repositories}->getRepository($repository);
+        } else {
+          logger($self->{_debug},"repository name - undefined ",2);      
+        }
         
         # load environment information
         my $environment = $self->{_repositories}->getEnvironment($repository); # Environment name is inside source config object
         logger($self->{_debug},"environment name - $environment ",2);
         $db->{"environment"}  = $self->{_environments}->getEnvironment($environment);
-        
+      
         $db->{_environment} = $self->{_environments};
         
         # load host information 

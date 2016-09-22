@@ -99,21 +99,32 @@ if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'atta
 
 
 if ($action ne 'detach') {
+    
 
-  if ( ! ( defined($type) && defined($sourcename) && defined($dsourcename) && defined($password) && defined($source_os_user) && defined($group) && defined($dbuser)  ) ) {
-    print "Options -type, -sourcename, -dsourcename, -group, -password, -source_os_user and -dbuser are required. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-    exit (1);
-  }
-
-
-  if ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql')) )  {
+  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') ) ) ) {
     print "Option -type has invalid parameter - $type \n";
     pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
     exit (1);
   }
+  
+  if ((lc $type eq 'vfiles') && (lc $action eq 'attach')) {
+    print "Can't attach Application dSource\n";
+    exit (1);  
+  }
+  
+  if ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) {
+    print "Options -type, -sourcename, -dsourcename, -group, -source_os_user are required. \n";
+    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    exit (1);
+  }
+  
+  if (( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
+    print "Options -dbuser and -password are required for non vFiles dsources. \n";
+    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    exit (1);  
+  }
 
-  if (( $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
+  if (( lc $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
     print "Options -stage_os_user, -stageinst, -stageenv, -sourceinst, -sourceenv and -backup_dir are required. \n";
     pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
     exit (1);
@@ -127,6 +138,11 @@ if ($action ne 'detach') {
 
 
 } else {
+  if (defined ($type) && (lc $type eq 'vfiles') && (lc $action eq 'detach')) {
+    print "Can't deattach Application dSource\n";
+    exit (1);  
+  }
+  
   if ( ! ( defined($dsourcename)  ) ) {
     print "Options  -dsourcename is required to detach. \n";
     pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
@@ -152,23 +168,24 @@ for my $engine ( sort (@{$engine_list}) ) {
   
   my $groups = new Group_obj($engine_obj, $debug); 
   
-  
-  if (! defined($groups->getGroupByName($group))) {
-    if (defined($creategroup)) {
-      print "Creating not existing group - $group \n";
-      my $jobno = $groups->createGroup($group);
-      my $actionret = Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with group creation");
-      if ($actionret > 0) {
+  if (lc $action eq 'create') {
+    if (! defined($groups->getGroupByName($group))) {
+      if (defined($creategroup)) {
+        print "Creating not existing group - $group \n";
+        my $jobno = $groups->createGroup($group);
+        my $actionret = Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with group creation");
+        if ($actionret > 0) {
+          $ret = $ret + 1;
+          print "There was a problem with group creation. Skipping source actions on engine\n";
+          next;
+        }
+      } else {
+        print "Group $group for target database doesn't exist.\n Skipping source actions on engine.\n";
         $ret = $ret + 1;
-        print "There was a problem with group creation. Skipping source actions on engine\n";
         next;
       }
-    } else {
-      print "Group $group for target database doesn't exist.\n Skipping source actions on engine.\n";
-      $ret = $ret + 1;
-      next;
-    }
-  } 
+    } 
+  }
 
   if (($action eq 'attach') || ($action eq 'detach'))  {
     my $databases = new Databases($engine_obj,$debug);
@@ -212,6 +229,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged);
     }
+    elsif ($type eq 'vFiles') {
+      my $db = new AppDataVDB_obj($engine_obj,$debug);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group);
+    }
 
 
   } 
@@ -228,7 +249,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_dsource.pl [ -engine|d <delphix identifier> | -all ]  
-  -action action_name
+  -action create, attach, detach 
   -type dsourcetype
   -sourcename name
   -dsourcename dsourcename
@@ -276,7 +297,7 @@ Display databases on all Delphix appliance
 Type (oracle|sybase)
 
 =item B<-action>
-Action - create 
+Action - create, attach, detach 
 
 =item B<-group>
 Source Group Name
