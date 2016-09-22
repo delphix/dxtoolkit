@@ -31,6 +31,7 @@ use File::Basename;
 use Pod::Usage;
 use FindBin;
 use Data::Dumper;
+use File::Spec;
 
 my $abspath = $FindBin::Bin;
 
@@ -43,6 +44,7 @@ use Formater;
 use Group_obj;
 use Toolkit_helpers;
 use Snapshot_obj;
+use Hook_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -65,7 +67,7 @@ GetOptions(
   'parentlast=s' =>  \($parentlast),
   'hostenv=s' =>  \($hostenv),
   'config' => \(my $config),
-  'backup' => \(my $backup),
+  'backup=s' => \(my $backup),
   'save=s' => \(my $save),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -95,6 +97,7 @@ Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, $env
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
+my $dsource_output;
 
 my $parentlast_head;
 my $hostenv_head;
@@ -120,10 +123,25 @@ if (lc $hostenv eq 'h') {
 }
 
 if (defined($backup)) {
+  if (! -d $backup) {
+    print "Path $backup is not a directory \n";
+    exit (1);  
+  }
+  if (! -w $backup) {
+    print "Path $backup is not writtable \n";
+    exit (1);  
+  }
+  
   $hostenv = 'e';
   $output->addHeader(
       {'Paramters', 200}
   );
+  
+  $dsource_output = new Formater();
+  $dsource_output->addHeader(
+      {'Paramters', 200}
+  );
+  
 } elsif (defined($config)) {
   $hostenv = 'e';
   $output->addHeader(
@@ -168,9 +186,20 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $capacity = new Capacity_obj($engine_obj, $debug);
-  my $timeflows = new Timeflow_obj($engine_obj, $debug);
+  my $capacity;
+  my $timeflows;
   my $groups = new Group_obj($engine_obj, $debug);
+  my $templates;
+  my $snapshots;
+  if (defined($backup)) {
+      $templates = new Template_obj($engine_obj, $debug);
+  } else {
+    if (lc $parentlast eq 'p') {
+      $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
+    } 
+    $capacity = new Capacity_obj($engine_obj, $debug); 
+    $timeflows = new Timeflow_obj($engine_obj, $debug);  
+  }
 
   # filter implementation
 
@@ -181,11 +210,9 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   }
 
-  my $snapshots;
 
-  if (lc $parentlast eq 'p') {
-    $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
-  }
+
+
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
@@ -194,7 +221,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $snaptime;
     my $hostenv_line;
     my $timezone;
-
     my $parentname;
 
     if ( $dbobj->getParentContainer() ne '' ) {
@@ -238,7 +264,6 @@ for my $engine ( sort (@{$engine_list}) ) {
         $suffix = '.exe';
       }
       
-      my $templates = new Template_obj($engine_obj, $debug);
       my $dbtype = $dbobj->getType();
       my $groupname = $groups->getName($dbobj->getGroup());
       my $dbn = $dbobj->getName();
@@ -246,6 +271,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $vendor = $dbobj->{_dbtype};
       my $rephome = $dbobj->getHome();
 
+      my $hooks = new Hook_obj (  $engine_obj, 1, $debug );
+      
+      $hooks->exportDBHooks($dbobj, $backup);
       
       my $restore_args;
       
@@ -253,17 +281,30 @@ for my $engine ( sort (@{$engine_list}) ) {
         # VDB
         
         $dbhostname = $dbobj->getDatabaseName();
+        if (($parentname eq '') && ($vendor eq 'vFiles')) {
+          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -empty -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";
+        } else {
+          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";          
+        }
         
-        $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";
         $restore_args = $restore_args . " -envUser \"" . $dbobj->getEnvironmentUserName() . "\" ";
-        
-        
+        $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
         
         if ($vendor eq 'oracle') {
           my $mntpoint = $dbobj->getMountPoint();
           my $archlog = $dbobj->getArchivelog();
           my $tempref = $dbobj->getTemplateRef();
           my $listnames = $dbobj->getListenersNames();
+          my $redogroups = $dbobj->getRedoGroupNumber();
+          
+          if ($redogroups ne 'N/A') {
+            $restore_args = $restore_args . " -redoGroup $redogroups ";
+            my $redosize = $dbobj->getRedoGroupSize();
+            if ($redosize ne 'N/A') {
+              $restore_args = $restore_args . " -redoSize $redosize ";
+            }
+            
+          }
                     
           if (defined($tempref)) {
             my $tempname = $templates->getTemplate($tempref)->{name};
@@ -301,28 +342,43 @@ for my $engine ( sort (@{$engine_list}) ) {
           $restore_args = $restore_args . " -recoveryModel $recoveryModel";
         }
         
+        $output->addLine(
+          $restore_args
+        );
+        
       } else {
         # dSource export
         #my $users = new 
         $dbhostname = $dbobj->getSourceName() ? $dbobj->getSourceName() : 'detached';
         my $osuser = $dbobj->getOSUser();
+                
         $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup -dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" -sourceinst \"$rephome\" -sourceenv \"$hostenv_line\" -source_os_user \"$osuser\" ";
         
-        if ($vendor ne 'appdata') {
+        if ($vendor ne 'vFiles') {
           my $logsync = $dbobj->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
           my $dbuser = $dbobj->getDbUser();
+          
+          # if ($dbhostname eq 'detached') {
+          #   $dbuser = 'N/A';
+          # }
           $restore_args = $restore_args . "-dbuser $dbuser -password ChangeMeDB -logsync $logsync";
         }
-                
+        
+          
         if (($vendor eq "mssql") || ($vendor eq "sybase")) {
           my $staging_user = $dbobj->getStagingUser();
           my $staging_env = $dbobj->getStagingEnvironment();
           my $staging_inst = $dbobj->getStagingInst();
+                    
           $restore_args = $restore_args . " -stageinst \"$staging_inst\" -stageenv \"$staging_env\" -stage_os_user \"$staging_user\" ";
         }
         
         if ($vendor eq "mssql") {
           my $backup_path = $dbobj->getBackupPath();
+          if (!defined($backup_path)) {
+            #autobackup path
+            $backup_path = "";
+          }
           if (defined($backup_path)) {
             $backup_path =~ s/\\/\\\\/g;
           }
@@ -341,10 +397,12 @@ for my $engine ( sort (@{$engine_list}) ) {
           $restore_args = $restore_args . " -backup_dir \"$backup_path\" ";
         }
         
+        $dsource_output->addLine(
+          $restore_args
+        );
+        
       }
-      $output->addLine(
-        $restore_args
-      );
+
     } else {
 
       $parentsnap = $timeflows->getParentSnapshot($dbobj->getCurrentTimeflow());
@@ -392,7 +450,34 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
+if (defined($backup)) {
+  my $FD;
+  my $filename = File::Spec->catfile($backup,'backup_metadata_dsource.txt');
+  
+  if ( open($FD,'>', $filename) ) {
+    $dsource_output->savecsv(1,$FD);
+    print "Backup exported into $filename \n";
+  } else {
+    print "Can't create a backup file $filename \n";
+    $ret = $ret + 1;
+  }
+  close ($FD);
+
+  $filename = File::Spec->catfile($backup,'backup_metadata_vdb.txt');
+  
+  if ( open($FD,'>', $filename) ) {
+    $output->savecsv(1,$FD);
+    print "Backup exported into $filename \n";
+  } else {
+    print "Can't create a backup file $filename \n";
+    $ret = $ret + 1;
+  }
+  close ($FD);
+  
+} else {
+    Toolkit_helpers::print_output($output, $format, $nohead);  
+}
+
 
 exit $ret;
 
@@ -465,8 +550,9 @@ Instance number
 =item B<-config>
 Display a config of databases (db type, version, instance / Oracle home) plus others
 
-=item B<-backup>
-Display a dxtoolkit command to recreate databases ( Oracle / MS SQL support )
+=item B<-backup path>
+Gnerate a dxToolkit commands to recreate databases ( Oracle / MS SQL support )
+into path
 
 =item B<-parentlast l|p>
 Change a snapshot column to display :

@@ -49,7 +49,7 @@ GetOptions(
   'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
   'config' => \(my $config),
-  'backup' => \(my $backup),
+  'backup=s' => \(my $backup),
   'replist' => \(my $replist),
   'nohead' => \(my $nohead),
   'format=s' => \(my $format),
@@ -79,6 +79,18 @@ if (defined($all) && defined($dx_host)) {
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
+
+if (defined($backup)) {
+  if (! -d $backup) {
+    print "Path $backup is not a directory \n";
+    exit (1);  
+  }
+  if (! -w $backup) {
+    print "Path $backup is not writtable \n";
+    exit (1);  
+  }
+}
+
 
 if (defined($replist)) {
   $output->addHeader(
@@ -170,10 +182,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     } elsif (defined($config) || defined($backup)) {
 
+      my $envtype = $environments->getType($envitem);
       my $host_ref = $environments->getHost($envitem);
-      if ($host_ref eq 'CLUSTER') {
-        next;
-      }
+      if ($envtype eq 'rac') {
+        my $clusenvnode = $environments->getClusterNode($envitem);
+        $host_ref = $environments->getHost($clusenvnode);
+      } 
       my $hostname = $hosts->getHostAddr($host_ref);
       my $user = $environments->getPrimaryUserName($envitem);
       my $toolkit = $hosts->getToolkitpath($host_ref);
@@ -189,7 +203,6 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
 
       my $envname = $environments->getName($envitem);
-      my $envtype = $environments->getType($envitem);
       my $userauth = $environments->getPrimaryUserAuth($envitem);
 
       if (defined($backup)) {
@@ -204,6 +217,18 @@ for my $engine ( sort (@{$engine_list}) ) {
         } else {
           $restore_args = $restore_args . "-toolkitdir \"$toolkit\"";
         }
+        
+        if ($envtype eq 'rac') {
+          my $clusloc = $environments->getClusterloc($envitem);
+          my $clustname = $environments->getClusterName($envitem);
+          $restore_args = $restore_args . " -clusterloc $clusloc -clustername $clustname ";
+        }
+        
+        my $asedbuser =  $environments->getASEUser($envitem);
+        if ($asedbuser ne 'N/A') {
+          $restore_args = $restore_args . " -asedbuser $asedbuser -asedbpass ChangeMeDB ";
+        }
+        
         $output->addLine(
           $restore_args
         );
@@ -243,7 +268,21 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
+if (defined($backup)) {
+  my $FD;
+  my $filename = File::Spec->catfile($backup,'backup_env.txt');
+  
+  if ( open($FD,'>', $filename) ) {
+    $output->savecsv(1,$FD);
+    print "Backup exported into $filename \n";
+  } else {
+    print "Can't create a backup file $filename \n";
+    $ret = $ret + 1;
+  }
+  close ($FD);
+} else {
+  Toolkit_helpers::print_output($output, $format, $nohead);
+}
 
 exit $ret;
 

@@ -249,6 +249,101 @@ sub getType {
       $ret = 'unix';
     } elsif ($ret eq 'WindowsHostEnvironment') {
       $ret = 'windows';
+    } elsif ($ret eq 'OracleCluster') {
+      $ret = 'rac';
+    }
+
+    return $ret;
+}
+
+# Procedure getClusterloc
+# parameters:
+# - reference
+# Return environment cluster location for specific environment reference
+
+sub getClusterloc {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getClusterloc",1);
+
+    my $environments = $self->{_environments};
+    my $ret;
+    if ($environments->{$reference}->{'type'} eq 'OracleCluster') {
+      $ret = $environments->{$reference}->{crsClusterHome};
+    } else {
+      $ret = 'N/A';
+    }
+
+    return $ret;
+}
+
+# Procedure getClusterName
+# parameters:
+# - reference
+# Return environment cluster name for specific environment reference
+
+sub getClusterName {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getClusterName",1);
+
+    my $environments = $self->{_environments};
+    my $ret;
+    if ($environments->{$reference}->{'type'} eq 'OracleCluster') {
+      $ret = $environments->{$reference}->{crsClusterName};
+    } else {
+      $ret = 'N/A';
+    }
+
+    return $ret;
+}
+
+# Procedure getClusterNode
+# parameters:
+# - reference
+# Return environment cluster location for specific environment reference
+
+sub getClusterNode {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getClusterNode",1);
+
+    my $environments = $self->{_environments};
+    my $ret;
+    if ($environments->{$reference}->{'type'} eq 'OracleCluster') {
+      my @nodes = grep { defined($environments->{$_}->{cluster}) && ( $environments->{$_}->{cluster} eq $reference ) } sort (keys %{$environments} );
+      $ret = $nodes[0];
+    } else {
+      $ret = 'N/A';
+    }
+
+    return $ret;
+}
+
+# Procedure getASEUser
+# parameters:
+# - reference
+# Return environment ASE user
+
+sub getASEUser {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getASEUser",1);
+
+    my $environments = $self->{_environments};
+    my $ret;
+    if ($environments->{$reference}->{'type'} eq 'UnixHostEnvironment') {
+      if (defined($environments->{$reference}->{aseHostEnvironmentParameters})) {
+        $ret = $environments->{$reference}->{aseHostEnvironmentParameters}->{dbUser};
+      } else {
+        $ret = 'N/A';
+      }
+    } else {
+      $ret = 'N/A';
     }
 
     return $ret;
@@ -668,6 +763,11 @@ sub runJobOperation {
 # - authtype - user auth type (system key / password)
 # - password
 # - proxy
+# - crsname
+# - crsloc
+# - sshport
+# - ASE db user
+# - ASE db password
 # start create job
 # Return job name is sucessful or undef
 
@@ -682,6 +782,11 @@ sub createEnv
     my $authtype = shift;
     my $password = shift;
     my $proxy = shift;
+    my $crsname = shift;
+    my $crsloc = shift;
+    my $sshport = shift;
+    my $asedbuser = shift;
+    my $asedbpass = shift;
     logger($self->{_debug}, "Entering Environment_obj::createEnv",1);
 
     my @addr;
@@ -690,21 +795,93 @@ sub createEnv
 
     my $operation = "resources/json/delphix/environment";
     my %env = (
-        "type" => "HostEnvironmentCreateParameters",
         "primaryUser" => {
             "type" => "EnvironmentUser",
             "name" => $username
-        },
-        "hostEnvironment" => {
-            "name" => $name
-        },
-        "hostParameters" => {
-            "host" => {
-                "address" => $host
-            }
         }
-
     );
+    
+    
+    my %host;
+    if (($type eq 'unix') || ($type eq 'rac')) {
+      
+      if (!defined($sshport)) {
+        $sshport = 22;
+      }
+      
+      %host = (
+        "type" => "UnixHostCreateParameters",
+        "host" => {
+            "type" => "UnixHost",
+            "address" => $host,
+            "sshPort" => $sshport,
+            "toolkitPath" => $toolkit_path
+        }
+      );
+    } else {  
+      %host = (
+        "type" => "WindowsHostCreateParameters",
+        "host" => {
+            "type" => "WindowsHost",
+            "connectorPort" => 9100,
+            "address" => $host
+        }
+      );    
+      
+      if (defined($toolkit_path)) {
+        $host{"host"}{"toolkitPath"} = $toolkit_path;
+      }
+      if (defined($proxy)) {
+        delete $host{"host"}{"connectorPort"};
+      }  
+    }
+    
+    
+    if ($type eq 'unix') {
+        $env{"type"} = "HostEnvironmentCreateParameters";
+        $env{"hostEnvironment"}{"type"} = "UnixHostEnvironment";
+        $env{"hostEnvironment"}{"name"} = $name;      
+        $env{"hostParameters"} = \%host;
+        
+        if (defined($asedbuser) )  {
+          
+          $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"type"} = "ASEHostEnvironmentParameters";
+          $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"dbUser"} = $asedbuser;
+          $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"credentials"}{"type"} = "PasswordCredential";
+          $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"credentials"}{"password"} = $asedbpass;
+
+        }
+        
+    } elsif ($type eq 'windows') {
+        $env{"type"} = "HostEnvironmentCreateParameters";
+        $env{"hostEnvironment"}{"type"} = "WindowsHostEnvironment";
+        $env{"hostEnvironment"}{"name"} = $name;  
+
+        if (defined($proxy)) {
+          $env{"hostEnvironment"}{"proxy"} = $proxy;
+        }  
+        
+        $env{"hostParameters"} = \%host;
+    } elsif ($type eq 'rac') { 
+      $env{"type"} = "OracleClusterCreateParameters";
+      $env{"cluster"}{"type"} = "OracleCluster";
+      $env{"cluster"}{"crsClusterName"} = $crsname;
+      $env{"cluster"}{"crsClusterHome"} = $crsloc;
+      
+      my @nodes;
+      
+      my %node1 = (
+        "type" => "OracleClusterNodeCreateParameters",
+        "hostParameters" => \%host
+      );
+      
+      push (@nodes, \%node1);
+      $env{"nodes"} = \@nodes;
+            
+    } else {
+        return undef;
+    }
+    
 
     # {
     #     "type": "WindowsClusterCreateParameters",
@@ -724,27 +901,6 @@ sub createEnv
     #     }
     # }
 
-    if ($type eq 'unix') {
-        $env{"hostEnvironment"}{"type"} = "UnixHostEnvironment";
-        $env{"hostParameters"}{"host"}{"type"} = "UnixHost";
-        $env{"hostParameters"}{"type"} = "UnixHostCreateParameters";
-        $env{"hostParameters"}{"host"}{"toolkitPath"} = $toolkit_path;
-        #$env{"hostParameters"}{"host"}{"addresses"} = \@addr;
-        #$env{"hostParameters"}{"host"}{"address"} = $host;
-    } elsif ($type eq 'windows') {
-        $env{"hostEnvironment"}{"type"} = "WindowsHostEnvironment";
-        $env{"hostParameters"}{"host"}{"type"} = "WindowsHost";
-        #$env{"hostParameters"}{"host"}{"address"} = $host;
-        $env{"hostParameters"}{"type"} = "WindowsHostCreateParameters";
-        if (defined($toolkit_path)) {
-          $env{"hostParameters"}{"host"}{"toolkitPath"} = $toolkit_path;
-        }
-        if (defined($proxy)) {
-          $env{"hostEnvironment"}{"proxy"} = $proxy;
-        }
-    } else {
-        return undef;
-    }
 
     my %cred;
 

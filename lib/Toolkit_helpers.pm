@@ -30,7 +30,7 @@ use lib '../lib';
 
 
 
-our $version = '2.2.6-rc1';
+our $version = '2.2.6-rc2';
 
 sub logger {
 	my $debug = shift;
@@ -630,8 +630,22 @@ sub extractErrorFromHash {
 	}
 	
 	return $ret;	
+			
+}
+
+sub readHook {
+	my $hookname = shift;
+	my $filename = shift;
+	my $FD;
 		
-	
+	if (! open ($FD, $filename)) {
+		print "Can't open a file with $hookname script: $filename\n";
+		return undef;
+	} 
+	my @script = <$FD>;
+	close($FD);  
+	my $oneline = join('', @script);
+	return $oneline;
 }
 
 # end of package

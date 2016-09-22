@@ -152,8 +152,13 @@ sub getDbUser
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getDbUser",1);
     my $ret;
+    
     if ($self->{sourceConfig} ne 'NA') {
-      $ret = $self->{sourceConfig}->{user}
+      if (defined($self->{sourceConfig}->{user})) {
+        $ret = $self->{sourceConfig}->{user};
+      } else {
+        $ret = 'N/A';
+      }
     } else {
       $ret = 'N/A';
     }
@@ -173,7 +178,11 @@ sub getOSUser
     if ($self->{sourceConfig} ne 'NA') {
       $user = $self->{sourceConfig}->{environmentUser};
       my $envref = $self->{"environment"}->{reference};
-      $ret = $self->{_environment}->getEnvironmentUserByRef($envref, $user);
+      if (defined($envref)) {
+        $ret = $self->{_environment}->getEnvironmentUserByRef($envref, $user);
+      } else {
+        $ret = 'N/A';
+      }
     } else {
       $ret = 'N/A';
     }
@@ -181,20 +190,26 @@ sub getOSUser
     return $ret;
 }
 
-# Procedure getOSUser
+# Procedure getStagingUser
 # parameters: none
 # Return OS user
 
 sub getStagingUser 
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getOSUser",1);
+    logger($self->{_debug}, "Entering VDB_obj::getStagingUser",1);
     my $ret;
     my $user;
     
     my $staging_env = $self->{staging_environment}->{reference};
-    my $staging_user_ref = $self->{staging_sourceConfig}->{environmentUser};
-    $ret = $self->{_environment}->getEnvironmentUserByRef($staging_env, $staging_user_ref);
+    my $staging_user_ref;
+    
+    if (defined($staging_env)) {
+      $staging_user_ref = $self->{staging_sourceConfig}->{environmentUser};
+      $ret = $self->{_environment}->getEnvironmentUserByRef($staging_env, $staging_user_ref);
+    } else {
+      $ret = 'N/A';
+    }
 
     return $ret;
 }
@@ -404,7 +419,13 @@ sub getStagingEnvironment
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingEnvironment",1);
-    return $self->{staging_environment}->{name};
+    my $ret;
+    if (defined($self->{staging_environment}->{name})) {
+      $ret = $self->{staging_environment}->{name};
+    } else {
+      $ret = 'N/A';
+    }
+    return $ret;
 }
 
 # Procedure getStagingInst
@@ -415,7 +436,13 @@ sub getStagingInst
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingInst",1);
-    return $self->{staging_repository}->{name};
+    my $ret;
+    if (defined($self->{staging_repository}->{name})) {
+      $ret = $self->{staging_repository}->{name};
+    } else {
+      $ret = 'N/A';
+    }
+    return $ret;
 }
 
 
@@ -1378,6 +1405,49 @@ sub getBCT
 }
 
 
+# Procedure setHooksfromJSON
+# parameters: 
+# - hook - JSON object
+# Set Hook from JSON
+
+sub setHooksfromJSON {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setHooksfromJSON",1);
+
+    $self->{"NEWDB"}->{"source"}->{"operations"} = $hook;
+} 
+
+# Procedure setHook
+# parameters: 
+# - hooktype - type of hook
+# - hook - shell command (line sepatated by /r)
+# Set Hook
+
+sub setHook {
+    my $self = shift; 
+    my $hooktype = shift;
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setHook",1);
+
+    my %hook_hash;
+
+    if ($self->{_dlpxObject}->getApi() lt "1.5") {
+        %hook_hash = (
+            "type" => "RunCommandOperation", # this is API 1.4
+            "command" => $hook
+        );
+    } else {
+        %hook_hash = (
+            "type" => "RunCommandOnSourceOperation", # this is API > 1.4
+            "command" => $hook
+        );
+    }
+    my @hook_array = ( \%hook_hash );
+    $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype} = \@hook_array;
+} 
+
+
 # Procedure setPostRefreshHook
 # parameters: 
 # - hook - shell command (line sepatated by /r)
@@ -1388,50 +1458,86 @@ sub setPostRefreshHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostRefreshHook",1);
 
-    my %hook_hash;
-
-    if ($self->{_dlpxObject}->getApi() lt "1.5") {
-        %hook_hash = (
-            "type" => "RunCommandOperation", # this is API 1.4
-            "command" => $hook
-        );
-    } else {
-        %hook_hash = (
-            "type" => "RunCommandOnSourceOperation", # this is API > 1.4
-            "command" => $hook
-        );
-    }
-    my @hook_array = ( \%hook_hash );
-    $self->{"NEWDB"}->{"source"}->{"operations"}->{"postRefresh"} = \@hook_array;
+    $self->setHook('postRefresh', $hook);
 }  
 
-
-# Procedure setPostRefreshHook
+# Procedure setPreRefreshHook
 # parameters: 
 # - hook - shell command (line sepatated by /r)
-# Set Post Refresh Hook
+# Set Pre Refresh Hook
+
+sub setPreRefreshHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreRefreshHook",1);
+
+    $self->setHook('preRefresh', $hook);
+}  
+
+# Procedure setconfigureCloneHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Configure Clone hook
 
 sub setconfigureCloneHook {
     my $self = shift; 
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setconfigureClonehHook",1);
 
-    my %hook_hash;
-
-    if ($self->{_dlpxObject}->getApi() lt "1.5") {
-        %hook_hash = (
-            "type" => "RunCommandOperation", # this is API 1.4
-            "command" => $hook
-        );
-    } else {
-        %hook_hash = (
-            "type" => "RunCommandOnSourceOperation", # this is API > 1.4
-            "command" => $hook
-        );
-    }
-    my @hook_array = ( \%hook_hash );
-    $self->{"NEWDB"}->{"source"}->{"operations"}->{"configureClone"} = \@hook_array;
+    $self->setHook('configureClone', $hook);
 }  
+
+# Procedure setpreRollbackHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Pre Rewind Hook
+
+sub setPreRewindHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setpreRollbackHook",1);
+
+    $self->setHook('preRollback', $hook);
+} 
+
+# Procedure setpostRollbackHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Post Rewind Hook
+
+sub setPostRewindHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setpostRollbackHook",1);
+
+    $self->setHook('postRollback', $hook);
+} 
+
+# Procedure setPreSnapshotHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Pre Snapshot Hook
+
+sub setPreSnapshotHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreSnapshotHook",1);
+
+    $self->setHook('preSnapshot', $hook);
+}
+
+# Procedure setPostSnapshotHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Post Snapshot Hook
+
+sub setPostSnapshotHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPostSnapshotHook",1);
+
+    $self->setHook('postSnapshot', $hook);
+}
 
 #######################
 # end of VDB_obj class
@@ -2048,6 +2154,58 @@ sub getArchivelog {
     return $archlog_param;
 }   
 
+
+# Procedure getRedoGroupNumber
+# Get redo groups number of VDB
+
+sub getRedoGroupNumber {
+    my $self = shift; 
+    logger($self->{_debug}, "Entering OracleVDB_obj::getRedoGroupNumber",1);
+
+    my $redogroups = defined($self->{source}->{redoLogGroups}) ? $self->{source}->{redoLogGroups} : 'N/A';
+
+    return $redogroups;
+} 
+
+# Procedure setRedoGroupNumber
+# Set redo groups number of VDB
+
+sub setRedoGroupNumber {
+    my $self = shift; 
+    my $redogroups = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupNumber",1);
+
+    if ($self->{_dlpxObject}->getApi() ge "1.5") {
+      $self->{NEWDB}->{source}->{redoLogGroups} = 0 + $redogroups;
+    }
+    
+} 
+
+# Procedure getRedoGroupSize
+# Get redo groups size in MB of VDB
+
+sub getRedoGroupSize {
+    my $self = shift; 
+    logger($self->{_debug}, "Entering OracleVDB_obj::getRedoGroupSize",1);
+
+    my $redogroups = defined($self->{source}->{redoLogSizeInMB}) ? $self->{source}->{redoLogSizeInMB} : 'N/A';
+
+    return $redogroups;
+} 
+
+# Procedure setRedoGroupNumber
+# Set redo groups size in MB of VDB
+
+sub setRedoGroupSize {
+    my $self = shift; 
+    my $redosize = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupSize",1);
+
+    if ($self->{_dlpxObject}->getApi() ge "1.5") {
+      $self->{NEWDB}->{source}->{redoLogSizeInMB} = 0+ $redosize;
+    }
+    
+} 
 
 # Procedure setMapFile
 # parameters: 
@@ -2899,6 +3057,9 @@ sub addSource {
             "pptRepository" => $stagingrepo
         );
     } else {
+      
+      print Dumper $backup_dir;
+            
       %dsource_params = (
           "type" => "MSSqlLinkParameters",
           "container" => {
@@ -2931,6 +3092,12 @@ sub addSource {
           "dbUser" => $dbuser,
           "pptRepository"=> $stagingrepo
       );
+      
+      if ($backup_dir eq '') {
+        # autobackup dir set
+        delete $dsource_params{source}{sharedBackupLocation};
+      }
+      
     }
 
     if (defined($dumppwd)) {
@@ -3146,7 +3313,13 @@ sub getValidatedMode {
     my $self = shift; 
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedMode",1);
-    return $self->{source}->{validatedSyncMode};
+    my $ret;
+    if (defined($self->{source}->{validatedSyncMode})) {
+      $ret = $self->{source}->{validatedSyncMode};
+    } else {
+      $ret = 'N/A';
+    }
+    return $ret;
 
 }
 
@@ -4223,13 +4396,29 @@ sub snapshot
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
+# Procedure setEmpty
+# parameters: 
+# set a flag to create a empty vFiles
+
+sub setEmpty {
+    my $self = shift; 
+
+    my $group = shift;
+    my $env = shift;
+    my $inst = shift;
+    my $mountpoint = shift;
+
+    logger($self->{_debug}, "Entering AppDataVDB_obj::setEmpty",1);
+    $self->{_empty} = 1;
+}
+
 
 # Procedure createVDB
 # parameters: 
 # - group - new DB group
 # - env - new DB environment
 # - inst - new DB instance
-# Start job to create Sybase VBD 
+# Start job to create vFiles VBD 
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
 # Return job number if provisioning has been started, otherwise return undef 
 
@@ -4239,7 +4428,6 @@ sub createVDB {
     my $group = shift;
     my $env = shift;
     my $inst = shift;
-    my $port = shift;
     my $mountpoint = shift;
 
     logger($self->{_debug}, "Entering AppDataVDB_obj::createVDB",1);
@@ -4265,13 +4453,98 @@ sub createVDB {
         return undef;
     }
 
-
     my $operation = 'resources/json/delphix/database/provision';
-    my $json_data = $self->getJSON();
 
+    if (defined($self->{_empty})) {
+      delete $self->{NEWDB}->{timeflowPointParameters};
+      $self->{NEWDB}->{type} = "AppDataEmptyVFilesCreationParameters";
+      $operation  = 'resources/json/delphix/database/createEmpty';
+    }
+
+
+    my $json_data = $self->getJSON();
+    
     return $self->runJobOperation($operation,$json_data);
 
 }
+
+# Procedure addSource
+# parameters: 
+# - source - name of source DB
+# - source_inst - instance
+# - source_env - env
+# - source_osuser - name of source OS user
+# - dsource_name - name of dsource in environment
+# - group - dsource  group
+# Start job to add AppData dSource 
+# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
+# Return job number if provisioning has been started, otherwise return undef 
+
+sub addSource {
+    my $self = shift; 
+    my $source = shift;
+    my $source_inst = shift;
+    my $source_env = shift;
+    my $source_osuser = shift;
+    my $dsource_name = shift;
+    my $group = shift;
+    
+
+    logger($self->{_debug}, "Entering AppDataVDB_obj::addSource",1);
+
+    my $config = $self->setConfig($source, $source_inst, $source_env);
+
+    if (! defined($config)) {
+        print "Source database $source not found\n";
+        return undef;
+    }
+
+    if ( $self->setGroup($group) ) {
+        print "Group $group not found. dSource won't be created\n";
+        return undef;
+    }
+
+    my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
+
+    my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+    if (!defined($source_os_ref)) {
+        print "Source OS user $source_osuser not found\n";
+        return undef;
+    }
+    
+    my @followarray;
+    my @excludes;
+  
+    my %dsource_params = (
+        "type" => "AppDataLinkParameters",
+        "container" => {
+            "type" => "AppDataContainer",
+            "name" => $dsource_name,
+            "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        },
+        "source" => {
+            "type" => "AppDataLinkedDirectSource",
+            "config" => $config->{reference},
+            "excludes" => \@excludes,
+            "followSymlinks" => \@followarray
+        },
+        "environmentUser" => $source_os_ref
+    );
+    
+    if ($self->{_dlpxObject}->getApi() gt "1.6") {
+        $dsource_params{"source"}{"parameters"} = {};
+    }
+
+    my $operation = 'resources/json/delphix/database/link';
+    my $json_data =to_json(\%dsource_params, {pretty=>1});
+    #my $json_data = encode_json(\%dsource_params, pretty=>1);
+    logger($self->{_debug}, $json_data, 1);
+    # there is couple of jobs - we need to monitor action
+    return $self->runJobOperation($operation,$json_data, 'ACTION');
+
+}
+
 
 # Procedure setName
 # parameters: 
@@ -4290,6 +4563,17 @@ sub setName {
     $self->{"NEWDB"}->{"sourceConfig"}->{"name"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"path"} = $dbname;
     
+}
+
+# Procedure getDatabaseName
+# parameters: none
+# Return database name
+
+sub getDatabaseName 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering AppDataVDB_obj::getDatabaseName",1);
+    return $self->{sourceConfig}->{path};
 }
 
 # Procedure setSource
