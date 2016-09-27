@@ -68,6 +68,7 @@ GetOptions(
   'port=n' =>\(my $port),
   'postrefresh=s' =>\(my $postrefresh),
   'rac_instance=s@' => \(my $rac_instance),
+  'additionalMount=s@' => \(my $additionalMount),
   'configureclone=s' => \(my $configureclone),
   'prerefresh=s' =>\(my $prerefresh),
   'prerewind=s' =>\(my $prerewind), 
@@ -473,7 +474,13 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst,$port, $mntpoint);
   } elsif ($type eq 'vFiles') {
-
+    if (defined($additionalMount)) {
+      if ($db->setAdditionalMountpoints($additionalMount)) {
+        print "Problem with additional mount points. VDB won't be created.\n";
+        $ret = $ret + 1;
+        next;   
+      }
+    }
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
   } 
@@ -515,6 +522,7 @@ __DATA__
  [-prescript pathtoscript ]
  [-postscript pathtoscript ]
  [-recoveryModel model ]
+ [-additionalMount envname,mountpoint,sharedpath]
  [-rac_instance env_node,instance_name,instance_no ]
  [-help] [-debug]
 
@@ -631,6 +639,11 @@ Path to postscript on Windows target
 Set a recovery model for MS SQL database. Allowed values
 BULK_LOGGED,FULL,SIMPLE
 
+=item B<-additionalMount envname,mountpoint,sharedpath>
+Set an additinal mount point for vFiles - using a syntax
+environment_name,mount_point,sharedpath
+
+ex. -additionalMount target1,/u01/app/add,/
 
 
 =item B<-rac_instance env_node,instance_name,instance_no>

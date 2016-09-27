@@ -222,9 +222,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $hostenv_line;
     my $timezone;
     my $parentname;
+    my $parentgroup;
 
     if ( $dbobj->getParentContainer() ne '' ) {
       $parentname = $databases->getDB($dbobj->getParentContainer())->getName();
+      my $parentgroup_ref = $databases->getDB($dbobj->getParentContainer())->getGroup();
+      $parentgroup = $groups->getName($parentgroup_ref);
     } else {
       $parentname = '';
     }
@@ -284,7 +287,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         if (($parentname eq '') && ($vendor eq 'vFiles')) {
           $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -empty -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";
         } else {
-          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";          
+          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";          
         }
         
         $restore_args = $restore_args . " -envUser \"" . $dbobj->getEnvironmentUserName() . "\" ";
@@ -300,7 +303,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           if ($redogroups ne 'N/A') {
             $restore_args = $restore_args . " -redoGroup $redogroups ";
             my $redosize = $dbobj->getRedoGroupSize();
-            if ($redosize ne 'N/A') {
+            if (($redosize ne 'N/A') && ($redosize ne 0)) {
               $restore_args = $restore_args . " -redoSize $redosize ";
             }
             
@@ -340,6 +343,13 @@ for my $engine ( sort (@{$engine_list}) ) {
         if ($vendor eq "mssql") {
           my $recoveryModel = $dbobj->getRecoveryModel();       
           $restore_args = $restore_args . " -recoveryModel $recoveryModel";
+        }
+        
+        if ($vendor eq 'vFiles') {
+          my $addmount = $dbobj->getAdditionalMountpoints();
+          for my $am (@{$addmount}) {
+            $restore_args = $restore_args . " -additionalMount $am ";
+          }
         }
         
         $output->addLine(
@@ -451,6 +461,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 }
 
 if (defined($backup)) {
+    
   my $FD;
   my $filename = File::Spec->catfile($backup,'backup_metadata_dsource.txt');
   
@@ -485,8 +496,15 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_db_env.pl [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] [-save]
-                  [-parentlast l|p] [-config] [-hostenv h|e] [ -format csv|json ] [-config]  [ --help|? ] [ -debug ]
+ dx_get_db_env.pl [-engine|d <delphix identifier> | -all ] 
+                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+                  [-save]
+                  [-parentlast l|p] 
+                  [-config]
+                  [-backup path] 
+                  [-hostenv h|e] 
+                  [-format csv|json ] 
+                  [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
