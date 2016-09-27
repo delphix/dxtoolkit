@@ -154,7 +154,13 @@ sub LoadDBList
         # load sourceConfig object
         my $configname = $self->{_source}->getSourceConfig($dbitem->{reference}); # Source Config name is inside source object
         my $stagingname = $self->{_source}->getStaging($dbitem->{reference}); # Staging Source is other object
-        logger($self->{_debug},"config name - $configname ",2);
+        
+        if ( defined($configname) ) {
+          logger($self->{_debug},"config name - $configname ",2);
+        } else {
+          logger($self->{_debug},"config name - not available ",2);
+        }
+        
         $db->{"sourceConfig"}  = $self->{_sourceconfigs}->getSourceConfig($configname);
 
         #added to keep object

@@ -812,7 +812,7 @@ sub getJSONResult {
    else {
       logger($self->{_debug}, "HTTP GET error code: " . $response->code, 2);
       logger($self->{_debug}, "HTTP GET error message: " . $response->message,2 );
-      logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+      logger($self->{_debug}, "Response message: " . Dumper $result_fmt, 2);
       $retcode = 1;
    }
 

@@ -3956,6 +3956,7 @@ sub setSource {
 # Procedure snapshot
 # parameters: 
 # - frombackup - yes/no
+# - list of files
 # Run snapshot
 # Return job number if job started or undef otherwise
 
@@ -3963,24 +3964,29 @@ sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
+    my $files = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::snapshot",1);
-
-    if (! defined ($frombackup) ) {
-        return undef;
-    };
 
     my %snapshot_type;
 
-    if ( $frombackup eq "yes" ) {
-        %snapshot_type = (
-            "type" => "ASELatestBackupSyncParameters"
-        );
+    if (defined($files)) {
+      %snapshot_type = (
+          "type" => "ASESpecificBackupSyncParameters",
+          "backupFiles" => $files
+      );    
+    } elsif (! defined ($frombackup) ) {
+        return undef;
     } else {
-        %snapshot_type = (
-            "type" => "ASENewBackupSyncParameters"
-        );
+      if ( $frombackup eq "yes" ) {
+          %snapshot_type = (
+              "type" => "ASELatestBackupSyncParameters"
+          );
+      } else {
+          %snapshot_type = (
+              "type" => "ASENewBackupSyncParameters"
+          );
+      }
     }
-
 
 
     if ($self->getType() eq 'VDB') {
@@ -4564,6 +4570,75 @@ sub setName {
     $self->{"NEWDB"}->{"sourceConfig"}->{"path"} = $dbname;
     
 }
+
+# Procedure getAdditionalMountpoints 
+# parameters: none
+# Return an array with combained list of additional mount point env,path,sharedPath
+
+sub getAdditionalMountpoints 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering AppDataVDB_obj::getAdditionalMountpoints",1);
+    
+    my @retarray;
+    my $addmountarray = $self->{source}->{additionalMountPoints};
+    
+    print Dumper $addmountarray;
+    
+    for my $addmount (@{$addmountarray}) {
+      my $envname = $self->{_environment}->getName($addmount->{environment});
+      if (defined($envname)) {
+        my $addstring = "\"$envname\",\"" . $addmount->{mountPath} . "\",\"" . $addmount->{sharedPath} . "\"";
+        push(@retarray, $addstring);
+      } else {
+        next;
+      }
+    }
+    
+    return \@retarray;
+}
+
+# Procedure setAdditionalMountpoints
+# parameters: 
+# - array of mountpoints
+# Return an array with combained list of additional mount point env,path,sharedPath
+
+sub setAdditionalMountpoints 
+{
+    my $self = shift;
+    my $addmount = shift;
+    logger($self->{_debug}, "Entering AppDataVDB_obj::setAdditionalMountpoints",1);
+    my @additionalMountPoints;
+    for my $ap (@{$addmount}) {
+      my ($env, $path, $shared) = split(',', $ap);
+      my $env_obj = $self->{_environment}->getEnvironmentByName($env);
+      if (!defined($env_obj)) {
+        print "Environment for additional mount point not found\n";
+        return 1;
+      }
+      if (!defined($path)) {
+        print "Additional path for additional mount point not found\n";
+        return 1;
+      }
+      if (!defined($shared)) {
+        print "Shared path for additional mount point not found\n";
+        return 1;
+      }      
+      my %addmount_hash =  (
+        'type' => 'AppDataAdditionalMountPoint',
+        'mountPath' => $path,
+        'sharedPath' => $shared,
+        'environment' => $env_obj->{reference}
+      );
+      
+      push (@additionalMountPoints, \%addmount_hash);
+      
+    }
+    
+    $self->{NEWDB}->{source}->{additionalMountPoints} = \@additionalMountPoints;
+    return 0;
+}
+
 
 # Procedure getDatabaseName
 # parameters: none

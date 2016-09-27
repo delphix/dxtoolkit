@@ -25,12 +25,12 @@ use Data::Dumper;
 use Pod::Usage;
 use URI::Escape;
 use Date::Manip;
+use File::Spec;
+
 
 use lib '../lib';
 
-
-
-our $version = '2.2.6-rc2';
+our $version = '2.2.6-rc3';
 
 sub logger {
 	my $debug = shift;
@@ -45,9 +45,59 @@ sub logger {
 		} else {
 			printf "%s\n", $msg;				
 		}
-
-
 	}
+}
+
+
+sub write_to_dir {
+	my $output = shift;
+	my $format = shift;
+	my $nohead = shift;
+	my $name = shift;
+	my $path = shift;
+	my $unique = shift;
+	
+	if (! -d $path) {
+		print "Path $path is not a directory \n";
+		exit (1);  
+	}
+	
+	if (! -w $path) {
+		print "Path $path is not writtable \n";
+		exit (1);  
+	}
+	
+	my $filename;
+	
+	if (defined($unique)) {
+		my $datestring = UnixDate('now','%Y%m%d-%H-%M-%S');
+		$filename = "$name-$datestring";		
+	} else {
+		$filename = $name;
+	}
+	
+	if (defined($format)) {
+		if (lc $format eq 'csv') {
+			$filename = $filename . ".csv";
+		} elsif (lc $format eq 'json') {
+			$filename = $filename . ".json";
+		} 
+	} else {
+		$filename = $filename . ".txt";
+	}
+	
+	my $fullname = File::Spec->catfile($path,$filename);
+	my $FD;
+	if ( open($FD,'>', $fullname) ) {
+		print_output($output, $format, $nohead, $FD);
+		print "Data exported into $fullname \n";
+	} else {
+		print "Can't create a output file $fullname \n";
+		exit 1;
+	}
+	close ($FD);
+	
+	
 }
 
 
@@ -58,12 +108,12 @@ sub print_output {
   	my $FD = shift;
 
 	if (defined($format) && ( lc ($format) eq 'csv') )  {
-	$output->savecsv($nohead,$FD);
+		$output->savecsv($nohead,$FD);
 	}
 	elsif (defined($format) && ( lc ($format) eq 'json') )  {
-	$output->savejson($FD);
+		$output->savejson($FD);
 	} else {
-	$output->print($nohead,$FD);
+		$output->print($nohead,$FD);
 	}
 }
 
@@ -357,6 +407,7 @@ sub timestamp {
 	my $detz = $engine->getTimezone();
 
 	my $dt = ParseDate($timestamp);
+		
 	if ($dt ne '') { 
 		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
 		my $tstz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);

@@ -50,6 +50,8 @@ GetOptions(
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'usebackup=s' => \($usebackup),
+  'backupfileslist=s' => \(my $backupfileslist),
+  'backupfilesfile=s' => \(my $backupfilesfile), 
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -91,6 +93,19 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
+my @files_array;
+if (defined($backupfileslist)) {
+  @files_array = split(',',$backupfileslist);
+} elsif (defined($backupfilesfile)) {
+  my $FD;
+  if ( ! open($FD, $backupfilesfile) ) {
+    print "Can't open a file file backupset definictions\n";
+    exit(1);
+  } 
+  chomp(@files_array = <$FD>);
+  close $FD;
+}
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
@@ -120,7 +135,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbname = $dbobj->getName();
     my $jobno;
 
-    $jobno = $dbobj->snapshot($usebackup);
+    $jobno = $dbobj->snapshot($usebackup, \@files_array);
 
     if (defined ($jobno) ) {
       print "Starting job $jobno for database $dbname.\n";
@@ -163,8 +178,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_snapshot_db.pl [ -engine|d <delphix identifier> | -all ] < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
- [-usebackup yes|no ] [ --help|? ] [ -debug ] [-parallel p]
+ dx_snapshot_db.pl [ -engine|d <delphix identifier> | -all ] 
+                   < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
+                   [-usebackup yes|no ] 
+                   [-backupfileslist backupfile1,backupfile2,...]
+                   [-backupfilesfile /path/to/file_with_backup]
+                   [ -help|? ] 
+                   [ -debug ] 
+                   [-parallel p]
 
 =head1 DESCRIPTION
 
@@ -211,8 +232,14 @@ Name of dSource
 =over 3
 
 =item B<-usebackup yes|no>
-For MS SQL dSource only - if this flag is set to yes - snapshot will to loaded from last known backup, if flag is set to no Delphix Engine will run full backup
+For MS SQL / Sybase dSource only - if this flag is set to yes - snapshot will to loaded from last known backup, if flag is set to no Delphix Engine will run full backup
 Default value is no
+
+=item B<-backupfileslist backupfile1,backupfile2,...>
+For Sybase dSource only - specify a list of backup files as a list of comma separated backup file names
+
+=item B<-backupfilesfile /path/to/file_with_backup>
+For Sybase dSource only - specify a file contains a list of backup files. One file per line
 
 =item B<-help>          
 Print this screen

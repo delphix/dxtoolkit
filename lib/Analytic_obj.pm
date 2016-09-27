@@ -423,10 +423,15 @@ sub doAggregation_worker {
     
     my $header;
     
-    if ( $self->{aggreg}->{$timestamps[0]}->{none} ) {
-        $header = "time";
+    
+    if (defined($timestamps[0])) {
+      if ( $self->{aggreg}->{$timestamps[0]}->{none} ) {
+          $header = "time";
+      } else {
+          $header = "time,client";
+      }
     } else {
-        $header = "time,client";
+      $header = "time";
     }
     
     for my $stat ( @stat_list_array ) {
@@ -920,9 +925,6 @@ sub processData {
     my @timestamps = sort( keys %{ $resultset } );
     my $rchr;
     
-
-
-
     if ($self->{_name} =~ m/nfs-by-client/ ) {
         # NFS output
         $output->addHeader(
@@ -958,31 +960,45 @@ sub processData {
         ); 
     }else {
         # Disk output
-        if ($resultset->{$timestamps[0]}->{"none"}) {
-            $output->addHeader(
-              {'timestamp', 20},
-              {'read_throughput',  20},
-              {'write_throughput', 20},
-              {'total_throughput', 20},
-              {'ops_read', 10},
-              {'ops_write', 10},
-              {'total_ops', 10},
-              {'read_latency', 10},
-              {'write_latency', 10}
-             ); 
+        if (defined($timestamps[0])) {
+          if ($resultset->{$timestamps[0]}->{"none"}) {
+              $output->addHeader(
+                {'timestamp', 20},
+                {'read_throughput',  20},
+                {'write_throughput', 20},
+                {'total_throughput', 20},
+                {'ops_read', 10},
+                {'ops_write', 10},
+                {'total_ops', 10},
+                {'read_latency', 10},
+                {'write_latency', 10}
+               ); 
+          } else {
+              $output->addHeader(
+                {'timestamp', 20},
+                {'client',   20},
+                {'read_throughput',  20},
+                {'write_throughput', 20},
+                {'total_throughput', 20},
+                {'ops_read', 10},
+                {'ops_write', 10},
+                {'total_ops', 10},
+                {'read_latency', 10},
+                {'write_latency', 10}
+               ); 
+          }
         } else {
-            $output->addHeader(
-              {'timestamp', 20},
-              {'client',   20},
-              {'read_throughput',  20},
-              {'write_throughput', 20},
-              {'total_throughput', 20},
-              {'ops_read', 10},
-              {'ops_write', 10},
-              {'total_ops', 10},
-              {'read_latency', 10},
-              {'write_latency', 10}
-             ); 
+          $output->addHeader(
+            {'timestamp', 20},
+            {'read_throughput',  20},
+            {'write_throughput', 20},
+            {'total_throughput', 20},
+            {'ops_read', 10},
+            {'ops_write', 10},
+            {'total_ops', 10},
+            {'read_latency', 10},
+            {'write_latency', 10}
+           );     
         }
     }    
 

@@ -56,6 +56,7 @@ GetOptions(
   'type=s' => \(my $type), 
   'group=s' => \(my $group), 
   'host=s' => \(my $host),
+  'outdir=s' => \(my $outdir),
   'dsource=s' => \(my $dsource),
   'format=s' => \(my $format), 
   'all' => (\my $all),
@@ -128,15 +129,13 @@ for my $engine ( sort (@{$engine_list}) ) {
      my $groupname = $groups->getName($dbobj->getGroup());
      
      $db_map { $dbitem } = $groupname . '/' . $dbname;
-     if ( defined($dbobj->{source} ) ) {
+     if ( defined( $dbobj->{source}->{reference} ) ) {
         $db_map { $dbobj->{source}->{reference} } = $groupname . '/' . $dbname;
      }
      
      if ( defined($dbobj->{staging_source} ) ) {
         $db_map { $dbobj->{staging_source}->{reference} } = 'Staging - '. $dbname;
      }
-     
-     
   }
   
   
@@ -223,16 +222,25 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
-
+if (defined($outdir)) {
+  Toolkit_helpers::write_to_dir($output, $format, $nohead,'jobs',$outdir,1);
+} else {
+  Toolkit_helpers::print_output($output, $format, $nohead);
+}
 
 
 __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_jobs.pl [ -engine|d <delphix identifier> | -all ] [-jobref ref] [-st timestamp] [-et timestamp] [-state state] 
-                  [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_jobs.pl [ -engine|d <delphix identifier> | -all ] 
+                [-jobref ref] 
+                [-st timestamp] 
+                [-et timestamp] 
+                [-state state] 
+                [-format csv|json ]  
+                [-outdir path]
+                [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -294,6 +302,10 @@ Name of dSource
 =item B<-format>                                                                                                                                            
 Display output in csv or json format
 If not specified pretty formatting is used.
+
+=item B<-outdir path>                                                                                                                                            
+Write output into a directory specified by path.
+Files names will include a timestamp and type name
 
 =item B<-help>          
 Print this screen

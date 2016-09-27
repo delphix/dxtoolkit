@@ -49,6 +49,7 @@ GetOptions(
   'state=s' => \(my $state),
   'type=s' => \(my $type),
   'username=s' => \(my $username),
+  'outdir=s' => \(my $outdir),
   'format=s' => \(my $format), 
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -107,10 +108,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (! defined($st)) {
       # take engine time minus 1 day
     $st = $engine_obj->getTime(24*60);
-  } else {
-    # changing to DE timezone
-    $st = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($st, $engine_obj);
-  }
+  } 
 
   my $st_timestamp;
 
@@ -130,8 +128,12 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit (1);  
     } 
   }
+  
+  if (defined($state)) {
+    $state = uc $state;
+  }
 
-  my $actions = new Action_obj($engine_obj, $st_timestamp, $et_timestamp,  uc $state);
+  my $actions = new Action_obj($engine_obj, $st_timestamp, $et_timestamp, $state);
 
   for my $actionitem ( @{$actions->getActionList('asc', $type, $username)} ) {
 
@@ -149,16 +151,25 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
-
-
+if (defined($outdir)) {
+  Toolkit_helpers::write_to_dir($output, $format, $nohead,'audit',$outdir,1);
+} else {
+  Toolkit_helpers::print_output($output, $format, $nohead);
+}
 
 __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_audit.pl [ -engine|d <delphix identifier> | -all ] [-st timestamp] [-et timestamp] [-state state] [-type type] [-username username]
-                  [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_audit.pl [-engine|d <delphix identifier> | -all ] 
+                 [-st timestamp] 
+                 [-et timestamp] 
+                 [-state state] 
+                 [-type type] 
+                 [-username username]
+                 [-format csv|json ]  
+                 [-outdir path]
+                 [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -209,6 +220,10 @@ End time for faults list
 =item B<-format>                                                                                                                                            
 Display output in csv or json format
 If not specified pretty formatting is used.
+
+=item B<-outdir path>                                                                                                                                            
+Write output into a directory specified by path.
+Files names will include a timestamp and type name
 
 =item B<-help>          
 Print this screen
