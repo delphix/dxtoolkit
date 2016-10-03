@@ -148,33 +148,65 @@ for my $engine ( sort (@{$engine_list}) ) {
 
    if (defined($remoteaddr)) {
       my @templist;
-      my @hostlist = split (',', $remoteaddr);
+      my @hostlist;
+      if (lc $remoteaddr eq 'all') {
+        @hostlist = $hosts->getAllHosts();
+      } else {
+        for my $h (split (',', $remoteaddr)) {
+          my $hostref = $hosts->getHostByAddr($h);
+          if (!defined($hostref)) {
+             print "Remote host with addr $h not found in Delphix Engine\n";
+             $ret=$ret+1;
+             next;
+          }
+          push(@hostlist,$hostref);          
+        }
+      }
+      
+      
+      #my @hostlist 
       for my $hostitem (sort @hostlist) {
-         my $hostref = $hosts->getHostByAddr($hostitem);
-         if (!defined($hostref)) {
-            print "Remote host with addr $hostitem not found in Delphix Engine\n";
-            $ret=$ret+1;
-            next;
-         }
+         my $testref;
          if (defined($last)) {
             if (lc $type eq 'latency') {
-               push(@templist, @{$net->getLatencyLastTests($hostref)});
+              $testref = $net->getLatencyLastTests($hostitem);
+              if (defined($testref)) {
+                push(@templist, @{$testref});
+              }
             } elsif (lc $type eq 'throughput') {
-               push(@templist, @{$net->getThroughputLastTests($hostref)});
+               $testref = $net->getThroughputLastTests($hostitem);
+               if (defined($testref)) {
+                 push(@templist, @{$testref});
+               }
             } else {
-               push(@templist, @{$net->getDSPLastTests($hostref)});
+               $testref = $net->getDSPLastTests($hostitem);
+               if (defined($testref)) {
+                 push(@templist, @{$testref});
+               }
             }
          } else {
             if (lc $type eq 'latency') {
-               push(@templist, @{$net->getLatencyTestsList($hostref)});
+               $testref = $net->getLatencyTestsList($hostitem);
+               if (defined($testref)) {
+                 push(@templist, @{$testref});
+               }
             } elsif (lc $type eq 'throughput') {
-               push(@templist, @{$net->getThroughputLastTests($hostref)});
+               $testref = $net->getThroughputLastTests($hostitem);
+               if (defined($testref)) {
+                 push(@templist, @{$testref});
+               }
             } else {
-               push(@templist, @{$net->getDSPTestsList($hostref)});
+               $testref = $net->getDSPTestsList($hostitem);
+               if (defined($testref)) {
+                 push(@templist, @{$testref});
+               }
             }
          }
       }
       $testlist = \@templist;
+      
+      
+      
    } else {
       if (lc $type eq 'latency') {
          $testlist = $net->getLatencyTestsList();
@@ -186,6 +218,7 @@ for my $engine ( sort (@{$engine_list}) ) {
    }
    
    for my $netitem (@{$testlist}) {
+     
 
       my $hostname;
       my $hostref = $net->getHost($netitem);

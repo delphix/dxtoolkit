@@ -126,9 +126,402 @@ sub LoadSystem
     } else {
       print "No data returned for $operation. Try to increase timeout \n";
     }
-
-
     
 }
+
+# Procedure getDNS
+# parameters: none
+# Load a DNS settings of Delphix Engine
+
+sub getDNS
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getDNS",1);
+    
+    if (!defined($self->{_dns})) {
+    
+      my $operation = "resources/json/delphix/service/dns";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_dns} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_dns};
+    
+}
+
+# Procedure getDNSServers
+# parameters: none
+# Load a DNS servers setup in Delphix Engine
+
+sub getDNSServers
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getDNSServers",1);
+    my $servers = $self->getDNS()->{servers};
+    return $servers;
+}
+
+# Procedure getDNSDomains
+# parameters: none
+# Load a DNS domains setup in Delphix Engine
+
+sub getDNSDomains
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getDNSDomains",1);
+    my $domain = $self->getDNS()->{domain};
+    return $domain;
+}
+
+# Procedure getSNMP
+# parameters: none
+# Load a SNMP settings of Delphix Engine
+
+sub getSNMP
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSNMP",1);
+    
+    if (!defined($self->{_snmp})) {
+    
+      my $operation = "resources/json/delphix/service/snmp";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_snmp} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_snmp};
+    
+}
+
+# Procedure getSNMPStatus
+# parameters: none
+# Return a SNMP status in Delphix Engine
+
+sub getSNMPStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSNMPStatus",1);
+    my $status = $self->getSNMP()->{enabled} ? "Enabled" : "Disabled";
+    return $status;
+}
+
+# Procedure getSNMPSeverity
+# parameters: none
+# Return a SNMP severity in Delphix Engine
+
+sub getSNMPSeverity
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSNMPSeverity",1);
+    my $severity = $self->getSNMP()->{severity};
+    return $severity;
+}
+
+# Procedure getSNMPManager
+# parameters: none
+# Load a SNMP servers settings of Delphix Engine
+
+sub getSNMPManager
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSNMPManager",1);
+    
+    if (!defined($self->{_snmpmanager})) {
+    
+      my $operation = "resources/json/delphix/service/snmp/manager";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_snmpmanager} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_snmpmanager};    
+}
+
+# Procedure getSNMPStatus
+# parameters: none
+# Return a SNMP status in Delphix Engine
+
+sub getSNMPServers
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSNMPServers",1);
+    my $servers = $self->getSNMPManager();
+    my @retarray;
+    for my $seritem (@{$servers}) {
+      my %serhash;
+      $serhash{address} = $seritem->{address};
+      $serhash{communityString} = $seritem->{communityString};
+      push(@retarray, \%serhash);
+    }
+    
+    return \@retarray;
+}
+
+# Procedure getNTP
+# parameters: none
+# Load a NTP settings of Delphix Engine
+
+sub getNTP
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getNTP",1);
+    
+    if (!defined($self->{_time})) {
+    
+      my $operation = "resources/json/delphix/service/time";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_time} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_time};
+    
+}
+
+# Procedure getNTPServer
+# parameters: none
+# Return a NTP server in Delphix Engine
+
+sub getNTPServer
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getNTPServer",1);
+    my $servers = $self->getNTP()->{ntpConfig}->{servers};
+    return $servers;
+}
+
+# Procedure getNTPStatus
+# parameters: none
+# Return a NTP status in Delphix Engine
+
+sub getNTPStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getNTPStatus",1);
+    my $servers = $self->getNTP()->{ntpConfig}->{enabled} ? "Enabled" : "Disabled";
+    return $servers;
+}
+
+# Procedure getSMTP
+# parameters: none
+# Load a SMTP settings of Delphix Engine
+
+sub getSMTP
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSMTP",1);
+    
+    if (!defined($self->{_smtp})) {
+    
+      my $operation = "resources/json/delphix/service/smtp";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_smtp} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_smtp};
+    
+}
+
+# Procedure getSMTPServer
+# parameters: none
+# Return a SMTP server in Delphix Engine
+
+sub getSMTPServer
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSMTPServer",1);
+    my $servers = $self->getSMTP()->{server};
+    return $servers;
+}
+
+# Procedure getSMTPStatus
+# parameters: none
+# Return a SMTP status in Delphix Engine
+
+sub getSMTPStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSMTPStatus",1);
+    my $status = $self->getSMTP()->{enabled} ? "Enabled" : "Disabled";
+    return $status;
+}
+
+# Procedure getSyslog
+# parameters: none
+# Load a Syslog settings of Delphix Engine
+
+sub getSyslog
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSyslog",1);
+    
+    if (!defined($self->{_syslog})) {
+    
+      my $operation = "resources/json/delphix/service/syslog";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_syslog} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_syslog};
+    
+}
+
+# Procedure getSyslogServers
+# parameters: none
+# Return a Syslog servers in Delphix Engine
+
+sub getSyslogServers
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSyslogServers",1);
+    my $servers = $self->getSyslog()->{servers};
+    return $servers;
+}
+
+# Procedure getSyslogStatus
+# parameters: none
+# Return a Syslog status in Delphix Engine
+
+sub getSyslogStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSyslogStatus",1);
+    my $status = $self->getSyslog()->{enabled} ? "Enabled" : "Disabled";
+    return $status;
+}
+
+# Procedure getSyslogSeverity
+# parameters: none
+# Return a Syslog severity in Delphix Engine
+
+sub getSyslogSeverity
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSyslogSeverity",1);
+    my $severity = $self->getSyslog()->{severity};
+    return $severity;
+}
+
+# Procedure getLDAP
+# parameters: none
+# Load a LDAP settings of Delphix Engine
+
+sub getLDAP
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getLDAP",1);
+    
+    if (!defined($self->{_ldap})) {
+    
+      my $operation = "resources/json/delphix/service/ldap";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_ldap} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_ldap};
+    
+}
+
+# Procedure getLDAPStatus
+# parameters: none
+# Return a LDAP status in Delphix Engine
+
+sub getLDAPStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getLDAPStatus",1);
+    my $status = $self->getLDAP()->{enabled} ? "Enabled" : "Disabled";
+    return $status;
+}
+
+# Procedure getLDAPServerConf
+# parameters: none
+# Load a LDAP config in Delphix Engine
+
+sub getLDAPServerConf
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getLDAPServerConf",1);
+    
+    if (!defined($self->{_ldap})) {
+    
+      my $operation = "resources/json/delphix/service/ldap/server";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_ldap} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+      
+    }
+
+    return $self->{_ldap};
+    
+}
+
+# Procedure getLDAPServers
+# parameters: none
+# Return a LDAP servers in Delphix Engine
+
+sub getLDAPServers
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getLDAPServers",1);
+    my $servers = $self->getLDAPServerConf();
+    my @retarray;
+    for my $seritem (@{$servers}) {
+      my %serhash;
+      $serhash{address} = $seritem->{host};
+      $serhash{port} = $seritem->{port};
+      $serhash{authMethod} = $seritem->{authMethod};
+      $serhash{useSSL} = $seritem->{useSSL};      
+      push(@retarray, \%serhash);
+    }
+    
+    return \@retarray;
+}
+
+
 
 1;

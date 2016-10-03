@@ -30,6 +30,8 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 
+
+
 sub new {
     my $classname  = shift;
     my $dlpxObject = shift;
@@ -42,6 +44,10 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
+    
+    my $namespace = new Namespace_obj ( $dlpxObject, $debug );
+    
+    $self->{_namespace} = $namespace;
     
     bless($self,$classname);
     
@@ -99,9 +105,15 @@ sub getName {
 
    my $groups = $self->{_groups};
    my $ret;
-    
+  
+  
    if (defined($groups->{$reference}->{name}) ) {
-      $ret = $groups->{$reference}->{name};
+     if (defined($groups->{$reference}->{namespace})) {
+       my $namespacename = $self->{_namespace}->getName($groups->{$reference}->{namespace});
+       $ret = $groups->{$reference}->{name} . "@" . $namespacename;
+     } else {
+       $ret = $groups->{$reference}->{name};
+     }
    } else {
       $ret = 'N/A';
    } 

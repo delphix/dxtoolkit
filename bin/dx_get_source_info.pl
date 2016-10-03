@@ -117,8 +117,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
 
-    print Dumper $dbobj;
-
     $output->addLine(
       $engine,
       $dbobj->getName(),
