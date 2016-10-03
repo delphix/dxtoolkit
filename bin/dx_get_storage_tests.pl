@@ -271,11 +271,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_network_tests.pl [ -engine|d <delphix identifier> | -all ] -type latency|throughput
-                         [ -remoteaddr env_ip ] 
-                         [ -last]  
-                         [ -format csv|json ]  
-                         [ -help|? ] [ -debug ]
+ dx_get_storage_tests.pl [-engine|d <delphix identifier> | -all ] 
+                         [-iorc path]
+                         [-testid ref] 
+                         [-details] 
+                         [-gradeonly yes/no]
+                         [-format csv|json]  
+                         [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -293,21 +295,23 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
-=item B<-type latency|throughput>
-select a type of test to display
-
 =back
 
 =head1 OPTIONS
 
 =over 3
 
-=item B<-remoteaddr env_ip>
-Filter results to a env_ip
+=item B<-testid ref>
+Limit displayed tests to ref
 
-=item B<-last>
-List only last results of test for a specified env_ip
+=item B<-iorc path>
+Extract IORC card into path 
 
+=item B<-details>
+Display details for storage test
+
+=item B<-gradeonly yes/no>
+Display results with grades (default) or all results
 
 =item B<-format>
 Display output in csv or json format

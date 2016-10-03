@@ -198,11 +198,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_network_tests.pl [ -engine|d <delphix identifier> | -all ] -type latency|throughput
-                         [ -remoteaddr env_ip ] 
-                         [ -last]  
-                         [ -format csv|json ]  
-                         [ -help|? ] [ -debug ]
+ dx_ctl_network_tests.pl [-engine|d <delphix identifier> | -all ] 
+                         -type latency|throughput|dsp
+                         [-remoteaddr env_ip|all|env_ip1,env_ip2 ] 
+                         [-size bytes]  
+                         [-duration sec]
+                         [-direction both|transmit|receive]
+                         [-numconn no_of_connections]  
+                         [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -220,8 +223,8 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
-=item B<-type latency|throughput>
-select a type of test to display
+=item B<-type latency|throughput|dsp>
+select a type of test to run
 
 =back
 
@@ -230,15 +233,22 @@ select a type of test to display
 =over 3
 
 =item B<-remoteaddr env_ip>
-Filter results to a env_ip
+Run test on:
+- env_ip - environemnt IP
+- all - all environments
+- env_ip1,env_ip2 - comma separated list of IPs
 
-=item B<-last>
-List only last results of test for a specified env_ip
+=item B<-size bytes>
+Size of latency test package
 
+=item B<-duration sec>
+Duration of the test in seconds
 
-=item B<-format>
-Display output in csv or json format
-If not specified pretty formatting is used.
+=item B<-direction both|transmit|receive>
+Direction of dsp or throughput test
+
+=item B<-numconn no_of_connections>
+Number of connection for dsp or throughput test
 
 =item B<-help>
 Print this screen

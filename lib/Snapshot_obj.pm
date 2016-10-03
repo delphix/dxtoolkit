@@ -301,7 +301,7 @@ sub getSnapshotTime {
     my $reference = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTime",1); 
     my $ts = $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
-
+    
     # if $ts is null - I need to reconsider which one to use - latest change of snapshot process seems OK  
     #print Dumper $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
     #print Dumper $self->{_snapshots}->{$reference}->{creationTime};
@@ -372,7 +372,7 @@ sub getSnapshotTimeZone {
 
         # can't resolve time zone
         # try to use offset
-
+                
         my $offset = $temp[1];
         if ( (my ($tzoff) = $offset =~ /[a-zA-Z]{3}(.\d\d\d\d)/ ) ) {
             $ret = $tz->zone($tzoff);
@@ -380,9 +380,11 @@ sub getSnapshotTimeZone {
             $ret = $tz->zone($tzoff);
         }  
         else {
-            $ret = 'N/A'
+            $ret = 'N/A';
         }
 
+    } else {
+      $ret = 'N/A';
     }
 
 
@@ -402,7 +404,6 @@ sub getSnapshotTimewithzone {
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getSnapshotTime($reference) ;
     my $timezone = $self->getSnapshotTimeZone($reference);
-
 
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
@@ -803,15 +804,15 @@ sub getSnapshotList
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList",1);   
-    my $operation = "resources/json/delphix/snapshot?";
+    my $operation = "resources/json/delphix/snapshot";
 
 
 
     if (defined($self->{_container})) {
         if (defined($self->{_traverseTimeflows})) {
-            $operation = $operation . "database=" . $self->{_container} . "&traverseTimeflows=true";      
+            $operation = $operation . "?database=" . $self->{_container} . "&traverseTimeflows=true";      
         } else {
-            $operation = $operation . "database=" . $self->{_container} ;   
+            $operation = $operation . "?database=" . $self->{_container} ;   
         }  
     
         if (defined($self->{_startDate}) || defined($self->{_endDate})  ) {

@@ -802,6 +802,9 @@ sub getJSONResult {
          }
          my $filename = $tempname . ".json";
          $filename =~ s|\?|_|;
+         $filename =~ s|\&|_|g;
+         $filename =~ s|\:|_|g;
+         print Dumper $filename;
          open (my $fh, ">", "debug/" . $filename) or die ("Can't open new debug file $filename for write");
          print $fh to_json($result, {pretty=>1});
          close $fh;

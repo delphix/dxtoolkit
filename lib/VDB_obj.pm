@@ -2506,6 +2506,13 @@ sub addSource {
         return undef;
     }
 
+    if (!defined($self->{_repository})) { 
+        $self->{_repository} = new Repository_obj($self->{_dlpxObject}, $self->{_debug});
+    }
+
+    if (!defined($self->{_environment})) {
+        $self->{_environment} = new Environment_obj($self->{_dlpxObject}, $self->{_debug});
+    }
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
 
@@ -2526,6 +2533,7 @@ sub addSource {
             "bandwidthLimit" => 0,
             "filesPerSet" => 5,
             "rmanChannels" => 2,
+            "compressedLinkingEnabled" => JSON::true,
             "operations" => {
               "type" => "LinkedSourceOperations",
               "preSync" => [],

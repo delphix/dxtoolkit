@@ -408,9 +408,7 @@ sub getHost
     my $ret;
     
     my $network;
-    
-
-    
+        
     if (defined($self->{_network_latency}->{$reference})) {
       $network = $self->{_network_latency}->{$reference};
     } elsif (defined($self->{_network_throughput}->{$reference})) {
@@ -441,7 +439,7 @@ sub getLatencyTestsList
    my $net = $self->{_network_latency};
     
    if (defined($hostref)) {
-      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort (keys %{$net});
+      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } else {
       @retarr = sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    }
@@ -464,7 +462,7 @@ sub getThroughputTestsList
    my @retarr;
 
    if (defined($hostref)) {
-      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort (keys %{$net});
+      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } else {
       @retarr = sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } 
@@ -488,7 +486,7 @@ sub getDSPTestsList
    my @retarr;
    
    if (defined($hostref)) {
-      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort (keys %{$net});
+      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } else {
       @retarr = sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } 
@@ -513,8 +511,11 @@ sub getLatencyLastTests
     
     my @retarr;
     
-    my $ref = $arr->[-1];
-    push (@retarr , $ref);
+    if (scalar(@{$arr})) {
+    
+      my $ref = $arr->[-1];
+      push (@retarr , $ref);
+    }
         
     return \@retarr;
 }
@@ -535,13 +536,20 @@ sub getDSPLastTests
     
     my @retarr;
     
-    # take last TRANSMIT 
-    my $ref = ( grep { $self->getTestDirection($_) eq 'TRANSMIT' } @{$arr} ) [-1];
-    push (@retarr , $ref);
+    if (scalar(@{$arr})) {
     
-    # take last RECEIVE 
-    $ref = ( grep { $self->getTestDirection($_) eq 'RECEIVE' } @{$arr} ) [-1];
-    push (@retarr , $ref);
+      # take last TRANSMIT 
+      my $ref = ( grep { $self->getTestDirection($_) eq 'TRANSMIT' } @{$arr} ) [-1];
+      if (defined($ref)) {
+        push (@retarr , $ref);
+      }
+      
+      # take last RECEIVE 
+      $ref = ( grep { $self->getTestDirection($_) eq 'RECEIVE' } @{$arr} ) [-1];
+      if (defined($ref)) {
+        push (@retarr , $ref);
+      }
+    }
     
     return \@retarr;
 }
@@ -559,16 +567,24 @@ sub getThroughputLastTests
     my $net = $self->{_network_throughput};
     # filter only tests for one host
     my $arr = $self->getThroughputTestsList($hostref);
-    
+        
     my @retarr;
     
-    # take last TRANSMIT 
-    my $ref = ( grep { $self->getTestDirection($_) eq 'TRANSMIT' } @{$arr} ) [-1];
-    push (@retarr , $ref);
+    if (scalar(@{$arr})) {
+        
+      # take last TRANSMIT 
+      my $ref = ( grep { $self->getTestDirection($_) eq 'TRANSMIT' } @{$arr} ) [-1];
+      if (defined($ref)) {
+        push (@retarr , $ref);
+      }
+      
+      # take last RECEIVE 
+      $ref = ( grep { $self->getTestDirection($_) eq 'RECEIVE' } @{$arr} ) [-1];
+      if (defined($ref)) {
+        push (@retarr , $ref);
+      }
     
-    # take last RECEIVE 
-    $ref = ( grep { $self->getTestDirection($_) eq 'RECEIVE' } @{$arr} ) [-1];
-    push (@retarr , $ref);
+    }
     
     return \@retarr;
 }
