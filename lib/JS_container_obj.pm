@@ -318,7 +318,7 @@ sub recoverContainer {
     }
 
 
-    print Dumper \%recover_hash;
+    #print Dumper \%recover_hash;
 
     my $json_data = to_json(\%recover_hash);
 

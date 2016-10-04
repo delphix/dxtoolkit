@@ -3066,7 +3066,7 @@ sub addSource {
         );
     } else {
       
-      print Dumper $backup_dir;
+      #print Dumper $backup_dir;
             
       %dsource_params = (
           "type" => "MSSqlLinkParameters",
@@ -4591,7 +4591,7 @@ sub getAdditionalMountpoints
     my @retarray;
     my $addmountarray = $self->{source}->{additionalMountPoints};
     
-    print Dumper $addmountarray;
+    #print Dumper $addmountarray;
     
     for my $addmount (@{$addmountarray}) {
       my $envname = $self->{_environment}->getName($addmount->{environment});
