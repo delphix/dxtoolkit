@@ -30,7 +30,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.2.6-rc4';
+our $version = '2.2.6';
 
 sub logger {
 	my $debug = shift;
