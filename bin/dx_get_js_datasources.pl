@@ -105,8 +105,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($dbname)) {
 
-    print Dumper $dbname;
-
     my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef);
 
     if (! defined($db_list)) {

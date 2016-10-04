@@ -366,7 +366,7 @@ sub getSnapshotTimeZone {
     ($err,$val) = $tz->define_offset('+0800', @zone);    
 
     logger($self->{debug}, "Setting SGT timezone err-" . $err );
-
+    
     # checking if timezone if valid 
     if ($self->checkTZ($ret)) {
 
@@ -383,10 +383,7 @@ sub getSnapshotTimeZone {
             $ret = 'N/A';
         }
 
-    } else {
-      $ret = 'N/A';
-    }
-
+    } 
 
     return $ret;
 }

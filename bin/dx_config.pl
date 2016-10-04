@@ -170,7 +170,8 @@ Convert a csv file into DXTOOLKIT configuration file (dxtools.conf) or convert c
 Existing configuration file will be copy into backup file.
 
 ex.
-dx_config.pl -convert todxconf -csvfile dxtools.csv -configfile dxtools.conf
+
+ dx_config.pl -convert todxconf -csvfile dxtools.csv -configfile dxtools.conf
 
 =head1 ARGUMENTS
 
