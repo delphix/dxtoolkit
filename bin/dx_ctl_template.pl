@@ -48,10 +48,10 @@ GetOptions(
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -62,19 +62,19 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (defined($filename) && defined($indir) ) {
   print "Option filename and indir are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ( ! defined($filename)  ) && ( ! defined($indir) ) ) {
   print "Option filename or indir is required \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -143,7 +143,11 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_template.pl [ -engine|d <delphix identifier> | -all ] -import | -update  [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
+ dx_ctl_template.pl [ -engine|d <delphix identifier> | -all ] 
+                    -import | -update  
+                    [-filename filename | -indir dir]  
+                    [-help|?] 
+                    [-debug] 
 
 =head1 DESCRIPTION
 
@@ -188,6 +192,26 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Import VDB template from test.template file
+
+ dx_ctl_template -d Landshark -import -filename ./test.template 
+ Importing template from file ./test.template. Import completed
+
+Update VDB template using file test.template
+
+ dx_ctl_template -d Landshark -update -filename ./test.template 
+ Updating template new from file ./test.template. Update completed
+ 
+Import VDB templates from directory /tmp/test
+
+ dx_ctl_template -d Landshark -update -indir /tmp/test/
+ Updating template Dev Template from file /tmp/test//Dev Template.template. Update completed
+ Updating template GBC Template from file /tmp/test//GBC Template.template. Update completed
+ Updating template new from file /tmp/test//new.template. Update completed
+ Updating template QA Template from file /tmp/test//QA Template.template. Update completed
+ Updating template Training Template from file /tmp/test//Training Template.template. Update completed
 
 
 

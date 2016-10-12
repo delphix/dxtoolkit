@@ -55,9 +55,9 @@ GetOptions(
   'all' => (\my $all),
   'nohead' => \(my $nohead),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -68,14 +68,20 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
    print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+   pod2usage(-verbose => 1,  -input=>\*DATA);
+   exit (1);
+}
+
+if (! defined($remoteaddr)) {
+   print "Option remoteaddr is required \n";
+   pod2usage(-verbose => 1,  -input=>\*DATA);
    exit (1);
 }
 
 
 if (! defined($type)) {
    print "Option type is required \n";
-   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+   pod2usage(-verbose => 1,  -input=>\*DATA);
    exit (1);
 }
 
@@ -92,14 +98,14 @@ elsif ( lc $direction eq 'transmit') {
    push (@directions, 'TRANSMIT');   
 } else {
   print "Option direction has unknown value - $direction \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 } 
 
 
 if ( ! ( (lc $type eq 'latency') || (lc $type eq 'throughput') || (lc $type eq 'dsp') ) ) {
   print "Option type has unknown value - $type \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }  
 
@@ -258,7 +264,24 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Starting latency test for 30 sec for host LINUXTARGET
+
+ dx_ctl_network_tests -d Landshark5 -type latency -duration 30 -remoteaddr LINUXTARGET
+ Starting job JOB-7643 for test .
+ 0 - 6 - 10 - 13 - 16 - 20 - 23 - 26 - 30 - 33 - 36 - 40 - 43 - 46 - 50 - 53 - 56 - 60 - 63 - 66 - 70 - 73 - 76 - 80 - 83 - 86 - 90 - 93 - 96 - 100
+ Job JOB-7643 finished with state: COMPLETED
+
+Starting latency test for 30 sec for host LINUXTARGET and linuxsource
+
+ dx_ctl_network_tests -d Landshark5 -type latency -duration 30 -remoteaddr LINUXTARGET,linuxsource
+ Starting job JOB-7645 for test .
+ 0 - 6 - 10 - 13 - 16 - 20 - 23 - 26 - 30 - 33 - 36 - 40 - 43 - 46 - 50 - 53 - 56 - 60 - 63 - 66 - 70 - 73 - 76 - 80 - 83 - 86 - 90 - 93 - 96 - 100
+ Job JOB-7645 finished with state: COMPLETED
+ Starting job JOB-7646 for test .
+ 0 - 6 - 10 - 13 - 16 - 20 - 23 - 26 - 30 - 33 - 36 - 40 - 43 - 46 - 50 - 53 - 56 - 60 - 63 - 66 - 70 - 73 - 76 - 80 - 83 - 86 - 90 - 93 - 96 - 100
+ Job JOB-7646 finished with state: COMPLETED
 
 
 =cut

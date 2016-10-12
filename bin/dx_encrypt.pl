@@ -46,16 +46,16 @@ GetOptions(
 'plainconfig|p=s' => \(my $plainconfig),
 'encryptedconfig|e=s' => \(my $encryptedconfig),
 'version|v' => \(my $print_version)   
-) or pod2usage(-verbose => 2, -output=>\*STDERR);
+) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
+pod2usage(-verbose => 1, -output=>\*STDERR) && exit if $help;
 die  "$version\n" if $print_version;  
 
 
 if (! ( defined ($plainconfig) && defined($encryptedconfig) ) ) {
 	print "Parameters plainconfig and encryptedconfig are required.\n";
-	pod2usage(-verbose => 2, -output=>\*STDERR);
+	pod2usage(-verbose => 1, -output=>\*STDERR);
 	exit;
 }
 

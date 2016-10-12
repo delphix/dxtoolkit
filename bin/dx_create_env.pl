@@ -62,13 +62,55 @@ GetOptions(
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version)
-);
+) or pod2usage(-verbose => 1, -input=>\*DATA);
 
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 1, -man=>1, -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;
 
+
+if (defined($all) && defined($dx_host)) {
+  print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($proxy) && defined($toolkitdir)) {
+  print "Option proxy and toolkitdir are mutually exclusive \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if ( ! ( defined($envname) && defined($envtype) && defined($host) && (defined($toolkitdir) || defined($proxy)  ) && defined($username) && defined($authtype) ) ) {
+  print "Options -envname, -envtype, -host, -toolkitdir, -username and -authtype are required. \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if ( ! ( ( $authtype eq 'password') || ( $authtype eq 'systemkey') ) )  {
+  print "Option -authtype has invalid parameter - $authtype \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtype eq 'rac') ) )  {
+  print "Option -envtype has invalid parameter - $envtype \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if ((lc $envtype eq 'rac' ) && ((!defined($crsname)) || (!defined($crshome))) ) {
+  print "Type RAC required clustername and cluserloc to be defined \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);   
+}
+
+if ( defined($asedbuser) xor defined($asedbpass) ) {
+  print "Option -asedbuser and -asedbpass are required \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);  
+}
 
 my $engine_obj = new Engine ($dever, $debug);
 my $path = $FindBin::Bin;
@@ -76,48 +118,6 @@ my $config_file = $path . '/dxtools.conf';
 
 $engine_obj->load_config($config_file);
 
-
-if (defined($all) && defined($dx_host)) {
-  print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-if (defined($proxy) && defined($toolkitdir)) {
-  print "Option proxy and toolkitdir are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-if ( ! ( defined($envname) && defined($envtype) && defined($host) && (defined($toolkitdir) || defined($proxy)  ) && defined($username) && defined($authtype) ) ) {
-  print "Options -envname, -envtype, -host, -toolkitdir, -username and -authtype are required. \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-if ( ! ( ( $authtype eq 'password') || ( $authtype eq 'systemkey') ) )  {
-  print "Option -authtype has invalid parameter - $authtype \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtype eq 'rac') ) )  {
-  print "Option -envtype has invalid parameter - $envtype \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-if ((lc $envtype eq 'rac' ) && ((!defined($crsname)) || (!defined($crshome))) ) {
-  print "Type RAC required clustername and cluserloc to be defined \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);   
-}
-
-if ( defined($asedbuser) xor defined($asedbpass) ) {
-  print "Option -asedbuser and -asedbpass are required \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);  
-}
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -209,7 +209,8 @@ Environment type - windows or unix
 Host name / IP of server being added to Delphix Engine
 
 =item B<-toolkitdir toolkit_directory>
-Location for toolkit directory
+Location for toolkit directory for Unix/Linux 
+or location of Delphix Connector directory for Windows
 
 =item B<-proxy proxy>
 Proxy server used to access dSource 
@@ -248,7 +249,7 @@ ASE DB password for source detection
 
 
 =item B<-help>
-Print this screen
+Print usage information 
 
 =item B<-debug>
 Turn on debugging
@@ -259,7 +260,44 @@ Display version
 
 =back
 
+=head1 EXAMPLES
+
+Adding Unix/Linux environment without ASE discovery
+
+ dx_create_env -d Landshark43 -envname envtest -envtype unix -host 172.16.180.190 -username delphix -authtype password -password xxxxxx -toolkitdir "/u01/app/toolkit"
+ Starting adding environment job - JOB-785
+ 0 - 6 - 8 - 12 - 100
+ Job JOB-785 finised with state: COMPLETED Environment job finished with COMPLETED status.
+
+Adding Unix/Linux environment with ASE discovery
+ 
+ dx_create_env -d Landshark5 -envname LINUXSOURCE -envtype unix -host linuxsource -username "delphix" -authtype password -password xxxxx -toolkitdir "/u01/app/toolkit" -asedbuser sa -asedbpass ChangeMeDB
+ Starting adding environment job - JOB-1023
+ 0 - 6 - 8 - 12 - 100
+ Job JOB-1023 finised with state: COMPLETED Environment job finished with COMPLETED status.
+
+Adding Unix/Linux environment with Oracle RAC
+ 
+ dx_create_env -d Landshark5 -envname racattack-cl -envtype rac -host 172.16.180.61 -username "oracle" -authtype password -password xxxxxx -toolkitdir "/home/oracle/toolkit" -clusterloc /u01/app/12.1.0.2/grid/ -clustername racattack-cl
+ Starting adding environment job - JOB-1024
+ 0 - 6 - 8 - 12 - 100
+ Job JOB-1024 finised with state: COMPLETED Environment job finished with COMPLETED status.
 
 
+Adding Windows target environment
+
+ dx_create_env.pl -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -toolkitdir "C:\Program Files\Delphix\DelphixConnector"
+ Starting adding environment job - JOB-7495
+ 0 - 2 - 7 - 8 - 10 - 20 - 60 - 64 - 100
+ Job JOB-7495 finished with state: COMPLETED
+ Environment job finished with COMPLETED status.
+
+Adding Windows source environment
+
+ dx_create_env.pl -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -proxy 172.16.180.132
+ Starting adding environment job - JOB-7496
+ 0 - 2 - 7 - 8 - 10 - 20 - 60 - 64 - 100
+ Job JOB-7496 finished with state: COMPLETED
+ Environment job finished with COMPLETED status.
 
 =cut

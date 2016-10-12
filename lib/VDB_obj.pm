@@ -3030,7 +3030,7 @@ sub addSource {
     if (!defined($validatedSyncMode)) {
       $vsm = "NONE";
     } else {
-      if ( (uc $validatedSyncMode eq 'FULL_OR_DIFFERENTIAL' ) || (uc $validatedSyncMode eq 'FULL' ) || (uc $validatedSyncMode eq 'TRANSACTION_LOG' ) ) 
+      if ( (uc $validatedSyncMode eq 'NONE' ) || (uc $validatedSyncMode eq 'FULL_OR_DIFFERENTIAL' ) || (uc $validatedSyncMode eq 'FULL' ) || (uc $validatedSyncMode eq 'TRANSACTION_LOG' ) ) 
       {
         $vsm = $validatedSyncMode;
       } else {

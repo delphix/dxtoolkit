@@ -52,9 +52,9 @@ GetOptions(
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -65,7 +65,7 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -130,6 +130,14 @@ sub process_user {
       next;
     }
 
+    if (!defined($is_admin)) {
+      $is_admin = '';
+    }
+
+    if (!defined($is_JS)) {
+      $is_JS = '';
+    }
+
     my $user = $users_obj->getUserByName($username);
 
     if (lc $command eq 'c') { 
@@ -180,14 +188,15 @@ sub process_user {
 
         my $isadminYN = $user->isAdmin() ? 'Y' : 'N';
 
-        if ($isadminYN ne (uc $is_admin)) {
+
+        if ( ($is_admin ne '') && ($isadminYN ne (uc $is_admin)) ) {
           print "Set Delphix Admin to $is_admin .";
           $user->setAdmin(uc ($is_admin));
         }
 
         my $isJSYN = $user->isJS() ? 'Y' : 'N';
 
-        if ($isJSYN ne (uc $is_JS)) {
+        if ( ($is_JS ne '') && ($isJSYN ne (uc $is_JS))) {
           print "Set Jet Stream user to $is_JS .";
           $user->setJS(uc ($is_JS));
         }
@@ -283,7 +292,11 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_users.pl [ -engine|d <delphix identifier> | -all ] [-file filename] [-profile filename] [ --help|? ] [ -debug ]
+ dx_ctl_users.pl [ -engine|d <delphix identifier> | -all ] 
+                 [-file filename] 
+                 [-profile filename] 
+                 [-help|?] 
+                 [-debug]
 
 =head1 DESCRIPTION
 
@@ -333,7 +346,54 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Add user to one engine using example users file
+
+ dx_ctl_users -d Landshark5 -file dxusers.csv.example
+ User testuser exist. Skipping
+ User testuser2 created.
+ User user11 doens't exist. Can't update
+ User testuser updated. Password for user testuser updated.
+ User testuser2 deleted.
+ 
+Add user to one engine using users file and profile file
+
+ dx_ctl_users -d Landshark5 -file /tmp/users.csv -profile /tmp/profile.csv 
+ User sysadmin exist. Skipping
+ User delphix_admin exist. Skipping
+ User dev_admin exist. Skipping
+ User qa_admin created.
+ User dev exist. Skipping
+ User qa exist. Skipping
+ Role OWNER for target Dev Copies set for dev_admin
+ Role PROVISIONER for target Sources set for dev_admin 
+ Role PROVISIONER for target Dev Copies set for qa_admin 
+ Role OWNER for target QA Copies set for qa_admin
+
+Example csv user file:
+
+ # operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user 
+ # comment - create a new user with Delphix authentication 
+ C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y
+ # comment - create a new user with LDAP 
+ C,testuser2,Test,User2,test.user@test.mail.com,555-111-111,555-222-222,555-333- 333,LDAP,"testuser@test.domain.com",,Y
+ # update existing user - non-empty values will be updated, password can't be modified in this version 
+ U,user11,FirstName,LastName,newemail@test.com,,,,,,, U,testuser,Test,User,test.user@test.com,,555-222-333,,NATIVE,,password,Y
+ # delete user
+ D,testuser2,,,,,,,,,,
+
+Example csv profile file:
+
+ #Username,Type,Name,Role
+ testusr,group,Break Fix,AUDITOR
+ testusr,group,QA Copies,AUDITOR 
+ testusr,group,Sources,AUDITOR
+ testusr,databases,ASE pubs3 DB,OWNER 
+ testusr,databases,AdventureWorksLT2008R2,AUDITOR 
+ testusr,databases,Agile Masking,AUDITOR 
+ testusr,databases,Employee Oracle DB,OWNER 
+ 
 =cut
 
 

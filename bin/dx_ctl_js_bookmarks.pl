@@ -67,9 +67,9 @@ GetOptions(
   'dever=s' => \(my $dever),
   'nohead' => \(my $nohead),
   'debug:i' => \(my $debug)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -81,13 +81,13 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'remove') ) ) ) {
   print "Option -action not defined or has invalid parameter \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -95,52 +95,52 @@ if (lc $action eq 'create') {
 
   if (!defined($template_name) || (!defined($bookmark_name))) {
     print "Options template_name and bookmark_name are required \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
   if (! (defined($bookmark_time) || defined($snapshots) ) ) {
     print "Options bookmark_time or snapshots are required \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
   if (defined($bookmark_time) && defined($snapshots)) {
     print "Options bookmark_time and snapshots are mutually exclusive \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
   if (!defined($template_name) && defined($container_name)) {
     print "Options container_name required a template_name parametrer \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
 
   if (defined($snapshots) && ( ! ( ( lc $snapshots eq 'all' ) || ( lc $snapshots eq 'both' ) || ( lc $snapshots eq 'first' ) || ( lc $snapshots eq 'last' ) ) ) ) {
     print "Option snapshot allow the following values all, both, first, last \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
   if (defined($snapshots) && (!defined($source))) {
     print "Option snapshot require a source to be defined \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1); 
   }
 
 
   if (defined($bookmark_time) && ( ! ( $bookmark_time eq 'latest' || $bookmark_time eq 'first' || $bookmark_time =~ /\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/ ) )    ) {
     print "Wrong format of bookmark_time parameter - $bookmark_time \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
 } elsif (lc $action eq 'remove') {
   if (!defined($template_name)) {
     print "Options template_name is required \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 }
@@ -463,12 +463,15 @@ Set source name used for snapshot based bookmark creation
 =item B<-snapshots snapshot>
 Use snapshot from source to create bookmarks. Allowed values:
 
-- all - create bookmarks for all snapshot of source created after template was created
+=over 3
 
-- first - create bookmark for a first snapshot of source after template was created
+=item B<-all> - create bookmarks for all snapshot of source created after template was created
 
-- last  - create bookmark for a last snapshot of source after template was created
+=item B<-first> - create bookmark for a first snapshot of source after template was created
 
+=item B<-last>  - create bookmark for a last snapshot of source after template was created
+
+=back
 
 =back
 
@@ -485,8 +488,43 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Create template bookmarks for all snapshots for template "template"" and source "oracle", bookmarks name starts with prefix "pre" 
+plus time of snapshot, 
 
+ dx_ctl_js_bookmarks.pl -d Landshark5 -bookmark_name "pre" -template_name template -snapshots all -source oracle -action create
+ Starting job JOB-7623 for bookmark pre-2016-10-12 12:02:31.
+ 5 - 100
+ Job JOB-7623 finished with state: COMPLETED
+
+Create template bookmark for a first snapshot of source "oracle" taken after template was created
+
+ dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "firstsnap" -template_name template -snapshots first -source oracle -action create
+ Starting job JOB-7625 for bookmark firstsnap-2016-10-12 12:02:31.
+ 5 - 100
+ Job JOB-7625 finished with state: COMPLETED
+
+Create template bookmark for particular time 
+
+ dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "fixeddate" -template_name template -bookmark_time "2016-10-12 13:05:02" -branch_name master -action create
+ Starting job JOB-7626 for bookmark fixeddate.
+ 5 - 100
+ Job JOB-7626 finished with state: COMPLETED
+
+Create container bookmart for latest point
+
+ dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "cont_now" -bookmark_time latest -container_name cont1 -action create -template_name template
+ Starting job JOB-7627 for bookmark cont_now.
+ 5 - 43 - 100
+ Job JOB-7627 finished with state: COMPLETED
+
+Deleting bookmark for template
+
+ dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "firstsnap-2016-10-12 12:02:31" -action remove -template_name template
+ Starting job JOB-7629 for bookmark firstsnap-2016-10-12 12:02:31.
+ 0 - 100
+ Job JOB-7629 finished with state: COMPLETED
 
 =cut
 

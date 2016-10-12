@@ -42,6 +42,8 @@ my $version = $Toolkit_helpers::version;
 GetOptions(
   'help|?' => \(my $help), 
   'd|engine=s' => \(my $dx_host),
+  'list' => \(my $list),
+  'last' => \(my $last),
   'format=s' => \(my $format), 
   'debug:i' => \(my $debug), 
   'cron'    => \(my $cron),
@@ -49,10 +51,17 @@ GetOptions(
   'all' => (\my $all),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
+
+
+if (defined($all) && defined($dx_host)) {
+  print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
 
 my $engine_obj = new Engine ($dever, $debug);
 my $path = $FindBin::Bin;
@@ -60,31 +69,45 @@ my $config_file = $path . '/dxtools.conf';
 
 $engine_obj->load_config($config_file);
 
-
-if (defined($all) && defined($dx_host)) {
-  print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-  exit (1);
-}
-
-
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
 my $output = new Formater();
 
-$output->addHeader(
-    {'Appliance',          10},
-    {'Replication name',   20},
-    {'Replication target', 20},
-    {'Enable',              9},
-    {'Last Run',           20},
-    {'Status',             15},
-    {'Schedule',           40},
-    {'Run Time',           10},
-    {'Next run',           20},
-    {'Objects',            20}
-);
+if (defined($last) && (defined($list))) {
+  print "Options -last and -list are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($last)) {
+  $output->addHeader(
+      {'Appliance',          10},
+      {'Profile name',       20},
+      {'Replication target', 20},
+      {'Enable',              9}
+  );  
+} elsif (defined($list)) {
+  $output->addHeader(
+      {'Appliance',          10},
+      {'Profile name',       20},
+      {'Replication target', 20},
+      {'Enable',              9}
+  );
+} else {
+  $output->addHeader(
+      {'Appliance',          10},
+      {'Profile name',       20},
+      {'Replication target', 20},
+      {'Enable',              9},
+      {'Last Run',           20},
+      {'Status',             15},
+      {'Schedule',           40},
+      {'Run Time',           10},
+      {'Next run',           20},
+      {'Objects',            20}
+  );
+}
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
@@ -98,6 +121,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   for my $repitem ( $replication->getReplicationList() ) {
 
+    if (defined($list)) {
+      $output->addLine(
+        $engine,
+        $replication->getName($repitem),
+        $replication->getTargetHost($repitem),
+        $replication->getEnabled($repitem)
+      );
+    } else {
 
       my $schedule = ($replication->getLastJob($repitem))->{'Schedule'};
 
@@ -113,6 +144,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         ($replication->getLastJob($repitem))->{'NextRun'},
         $replication->getObjectsName($repitem)
       );
+    }
   }
 
 

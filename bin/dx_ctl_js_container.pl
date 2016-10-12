@@ -54,9 +54,9 @@ GetOptions(
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
   'debug:i' => \(my $debug)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -68,20 +68,20 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if (!defined($container_name)) {
   print "Container name is required \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);  
 }
 
 if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'recover' ) ) ) ) {
   print "Action parameter not specified or has a wrong value - $action \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);  
 }
 
@@ -167,7 +167,7 @@ Run a action on the JetStream container
 
 Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
 
-=over 10
+=over 3
 
 =item B<-engine|d>
 Specify Delphix Engine name from dxtools.conf file
@@ -178,9 +178,15 @@ Display databases on all Delphix appliance
 =item B<-action reset|refresh|recover>
 Run a action on the container
 
-- reset - reset JS container to latest point
-- refresh - refresh JS container from latest point of template
-- recover - recover a JS container to point in time or bookmark
+=over 3
+
+=item B<-reset> - reset JS container to latest point
+
+=item B<-refresh> - refresh JS container from latest point of template
+
+=item B<-recover> - recover a JS container to point in time or bookmark
+
+=back
 
 =item B<-container_name container_name>
 Name of container to run action on 
@@ -206,8 +212,29 @@ Turn on debugging
 
 =back
 
+=head1 Examples
 
+Reset of the container
 
+ dx_ctl_js_container -d Landshark5 -container_name cont -action reset
+ Starting job JOB-5043 for container cont.
+ 0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 76 - 90 - 100 
+ Job JOB-5043 finished with state: COMPLETED
+ 
+ 
+Refresh of the container from latest point in time in source
+ 
+ dx_ctl_js_container -d Landshark5 -container_name cont -action refresh
+ Starting job JOB-5050 for container cont.
+ 0 - 3 - 4 - 12 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 70 - 77 - 83 - 100 
+ Job JOB-5050 finished with state: COMPLETED
+
+Recover of the cointainer to a bookmark "fixeddate"
+
+ dx_ctl_js_container -d Landshark5 -container_name cont1 -action recover -timestamp fixeddate
+ Starting job JOB-7637 for container cont1.
+ 0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 68 - 77 - 82 - 100
+ Job JOB-7637 finished with state: COMPLETED
 
 =cut
 

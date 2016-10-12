@@ -57,9 +57,9 @@ GetOptions(
   'nohead' => \(my $nohead),
   'debug:i' => \(my $debug),
   'format=s' => \(my $format)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj= new Engine ($dever, $debug);
@@ -72,26 +72,26 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if (defined($status) && ( ! ( (uc $status eq 'ACTIVE') || (uc $status eq 'RESOLVED') ) ) ) {
   print "Option status can have only ACTIVE and RESOLVED value\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (defined($severity) && ( ! ( (uc $severity eq 'WARNING') || (uc $severity eq 'CRITICAL') ) ) ) {
   print "Option severity can have only WARNING and CRITICAL value\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ((!defined($severity)) && (!defined($fault)) && (!defined($status))) {
   print "Please define a filter for faults to resolve\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1); 
 }
 
@@ -119,7 +119,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # this is for 4.2 >
     if ($engine_obj->getApi() lt '1.5') {
       print "Option ignore is allowed for Delphix Engine version 4.2 or higher\n";
-      pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+      pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1); 
     }
 
@@ -138,7 +138,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);  
   }
 
@@ -148,7 +148,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $et = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($et, $engine_obj);
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj))) {
       print "Wrong end time (et) format \n";
-      pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+      pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1);  
     } 
   }

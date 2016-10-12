@@ -47,21 +47,21 @@ GetOptions(
 'csvfile|f=s' => \(my $csvfile),
 'configfile|c=s' => \(my $configfile),
 'version|v' => \(my $print_version)   
-) or pod2usage(-verbose => 2, -output=>\*STDERR);
+) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
+pod2usage(-verbose => 1, -output=>\*STDERR) && exit if $help;
 die  "$version\n" if $print_version;  
 
 if (! ( defined ($convert) && defined($csvfile) && defined($configfile) ) ) {
 	print "Parameter convert is required.\n";
-	pod2usage(-verbose => 2, -output=>\*STDERR);
+	pod2usage(-verbose => 1, -output=>\*STDERR);
 	exit;
 }
 
 if (! (( $convert eq 'tocsv') || ($convert eq 'todxconf')) ) {
 	print "Parameter convert has to possible value tocsv and todxconf\n";
-	pod2usage(-verbose => 2, -output=>\*STDERR);
+	pod2usage(-verbose => 1, -output=>\*STDERR);
 }
 
 if ( $convert eq 'tocsv' ) {

@@ -47,9 +47,9 @@ GetOptions(
   'debug:i' => \(my $debug), 
   'version' => \(my $print_version),
   'dever=s' => \(my $dever)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);

@@ -53,9 +53,9 @@ GetOptions(
   'dever=s' => \(my $dever),
   'nohead' => \(my $nohead),
   'debug:i' => \(my $debug)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -67,27 +67,27 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
-if ( ! ( ( $action eq 'create') || ( $action eq 'delete')  ) )  {
-  print "Option -action is not provided or has invalid parameter - $action \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+if ( (!defined($action) )  || (! ( ( $action eq 'create') || ( $action eq 'delete')  ) ) )  {
+  print "Option -action is not provided or has invalid parameter \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if ( (lc $action eq 'create') && ( ! (defined($timestamp) && defined($dbname) && defined($name)  ) ) ) {
   print "Options -name, -dbname and -timestampe are required to create bookmark. \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( (lc $action eq 'delete') && (! defined($name)  ) ) {
   print "Options -name is required to drop bookmark. \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -158,9 +158,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_bookmarks.pl [ -engine|d <delphix identifier> | -all ] -action [ create | delete ] -name bookmarkname 
-                     [-dbname database_name -group group_name -timestamp now|latest|'yyyy-mm-dd hh24:mi:ss' ]  
-                     [ --help|? ] [ -debug ]
+ dx_ctl_bookmarks.pl [ -engine|d <delphix identifier> | -all ] 
+                     -action [ create | delete ] 
+                     -name bookmarkname 
+                     [-dbname database_name]
+                     [-group group_name]
+                     [-timestamp now|latest|'yyyy-mm-dd hh24:mi:ss']  
+                     [-help|? ] 
+                     [-debug ]
 
 
 =head1 DESCRIPTION
@@ -214,6 +219,18 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+Create bookmark named "TEST BOOKMARK" for database TESTDX on a last snapshot
+
+ dx_ctl_bookmarks -d Landshark5 -action create -name "test bookmark" -dbname testdx -timestamp latest 
+ Bookmark test bookmark for time 2016-04-20 12:58:41 has been created
+
+Create bookmark named "BOOKMARK NOW" for database TESTDX on a current time. 
+Timezone of engine is used to create a point in time.
+
+ dx_ctl_bookmarks -d Landshark5 -action create -name "bookmark now" -dbname testdx -timestamp now 
+ Bookmark bookmark now for time 2016-04-21T10:57:41.000Z has been created
 
 
 

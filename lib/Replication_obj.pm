@@ -71,6 +71,27 @@ sub getNamespace {
     return $replication->{$reference};
 }
 
+# Procedure getReplicationByName
+# parameters: 
+# Return replication refernce for name
+
+sub getReplicationByName {
+    my $self = shift;
+    my $name = shift;
+    my $ret;
+    logger($self->{_debug}, "Entering Replication_obj::getReplicationByName",1);    
+    my @list = grep { $self->getName($_) eq $name } keys %{$self->{_replication}};
+    if (scalar(@list) < 1) {
+      print "Can't find replication specification using name - $name\n";
+    } elsif (scalar(@list) > 1) {
+      print "Too many replication specification using same name - $name\n";
+    } else {
+      $ret = $list[-1];
+    }
+    return $ret;
+}
+
+
 
 # Procedure getReplicationList
 # parameters: 
@@ -353,6 +374,34 @@ sub getLastJob {
 }
 
 
+# Procedure loadReplicationState
+# parameters: none
+# Load a list of replication objects from Delphix Engine
+
+sub loadReplicationState 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering Replication_obj::loadReplicationState",1);   
+
+    my $operation = "resources/json/delphix/replication/serializationpoint";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        if ( scalar(@{$result->{result}}) ) {
+
+            my $replication = $self->{_replication};
+
+            for my $repitem (@res) {
+                $replication->{$repitem->{reference}} = $repitem;
+            }
+
+        } 
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+}
+
+
 # Procedure loadReplicationList
 # parameters: none
 # Load a list of replication objects from Delphix Engine
@@ -379,5 +428,61 @@ sub loadReplicationList
         print "No data returned for $operation. Try to increase timeout \n";
     }
 }
+
+# Procedure replicate
+# parameters: 
+# - reference
+# Kick off replication of particular profile using refrence
+# Return job number if job started or undef otherwise
+
+sub replicate 
+{
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Replication_obj::replicate",1);
+    my $operation = "resources/json/delphix/replication/spec/" . $reference . "/execute";
+    return $self->runJobOperation($operation,"{}");
+}
+
+# Procedure runJobOperation
+# parameters: 
+# - operation - API string
+# - json_data - JSON encoded data
+# Run POST command running background job for particular operation and json data
+# Return job number if job started or undef otherwise
+
+sub runJobOperation {
+    my $self = shift;
+    my $operation = shift;
+    my $json_data = shift;
+    my $action = shift;
+
+    logger($self->{_debug}, "Entering Replication_obj::runJobOperation",1);
+    logger($self->{_debug}, $operation, 2);
+    
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $jobno;
+    
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        if (defined($action) && $action eq 'ACTION') {
+            $jobno = $result->{action};
+        } else {
+            $jobno = $result->{job};
+        }
+    } else {
+        if (defined($result->{error})) {          
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
 
 1;

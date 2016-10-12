@@ -63,9 +63,9 @@ GetOptions(
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'debug:i' => \(my $debug)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -77,33 +77,33 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (defined($export) && ( ! defined($outdir) ) ) {
   print "Option export require option outdir to be specified \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (defined($mapping) && ( $mapping eq '' ) ) {
   print "Option mapping require value to be specified \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if ((! defined($export)) && (! defined($mapping)) && (! defined($policytype)) && (! defined($policyname))) {
   print "Option policy or policyname is required\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if ( defined($policytype) && ( ! ( (uc $policytype eq 'RETENTION') || (uc $policytype eq 'SNAPSYNC') || (uc $policytype eq 'SNAPSHOT') || (uc $policytype eq 'REFRESH') ) ) )  {
   print "Option policy can have only RETENTION, SNAPSYNC, SNAPSHOT or REFRESH value\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
