@@ -67,9 +67,9 @@ GetOptions(
   'all' => (\my $all),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -80,13 +80,13 @@ $engine_obj->load_config($config_file);
 
 if ( (! defined($action) ) || ( ! ( ( lc $action eq 'update') || ( lc $action eq 'delete') ) ) ) {
   print "Option -action not defined or has invalid parameter \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ( lc $action eq 'update') && (!defined($retention)) ) {
   print "Action update require a retention parameter \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1); 
 }
 
@@ -97,20 +97,20 @@ if (defined($retention)) {
     $retention = 0;
   } elsif (! isdigit($retention) ) {
     print "Retention parameter has to be a integer or word 'forever' \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit(1);
   }
 } 
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ! ( defined($type) || defined($group) || defined($host) || defined($dbname) || defined($snapshotname) ) ) {
   print "Filter option for snapshot objects is required \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit(1); 
 }
 
@@ -126,7 +126,7 @@ my $header;
 
 if ( ! ( ( lc $timeflow eq 'c') || ( lc $timeflow eq 'a') ) )  {
   print "Option -timeflow has invalid parameter - $timeflow \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -297,12 +297,15 @@ Display snapshot with particular snapshot name
 =item B<-retention retention>
 Set snapshot retention to a number of days. Allowed values:
 
-number - number of days, ex. 10
+=over 3
 
-policy - use Retention policy for snapshot
+=item B<number> - number of days, ex. 10
 
-forever - keep snapshot forever
-  
+=item B<policy> - use Retention policy for snapshot
+
+=item B<forever> - keep snapshot forever
+
+=back  
 
 =item B<-skip>
 Skip confirmation of update or deletion
@@ -322,7 +325,36 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Set policy retention for all snapshot of database "Oracle dsource"
+
+ dx_ctl_snapshots -d Landshark5 -action update -retention policy -name "Oracle dsource"
+ Snapshots list:
+ Group 'Sources' DB name 'Oracle dsource' Snapshot time: 2016-10-03 07:13:45 EDT Snapshot name: @2016-10-03T11:13:52.335Z
+ Group 'Sources' DB name 'Oracle dsource' Snapshot time: 2016-10-12 08:02:16 EDT Snapshot name: @2016-10-12T12:02:31.027Z
+
+ Do you want to modify / delete these snapshots: (y/(n)) - use -skip to skip this confirmation
+ y
+ Snapshot @2016-10-03T11:13:52.335Z updated
+ Snapshot @2016-10-12T12:02:31.027Z updated
+
+Set policy retention for snapshot created after 2016-10-12 13:30 of database autotest
+
+ dx_ctl_snapshots.pl -d Landshark5 -action update -retention policy -name "test2" -startDate "2016-10-12 13:30"
+ Snapshots list:
+ Group 'Analytics' DB name 'test2' Snapshot time: 2016-10-12 15:20:09 IST Snapshot name: @2016-10-12T14:20:08.826Z
+
+ Do you want to modify / delete these snapshots: (y/(n)) - use -skip to skip this confirmation
+ y
+ Snapshot @2016-10-12T14:20:08.826Z updated
+
+
+Set retention to 7 days for all snapshot of database test2 without confirmation
+
+ dx_ctl_snapshots -d Landshark5 -action update -retention 7 -name "test2" -skip
+ Snapshot @2016-10-12T12:21:11.234Z updated
+ Snapshot @2016-10-12T14:20:08.826Z updated
 
 =cut
 

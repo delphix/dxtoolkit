@@ -13,11 +13,12 @@
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
 # 
-# Program Name : dx_get_template.pl
-# Description  : Export DB templates
+# Program Name : dx_ctl_replication.pl
+# Description  : Get information about replication
 # Author       : Marcin Przepiorowski
-# Created      : 14 April 2015 (v2.1.0)
+# Created      : 28 Sept 2016 (v2.2.0)
 #
+# 
 
 use strict;
 use warnings;
@@ -32,24 +33,21 @@ my $abspath = $FindBin::Bin;
 
 use lib '../lib';
 use Engine;
+use Replication_obj;
 use Formater;
-use Template_obj;
 use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
   'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name|n=s' => \(my $name), 
-  'outdir=s' => \(my $outdir),
-  'export' => \(my $export),
+  'd|engine=s' => \(my $dx_host),
+  'profilename=s' => \(my $profilename),
+  'nowait' => \(my $nowait),  
   'debug:i' => \(my $debug), 
-  'all' => (\my $all),
   'dever=s' => \(my $dever),
-  'version' => \(my $print_version),
-  'nohead' => \(my $nohead),
-  'format=s' => \(my $format)
+  'all' => (\my $all),
+  'version' => \(my $print_version)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -61,85 +59,80 @@ my $config_file = $path . '/dxtools.conf';
 
 $engine_obj->load_config($config_file);
 
+
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
-if (defined($export) && ( ! defined($outdir) ) ) {
-  print "Option export require option outdir to be specified \n";
+if (!defined($profilename)) {
+  print "Profile name is mandatory. Please specify -profilename parameter \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);
+  exit (1);  
 }
+
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
-my $output = new Formater();
-
-$output->addHeader(
-  {'Appliance',     20},
-  {'Template name', 30}
-);
-
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
-    print "Can't connect to Dephix Engine $dx_host\n\n";
+    #print "Can't connect to Dephix Engine $engine\n\n";
     next;
   };
 
-  # load objects for current engine
-  my $templates = new Template_obj ( $engine_obj, $debug );
+  my $replication = new Replication_obj( $engine_obj, $debug );
 
-  my @template_list;
-
-  if (defined($name)) {
-    my $template = $templates->getTemplateByName($name);
-    if (!defined($template)) {
-      print "Can't find template - $name\n";
-      exit 1;
+  my $ref = $replication->getReplicationByName($profilename);
+  if (!defined($ref)) {
+    $ret = $ret + 1;
+    next;
+  }
+  my $jobno;
+  if (defined($ref)) {
+    $jobno = $replication->replicate($ref);
+  }
+  
+  if (defined($nowait)) {
+    if (defined($jobno)) {
+      print "Replication job $jobno started in background\n";
+    } else {
+      print "Problem with defining a replication job. Please run with -debug\n";
     }
-    push (@template_list, $template);
   } else {
-    @template_list = $templates->getTemplateList();
-  }
-
-
-
-  # for filtered databases on current engine - display status
-  for my $tempitem ( @template_list ) {
-    $output->addLine(
-      $engine,
-      $templates->getName($tempitem)  
-    );
-
-    if (defined($export)) {
-      $templates->exportTemplate($tempitem,$outdir);
+    if (defined($jobno)) {
+      print "Starting replication job $jobno\n";
+      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Replication job finished","Problem with replication");
+    } else {
+      print "Problem with defining a replication job. Please run with -debug\n";
     }
-
   }
 
 
+
 }
 
-if (!defined($export)) {
-  Toolkit_helpers::print_output($output, $format, $nohead);
-}
 
+exit $ret;
 
 
 __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_template.pl [ -engine|d <delphix identifier> | -all ] [ -name template_name ] [  -format csv|json ]  [ -help|? ] [ -debug ] [-export -outdir dir]
+ dx_ctl_replication [-engine|d <delphix identifier> | -all ] 
+                     -profilename profile 
+                     [-nowait] 
+                     [-help|?] 
+                     [-debug ]
 
 =head1 DESCRIPTION
 
-List or export database template  from engine. If no template name is specified all templates will be processed.
+Start an replication using a profile name
 
 =head1 ARGUMENTS
 
@@ -153,14 +146,8 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
-=back
-
-=head2 Filters
-
-=over 4
-
-=item B<-name>
-Template name
+=item B<-profilename profile>
+Specify a profile name to run
 
 =back
 
@@ -168,15 +155,8 @@ Template name
 
 =over 3
 
-=item B<-export>                                                                                                                                            
-Export template into JSON file in outdir directory
-
-=item B<-outdir>                                                                                                                                            
-Location of exported templates files
-
-=item B<-format>                                                                                                                                            
-Display output in csv or json format
-If not specified pretty formatting is used.
+=item B<-nowait>                                                                                                                                            
+Don't wait for a replication job to complete. Job will be running in backgroud.
 
 =item B<-help>          
 Print this screen
@@ -186,8 +166,12 @@ Turn on debugging
 
 =back
 
+=head1 Example
 
+Replicate a profile called "backup"
 
+  dx_get_replication -d DelphixEngine -profilename backup -nowait
+  Replication job JOB-7425 started in background
 
 =cut
 

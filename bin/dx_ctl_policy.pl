@@ -51,10 +51,10 @@ GetOptions(
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -65,19 +65,19 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (defined($filename) && defined($indir) ) {
   print "Option filename and indir are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ( ! defined($filename)  ) && ( ! defined($indir) ) && ( ! defined($mapping) ) ) {
   print "Option filename, indir or mapping is required \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -201,8 +201,38 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Import polices from /tmp/policy directory into engine.
+
+ dx_ctl_policy -d Landshark43 -import -indir /tmp/policy
+ Policy Default Retention from file /tmp/policy/Default Retention.policy already exist. Problem with load policy from file /tmp/policy/Default Retention.policy
+ Policy Default Snapshot from file /tmp/policy/Default Snapshot.policy already exist. Problem with load policy from file /tmp/policy/Default Snapshot.policy
+ Policy Default SnapSync from file /tmp/policy/Default SnapSync.policy already exist. Problem with load policy from file /tmp/policy/Default SnapSync.policy
+ Policy jsontest from file /tmp/policy/jsontest.policy already exist.
+ Problem with load policy from file /tmp/policy/jsontest.policy
+ Importing policy from file /tmp/policy/marcintest.policy. Import completed
+ Importing policy from file /tmp/policy/test.policy. Import completed
+ Policy www from file /tmp/policy/www.policy already exist.
+ Problem with load policy from file /tmp/policy/www.policy
 
 
+Update existing polices using files from directory /tmp/policy
+
+ dx_ctl_policy -d Landshark43 -update -indir /tmp/policy
+ Updating policy Default Retention from file /tmp/policy/Default Retention.policy. Update completed Updating policy Default Snapshot from file /tmp/policy/Default Snapshot.policy. Update completed Updating policy Default SnapSync from file /tmp/policy/Default SnapSync.policy. Update completed Updating policy jsontest from file /tmp/policy/jsontest.policy. Update completed
+ Updating policy marcintest from file /tmp/policy/marcintest.policy. Update completed
+ Updating policy test from file /tmp/policy/test.policy. Update completed
+ Updating policy www from file /tmp/policy/www.policy. Update completed
+
+Apply polices to Delphix Engine objects using a mapping file
+
+ dx_ctl_policy -d Landshark43 -mapping /tmp/policy/mapping.Landshark Database Masking in group Analytics doesn't exist. Skipping Database Masking in group Analytics doesn't exist. Skipping Database racdb in group Sources doesn't exist. Skipping
+ Database racdb in group Sources doesn't exist. Skipping
+ Applying policy Default Retention to database Employee Oracle 11G DB 
+ Apply completed 
+ Applying policy Default SnapSync to database Employee Oracle 11G DB 
+ Apply completed
 
 =cut
 

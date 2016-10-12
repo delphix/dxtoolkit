@@ -51,9 +51,9 @@ GetOptions(
   'nohead' => \(my $nohead),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -65,27 +65,27 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if (! (defined($type) && defined($action) ) ) {
   print "Option -action and -type are mandatory \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if ( ! ( (lc $action eq 'create') || (lc $action eq 'delete') || (lc $action eq 'display') || (lc $action eq 'stop') || (lc $action eq 'start') || (lc $action eq 'restart') ) ) {
   print "Option -action has a wrong argument $action \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ( (lc $action eq 'create') || (lc $action eq 'delete') ) &&  ( ! ( (lc $type eq 'nfs-all') || (lc $type eq 'nfs-by-client') || (lc $type eq 'iscsi-by-client') ) ) ) {
   print "Create or delete action can be done with those types only : nfs-all, nfs-by-client or iscsi-by-client  \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -221,21 +221,25 @@ Control analytics collector inside Delphix Engine
 
 =over 4
 
-=item B<-t>
-Type: cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names
+=item B<-type|t> Type: cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names
 
 ex.
--t all - for all analytics
 
--t standard - for cpu,disk,network and nfs analytics
+=over 4
 
--t cpu,disk - for cpu and disk
+=item B<-type all> - for all analytics
+
+=item B<-type standard> - for cpu,disk,network and nfs analytics
+
+=item B<-t cpu,disk> - for cpu and disk
+
+=back 
 
 =item B<-action start|stop|restart|display|create|delete>
+
 Choose action on selected analytic type
 
 Custom analytics can be created or deleted using create or delete operation and following types: nfs-by-client, nfs-all
-
 
 
 =back
@@ -244,14 +248,12 @@ Custom analytics can be created or deleted using create or delete operation and 
 
 =over 4
 
-=item B<-format>                                                                                                                                            
+=item B<-format csv|json>                                                                                                                                            
 Display output in csv or json format
 If not specified csv formatting is used.
 
-
 =item B<-nohead>
 Turn off header output
-
 
 =item B<-help>          
 Print this screen
@@ -260,3 +262,47 @@ Print this screen
 Turn on debugging
 
 =back
+
+=head1 EXAMPLES
+
+Restart all collectors
+
+ dx_ctl_analytics -d Landshark5 -action restart -type all
+ Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
+ Analytic default.cpu has been stopped 
+ Analytic default.cpu has been started 
+ Analytic default.disk has been stopped 
+ Analytic default.disk has been started 
+ Analytic default.iscsi has been stopped 
+ Analytic default.iscsi has been started 
+ Analytic iscsi-by-client has been stopped 
+ Analytic iscsi-by-client has been started 
+ Analytic default.network has been stopped 
+ Analytic default.network has been started 
+ Analytic default.nfs has been stopped 
+ Analytic default.nfs has been started 
+ Analytic nfs-all has been stopped 
+ Analytic nfs-all has been started 
+ Analytic nfs-by-client has been stopped 
+ Analytic nfs-by-client has been started 
+ Analytic default.tcp has been stopped 
+ Analytic default.tcp has been started
+ 
+Create new collector - nfs-all
+
+ dx_ctl_analytics -d Landshark5 -action create -type nfs-all 
+ Connected to Delphix Engine Landshark5 (IP 172.16.180.131) 
+ New analytic nfs-all has been created
+
+
+Display collectors specified as a comma separated list
+
+ dx_ctl_analytics.pl -d Landshark5 -action display -type cpu,disk,nfs 
+ Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
+ Engine         Analytic   State    Axes 
+ -------------- ---------- -------- -------------------------------------------------------
+ Landshark5     cpu        RUNNING  idle,user,kernel
+ Landshark5     disk       RUNNING  latency,avgLatency,throughput,count,op
+ Landshark5     nfs        RUNNING  latency,throughput,count,op
+
+=cut

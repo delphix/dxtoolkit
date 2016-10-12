@@ -62,9 +62,9 @@ GetOptions(
   'interval|i=s' => \($resolution), 
   'version' => \(my $print_version),
   'nohead' => \(my $nohead)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -88,7 +88,7 @@ my %allowedres = (
 
 if (!defined( $allowedres{$resolution} )) {
   print "Wrong interval \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (3);    
 }
 
@@ -121,7 +121,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
     print "Wrong start time (st) format \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (3);  
   }
 
@@ -129,7 +129,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($et) && (! defined($et_timestamp = Toolkit_helpers::timestamp($et,$engine_obj)))) {
     print "Wrong end time (et) format \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (3);  
   }
 

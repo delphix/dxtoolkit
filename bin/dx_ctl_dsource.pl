@@ -69,11 +69,11 @@ GetOptions(
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 
@@ -86,14 +86,14 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'attach') || ( $action eq 'detach') ) ) ) {
   print "Option -action not defined or has invalid parameter - $action \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
@@ -103,7 +103,7 @@ if ($action ne 'detach') {
 
   if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') ) ) ) {
     print "Option -type has invalid parameter - $type \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
   
@@ -114,25 +114,25 @@ if ($action ne 'detach') {
   
   if ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) {
     print "Options -type, -sourcename, -dsourcename, -group, -source_os_user are required. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
   
   if (( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
     print "Options -dbuser and -password are required for non vFiles dsources. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);  
   }
 
   if (( lc $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
     print "Options -stage_os_user, -stageinst, -stageenv, -sourceinst, -sourceenv and -backup_dir are required. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
   if ( defined($logsync) && ( ! ( ( lc $logsync eq 'yes') || ( lc $logsync eq 'no')  ) ) ) {
     print "Options -logsync has yes and no value only. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }  
 
@@ -145,7 +145,7 @@ if ($action ne 'detach') {
   
   if ( ! ( defined($dsourcename)  ) ) {
     print "Options  -dsourcename is required to detach. \n";
-    pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 }
@@ -364,7 +364,58 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Create a Sybase dSource from database called pub3 running on instance LINUXSOURCE discovered in environment LINUXSOURCE, 
+staging environment is on LINUXTARGET environment with instance named LINUXTARGET
+
+ dx_ctl_dsource -d Landshark5 -type sybase -sourcename pubs3 -sourceinst LINUXSOURCE -sourceenv LINUXSOURCE \
+                -source_os_user delphix -dbuser sa -password delphixdb -group Sources -dsourcename "Sybase dsource" \ 
+                -stage_os_user delphix -stageinst LINUXTARGET -stageenv LINUXTARGET -backup_dir "/u02/sybase_back" 
+                -action create -dumppwd xxxxxx                
+ Waiting for all actions to complete. Parent action is ACTION-2995 
+ Action completed with success.
+ 
+Create an Oracle dSource from database unique name TESTU running from 
+Oracle Home "/u01/app/oracle/product/11.2.0/dbhome_1" discovered in environment LINUXSOURCE
+
+ dx_ctl_dsource -d Landshark5 -type oracle -sourcename TESTU -sourceinst /u01/app/oracle/product/11.2.0/dbhome_1 \
+                -sourceenv LINUXSOURCE -source_os_user delphix -dbuser delphixdb -password delphixdb -group Sources \
+                -dsourcename "ORACLE dsource" -action create
+ Waiting for all actions to complete. Parent action is ACTION-3011
+ Action completed with success.
+ 
+Create an MSSQL dSource from database unique name AdventureWorksLT2008R2 running on MSSQLSERVER instance discovered in 
+environment WINDOWSSOURCE, staging environment is on WINDOWSTARGET environment with instance named MSSQLSERVER
+
+ dx_ctl_dsource -d Landshark5 -type mssql -sourcename AdventureWorksLT2008R2 -sourceinst MSSQLSERVER \
+                -sourceenv WINDOWSSOURCE -source_os_user "DELPHIX\delphix_admin" -dbuser aw -password delphixdb \
+                -group Sources -dsourcename AdventureWorksLT2008R2 -stage_os_user "DELPHIX\delphix_admin" 
+                -stageinst MSSQLSERVER - stageenv WINDOWSTARGET -backup_dir "\\\\172.16.180.133\\backups" -action create
+ Waiting for all actions to complete. Parent action is ACTION-3050
+ Action completed with success.
+
+Detach dsource
+
+ dx_ctl_dsource -d Landshark5 -action detach -dsourcename "Sybase dsource"
+ Waiting for all actions to complete. Parent action is ACTION-3050
+ Action completed with success.
+
+Attach Sybase dsource 
+ 
+ dx_ctl_dsource -d Landshark5 -action attach -type sybase -sourcename pubs3 -sourceinst LINUXSOURCE -sourceenv LINUXSOURCE \
+                -source_os_user delphix -dbuser sa -password delphixdb -group Sources -dsourcename "Sybase dsource" \
+                -stage_os_user delphix -stageinst LINUXTARGET -stageenv LINUXTARGET -backup_dir "/u02/sybase_back"
+ Waiting for all actions to complete. Parent action is ACTION-12699
+ Action completed with success
+
+Attach Oracle dsource 
+
+ dx_ctl_dsource -d Landshark5 -action attach -type oracle -sourcename TESTU -sourceinst /u01/app/oracle/product/11.2.0/dbhome_1 \
+                              -sourceenv LINUXSOURCE -source_os_user delphix -dbuser delphixdb -password delphixdb \
+                              -group Sources -dsourcename "Oracle dsource"
+ Waiting for all actions to complete. Parent action is ACTION-12691
+ Action completed with success
 
 =cut
 

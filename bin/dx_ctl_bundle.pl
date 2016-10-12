@@ -51,9 +51,9 @@ GetOptions(
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -64,25 +64,25 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if (!defined($action)) {
   print "Argument action is required\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);  
 }
 
 if ( ! ( (lc $action eq 'download') || (lc $action eq 'upload') ) ) {
   print "Value of argument action is unknown - $action\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 } 
 
 if ((lc $action eq 'download') && (!defined($dirname))) {
   print "Option dirname is required for action download\n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);  
 } 
 
@@ -201,7 +201,21 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Generate a support bundle and download into local file systemkey
+
+ dx_ctl_bundle -d Landshark5 -action download -dirname ~/Documents/temp/
+ Please wait. Support bundle will be genarated and saved into directory - /Users/mprzepiorowski/Documents/temp/
+ It can take several minutes
+ Support bundle for engine Landshark5 saved into /Users/mprzepiorowski/Documents/temp/564d1c9f-e572-7149-a48d-ad75f20107c4-20161012-12-03-45.tar.gz
+
+Generate a support bundle and upload it into Delphix Cloud
+
+ dx_ctl_bundle.pl -d Landshark5 -action upload -case 98765432
+ Starting job JOB-7538 for engine Landshark5.
+ 0 - 50 - 51 - 52 - 53 - 54 - 55 - 56 - 57 - 58 - 59 - 60 - 61 - 62 - 63 - 64 - 65 - 66 - 67 - 68 - 69 - 70 - 71 - 72 - 73 - 74 - 75 - 76 - 77 - 78 - 79 - 80 - 81 - 82 - 83 - 84 - 85 - 86 - 87 - 88 - 89 - 90 - 91 - 92 - 93 - 94 - 95 - 96 - 97 - 98 - 99 - 100
+ Job JOB-7538 finished with state: COMPLETED
 
 =cut
 

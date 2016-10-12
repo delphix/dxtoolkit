@@ -72,7 +72,7 @@ GetOptions(
 
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 
@@ -85,19 +85,19 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ! ( defined($type) && defined($sourcename) && defined($targetDirectory) && defined($dbname) && defined($environment) && defined($timestamp) && defined($envinst)  ) ) {
   print "Options -type, -sourcename, -targetDirectory, -dbname, -environment, -timestamp and -envinst are required. \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') ) )  {
   print "Option -type has invalid parameter - $type \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 

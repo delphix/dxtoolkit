@@ -91,11 +91,11 @@ GetOptions(
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
   'version' => \(my $print_version)
-) or pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+) or pod2usage(-verbose => 1, -input=>\*DATA);
 
 
 
-pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 1, -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 
@@ -108,7 +108,7 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
 
@@ -118,30 +118,35 @@ if (( $type eq 'vFiles' ) && (!defined($envinst)) ) {
 
 
 
-# if ( ! ( defined($type) && defined($sourcename) && defined($targetname) && defined($dbname) && defined($environment) && defined($group) && defined($envinst)  ) ) {
-#   print "Options -type, -sourcename, -targetname, -dbname, -environment, -group and -envinst are required. \n";
-#   pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-#   exit (1);
-# }
+if ( ! ( defined($type) && defined($targetname) && defined($dbname) && defined($environment) && defined($group) && defined($envinst)  ) ) {
+  print "Options -type, -targetname, -dbname, -environment, -group and -envinst are required. \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
 
+if (! ( defined($sourcename) || defined($empty) ) ) {
+  print "Options -sourcename or -empty are required. \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);  
+}
 
 
 if ( defined($archivelog) && (! ( ( $archivelog eq 'yes') || ( $archivelog eq 'no') ) ) )   {
   print "Option -archivelog has invalid parameter - $archivelog \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
 
 
 if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') || ( $type eq 'mysql') || ( $type eq 'vFiles') ) )  {
   print "Option -type has invalid parameter - $type \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
 
 if (defined($timestamp) && defined($changenum)) {
   print "Parameter timestamp and location are mutually exclusive \n";
-  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
+  pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
 
@@ -524,6 +529,11 @@ __DATA__
  [-recoveryModel model ]
  [-additionalMount envname,mountpoint,sharedpath]
  [-rac_instance env_node,instance_name,instance_no ]
+ [-redoGroup N]
+ [-redoSize N]
+ [-listeners listener_name]
+ [-hooks path_to_hooks]
+ [-envUser username]
  [-help] [-debug]
 
 
@@ -620,19 +630,19 @@ Create VDB in archivelog (yes - default) or noarchielog (no) (for Oracle)
 =item B<-truncateLogOnCheckpoint>
 Truncate a log on checkpoint. Set this parameter to enable truncate operation (for Sybase)
 
-=item B<-postrefresh pathtoscript >
+=item B<-postrefresh pathtoscript>
 Post refresh hook
 
-=item B<-configureclone pathtoscript >
+=item B<-configureclone pathtoscript>
 Configure Clone hook
 
-=item B<-prerefresh  pathtoscript >
+=item B<-prerefresh pathtoscript>
 Prerefresh hook
 
-=item B<-prescript  pathtoscript >
+=item B<-prescript  pathtoscript>
 Path to prescript on Windows target
 
-=item B<-postscript  pathtoscript >
+=item B<-postscript  pathtoscript>
 Path to postscript on Windows target
 
 =item B<-recoveryModel model>
@@ -652,6 +662,22 @@ Repeat option if you want to provide information for more nodes
 
 ex. -rac_instance node1,VBD1,1 -rac_instance node2,VBD2,2 
 
+
+=item B<-redoGroup N>
+Create N redo groups
+
+=item B<-redoSize N>
+Each group will be N MB in size
+
+=item B<-listeners listener_name>
+Use listener named listener_name
+
+=item B<-hooks path_to_hooks>
+Import hooks exported using dx_get_hooks 
+
+=item B<-envUser username>
+Use an environment user "username" for provisioning database
+
 =back
 
 
@@ -660,14 +686,63 @@ ex. -rac_instance node1,VBD1,1 -rac_instance node2,VBD2,2
 =over 2
 
 =item B<-help>          
-Print this screen
+Print usage information
 
 =item B<-debug>
 Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Provision an Oracle VDB using latest snapshot
+
+ dx_provision_vdb -d Landshark -sourcename "Employee Oracle DB" -dbname autoprov -targetname autoprov -group Analytics -environment LINUXTARGET -type oracle -envinst "/u01/app/oracle/product/11.2.0/dbhome_1"
+ Starting provisioning job - JOB-232
+ 0 - 7 - 11 - 13 - 18 - 40 - 48 - 52 - 56 - 58 - 59 - 60 - 62 - 63 - 75 - 100
+ Job JOB-232 finised with state: COMPLETED VDB created.
+
+Provision a Sybase VDB using a latest snapshot
+
+ dx_provision_vdb -d Landshark -group Analytics -sourcename 'ASE pubs3 DB' -targetname testsybase -dbname testsybase -environment LINUXTARGET -type sybase -envinst LINUXTARGET
+ Starting provisioning job - JOB-158139
+ 0 - 11 - 15 - 75 - 100
+ Job JOB-158139 finised with state: COMPLETED
+ 
+Provision a Sybase VDB using a snapshot name "@2015-09-08T08:46:47.000" (to list snapshots use dx_get_snapshots)
+ 
+ dx_provision_vdb -d Landshark -group Analytics -sourcename 'ASE pubs3 DB' -targetname testsybase -dbname testsybase -environment LINUXTARGET -type sybase -envinst LINUXTARGET -timestamp "@2015-09-08T08:46:47.000" 
+ Starting provisioning job - JOB-158153
+ 0 - 11 - 15 - 63 - 100
+ Job JOB-158153 finised with state: COMPLETED VDB created.
+
+Privision a vFiles using a latest snapshot
+
+ dx_provision_vdb -d Landshark43 -group Analytics -sourcename "files" -targetname autofs -path /mnt/provision/home/delphix -environment LINUXTARGET -type vFiles
+ Starting provisioning job - JOB-798
+ 0 - 7 - 11 - 75 - 100
+ Job JOB-798 finised with state: COMPLETED VDB created.
+
+Privision a empty vFiles
+
+ dx_provision_vdb -d Landshark5 -type vFiles -group "Test" -creategroup -empty -targetname "vFiles" -dbname "/home/delphix/de_mount" -environment "LINUXTARGET" -envinst "Unstructured Files"  -envUser "delphix"
+ Starting provisioning job - JOB-900
+ 0 - 7 - 11 - 75 - 100
+ Job JOB-900 finised with state: COMPLETED VDB created.
+
+Privision a MS SQL using a latest snapshot
+
+ dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER
+ Starting provisioning job - JOB-158159
+ 0 - 3 - 11 - 18 - 75 - 100
+ Job JOB-158159 finised with state: COMPLETED VDB created.
+
+Privision a MS SQL using a snapshot from "2015-09-23 10:23"
+
+ dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER -timestamp "2015-09-23 10:23" 
+ Starting provisioning job - JOB-158167
+ 0 - 3 - 11 - 18 - 67 - 75 - 100
+ Job JOB-158167 finised with state: COMPLETED VDB created.
 
 =cut
 
