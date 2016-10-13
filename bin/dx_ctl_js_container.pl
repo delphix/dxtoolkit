@@ -154,10 +154,10 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] -action reset|refresh|recover -container_name container_name 
-                       [-template_name template_name]  
-                       [-timestamp timestamp]
-                       [ -help|? ] [ -debug ]
+ dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] -action reset|refresh|recover -container_name container_name 
+                        [-template_name template_name]  
+                        [-timestamp timestamp]
+                        [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

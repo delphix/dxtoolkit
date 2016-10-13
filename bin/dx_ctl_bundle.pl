@@ -157,12 +157,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_ctl_bundle.pl  [ -d <delphix identifier> | -all ] 
-                  -action download|upload  
-                  [-dirname dirname ] 
-                  [-case number]
-                  [-debug]
-                  [ -help|? ]
+ dx_ctl_bundle.pl  [ -d <delphix identifier> | -all ] 
+                   -action download|upload  
+                   [-dirname dirname ] 
+                   [-case number]
+                   [-debug]
+                   [ -help|? ]
 
 =head1 ARGUMENTS
 

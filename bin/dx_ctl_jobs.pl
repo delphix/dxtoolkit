@@ -247,10 +247,9 @@ Turn on debugging
 =head1 EXAMPLES
 
 Cancel a job JOB-267199
- 
- dx_ctl_jobs -d Delphix32 -action cancel -jobref JOB-267199 
- Job - JOB-267199 – cancelled
 
+ dx_ctl_jobs -d Delphix32 -action cancel -jobref JOB-267199 
+ Job - JOB-267199 - cancelled
 
 =cut
 

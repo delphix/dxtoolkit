@@ -304,7 +304,7 @@ Control an users in Delphix Engine using a CSV file
 
 =head1 ARGUMENTS
 
-=head2 Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
+Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
 
 =over 10
 
@@ -320,12 +320,12 @@ Display databases on all Delphix appliance
 
 =over 4
 
-=item B<-file filename >
+=item B<-file filename>
 CSV file name with user definition and actions
 Field list
 command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, is_admin
 
-=item B<-profile filename >
+=item B<-profile filename>
 CSV file name with user profile definition. It can be generated using dx_get_users profile option. 
 Field list
 username, target_type, target_name, role
