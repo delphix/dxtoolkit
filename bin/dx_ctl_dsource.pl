@@ -277,7 +277,7 @@ Create or attache dSource to a Delphix Engine
 
 =head1 ARGUMENTS
 
-=head2 Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
+Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
 
 =over 10
 
