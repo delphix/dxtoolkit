@@ -483,20 +483,20 @@ sub getLDAPServerConf
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getLDAPServerConf",1);
     
-    if (!defined($self->{_ldap})) {
+    if (!defined($self->{_ldapserver})) {
     
       my $operation = "resources/json/delphix/service/ldap/server";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
       
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-        $self->{_ldap} = $result->{result};
+        $self->{_ldapserver} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
       
     }
-
-    return $self->{_ldap};
+    
+    return $self->{_ldapserver};
     
 }
 
@@ -510,6 +510,7 @@ sub getLDAPServers
     logger($self->{_debug}, "Entering System_obj::getLDAPServers",1);
     my $servers = $self->getLDAPServerConf();
     my @retarray;
+    # it's one server for now 
     for my $seritem (@{$servers}) {
       my %serhash;
       $serhash{address} = $seritem->{host};
