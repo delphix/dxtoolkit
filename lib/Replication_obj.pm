@@ -36,7 +36,12 @@ sub new {
     logger($debug, "Entering Replication_obj::constructor",1);
 
     my %replication;
+    my %replication_state;
+    my %replication_points;
+    
     my $self = {
+        _replication_points => \%replication_points,
+        _replication_state => \%replication_state,
         _replication => \%replication,
         _dlpxObject => $dlpxObject,
         _debug => $debug
@@ -51,6 +56,12 @@ sub new {
     $self->{_databases} = $databases;
 
     $self->loadReplicationList($debug);
+        
+    if ($self->{_dlpxObject}->getApi() ge '1.5') {
+      $self->loadReplicationState();
+      $self->loadReplicationPoint();
+    }
+    
     return $self;
 }
 
@@ -120,6 +131,50 @@ sub getName {
     my $replication = $self->{_replication};
     return $replication->{$reference}->{name};
 }
+
+# Procedure getLastPoint
+# parameters: 
+# - reference
+# Return hash with last replication data (time, bytes, throughput)
+
+sub getLastPoint {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Replication_obj::getLastPoint",1);   
+    
+    my $replication_state = $self->{_replication_state};
+    
+    my @stateforref = grep { $replication_state->{$_}->{spec} eq $reference } keys %{$replication_state};
+
+    my %ret;
+
+    if (scalar(@stateforref)>0) {
+      my $last_replication_point_ref =  $replication_state->{$stateforref[-1]}->{lastPoint};
+    
+      my $last_point = $self->{_replication_points}->{$last_replication_point_ref};
+    
+      my $tz = new Date::Manip::TZ;
+      my $dt = new Date::Manip::Date;
+      my ($date,$offset,$isdst,$abbrev);
+      
+      my $timezone = $self->{_dlpxObject}->getTimezone();
+      
+      my $err = $dt->parse($last_point->{dataTimestamp});
+      my $dttemp = $dt->value();
+
+      $dt->config("setdate","zone,GMT");
+      ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
+      my $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+      $ret{timestamp} = $ts;
+      $ret{throughput} = sprintf("%9.2f", $last_point->{averageThroughput}/1024/1024); #MB/s
+      $ret{size} = sprintf("%9.2f", $last_point->{bytesTransferred}/1024/1024); #MB
+      
+    } 
+    
+    return \%ret;
+}
+
 
 
 # Procedure getEnabled
@@ -254,7 +309,7 @@ sub getLastJob {
 
     if ( ! defined($self->{_jobs})) {
         #load jobs first
-        $jobs = new Jobs($self->{_dlpxObject}, Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(1*24*60),$self->{_dlpxObject}), undef, undef, undef, 'REPLICATION_SEND', undef, $self->{_debug});
+        $jobs = new Jobs($self->{_dlpxObject}, Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(1*24*60),$self->{_dlpxObject}), undef, undef, undef, 'REPLICATION_SEND', undef, undef, $self->{_debug});
         $self->{_jobs} = $jobs;
     } else {
         $jobs = $self->{_jobs};
@@ -374,6 +429,35 @@ sub getLastJob {
 }
 
 
+# Procedure loadReplicationPoint
+# parameters: none
+# Load a list of replication objects from Delphix Engine
+
+sub loadReplicationPoint 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering Replication_obj::loadReplicationPoint",1);   
+
+    my $operation = "resources/json/delphix/replication/serializationpoint";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+    my $replication_points;
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        if ( scalar(@{$result->{result}}) ) {
+
+            $replication_points = $self->{_replication_points};
+
+            for my $repitem (@res) {
+                $replication_points->{$repitem->{reference}} = $repitem;
+            }
+
+        } 
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+    
+}
+
 # Procedure loadReplicationState
 # parameters: none
 # Load a list of replication objects from Delphix Engine
@@ -383,22 +467,24 @@ sub loadReplicationState
     my $self = shift;
     logger($self->{_debug}, "Entering Replication_obj::loadReplicationState",1);   
 
-    my $operation = "resources/json/delphix/replication/serializationpoint";
+    my $operation = "resources/json/delphix/replication/sourcestate";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+    my $replication_state;
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         my @res = @{$result->{result}};
         if ( scalar(@{$result->{result}}) ) {
 
-            my $replication = $self->{_replication};
+            $replication_state = $self->{_replication_state};
 
             for my $repitem (@res) {
-                $replication->{$repitem->{reference}} = $repitem;
+                $replication_state->{$repitem->{reference}} = $repitem;
             }
 
         } 
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
+    
 }
 
 
