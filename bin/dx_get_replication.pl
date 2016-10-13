@@ -85,7 +85,9 @@ if (defined($last)) {
       {'Appliance',          10},
       {'Profile name',       20},
       {'Replication target', 20},
-      {'Enable',              9}
+      {'Last replication ',  25},
+      {'Avg throughput MB/s', 9},
+      {'Transfered size MB', 10}
   );  
 } elsif (defined($list)) {
   $output->addHeader(
@@ -128,6 +130,18 @@ for my $engine ( sort (@{$engine_list}) ) {
         $replication->getTargetHost($repitem),
         $replication->getEnabled($repitem)
       );
+    } elsif (defined($last)) {
+      my $lastpoint = $replication->getLastPoint($repitem);
+      if (defined($lastpoint->{timestamp})) {
+        $output->addLine(
+          $engine,
+          $replication->getName($repitem),
+          $replication->getTargetHost($repitem),
+          $lastpoint->{timestamp},
+          $lastpoint->{throughput},
+          $lastpoint->{size}
+        );    
+      }
     } else {
 
       my $schedule = ($replication->getLastJob($repitem))->{'Schedule'};
@@ -184,6 +198,13 @@ Display databases on all Delphix appliance
 
 =over 3
 
+=item B<-list>
+Display list of replication profiles
+
+=item B<-last>
+Display last status of replication profile
+
+
 =item B<-cron>
 Display schedule using a cron expression
 
@@ -205,7 +226,15 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+
+Last replication status
+
+ dx_get_replication.pl -d Landshark5 -last
+ Appliance  Profile name         Replication target   Last replication          Avg throu Transfered
+ ---------- -------------------- -------------------- ------------------------- --------- ----------
+ de         DBE_Replica          de-rep                2016-10-13 08:30:01 PDT       26.76    196.99
 
 
 =cut
