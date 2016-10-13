@@ -281,6 +281,17 @@ sub getEngineName {
    return $self->{_enginename};
 }
 
+
+# Procedure getUsername
+# parameters: 
+# Return username
+
+sub getUsername {
+   my $self = shift; 
+   logger($self->{_debug}, "Entering Engine::getUsername",1);
+   return $self->{_user};
+}
+
 # Procedure getApi
 # parameters: 
 # Return api version
