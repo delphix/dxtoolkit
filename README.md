@@ -12,13 +12,28 @@ Dxtoolkit scripts look and feel like UNIX executables, following the typical con
 * OpenSSL 1.0 library is required for Solaris Sparc, Solaris x64, Red Hat 6 and Red Hat 7 
 * OpenSSL 0.98 library is required for Red Hat 5
 
-Download a compiled version of dxtoolkit for required platform and create a configuration file dxtools.conf based on dxtools.conf.example.
+Download a compiled version of DxToolkit for required platform from a [releases  page](https://github.com/delphix/dxtoolkit/releases). 
+Create a configuration file *dxtools.conf* based on dxtools.conf.example or a Wiki page.
 
 Check a [documentation](https://github.com/delphix/dxtoolkit/wiki) for more details
 
 ### Source version
 
-TBD
+Perl version 5.16 or higher
+
+**Required packages**
+- JSON
+- Date::Manip
+- DateTime::Event::Cron::Quartz
+- DateTime::Format::DateParse
+- Crypt::CBC
+- Crypt::Blowfish
+- Text::CSV
+- Try::Tiny
+- LWP::UserAgent
+- Net::SSLeay
+- IO::Socket::SSL
+- LWP::Protocol::https
 
 ## Legalness
 ```
