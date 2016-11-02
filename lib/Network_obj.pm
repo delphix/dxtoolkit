@@ -439,7 +439,7 @@ sub getLatencyTestsList
    my $net = $self->{_network_latency};
     
    if (defined($hostref)) {
-      @retarr = grep { $net->{$_}->{parameters}->{remoteHost} eq $hostref } sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
+      @retarr = grep { defined($net->{$_}->{parameters}->{remoteHost}) && ( $net->{$_}->{parameters}->{remoteHost} eq $hostref ) } sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    } else {
       @retarr = sort { Toolkit_helpers::sort_by_number($a,$b) } (keys %{$net});
    }
