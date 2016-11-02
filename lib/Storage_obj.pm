@@ -65,7 +65,7 @@ sub getTestList
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Storage_obj::getTestList",1);
-    my @ret = sort ( keys %{$self->{_storage_test}} );
+    my @ret = sort { Toolkit_helpers::sort_by_number($a, $b) } ( keys %{$self->{_storage_test}} );
     return \@ret;
 }
 
