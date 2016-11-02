@@ -89,6 +89,7 @@ my $output = new Formater();
 
 if (lc $type eq 'latency') {
   $output->addHeader(
+      {'engine',               20},
       {'name',                 35},
       {'remote host',          15},
       {'VDB found',            10}, 
@@ -103,6 +104,7 @@ if (lc $type eq 'latency') {
   );
 } elsif (lc $type eq 'throughput') {
   $output->addHeader(
+      {'engine',               20},
       {'name',                 35},
       {'remote host',          15}, 
       {'VDB found',            10}, 
@@ -114,6 +116,7 @@ if (lc $type eq 'latency') {
   );
 } elsif (lc $type eq 'dsp') {
   $output->addHeader(
+      {'engine',               20},
       {'name',                 35},
       {'remote host',          15},  
       {'state',                15},
@@ -236,6 +239,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       
       if (lc $type eq 'latency') {
          $output->addLine(
+          $engine,
           $net->getName($netitem),
           $hostname,
           $dbtype_disp,
@@ -250,6 +254,7 @@ for my $engine ( sort (@{$engine_list}) ) {
          );
       } elsif (lc $type eq 'throughput') {
          $output->addLine(
+           $engine,
            $net->getName($netitem),
            $hostname,
            $dbtype_disp,
@@ -261,6 +266,7 @@ for my $engine ( sort (@{$engine_list}) ) {
          );
       } else  {
          $output->addLine(
+           $engine,
            $net->getName($netitem),
            $hostname,
            $net->getState($netitem),
