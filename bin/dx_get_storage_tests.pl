@@ -180,12 +180,23 @@ for my $engine ( sort (@{$engine_list}) ) {
    my @testidloop;
    
    if (defined($testid)) {
-     if (defined($st->isTestExist($testid))) {
-       push(@testidloop, $testid);
+     if (lc $testid eq 'last') {
+       my @testlist = @{$st->getTestList()};
+       if (defined($testlist[-1])) {
+         push(@testidloop, $testlist[-1]);
+       } else {
+         print "Can't find storage test on engine $engine\n";
+         $ret = $ret + 1;
+         next;       
+       }
      } else {
-       print "Test id - $testid doesn't exist on engine $engine\n";
-       $ret = $ret + 1;
-       next;
+       if (defined($st->isTestExist($testid))) {
+         push(@testidloop, $testid);
+       } else {
+         print "Test id - $testid doesn't exist on engine $engine\n";
+         $ret = $ret + 1;
+         next;
+       }
      }
    } else {
      @testidloop = @{$st->getTestList()};
@@ -230,7 +241,7 @@ for my $engine ( sort (@{$engine_list}) ) {
          }
            
          if ( -w $iorc ) {
-           my $filename =  File::Spec->catfile($iorc, 'IORC_' . $engine . "_" . $testiditem . ".txt"); 
+           my $filename =  File::Spec->catfile($iorc, $engine . "_IORC_" . $testiditem . ".txt"); 
            if ($st->generateIORC($testiditem, $filename)) {
              print "Problem with generating a IORC $filename \n";
              $ret = $ret + 1;
