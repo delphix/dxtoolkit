@@ -41,6 +41,7 @@ use Jobs_obj;
 use Group_obj;
 use Toolkit_helpers;
 use FileMap;
+use Policy_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -86,6 +87,8 @@ GetOptions(
   'archivelog=s' => \($archivelog),
   'truncateLogOnCheckpoint' => \(my $truncateLogOnCheckpoint),
   'recoveryModel=s' => \(my $recoveryModel),
+  'snapshotpolicy=s' => \(my $snapshotpolicy),
+  'retentionpolicy=s' => \(my $retentionpolicy),
   'noopen' => \(my $noopen),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug), 
@@ -95,7 +98,7 @@ GetOptions(
 
 
 
-pod2usage(-verbose => 1, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2, -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 
@@ -173,6 +176,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $databases = new Databases($engine_obj,$debug);
   my $groups = new Group_obj($engine_obj, $debug); 
+  # load objects for current engine
+  my $policy = new Policy_obj( $engine_obj, $debug);
 
   if (! defined($groups->getGroupByName($group))) {
     if (defined($creategroup)) {
@@ -365,7 +370,39 @@ for my $engine ( sort (@{$engine_list}) ) {
         
     $db->setHooksfromJSON($loadedHooks);  
     
+  }
+  
+  #checking policy
+  my $snapshotpolicy_ref;
+  my $retentionpolicy_ref;
+  if (defined($snapshotpolicy)) {
+    $snapshotpolicy_ref = $policy->getPolicyByName($snapshotpolicy);
+    if ( !defined($snapshotpolicy_ref)  ) {
+      print "Snapshot policy $snapshotpolicy not found. Skipping provisioning on engine $engine\n";
+      $ret = $ret + 1;
+      next;
+    } 
     
+    if ( $policy->getType($snapshotpolicy_ref) ne 'SnapshotPolicy'  ) {
+      print "Snapshot policy $snapshotpolicy is a wrong type. Skipping provisioning on engine $engine\n";
+      $ret = $ret + 1; 
+      next;  
+    }
+  }
+  
+  if (defined($retentionpolicy)) {
+    $retentionpolicy_ref = $policy->getPolicyByName($retentionpolicy);
+    if (defined($retentionpolicy) && (!defined($retentionpolicy_ref))  ) {
+      print "$retentionpolicy policy $retentionpolicy not found. Skipping provisioning on engine $engine\n";
+      $ret = $ret + 1;
+      next;
+    } 
+    
+    if ( defined($retentionpolicy) && ( $policy->getType($retentionpolicy_ref) ne 'RetentionPolicy' ) ) {
+      print "$retentionpolicy policy $retentionpolicy is a wrong type. Skipping provisioning on engine $engine\n";
+      $ret = $ret + 1;
+      next;  
+    }
   }
 
   # Database specific code
@@ -441,6 +478,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
         
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance);
+        
   } 
   elsif ($type eq 'mssql') {
 
@@ -489,8 +527,19 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
   } 
-
-
+    
+  if (defined($snapshotpolicy_ref)) {
+    if ($policy->applyPolicy($snapshotpolicy_ref, $db->return_currentobj())) {
+      print "Problem with applying snapshot policy - $snapshotpolicy \n";
+    }
+  }
+  
+  if (defined($retentionpolicy_ref)) {
+    if ($policy->applyPolicy($retentionpolicy_ref, $db->return_currentobj())) {
+      print "Problem with applying retention policy - $retentionpolicy \n";
+    }
+  }
+  
   $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "VDB created.","Problem with VDB creation");
 
 }
@@ -527,6 +576,8 @@ __DATA__
  [-prescript pathtoscript ]
  [-postscript pathtoscript ]
  [-recoveryModel model ]
+ [-snapshotpolicy name]
+ [-retentionpolicy name]
  [-additionalMount envname,mountpoint,sharedpath]
  [-rac_instance env_node,instance_name,instance_no ]
  [-redoGroup N]
@@ -644,6 +695,12 @@ Path to prescript on Windows target
 
 =item B<-postscript  pathtoscript>
 Path to postscript on Windows target
+
+=item B<-snapshotpolicy policy_name>
+Snapshot policy name for VDB
+
+=item B<-retentionpolicy retention_policy>
+Retention policy name for VDB
 
 =item B<-recoveryModel model>
 Set a recovery model for MS SQL database. Allowed values

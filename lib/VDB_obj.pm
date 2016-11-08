@@ -539,6 +539,16 @@ sub detach_dsource
     return $self->runJobOperation($operation,$json_data, 'ACTION');    
 }
 
+# Procedure return_currentobj
+# Return current object 
+
+sub return_currentobj 
+{
+    my $self = shift; 
+    logger($self->{_debug}, "Entering VDB_obj::return_currentobj",1);
+    return $self->{_currentobj};
+}
+
 
 # Procedure runJobOperation
 # parameters: 
@@ -560,6 +570,7 @@ sub runJobOperation {
     my $jobno;
     
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $self->{_currentobj} = $result->{result};
         if (defined($action) && $action eq 'ACTION') {
             $jobno = $result->{action};
         } else {

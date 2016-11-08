@@ -502,7 +502,6 @@ sub applyMapping {
 # Procedure applyPolicy
 # parameters: 
 # - ref
-# - type
 # - target
 # Return 0 if no errors
 
