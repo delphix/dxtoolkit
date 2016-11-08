@@ -166,7 +166,17 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_disk_latency.pl -d <delphix identifier> [-w <warning millisec>] [-i time_interval] [-c <critical millisec>] [-opname operation] [-read | -write] [ -raw ] [-st \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -debug ] [ -help|-? ]
+ dx_get_disk_latency.pl -d <delphix identifier> 
+              [-w <warning millisec>] 
+              [-i time_interval] 
+              [-c <critical millisec>]
+              [-opname operation] 
+              [-read | -write] 
+              [-raw ] 
+              [-st "YYYY-MM-DD [HH24:MI:SS]" ] 
+              [-et "YYYY-MM-DD [HH24:MI:SS]" ] 
+              [ -debug ] 
+              [ -help|-? ]
 
 =head1 ARGUMENTS
 
@@ -175,11 +185,17 @@ __DATA__
 =item B<-d>
 Delphix Identifier (hostname defined in dxtools.conf) 
 
+=back
+
+=head1 OPTIONS
+
+=over 4
+
 =item B<-st>
-StartTime (format: DD-MON-YYYY [HH24:MI:SS] or YYYY-MM-DD [HH24:MI:SS]). Default is SYSDATE-7.
+StartTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now-5 min".
 
 =item B<-et>
-EndTime (format: DD-MON-YYYY [HH24:MI:SS] or YYYY-MM-DD [HH24:MI:SS])
+EndTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now"
 
 =item B<-i>
 Time Inteval, allowed values are 1 or S for 1 sec, 60 or M for 1 min , 3600 or H for 1 hour
@@ -202,12 +218,6 @@ Critical level in milliseconds (Integer, Default 50)
 =item B<-raw>
 Show Raw Data, instead of average
 
-=back
-
-=head1 OPTIONS
-
-=over 4
-
 =item B<-help>          
 Print this screen
 
@@ -215,5 +225,19 @@ Print this screen
 Turn on debugging
 
 =back
+
+=head1 EXAMPLES
+
+Average disk read and write latency for a last 5 minutes using 1-second sample
+
+ dx_get_disk_latency -d DE1
+ OK:DE1 disk latency milliseconds  0.29
+
+Average disk write latency for a last 5 minutes using 1-second sample 
+
+ dx_get_disk_latency -d DE1 -opname w 
+ OK: DE1 disk latency milliseconds  0.25
+
+
 
 =cut

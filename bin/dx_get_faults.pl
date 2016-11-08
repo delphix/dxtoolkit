@@ -232,10 +232,10 @@ Fault target ( VDB name, target host name)
 
 
 =item B<-st timestamp>
-Start time for faults list - default value is 7 days
+Start time for faults list. Format "YYYY-MM-DD [HH24:MI:SS]". Default value is "now - 7 days"
 
 =item B<-et timestamp>
-End time for faults list 
+End time for faults list. Format "YYYY-MM-DD [HH24:MI:SS]"
 
 =item B<-format>                                                                                                                                            
 Display output in csv or json format
@@ -257,8 +257,26 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display faults from Delphix Engine
 
+ dx_get_faults -d Landshark5
+
+ Appliance            Fault ref            Status     Date Diagnosed            Severity Target                                                  Title
+ -------------------- -------------------- ---------- ------------------------- -------- ------------------------------------------------------- -----------------------------------
+ Landshark5           FAULT-518            ACTIVE     2016-11-01 17:20:10 GMT   WARNING  Analytics/cont2                                         Unable to connect to remote databas
+ Landshark5           FAULT-519            ACTIVE     2016-11-01 17:20:10 GMT   WARNING  Analytics/cont1                                         Unable to connect to remote databas
+ Landshark5           FAULT-520            RESOLVED   2016-11-01 17:20:10 GMT   WARNING  Test/vFiles                                             An error occurred during policy enf
+ Landshark5           FAULT-521            RESOLVED   2016-11-01 17:20:10 GMT   WARNING  Test/vFiles                                             An error occurred during policy enf
+ Landshark5           FAULT-522            ACTIVE     2016-11-01 17:21:16 GMT   WARNING  rmantest                                                Oracle home not found
+ Landshark5           FAULT-523            RESOLVED   2016-11-08 12:57:43 GMT   WARNING  test                                                    Oracle home not found
+ Landshark5           FAULT-524            ACTIVE     2016-11-08 13:13:10 GMT   WARNING  test                                                    Oracle home not found
+
+Export faults from Delphix Engine into file
+
+ dx_get_faults -d Landshark5 -outdir /tmp
+ Data exported into /tmp/faults-20161108-16-11-58.txt
 
 =cut
 

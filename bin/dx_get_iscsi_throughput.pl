@@ -162,7 +162,17 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_iscsi_throughput.pl -d <delphix identifier> [-w <warning mb/s>] [-i time_interval] [-c <critical mb/s>] [-opname operation] [-read | -write] [ -raw ] [-st \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -debug ] [ -help|-? ]
+ dx_get_iscsi_throughput -d <delphix identifier> 
+              [-w <warning mb/s>] 
+              [-i time_interval] 
+              [-c <critical mb/s>] 
+              [-opname operation] 
+              [-read | -write] 
+              [-raw ] 
+              [-st "YYYY-MM-DD [HH24:MI:SS]" ] 
+              [-et "YYYY-MM-DD [HH24:MI:SS]" ] 
+              [-debug ] 
+              [-help|-? ]
 
 =head1 ARGUMENTS
 
@@ -172,10 +182,10 @@ __DATA__
 Delphix Identifier (hostname defined in dxtools.conf) 
 
 =item B<-st>
-StartTime (format: DD-MON-YYYY [HH24:MI:SS] or YYYY-MM-DD [HH24:MI:SS]). Default is SYSDATE-7.
+StartTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now-5 min".
 
 =item B<-et>
-EndTime (format: DD-MON-YYYY [HH24:MI:SS] or YYYY-MM-DD [HH24:MI:SS])
+EndTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now"
 
 =item B<-i>
 Time Inteval, allowed values are 1 or S for 1 sec, 60 or M for 1 min , 3600 or H for 1 hour
@@ -211,6 +221,19 @@ Print this screen
 Turn on debugging
 
 =back
+
+=head1 EXAMPLES
+
+Average iSCSI throughput for a last 5 minutes using 1-second sample
+
+ dx_get_iscsi_throughput -d DE1
+ WARNING: DE1 nfs throughput MB/s 250.60
+
+Average iSCSI throughput for a last 5 minutes using 1-second sample with warning set to 400 MB/s
+
+ dx_get_iscsi_throughput -d DE -w 400
+ OK: DE1 nfs throughput MB/s 192.53
+
 
 =cut
 

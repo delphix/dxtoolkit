@@ -347,6 +347,44 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Display all environments
+
+ dx_get_env -d Landshark
+ 
+ Appliance            Reference                      Environment Name               Type                      Status
+ -------------------- ------------------------------ ------------------------------ ------------------------- --------
+ Landshark5           ORACLE_CLUSTER-11              racattack-cl                   rac                       enabled
+ Landshark5           UNIX_HOST_ENVIRONMENT-1        LINUXTARGET                    unix                      enabled
+ Landshark5           UNIX_HOST_ENVIRONMENT-44       LINUXSOURCE                    unix                      enabled
+ Landshark5           WINDOWS_HOST_ENVIRONMENT-48    WINDOWSTARGET                  windows                   enabled
+ Landshark5           WINDOWS_HOST_ENVIRONMENT-49    WINDOWSSOURCE                  windows                   enabled
+
+Display all environments with repositories list
+
+ dx_get_env -d Landshark -replist
+
+ Appliance            Environment Name               Repository list
+ -------------------- ------------------------------ ------------------------------
+ Landshark            racattack
+                                                     /u01/app/oracle/11.2.0.4/racho
+ Landshark            LINUXTARGET
+                                                     agilemasking
+                                                     LINUXTARGET
+                                                     /u01/app/oracle/product/11.2.0
+ Landshark            LINUXSOURCE
+                                                     webapp
+                                                     agilemasking
+                                                     LINUXSOURCE
+                                                     /u01/app/oracle/product/11.2.0
+ Landshark            envtest
+                                                     /u01/app/oracle/11.2.0.4/db1
+ Landshark            WINDOWSSOURCE
+                                                     MSSQLSERVER
+ Landshark            WINDOWSTARGET
+                                                     MSSQLSERVER
+                                                     MSSQL2012
 
 
 

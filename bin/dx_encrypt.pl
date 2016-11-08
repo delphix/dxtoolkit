@@ -49,7 +49,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
 
-pod2usage(-verbose => 1, -output=>\*STDERR) && exit if $help;
+pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
 die  "$version\n" if $print_version;  
 
 
@@ -107,6 +107,38 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Encrypt password in dxtools.conf.plain file and generate encrypted file dxtools.conf.enc
 
+ $ cat dxtools.conf.plain 
+   {
+      "data" : [ {
+                  "protocol" : "http", 
+									"hostname" : "Landshark2", 
+                  "default" : "true",
+                  "port" : "80",
+                  "username" : "delphix_admin", 
+                  "encrypted" : "true", 
+                  "password" : "password",
+                  "ip_address" : "delphix02"
+      } ]
+   }
+	 
+ dx_encrypt -plainconfig dxtools.conf.plain -encryptedconfig dxtools.conf.enc New config file dxtools.conf.enc created.
+
+ $ cat dxtools.conf 
+   {
+      "data" : [ {
+                  "protocol" : "http",
+                  "hostname" : "Landshark2",
+                  "default" : "true",
+                  "port" : "80",
+                  "username" : "delphix_admin",
+                  "encrypted" : "true",
+                  "password" : "#dde3243453531432f015dwadw301fe7aba75", 
+                  "ip_address" : "delphix02"
+      }]
+   }
+	 
 =cut

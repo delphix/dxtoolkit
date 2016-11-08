@@ -236,8 +236,29 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display audit logs
 
+ dx_get_audit -d Landshark5
+
+ Appliance            StartTime                      State        User                 Type                 Details
+ -------------------- ------------------------------ ------------ -------------------- -------------------- --------------------------------------------------------------------------------
+ Landshark5           2016-11-08 12:27:35 GMT        COMPLETED    internal             USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
+ Landshark5           2016-11-08 12:27:42 GMT        COMPLETED    internal             MASKINGJOB_FETCH     Fetching all Masking Jobs from the local Delphix Masking Engine instance.
+ Landshark5           2016-11-08 12:28:49 GMT        CANCELED     internal             DB_PROVISION         Provision virtual database "VOra_744".
+ Landshark5           2016-11-08 12:28:53 GMT        COMPLETED    internal             POLICY_APPLY         Apply policy "sss/log" on target "VOra_744".
+ Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    internal             JOB_CANCEL           Cancel job "Provision virtual database "VOra_744".".
+ Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    internal             SOURCE_DISABLE       Disable dataset "VOra_744".
+ Landshark5           2016-11-08 12:29:07 GMT        COMPLETED    internal             SOURCE_STOP          Stop dataset "VOra_744".
+ Landshark5           2016-11-08 12:32:21 GMT        COMPLETED    internal             DB_DELETE            Delete dataset "VOra_744".
+ Landshark5           2016-11-08 12:32:22 GMT        COMPLETED    internal             CAPACITY_RECLAMATION Space is being reclaimed.
+ Landshark5           2016-11-08 12:39:17 GMT        COMPLETED    internal             USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
+
+Extract audit to file 
+
+ dx_get_audit -d Landshark5 -outdir /tmp
+ Data exported into /tmp/audit-20161108-15-00-28.txt
 
 =cut
 

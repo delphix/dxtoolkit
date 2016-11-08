@@ -201,6 +201,27 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+List bookmarks for database "Employee Oracle 11G DB"
+
+ dx_get_bookmarks -d Landshark43 -dbname "Employee Oracle 11G DB"
+ Appliance            Bookmark name        Timestamp                             Timeflow name                            Database name
+ -------------------- -------------------- ------------------------------------- ---------------------------------------- ------------------------
+ Landshark43          after                2016-02-29 12:50:00 EST               default                                  Employee Oracle 11G DB
+ Landshark43          before               2016-02-29 07:46:00 EST               default                                  Employee Oracle 11G DB
+ Landshark43          middle               2016-02-11 07:54:00 EST               default                                  Employee Oracle 11G DB
+
+List all bookmarks for a Delphix Engine
+
+ dx_get_bookmarks -d Landshark5
+
+ Appliance            Bookmark name        Timestamp                              Timeflow name                            Database name
+ -------------------- -------------------- -------------------------------------- ---------------------------------------- -----------------------
+ Landshark5           bookmark now         2016-04-21 11:57:41 IST                DB_PROVISION@2016-04-20T12:57:31         testdx
+ Landshark5           nonjs                2016-04-20 12:58:41 IST                DB_PROVISION@2016-04-20T12:57:31         testdx
+ Landshark5           test bookmark        2016-04-20 12:58:41 IST                DB_PROVISION@2016-04-20T12:57:31         testdx
+
 
 
 
