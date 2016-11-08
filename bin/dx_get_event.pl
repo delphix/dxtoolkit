@@ -211,8 +211,26 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display events from Delphix Engine
 
+ dx_get_event -d Landshark5
+
+ Appliance            Alert                Action               Response             Target name               Timestamp                           Serverity       Title                Description
+ -------------------- -------------------- -------------------- -------------------- ------------------------- ----------------------------------- --------------- -------------------- --------------------------------------------------
+ Landshark5           ALERT-8538           Contact Delphix Supp N/A                  system                    2016-11-08 12:26:58 GMT             WARNING         Unexpected server re The server is starting up following an unexpected
+ Landshark5           ALERT-8539           N/A                  N/A                  VOra_744                  2016-11-08 12:29:19 GMT             INFORMATIONAL   Job complete         SOURCE_STOP job for "VOra_744" completed successfu
+ Landshark5           ALERT-8540           N/A                  N/A                  VOra_744                  2016-11-08 12:29:19 GMT             INFORMATIONAL   Job complete         SOURCE_DISABLE job for "VOra_744" completed succes
+ Landshark5           ALERT-8541           N/A                  N/A                  Analytics/VOra_744        2016-11-08 12:32:22 GMT             INFORMATIONAL   Job complete         DB_DELETE job for "Analytics/VOra_744" completed s
+ Landshark5           ALERT-8542           N/A                  N/A                  system                    2016-11-08 12:32:22 GMT             INFORMATIONAL   Job complete         CAPACITY_RECLAMATION job completed successfully.
+ Landshark5           ALERT-8543           N/A                  N/A                  test                      2016-11-08 12:40:14 GMT             INFORMATIONAL   Job complete         SOURCE_STOP job for "test" completed successfully.
+ Landshark5           ALERT-8544           N/A                  N/A                  test                      2016-11-08 12:40:15 GMT             INFORMATIONAL   Job complete         SOURCE_DISABLE job for "test" completed successful
+
+Export events from Delphix Engine into file
+
+ dx_get_event -d Landshark5 -outdir /tmp
+ Data exported into /tmp/events-20161108-16-08-01.txt
 
 =cut
 

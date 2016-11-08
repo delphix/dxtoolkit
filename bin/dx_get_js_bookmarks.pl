@@ -85,11 +85,6 @@ if (defined($realtime) && (!defined($bookmark_name))) {
   exit (1);
 }
 
-# if (defined($template_name) && defined($container_name)) {
-#   print "Options container_name and template_name are mutually exclusive \n";
-#   pod2usage(-verbose => 1,  -input=>\*DATA);
-#   exit (1);
-# }
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -309,7 +304,35 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+List all bookmarks 
+
+ dx_get_js_bookmarks -d Landshark5
+
+ Appliance            Bookmark name                  Bookmark time                  Template name                  Container name                 Branch name
+ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ --------------------
+ Landshark5           Before insert                  2016-10-25 08:41:34 IST        Oracle dSource template        Dev container                  default
+ Landshark5           BookmarkNOW                    2016-11-08 16:46:35 GMT        Oracle dSource template        Dev container                  default
+
+List only containers JS bookmarks
+
+ dx_get_js_bookmarks -d Landshark5 -container_only
+
+ Appliance            Bookmark name                  Bookmark time                  Template name   Container name                 Branch name
+ -------------------- ------------------------------ ------------------------------ --------------- ------------------------------ ---------------
+ Landshark5           bookmark1                      2016-07-28 14:48:39 IST        test            cont                           default
+ Landshark5           test book                      2016-07-28 15:54:15 IST        test            cont                           default
+ Landshark5           last book                      2016-07-28 16:08:19 IST        test            cont                           default
+
+Display a real database point for bookmark1
+
+ dx_get_js_bookmarks -d Landshark5 -bookmark_name "BookmarkNOW" -realtime
+
+ Appliance            Bookmark name                  Bookmark time                  Template name                  Container name                 Branch name          Source name          Source time
+ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ -------------------- -------------------- ------------------------------
+ Landshark5           BookmarkNOW                    2016-11-08 16:46:35 GMT        Oracle dSource template        Dev container                  default
+                                                                                                                                                                       Oracle dSource       2016-11-08 16:46:35 GMT
 
 
 =cut

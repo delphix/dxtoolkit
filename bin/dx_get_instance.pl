@@ -222,9 +222,19 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display a Oracle instance status
 
+ dx_get_instance -d Landshark43
 
+ Appliance  Env name             Hostname                       Group           Database                       Instance   Type     Status
+ ---------- -------------------- ------------------------------ --------------- ------------------------------ ---------- -------- ----------
+ Landshark4 racattack            192.168.1.61                   Analytics       racd                           racd1      VDB      down
+ Landshark4 racattack            192.168.1.62                   Analytics       racd                           racd2      VDB      down
+ Landshark4 LINUXTARGET          172.16.180.251                 Analytics       test1                          test1      VDB      down
+ Landshark4 LINUXSOURCE          172.16.180.250                 Sources         Employee Oracle 11G DB         orcl       dSource  up
+ 
 =cut
 
 

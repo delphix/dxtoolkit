@@ -50,7 +50,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
 
-pod2usage(-verbose => 1, -output=>\*STDERR) && exit if $help;
+pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
 die  "$version\n" if $print_version;  
 
 if (! ( defined ($convert) && defined($csvfile) && defined($configfile) ) ) {
@@ -89,7 +89,7 @@ sub convert_todxconf {
        
 		if  ( ! ($line =~ m/^\#/g ) ) {
 
-			my ( $hostname, $ip_address, $port, $username, $password, $default ) = split(',',$line);
+			my ( $hostname, $ip_address, $port, $username, $password, $default, $protocol ) = split(',',$line);
 
 			if ( ! ( defined($hostname) && defined($ip_address) && defined($port) && defined($username) && defined($password) && defined($default) )) {
 				print "There is a problem with line $line \n";
@@ -103,7 +103,8 @@ sub convert_todxconf {
 			    ip_address => $ip_address,
 			    password => $password,
 			    port => $port,
-			    default => $default
+			    default => $default,
+          protocol => $protocol
 			);
 
 
@@ -141,12 +142,12 @@ sub convert_tocsv {
 
     open(my $FD, ">", $csvfile) || die "Can't open file: $csvfile for write \n";
 
-    print $FD "# engine nick name, engine ip/hostname, port, username, password, default \n";
+    print $FD "# engine nick name, engine ip/hostname, port, username, password, default, protocol \n";
 
 
     for my $engine_name ( $engine_obj->getAllEngines() ) {
     	my $engine = $engine_obj->getEngine($engine_name);
-    	print $FD $engine_name . "," . $engine->{ip_address} . "," . $engine->{ip_address} . "," . $engine->{port} . "," . $engine->{username} . "," . $engine->{password} . "," . $engine->{default} . "\n";
+    	print $FD $engine_name . "," . $engine->{ip_address} . "," . $engine->{port} . "," . $engine->{username} . "," . $engine->{password} . "," . $engine->{default} . "," . $engine->{protocol} . "\n";
 
     }
 
@@ -201,6 +202,16 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
 
+Create CSV from dxtools.conf
+
+ dx_config -convert tocsv -csvfile new.csv -configfile dxtools.conf 
+ New csv file new.csv created.
+ 
+Create dxtools.conf from CSV file 
+
+ dx_config -convert todxconf -csvfile new.csv -configfile dxtools.conf
+ New config file dxtools.conf created.
 
 =cut

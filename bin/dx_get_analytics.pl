@@ -156,7 +156,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
 
-  my $arguments = "&resolution=$resolution&numberofDatapoints=10000&startTime=$st_timestamp";
+  my $arguments = "&resolution=$resolution&startTime=$st_timestamp";
   my $endTime = $et_timestamp ? "&endTime=$et_timestamp" : "";
   $arguments = $arguments . $endTime;
   $analytic_list->get_perf($type, $outdir, $arguments, $allowedres{$resolution}, $format );
@@ -234,5 +234,24 @@ Print this screen
 
 =item B<-debug>          
 Turn on debugging
+
+
+=head1 EXAMPLES
+
+Export 1 hour data for all collectors for last 7 days into /tmp directory
+
+ dx_get_analytics -d Landshark -i 3600 -t standard -outdir /tmp 
+ Connected to Delphix Engine Landshark (IP delphix42)
+ Generating cpu raw report file /tmp/Landshark-analytics-cpu-raw.csv
+ Generating cpu aggregated report file /tmp/Landshark-analytics-cpu-aggregated.csv 
+ Generating disk raw report file /tmp/Landshark-analytics-disk-raw.csv
+ Generating disk aggregated report file /tmp/Landshark-analytics-disk-aggregated.csv 
+ Generating iscsi raw report file /tmp/Landshark-analytics-iscsi-raw.csv
+ Generating iscsi aggregated report file /tmp/Landshark-analytics-iscsi-aggregated.csv 
+ Generating network raw report file /tmp/Landshark-analytics-network-raw.csv
+ Generating network aggregated report file /tmp/Landshark-analytics-network-aggregated.csv 
+ Generating nfs raw report file /tmp/Landshark-analytics-nfs-raw.csv
+ Generating nfs aggregated report file /tmp/Landshark-analytics-nfs-aggregated.csv 
+
 
 =back

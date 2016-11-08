@@ -110,11 +110,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $system = new System_obj( $engine_obj, $debug);
-  
-  print $system;
-  
-  exit;
-
   my $databases = new Databases( $engine_obj, $debug);
 
   my @vdb = $databases->getDBByType('VDB'); 
@@ -182,6 +177,15 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Display a Delphix Engine summary
+
+ dx_get_appliance -d Landshark5
+
+ Appliance            Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob
+ -------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- --------
+ Landshark5           UP       5.0.5.1  28.82      5.20       23.62      0.18       8        4        12
 
 
 =cut

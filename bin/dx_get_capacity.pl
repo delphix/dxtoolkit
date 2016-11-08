@@ -399,8 +399,68 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+Display a size of databases on Delphix Engine
+
+ dx_get_capacity -d Landshark5
+
+ Engine                         Group                Database                       Rep Size [GB]
+ ------------------------------ -------------------- ------------------------------ --- ----------
+ Landshark5                     Analytics            cont1                          NO        0.05
+ Landshark5                     Analytics            cont2                          NO        0.03
+ Landshark5                     Analytics            test                           NO        0.01
+ Landshark5                     Sources              AdventureWorksLT2008R2         NO        0.00
+ Landshark5                     Sources              Oracle dsource                 NO        0.55
+ Landshark5                     Sources              orcl_tar                       NO        0.49
+ Landshark5                     Sources              PDB                            NO        0.24
+ Landshark5                     Sources              racdba                         NO        0.53
+ Landshark5                     Sources              RMAN dsource                   NO        0.47
+ Landshark5                     Sources              singpdb                        NO        0.80
+ Landshark5                     Sources              Sybase dsource                 NO        0.00
+ Landshark5                     Sources              test_src                       NO        0.00
+ Landshark5                     Test                 vFiles                         NO        0.00
+
+Display a size of databases from group Analytics with details 
+
+ dx_get_capacity -d Landshark5 -details -group Analytics
+
+ Engine                         Group                Database                       Rep Size [GB]  Type                 Size [GB]
+ ------------------------------ -------------------- ------------------------------ --- ---------- -------------------- ----------
+ Landshark5                     Analytics            cont1                          NO        0.05
+                                                                                                   Current copy               0.04
+                                                                                                   DB Logs                    0.00
+                                                                                                   Snapshots total            0.00
+ Landshark5                     Analytics            cont2                          NO        0.03
+                                                                                                   Current copy               0.02
+                                                                                                   DB Logs                    0.00
+                                                                                                   Snapshots total            0.00
+ Landshark5                     Analytics            test                           NO        0.01 
+                                                                                                   Current copy               0.01
+                                                                                                   DB Logs                    0.00
+                                                                                                   Snapshots total            0.00
 
 
+Display a size of database name cont1 with snapshot details
+
+ dx_get_capacity -d Landshark5 -details all -name cont1
+
+ Engine                         Group                Database                       Rep Size [GB]  Type                 Size [GB]  Snapshots                           Size [GB]
+ ------------------------------ -------------------- ------------------------------ --- ---------- -------------------- ---------- ----------------------------------- ----------
+ Landshark5                     Analytics            cont1                          NO        0.05
+                                                                                                   Current copy               0.04
+                                                                                                   DB Logs                    0.00
+                                                                                                   Snapshots total            0.00
+                                                                                                                                   Snapshots shared                          0.00
+                                                                                                                                   Snapshot 2016-10-24T18:22:56.858Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:30:00.630Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:38:02.098Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:39:37.475Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:41:33.710Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:42:11.884Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:44:21.183Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:55:52.038Z         0.00
+                                                                                                                                   Snapshot 2016-10-25T07:58:04.423Z         0.00
 
 =cut
 

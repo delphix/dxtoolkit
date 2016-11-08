@@ -237,6 +237,11 @@ __DATA__
                 [-jobref ref] 
                 [-st timestamp] 
                 [-et timestamp] 
+                [-dbname name]
+                [-group group]
+                [-host hostname]
+                [-type VDB|dSource]
+                [-dSource name]
                 [-state state] 
                 [-format csv|json ]  
                 [-outdir path]
@@ -318,8 +323,47 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Print jobs from Delphix Engine
 
+ dx_get_jobs -d Landshark5
+
+ Appliance            Job ref         Target name          Username             Start date                     End date                       Run time   State        Type
+ -------------------- --------------- -------------------- -------------------- ------------------------------ ------------------------------ ---------- ------------ --------------------
+ Landshark5           JOB-7753        Test/vFiles          N/A                  2016-11-01 17:20:10 GMT        2016-11-01 17:20:11 GMT        00:00:01   COMPLETED    DB_SYNC
+ Landshark5           JOB-7754        Test/vFiles          N/A                  2016-11-02 08:27:37 GMT        2016-11-02 08:27:37 GMT        00:00:00   COMPLETED    DB_SYNC
+ Landshark5           JOB-7755        Analytics/VOra_744   delphix_admin        2016-11-08 12:28:52 GMT        2016-11-08 12:29:19 GMT        00:00:27   CANCELED     DB_PROVISION
+ Landshark5           JOB-7756        VOra_744             delphix_admin        2016-11-08 12:29:03 GMT        2016-11-08 12:29:19 GMT        00:00:16   COMPLETED    SOURCE_DISABLE
+ Landshark5           JOB-7757        VOra_744             delphix_admin        2016-11-08 12:29:10 GMT        2016-11-08 12:29:19 GMT        00:00:09   COMPLETED    SOURCE_STOP
+ Landshark5           JOB-7758        Analytics/VOra_744   delphix_admin        2016-11-08 12:32:21 GMT        2016-11-08 12:32:22 GMT        00:00:01   COMPLETED    DB_DELETE
+
+Print jobs for database "cont1" since 2016-10-01
+
+ dx_get_jobs -d Landshark5 -dbname cont1 -st "2016-10-01"
+
+ Appliance            Job ref         Target name          Username             Start date                     End date                       Run time   State        Type
+ -------------------- --------------- -------------------- -------------------- ------------------------------ ------------------------------ ---------- ------------ --------------------
+ Landshark5           JOB-7694        Analytics/cont1      delphix_admin        2016-10-24 19:13:47 IST        2016-10-24 19:15:21 IST        00:01:34   COMPLETED    DB_PROVISION
+ Landshark5           JOB-7696        Analytics/cont1      delphix_admin        2016-10-24 19:15:18 IST        2016-10-24 19:15:21 IST        00:00:03   COMPLETED    DB_SYNC
+ Landshark5           JOB-7700        Analytics/cont1      delphix_admin        2016-10-24 19:21:20 IST        2016-10-24 19:21:21 IST        00:00:01   COMPLETED    DB_SYNC
+ Landshark5           JOB-7702        Analytics/cont1      delphix_admin        2016-10-24 19:21:25 IST        2016-10-24 19:22:55 IST        00:01:30   COMPLETED    DB_REFRESH
+ Landshark5           JOB-7710        Analytics/cont1      delphix_admin        2016-10-24 19:22:56 IST        2016-10-24 19:22:59 IST        00:00:03   COMPLETED    DB_SYNC
+ Landshark5           JOB-7712        Analytics/cont1      N/A                  2016-10-25 08:30:00 IST        2016-10-25 08:30:01 IST        00:00:01   COMPLETED    DB_SYNC
+ Landshark5           JOB-7717        Analytics/cont1      dev                  2016-10-25 08:38:01 IST        2016-10-25 08:38:02 IST        00:00:01   COMPLETED    DB_SYNC
+ Landshark5           JOB-7719        Analytics/cont1      dev                  2016-10-25 08:38:06 IST        2016-10-25 08:39:36 IST        00:01:30   COMPLETED    DB_REFRESH
+ Landshark5           JOB-7721        Analytics/cont1      dev                  2016-10-25 08:39:36 IST        2016-10-25 08:39:39 IST        00:00:03   COMPLETED    DB_SYNC
+ Landshark5           JOB-7723        Analytics/cont1      dev                  2016-10-25 08:41:33 IST        2016-10-25 08:41:34 IST        00:00:01   COMPLETED    DB_SYNC
+ Landshark5           JOB-7725        Analytics/cont1      dev                  2016-10-25 08:42:11 IST        2016-10-25 08:42:12 IST        00:00:01   COMPLETED    DB_SYNC
+
+Print jobs for all VDB based on dSource "Oracle dsource"
+
+ dx_get_jobs -d Landshark5 -dsource "Oracle dsource"
+
+ Appliance            Job ref         Target name          Username             Start date                     End date                       Run time   State        Type
+ -------------------- --------------- -------------------- -------------------- ------------------------------ ------------------------------ ---------- ------------ --------------------
+ Landshark5           JOB-7795        Analytics/test       delphix_admin        2016-11-08 13:11:45 GMT        2016-11-08 13:13:03 GMT        00:01:18   COMPLETED    DB_PROVISION
+ Landshark5           JOB-7796        Analytics/test       delphix_admin        2016-11-08 13:13:00 GMT        2016-11-08 13:13:03 GMT        00:00:03   COMPLETED    DB_SYNC
 
 =cut
 

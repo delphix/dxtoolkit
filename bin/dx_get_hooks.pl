@@ -266,6 +266,27 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Export all operation templates from Delphix Engine
+
+ dx_get_hooks -d Landshark5 -exportHook -outdir /tmp/a/
+ Exporting operation template los into /tmp/a/after_refresh.opertemp
+ Exporting operation template test1 into /tmp/a/test1.opertemp
+
+Export database hooks from all databases from group Analytics
+
+ dx_get_hooks -d Landshark5 -exportDBHooks -outdir /tmp/a -group Analytics
+ Exporting database demo hooks into  /tmp/a/demo.dbhooks
+ Exporting database test1 hooks into  /tmp/a/test1.dbhooks
+ Exporting database testdx hooks into  /tmp/a/testdx.dbhooks
+ Exporting database testjs hooks into  /tmp/a/testjs.dbhooks
+ Exporting database tftest hooks into  /tmp/a/tftest.dbhooks
+
+Export operation template script 
+
+ dx_get_hooks.pl -d Landshark5 -name test1 -exportHookScript /tmp/test1.sh
+ Exporting template into file /tmp/test1.sh
 
 
 

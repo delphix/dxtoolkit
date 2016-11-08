@@ -150,29 +150,82 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_get_cpu -d <delphix identifier> 
+ dx_get_cpu -d <delphix identifier> 
            [ -w <warning % used>  ] 
            [ -c <critical % used> ]
            [ -raw ] 
-           [ -st "DD-MON-YYYY [HH24:MI:SS]" ] 
-           [ -et "DD-MON-YYYY [HH24:MI:SS]" ] 
+           [ -st "YYYY-MM-DD [HH24:MI:SS]" ] 
+           [ -et "YYYY-MM-DD [HH24:MI:SS]" ] 
            [ -debug ] 
            [ -help|-? ]
 
 
 =head1 ARGUMENTS
 
- -help,-?          Print this screen
- -d                 Delphix Server (from dxtools.conf)
+=over 4
+
+=item B<-d>
+Delphix Identifier (hostname defined in dxtools.conf) 
+
+=back
 
 =head1 OPTIONS
 
- -w                 Warning level % Used (Integer, Default 75)
- -c                 Critical level % Used (Integer, Default 95)
- -st                Start Time in format "DD-MON-YYYY [HH24:MI:SS]" (Optional)
- -et                End Time in format "DD-MON-YYYY [HH24:MI:SS]" (Optional, default "now")
- -raw               Show Raw Data, instead of average
- -debug             Show Debug info
+=over 4
+
+=item B<-st>
+StartTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now-5 min".
+
+=item B<-et>
+EndTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now"
+
+=item B<-i>
+Time Inteval, allowed values are 1 or S for 1 sec, 60 or M for 1 min , 3600 or H for 1 hour
+
+=item B<-w>
+Warning level in milliseconds (Integer, Default 75)
+
+=item B<-c>
+Critical level in milliseconds (Integer, Default 95)
+
+=item B<-raw>
+Show Raw Data, instead of average
+
+=item B<-help>          
+Print this screen
+
+=item B<-debug>          
+Turn on debugging
+
+=back
+
+=head1 EXAMPLES
+
+Average CPU utilization for a last 5 minutes using 1-second sample
+
+ dx_get_cpu -d DE1
+ OK: DE1 cpu utilization 27.70
+
+Average CPU utilization for a last 5 minutes using 1-second sample with warning level set to 20 %
+
+ dx_get_cpu -d Landshark5 -w 20
+ WARNING: Landshark5 cpu utilization 21.50
+ 
+
+Average CPU utilization for a 20th April 2016 using 1-minutes data
+
+ dx_get_cpu -d DE1 -i 60 -st "2016-04-20" -et "2016-04-21"
+ OK: DE1 cpu utilization 30.80
+
+Raw CPU data for a last 5 minutes using 60-second sample
+
+ dx_get_cpu -d Landshark5 -raw -i 60 
+ #timestamp,util
+ 2016-04-21 09:22:00,26.20
+ 2016-04-21 09:23:00,23.77
+ 2016-04-21 09:24:00,35.94
+ 2016-04-21 09:25:00,35.88
+
 
 
 =cut
