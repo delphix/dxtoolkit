@@ -226,7 +226,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_snapshots.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_snapshots    [ -engine|d <delphix identifier> | -all ] 
                      -action update | delete
                      [-retention days | policy | forever ]
                      [-snapshotname snapshotname]

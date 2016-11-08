@@ -291,7 +291,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_env.pl [ -engine|d <delphix identifier> | -all ] [ -name env_name | -reference reference ] [-backup] [ -replist ] [  -format csv|json ]  [ -help|? ] [ -debug ]
+ dx_get_env [-engine|d <delphix identifier> | -all ] 
+            [-name env_name | -reference reference ] 
+            [-backup] 
+            [-replist ] 
+            [-format csv|json ]  
+            [-help|? ] 
+            [-debug ]
 
 =head1 DESCRIPTION
 

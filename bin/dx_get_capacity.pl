@@ -322,8 +322,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_capacity.pl [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] [-details [all]] 
-                    [-sortby size ][ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_capacity    [-engine|d <delphix identifier> | -all ] 
+                    [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+                    [-details [all]] 
+                    [-sortby size ]
+                    [-format csv|json ]  
+                    [-help|? ] 
+                    [-debug ]
 
 =head1 DESCRIPTION
 

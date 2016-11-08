@@ -160,7 +160,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_disk_throughput.pl -d <delphix identifier> 
+ dx_get_disk_throughput -d <delphix identifier> 
              [-w <warning millisec>] 
              [-i time_interval] 
              [-c <critical millisec>]

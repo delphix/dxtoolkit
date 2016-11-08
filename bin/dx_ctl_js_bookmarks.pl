@@ -399,7 +399,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_js_bookmarks.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_js_bookmarks    [ -engine|d <delphix identifier> | -all ] 
                          -action create | remove
                          -template_name template_name
                          -container_name container_name 

@@ -233,7 +233,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_jobs.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_get_jobs    [ -engine|d <delphix identifier> | -all ] 
                 [-jobref ref] 
                 [-st timestamp] 
                 [-et timestamp] 

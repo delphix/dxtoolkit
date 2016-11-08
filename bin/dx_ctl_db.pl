@@ -314,7 +314,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_db.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_db    [ -engine|d <delphix identifier> | -all ] 
               [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
               [-instance inst_no] 
               <-action start|stop|enable|disable>  

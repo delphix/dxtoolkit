@@ -178,7 +178,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_jobs.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_jobs    [ -engine|d <delphix identifier> | -all ] 
                 -action CANCEL|SUSPEND|RESUME 
                 [-jobref ref] 
                 [-st timestamp] 

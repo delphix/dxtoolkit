@@ -157,7 +157,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_bundle.pl  [ -d <delphix identifier> | -all ] 
+ dx_ctl_bundle     [ -d <delphix identifier> | -all ] 
                    -action download|upload  
                    [-dirname dirname ] 
                    [-case number]

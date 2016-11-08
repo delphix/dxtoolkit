@@ -162,7 +162,7 @@ __END__
 
 =head1 SYNOPSIS
 
- dx_config.pl -convert todxconf|tocsv -csvfile file.csv -configfile dxtools.conf [-help] [-version]
+ dx_config -convert todxconf|tocsv -csvfile file.csv -configfile dxtools.conf [-help] [-version]
 
 
 =head1 DESCRIPTION

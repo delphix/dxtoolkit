@@ -181,7 +181,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_faults.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_get_faults    [ -engine|d <delphix identifier> | -all ] 
                   [-st timestamp] 
                   [-et timestamp] 
                   [-severity severity] 

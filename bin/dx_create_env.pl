@@ -172,7 +172,7 @@ exit $ret;
 __DATA__
 =head1 SYNOPSIS
 
- dx_create_env.pl [ -engine|d <delphix identifier> | -all ]  -envname environmentname -envtype unix | windows -host hostname 
+ dx_create_env [ -engine|d <delphix identifier> | -all ]  -envname environmentname -envtype unix | windows -host hostname 
                    -toolkitdir toolkit_directory | -proxy proxy
                    -username user_name -authtype password | systemkey [ -password password ] 
                    [-clustername name]

@@ -207,7 +207,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_analytics.pl ( -d <delphix identifier> | -all ) 
+ dx_ctl_analytics ( -d <delphix identifier> | -all ) 
                        -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names> 
                        -action start|stop|restart|display|create|delete
                        [-format csv|json]

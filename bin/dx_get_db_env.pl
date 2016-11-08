@@ -154,7 +154,7 @@ if (defined($backup)) {
     {'Repository', 35},
     {'DB type',    10},
     {'Version',    10},
-    {'Other',      30}
+    {'Other',      100}
   );
 } else {
   $output->addHeader(
@@ -243,7 +243,29 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       my $other = '';
       if ($dbobj->{_dbtype} eq 'oracle') {
-        $other = $other . $dbobj->getArchivelog();
+        $other = $other . $dbobj->getArchivelog() . " ";
+        my $mntpoint = $dbobj->getMountPoint();
+        my $archlog = $dbobj->getArchivelog();
+        my $tempref = $dbobj->getTemplateRef();
+        my $listnames = $dbobj->getListenersNames();
+        my $redogroups = $dbobj->getRedoGroupNumber();
+        
+        if ($redogroups ne 'N/A') {
+          $other = $other . " redoGroup $redogroups ";
+          my $redosize = $dbobj->getRedoGroupSize();
+          if (($redosize ne 'N/A') && ($redosize ne 0)) {
+            $other = $other . " redoSize $redosize ";
+          }
+        }
+                  
+        if (defined($tempref)) {
+          my $tempname = $templates->getTemplate($tempref)->{name};
+          $other = $other . " template $tempname ";
+        }
+        $other = $other . " -mntpoint \"$mntpoint\" " ;
+        if (defined($listnames) && ($listnames ne '')) {
+          $other = $other . " -listeners $listnames ";
+        }
       }
       if ( ( $dbobj->getType() eq 'dSource')  && ( $dbobj->{_dbtype} ne 'oracle' ) && ( $dbobj->{_dbtype} ne  'vFiles' ) ) {
         $other = $other . $dbobj->getStagingEnvironment() . "," . $dbobj->getStagingInst();
