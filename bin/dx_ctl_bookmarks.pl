@@ -158,7 +158,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_bookmarks.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_bookmarks [ -engine|d <delphix identifier> | -all ] 
                      -action [ create | delete ] 
                      -name bookmarkname 
                      [-dbname database_name]

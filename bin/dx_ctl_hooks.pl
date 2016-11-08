@@ -209,7 +209,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_hooks.pl [ -engine|d <delphix identifier> | -all ]  
+ dx_ctl_hooks    [ -engine|d <delphix identifier> | -all ]  
                  [ -name hook_name ] 
                  [ -dbname dbname | -group group | -host host | -type type ]
                  [ -importHook ]

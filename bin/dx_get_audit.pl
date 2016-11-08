@@ -161,7 +161,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_audit.pl [-engine|d <delphix identifier> | -all ] 
+ dx_get_audit    [-engine|d <delphix identifier> | -all ] 
                  [-st timestamp] 
                  [-et timestamp] 
                  [-state state] 

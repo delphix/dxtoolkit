@@ -292,7 +292,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_users.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_users    [ -engine|d <delphix identifier> | -all ] 
                  [-file filename] 
                  [-profile filename] 
                  [-help|?] 

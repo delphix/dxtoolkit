@@ -243,8 +243,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_bookmarks.pl [-engine|d <delphix identifier> | -all ] [-template_name template_name] [-container_name container_name] [-bookmark_name bookmark_name] 
-                        [-realtime] [-container_only] [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_js_bookmarks    [-engine|d <delphix identifier> | -all ] 
+                        [-template_name template_name] 
+                        [-container_name container_name] 
+                        [-bookmark_name bookmark_name] 
+                        [-realtime] [-container_only] 
+                        [-format csv|json ]  
+                        [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

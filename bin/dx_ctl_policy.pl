@@ -152,7 +152,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_policy.pl [ -engine|d <delphix identifier> | -all ] -import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
+ dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] -import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
 
 =head1 DESCRIPTION
 

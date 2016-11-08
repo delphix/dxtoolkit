@@ -143,7 +143,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_template.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_template    [ -engine|d <delphix identifier> | -all ] 
                     -import | -update  
                     [-filename filename | -indir dir]  
                     [-help|?] 

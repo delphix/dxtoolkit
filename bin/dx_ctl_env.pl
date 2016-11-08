@@ -181,7 +181,11 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_env.pl [ -engine|d <delphix identifier> | -all ] [ -name env_name | -reference reference ]  -acton <enable|disable|refresh> [ --help|? ] [ -debug ]
+ dx_ctl_env [ -engine|d <delphix identifier> | -all ] 
+            [ -name env_name | -reference reference ]  
+            -acton <enable|disable|refresh> 
+            [-help|? ] 
+            [-debug ]
 
 =head1 DESCRIPTION
 

@@ -154,7 +154,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_event.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_get_event    [ -engine|d <delphix identifier> | -all ] 
                  [-st timestamp] 
                  [-et timestamp] 
                  [-format csv|json ]  

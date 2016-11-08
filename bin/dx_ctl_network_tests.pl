@@ -204,7 +204,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_network_tests.pl [-engine|d <delphix identifier> | -all ] 
+ dx_ctl_network_tests    [-engine|d <delphix identifier> | -all ] 
                          -type latency|throughput|dsp
                          [-remoteaddr env_ip|all|env_ip1,env_ip2 ] 
                          [-size bytes]  

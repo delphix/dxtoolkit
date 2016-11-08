@@ -70,7 +70,7 @@ __END__
 
 =head1 SYNOPSIS
 
- dx_encrypt.pl -plainconfig|p non_encrypted_config -encryptedconfig|e encrypted_config [-help] [-version]
+ dx_encrypt -plainconfig|p non_encrypted_config -encryptedconfig|e encrypted_config [-help] [-version]
 
 =head1 DESCRIPTION
 

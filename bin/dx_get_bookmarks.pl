@@ -146,8 +146,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_bookmarks.pl [ -engine|d <delphix identifier> | -all ] [-name bookmark_name] [-dbname database_name] 
-                  [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_bookmarks [-engine|d <delphix identifier> | -all ] 
+                  [-name bookmark_name] 
+                  [-dbname database_name] 
+                  [-format csv|json ]  
+                  [-help|? ] 
+                  [-debug ]
 
 =head1 DESCRIPTION
 

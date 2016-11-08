@@ -176,7 +176,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
-  dx_get_analytics.pl ( -d <delphix identifier> | -all )
+  dx_get_analytics ( -d <delphix identifier> | -all )
                         -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names>
                         -outdir <output dir>
                         [-i interval ] 
@@ -235,6 +235,7 @@ Print this screen
 =item B<-debug>          
 Turn on debugging
 
+=back
 
 =head1 EXAMPLES
 
@@ -254,4 +255,4 @@ Export 1 hour data for all collectors for last 7 days into /tmp directory
  Generating nfs aggregated report file /tmp/Landshark-analytics-nfs-aggregated.csv 
 
 
-=back
+=cut

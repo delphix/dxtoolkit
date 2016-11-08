@@ -142,7 +142,10 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_get_appliance.pl [ -d <delphix identifier> | -all ] [ -format csv|json ] [ -nohead ] [ -help|? ]
+dx_get_appliance [-d <delphix identifier> | -all ] 
+                 [-format csv|json ] 
+                 [-nohead ] 
+                 [-help|? ]
 
 =head1 ARGUMENTS
 
