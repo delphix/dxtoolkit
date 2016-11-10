@@ -2472,9 +2472,80 @@ sub setRacProvisioning {
 
 }
 
+# Procedure discoverPDB
+# parameters: 
+# - cdb - name of source CDB
+# - source_inst - name of source inst
+# - source_env - name of source env
+# - cdbuser - db user in CDB
+# - cdbpass - db pass in CDB
+
+
+# Discover PDB in a specified CDB
+
+sub discoverPDB {
+    my $self = shift; 
+    my $source_inst = shift;
+    my $source_env = shift;
+    my $cdbname = shift;
+    my $cdbuser = shift;
+    my $cdbpass = shift;
+    my $ret;
+    logger($self->{_debug}, "Entering OracleVDB_obj::discoverPDB",1);
+
+    my $cdb = $self->setConfig($cdbname, $source_inst, $source_env);
+
+    if (! defined($cdb)) {
+        print "Source container database $cdbname not found\n";
+        return undef;
+    }
+    
+    if ($cdb->{'cdbType'} ne 'ROOT_CDB') {
+      my %updatecdb = (
+        "type" => "OracleSIConfig",
+        "user" => $cdbuser,
+        "credentials" => {
+          "type" => "PasswordCredential",
+          "password" => $cdbpass
+        }
+      );
+      
+      my $json_data = encode_json(\%updatecdb);
+
+      logger($self->{_debug}, $json_data, 2);
+
+      my $operation = 'resources/json/delphix/sourceconfig/' . $cdb->{reference};
+
+      my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+      if (! defined ($result) ) {
+          print "There was a problem with discovering PDB database $cdbname \n";
+          return 1;
+      } elsif ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+          print "Setting credential for CDB $cdbname sucessful.\n";
+      } else {
+          print "There was a problem with setting a credentials for CDB $cdbname \n";
+          return 1;
+      }  
+      
+      $self->{_sourceconfig}->refresh();
+      if ($self->{_sourceconfig}->getSourceConfig($cdb->{reference})->{'cdbType'} eq 'ROOT_CDB') {
+        return 0;
+      } else {
+        print "Database $cdbname is not a CDB \n";
+        return 1;    
+      }
+    } else {
+      return 0;
+    }
+
+}
+
 # Procedure addSource
 # parameters: 
 # - source - name of source DB
+# - source_inst - name of source inst
+# - source_env - name of source env
 # - source_osuser - name of source OS user
 # - dbuser - DB user name
 # - password - DB user password
@@ -2508,10 +2579,10 @@ sub addSource {
     }
 
     if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-        print "Username or password is invalid.\n";
+        print "Username or password is invalid or database is down.\n";
         return undef;
     }
-
+    
     if ( $self->setGroup($group) ) {
         print "Group $group not found. dSource won't be created\n";
         return undef;
@@ -2537,39 +2608,75 @@ sub addSource {
 
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
 
-    my %dsource_params = (
-          "environmentUser" => $source_os_ref,
-          "source" => {
-            "type" => "OracleLinkedSource",
-            "bandwidthLimit" => 0,
-            "filesPerSet" => 5,
-            "rmanChannels" => 2,
-            "compressedLinkingEnabled" => JSON::true,
-            "operations" => {
-              "type" => "LinkedSourceOperations",
-              "preSync" => [],
-              "postSync" => []
+    my %dsource_params;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+      %dsource_params = (
+            "environmentUser" => $source_os_ref,
+            "source" => {
+              "type" => "OracleLinkedSource",
+              "bandwidthLimit" => 0,
+              "filesPerSet" => 5,
+              "rmanChannels" => 2,
+              "compressedLinkingEnabled" => JSON::true,
+              "operations" => {
+                "type" => "LinkedSourceOperations",
+                "preSync" => [],
+                "postSync" => []
+              },
+              "config" => $config->{reference},
             },
-            "config" => $config->{reference},
-          },
-          "type" => "OracleLinkParameters",
-          "container" => {
-            "type" => "OracleDatabaseContainer",
-            "sourcingPolicy" => {
-              "logsyncEnabled" => $logsync_param,
-              "type" => "OracleSourcingPolicy",
-              "logsyncMode" => "ARCHIVE_REDO_MODE"
+            "type" => "OracleLinkParameters",
+            "container" => {
+              "type" => "OracleDatabaseContainer",
+              "sourcingPolicy" => {
+                "logsyncEnabled" => $logsync_param,
+                "type" => "OracleSourcingPolicy",
+                "logsyncMode" => "ARCHIVE_REDO_MODE"
+              },
+              "name" => $dsource_name,
+              "group" => $self->{"NEWDB"}->{"container"}->{"group"}
             },
-            "name" => $dsource_name,
-            "group" => $self->{"NEWDB"}->{"container"}->{"group"}
-          },
-          "dbCredentials" => {
-            "type" => "PasswordCredential",
-            "password" => $password
-          },
-          "linkNow" => JSON::true,
-          "dbUser" => $dbuser
-    );
+            "dbCredentials" => {
+              "type" => "PasswordCredential",
+              "password" => $password
+            },
+            "linkNow" => JSON::true,
+            "dbUser" => $dbuser
+      );
+      
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"type"} = 'OraclePDBLinkParameters';
+      } 
+      
+    } else {
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkData",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "dbCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "dbUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true
+          }
+      );
+      
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkData";
+      } 
+      
+    }
 
 
     my $operation = 'resources/json/delphix/database/link';
@@ -2631,6 +2738,10 @@ sub createVDB {
             print "Problem with node names or instance numbers. Please double check.";
             return undef;
         }
+    }
+    
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
     }
 
     my $operation = 'resources/json/delphix/database/provision';
@@ -3174,6 +3285,12 @@ sub createVDB {
         return undef;
     }
 
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
+    }
+    
+
+
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
     return $self->runJobOperation($operation,$json_data);
@@ -3677,35 +3794,70 @@ sub addSource {
     }
 
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
+    
+    my %dsource_params;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+      %dsource_params = (
+          "type" => "ASELinkParameters",
+          "container" => {
+              "type" => "ASEDBContainer",
+              "name" => $dsource_name,
+              "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+              "sourcingPolicy" => {
+                "logsyncEnabled" => $logsync_param,
+                "type" => "SourcingPolicy"
+              },
+          },
+          "sourceHostUser" => $source_os_ref,
+          "stagingHostUser" => $stage_osuser_ref,
+          "source" => {
+              "type" => "ASELinkedSource",
+              "config" => $config->{reference},
+              "loadBackupPath" => $backup_dir
+          },
+          "dbCredentials" => {
+              "type" => "PasswordCredential",
+              "password" => $password
+          },
+          "dbUser" => $dbuser,
+          "stagingRepository"=> $stagingrepo,
+          "syncParameters"=> {
+              "type"=> "ASELatestBackupSyncParameters"
+          }
+      );
+      
+    } else {
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "ASELinkData",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "SourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "dbCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "dbUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "sourceHostUser" => $source_os_ref,
+              "stagingHostUser" => $stage_osuser_ref,
+              "stagingRepository"=> $stagingrepo,
+              "loadBackupPath" => $backup_dir,
+              "syncParameters"=> {
+                  "type"=> "ASELatestBackupSyncParameters"
+              }
+          }
+      );      
+    }    
+    
 
-    my %dsource_params = (
-        "type" => "ASELinkParameters",
-        "container" => {
-            "type" => "ASEDBContainer",
-            "name" => $dsource_name,
-            "group" => $self->{"NEWDB"}->{"container"}->{"group"},
-            "sourcingPolicy" => {
-              "logsyncEnabled" => $logsync_param,
-              "type" => "SourcingPolicy"
-            },
-        },
-        "sourceHostUser" => $source_os_ref,
-        "stagingHostUser" => $stage_osuser_ref,
-        "source" => {
-            "type" => "ASELinkedSource",
-            "config" => $config->{reference},
-            "loadBackupPath" => $backup_dir
-        },
-        "dbCredentials" => {
-            "type" => "PasswordCredential",
-            "password" => $password
-        },
-        "dbUser" => $dbuser,
-        "stagingRepository"=> $stagingrepo,
-        "syncParameters"=> {
-            "type"=> "ASELatestBackupSyncParameters"
-        }
-    );
+
 
     if (defined($dumppwd)) {
         $dsource_params{source}{dumpCredentials}{type} = "PasswordCredential";
@@ -3870,6 +4022,10 @@ sub createVDB {
     }
 
     delete $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"};
+    
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
+    }
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
@@ -4178,6 +4334,10 @@ sub createVDB {
 
     $self->setPort($port);
     $self->setMountPoint($mountpoint);
+    
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
+    }
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
@@ -4476,6 +4636,10 @@ sub createVDB {
     if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
+    }
+    
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
     }
 
     my $operation = 'resources/json/delphix/database/provision';
