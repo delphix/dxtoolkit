@@ -402,28 +402,30 @@ sub timestamp {
 	my $ret;
 
 	my ($year,$mon,$day,$hh,$mi,$ss);
-
+	
+	if (defined($timestamp)) {
+		if (( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d?\d):(\d\d)/ ) || ( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d)/ ) ) {
+			$timestamp = $timestamp;
+		} elsif (my ($min) = ($timestamp =~ /-(\d.*)min/)) {
+			$timestamp = $engine->getTime($min);
+		} elsif (my ($days) = ($timestamp =~ /-(\d.*)day(s?)/)) {
+			$timestamp = $engine->getTime($days*24*60);
+		}else {
+			return $ret;
+		}
+	} else {
+		# - 7 days
+		$timestamp = $engine->getTime(7*24*60);
+	}
+	
 	my $tz = new Date::Manip::TZ;
 	my $detz = $engine->getTimezone();
-
 	my $dt = ParseDate($timestamp);
-		
 	if ($dt ne '') { 
 		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
 		my $tstz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 		$ret = uri_escape($tstz);
 	} 
-
-	# if ( (($year,$mon,$day,$hh,$mi,$ss) = $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/ ) ) {
-	# 	$ret = uri_escape( $year . "-" . $mon . "-" . $day . "T" . $hh . ":" . $mi . ":" . $ss  . ".000Z" );
-	# }
-	# elsif ( (($year,$mon,$day) = $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d)/ ) ) {
-	# 	$ret = uri_escape( $year . "-" . $mon . "-" . $day . "T00:00:00.000Z" );
-	# } 
-	# else {
-	# 	$ret = oracleToDelphixTime($timestamp);
-	# }
-
 
    return $ret;
 }

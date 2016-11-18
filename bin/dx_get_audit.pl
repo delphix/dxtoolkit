@@ -105,10 +105,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
-  if (! defined($st)) {
-      # take engine time minus 1 day
-    $st = $engine_obj->getTime(24*60);
-  } 
 
   my $st_timestamp;
 
