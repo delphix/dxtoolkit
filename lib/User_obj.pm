@@ -540,8 +540,10 @@ sub getProfile {
 
 
     my $obj_list = $authorizations->getDatabasesByUser($reference); 
+        
     for my $obj_ref ( keys %{$obj_list} ) {
-        if (defined($groups->getName($obj_ref))) {
+              
+        if (defined($groups->getName($obj_ref)) && ($groups->getName($obj_ref) ne 'N/A')  ) {
             $profile{'group'}{$groups->getName($obj_ref)} = $obj_list->{$obj_ref};
         }
         if (defined($databases->getName($obj_ref))) {
