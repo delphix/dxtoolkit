@@ -121,11 +121,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
-  if (! defined($st)) {
-      # take engine time minus 5 days
-    $st = $engine_obj->getTime(24*60*7);
-  } 
-
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);

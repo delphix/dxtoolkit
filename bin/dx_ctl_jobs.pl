@@ -109,18 +109,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $st_timestamp;
   my $et_timestamp;
 
-  if (! defined($st)) {
-      # take engine time minus 1 day
-    $st = $engine_obj->getTime(7*24*60);
-    $st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj);
-  } else {
-    if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
+
+  if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
       print "Wrong start time (st) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1);  
-    }
   }
-
 
   if (defined($et)) {
     $et = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($et, $engine_obj);
