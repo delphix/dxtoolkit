@@ -164,7 +164,7 @@ my @gradetests = (
 );
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj, 'sysadmin');
 
 my $ret = 0;
 
@@ -174,6 +174,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
     next;
    };
+   
+   if (lc $engine_obj->getUsername() ne 'sysadmin') {
+     print "User sysadmin is required for this script to run. Please check dxtools.conf entry for $engine\n";
+     next;
+   }
   
    my $st = new Storage_obj ($engine_obj, $debug);
    
