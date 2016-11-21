@@ -45,6 +45,7 @@ use Group_obj;
 use Toolkit_helpers;
 use Snapshot_obj;
 use Hook_obj;
+use MaskingJob_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -189,9 +190,10 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $capacity;
   my $timeflows;
   my $groups = new Group_obj($engine_obj, $debug);
+  my $maskingjob = new MaskingJob_obj ($engine_obj, $debug);
   my $templates;
   my $snapshots;
-  if (defined($backup)) {
+  if ( defined($backup) || defined($config) ) {
       $templates = new Template_obj($engine_obj, $debug);
   } else {
     if (lc $parentlast eq 'p') {
@@ -241,35 +243,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (defined($config)) {
 
-      my $other = '';
-      if ($dbobj->{_dbtype} eq 'oracle') {
-        $other = $other . $dbobj->getArchivelog() . " ";
-        my $mntpoint = $dbobj->getMountPoint();
-        my $archlog = $dbobj->getArchivelog();
-        my $tempref = $dbobj->getTemplateRef();
-        my $listnames = $dbobj->getListenersNames();
-        my $redogroups = $dbobj->getRedoGroupNumber();
-        
-        if ($redogroups ne 'N/A') {
-          $other = $other . " redoGroup $redogroups ";
-          my $redosize = $dbobj->getRedoGroupSize();
-          if (($redosize ne 'N/A') && ($redosize ne 0)) {
-            $other = $other . " redoSize $redosize ";
-          }
-        }
-                  
-        if (defined($tempref)) {
-          my $tempname = $templates->getTemplate($tempref)->{name};
-          $other = $other . " template $tempname ";
-        }
-        $other = $other . " -mntpoint \"$mntpoint\" " ;
-        if (defined($listnames) && ($listnames ne '')) {
-          $other = $other . " -listeners $listnames ";
-        }
-      }
-      if ( ( $dbobj->getType() eq 'dSource')  && ( $dbobj->{_dbtype} ne 'oracle' ) && ( $dbobj->{_dbtype} ne  'vFiles' ) ) {
-        $other = $other . $dbobj->getStagingEnvironment() . "," . $dbobj->getStagingInst();
-      }
+      my $other = $dbobj->getConfig($templates);
       $output->addLine(
         $engine,
         $hostenv_line,
@@ -282,158 +256,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         $dbobj->getVersion(),
         $other
       );
+      
     } elsif (defined($backup)) {
       
-      my $suffix = '';
-      if ( $^O eq 'MSWin32' ) { 
-        $suffix = '.exe';
-      }
-      
-      my $dbtype = $dbobj->getType();
+      #backup($engine, $dbobj, $output, $dsource_output, $groups, $parentname, $hostenv_line, $parentgroup, $templates);
       my $groupname = $groups->getName($dbobj->getGroup());
-      my $dbn = $dbobj->getName();
-      my $dbhostname;
-      my $vendor = $dbobj->{_dbtype};
-      my $rephome = $dbobj->getHome();
-
-      my $hooks = new Hook_obj (  $engine_obj, 1, $debug );
-      
-      $hooks->exportDBHooks($dbobj, $backup);
-      
-      my $restore_args;
-      
-      if ($dbtype eq 'VDB') {
-        # VDB
-        
-        $dbhostname = $dbobj->getDatabaseName();
-        if (($parentname eq '') && ($vendor eq 'vFiles')) {
-          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -empty -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";
-        } else {
-          $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" -targetname \"$dbn\" -dbname \"$dbhostname\" -environment \"$hostenv_line\" -envinst \"$rephome\" ";          
-        }
-        
-        $restore_args = $restore_args . " -envUser \"" . $dbobj->getEnvironmentUserName() . "\" ";
-        $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
-        
-        if ($vendor eq 'oracle') {
-          my $mntpoint = $dbobj->getMountPoint();
-          my $archlog = $dbobj->getArchivelog();
-          my $tempref = $dbobj->getTemplateRef();
-          my $listnames = $dbobj->getListenersNames();
-          my $redogroups = $dbobj->getRedoGroupNumber();
-          
-          if ($redogroups ne 'N/A') {
-            $restore_args = $restore_args . " -redoGroup $redogroups ";
-            my $redosize = $dbobj->getRedoGroupSize();
-            if (($redosize ne 'N/A') && ($redosize ne 0)) {
-              $restore_args = $restore_args . " -redoSize $redosize ";
-            }
-            
-          }
-                    
-          if (defined($tempref)) {
-            my $tempname = $templates->getTemplate($tempref)->{name};
-            $restore_args = $restore_args . " -template $tempname";
-          }
-          $restore_args = $restore_args . " -mntpoint \"$mntpoint\" -$archlog " ;
-          if (defined($listnames) && ($listnames ne '')) {
-            $restore_args = $restore_args . " -listeners $listnames ";
-          }
-          
-          #if one instance use -instanceName
-          my $instances = $dbobj->getInstances();
-                              
-          if ($dbobj->isRAC()) {
-            #rac 
-            my $rac = '';
-            for my $inst (@{$instances}) {
-              $rac = $rac . "-rac_instance " . $dbobj->getInstanceNode($inst->{instanceNumber}) . "," . $inst->{instanceName} . "," . $inst->{instanceNumber} . " "; 
-            }
-            $restore_args = $restore_args . " " . $rac;
-          } else {
-            $restore_args = $restore_args . " -instname " . $instances->[-1]->{instanceName} . " ";
-          }
-          
-          my $unique = $dbobj->getUniqueName();
-          if ($unique ne 'N/A') {
-            $restore_args = $restore_args . " -uniqname $unique ";
-          }
-          
-          
-        }
-        
-        if ($vendor eq "mssql") {
-          my $recoveryModel = $dbobj->getRecoveryModel();       
-          $restore_args = $restore_args . " -recoveryModel $recoveryModel";
-        }
-        
-        if ($vendor eq 'vFiles') {
-          my $addmount = $dbobj->getAdditionalMountpoints();
-          for my $am (@{$addmount}) {
-            $restore_args = $restore_args . " -additionalMount $am ";
-          }
-        }
-        
-        $output->addLine(
-          $restore_args
-        );
-        
-      } else {
-        # dSource export
-        #my $users = new 
-        $dbhostname = $dbobj->getSourceName() ? $dbobj->getSourceName() : 'detached';
-        my $osuser = $dbobj->getOSUser();
-                
-        $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup -dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" -sourceinst \"$rephome\" -sourceenv \"$hostenv_line\" -source_os_user \"$osuser\" ";
-        
-        if ($vendor ne 'vFiles') {
-          my $logsync = $dbobj->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
-          my $dbuser = $dbobj->getDbUser();
-          
-          # if ($dbhostname eq 'detached') {
-          #   $dbuser = 'N/A';
-          # }
-          $restore_args = $restore_args . "-dbuser $dbuser -password ChangeMeDB -logsync $logsync";
-        }
-        
-          
-        if (($vendor eq "mssql") || ($vendor eq "sybase")) {
-          my $staging_user = $dbobj->getStagingUser();
-          my $staging_env = $dbobj->getStagingEnvironment();
-          my $staging_inst = $dbobj->getStagingInst();
-                    
-          $restore_args = $restore_args . " -stageinst \"$staging_inst\" -stageenv \"$staging_env\" -stage_os_user \"$staging_user\" ";
-        }
-        
-        if ($vendor eq "mssql") {
-          my $backup_path = $dbobj->getBackupPath();
-          if (!defined($backup_path)) {
-            #autobackup path
-            $backup_path = "";
-          }
-          if (defined($backup_path)) {
-            $backup_path =~ s/\\/\\\\/g;
-          }
-          my $vsm = $dbobj->getValidatedMode();
-          my $dmb = $dbobj->getDelphixManaged();
-        
-          if ($dmb eq 'yes') {
-            $restore_args = $restore_args . " -delphixmanaged $dmb ";
-          } else {
-            $restore_args = $restore_args . " -validatedsync $vsm -backup_dir \"$backup_path\" ";
-          }
-        }
-        
-        if ($vendor eq "sybase") {
-          my $backup_path = $dbobj->getBackupPath();
-          $restore_args = $restore_args . " -backup_dir \"$backup_path\" ";
-        }
-        
-        $dsource_output->addLine(
-          $restore_args
-        );
-        
-      }
+      $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates);
 
     } else {
 
@@ -451,6 +279,14 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $dsource_snaps = new Snapshot_obj($engine_obj,$dbobj->getReference(), undef, $debug);
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
       }
+
+#      print Dumper $dbobj->getMasked();
+#      print Dumper $dbobj->getReference();
+      
+      my $a = $maskingjob->getMaskingJobForContainer($dbobj->getReference());
+
+#      print Dumper $a;
+#      print Dumper $maskingjob->getMaskingJobName($a);
 
       $output->addLine(
         $engine,
@@ -513,6 +349,7 @@ if (defined($backup)) {
 
 
 exit $ret;
+
 
 __DATA__
 

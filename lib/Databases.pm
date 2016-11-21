@@ -36,6 +36,10 @@ use Repository_obj;
 use Environment_obj;
 use Host_obj;
 use VDB_obj;
+use OracleVDB_obj;
+use MSSQLVDB_obj;
+use SybaseVDB_obj;
+use AppDataVDB_obj;
 use Toolkit_helpers qw (logger);
 
 # constructor
