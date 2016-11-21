@@ -30,7 +30,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.2.7-rc1';
+our $version = '2.2.7-rc2';
 
 sub logger {
 	my $debug = shift;
@@ -335,12 +335,17 @@ sub get_engine_list {
 	my $all = shift;
 	my $dx_host = shift;
 	my $engine_obj = shift;
+	my $sysadmin = shift;
 
 	my @engine_list;
 
 	if (defined($all) ) {
 	  # processing all engines
-	  @engine_list = $engine_obj->getAllEngines();
+		if (defined($sysadmin)) {
+			@engine_list = $engine_obj->getAllSysadminEngines();
+		} else {
+	  	@engine_list = $engine_obj->getAllNonSysadminEngines();
+		}
 	} elsif (defined($dx_host)) {
 	  # processing one engine
 	  push(@engine_list, $dx_host);

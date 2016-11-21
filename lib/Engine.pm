@@ -222,6 +222,28 @@ sub decrypt {
 }
 
 
+# Procedure getAllNonSysadminEngines
+# parameters: 
+# Return names of all engines loaded
+
+sub getAllNonSysadminEngines {
+   my $self = shift;  
+   logger($self->{_debug}, "Entering Engine::getAllEngines",1);
+   my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} ne lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
+   return @nonsysadmin;
+}
+
+# Procedure getAllSysadminEngines
+# parameters: 
+# Return names of all engines loaded
+
+sub getAllSysadminEngines {
+   my $self = shift;  
+   logger($self->{_debug}, "Entering Engine::getAllEngines",1);
+   my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} eq lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
+   return @nonsysadmin;
+}
+
 # Procedure getAllEngines
 # parameters: 
 # Return names of all engines loaded
@@ -786,7 +808,7 @@ sub getJSONResult {
    logger($self->{_debug}, "GET: $api_url");
 
    my $request = HTTP::Request->new(GET => $api_url);
-   $request->content_type("text/html");
+   $request->content_type("application/json");
 
    my $response = $self->{_ua}->request($request);
    
