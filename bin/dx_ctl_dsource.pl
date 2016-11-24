@@ -57,6 +57,9 @@ GetOptions(
   'stageenv=s' => \(my $stageenv),
   'dbuser=s'  => \(my $dbuser),
   'password=s'  => \(my $password),
+  'cdbcont=s' => \(my $cdbcont),
+  'cdbuser=s' => \(my $cdbuser),
+  'cdbpass=s' => \(my $cdbpass),
   'source_os_user=s'  => \(my $source_os_user),
   'stage_os_user=s'  => \(my $stage_os_user),
   'backup_dir=s' => \(my $backup_dir),
@@ -99,6 +102,12 @@ if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'atta
 
 
 if ($action ne 'detach') {
+  
+  if (defined($cdbcont) && ((!defined($cdbpass)) || (!defined($cdbuser)))) {
+    print "Option -cdbcont required a cdbpass and cdbuser to be defined \n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);    
+  }
     
 
   if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') ) ) ) {
@@ -210,7 +219,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
     if ($action eq 'attach') {
-      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
+      if ( $type eq 'oracle' ) {
+        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
+      } else {
+        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync);      
+      }
     } else {
       $jobno = $source->detach_dsource();
     }
@@ -219,6 +232,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if ( $type eq 'oracle' ) {
       my $db = new OracleVDB_obj($engine_obj,$debug);
+      
+      if (defined($cdbcont)) {
+        if ($db->discoverPDB($sourceinst,$sourceenv,$cdbcont,$cdbuser,$cdbpass)) {
+          print "There was an error with PDB discovery \n";
+          $ret = $ret + 1;
+          next;
+        }
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync);
     } 
     elsif ($type eq 'sybase') {
