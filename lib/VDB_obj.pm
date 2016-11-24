@@ -380,7 +380,7 @@ sub getSourceName
 
 # Procedure getSourceConfigName
 # parameters: none
-# Return discovered dSource name ( DB name on dSource server )
+# Return name of source config
 
 sub getSourceConfigName 
 {
@@ -389,6 +389,23 @@ sub getSourceConfigName
     my $ret;
     if ($self->{sourceConfig} ne 'NA') {
         $ret = $self->{sourceConfig}->{name};
+    }
+    return $ret;
+}
+
+# Procedure getSourceConfigType
+# parameters: none
+# Return sourceconfig type (type of database, ex. Oracle SI, Oracle PDB)
+
+sub getSourceConfigType
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getSourceConfigType",1); 
+    my $ret;
+    if ($self->{sourceConfig} ne 'NA') {
+        $ret = $self->{sourceConfig}->{type};
+    } else {
+      $ret = 'N/A';
     }
     return $ret;
 }
