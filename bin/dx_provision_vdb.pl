@@ -64,6 +64,7 @@ GetOptions(
   'listeners=s'  => \(my $listeners),
   'srcgroup=s' => \(my $srcgroup), 
   'envinst=s' => \(my $envinst),
+  'cdb=s' => \(my $cdb),
   'template=s' => \(my $template),
   'mapfile=s' =>\(my $map_file),
   'port=n' =>\(my $port),
@@ -477,7 +478,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
         
-    $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance);
+    $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance, $cdb);
         
   } 
   elsif ($type eq 'mssql') {

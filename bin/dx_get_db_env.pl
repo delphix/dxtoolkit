@@ -62,6 +62,7 @@ GetOptions(
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'primary' => \(my $primary),
+  'masking' => \(my $masking),
   'envname=s' => \(my $envname),
   'instance=n' => \(my $instance),
   'debug:i' => \(my $debug),
@@ -158,18 +159,31 @@ if (defined($backup)) {
     {'Other',      100}
   );
 } else {
-  $output->addHeader(
-    {'Appliance', 10},
-    {$hostenv_head,  20},
-    {'Database',  30},
-    {'Group',     15},
-    {'Type',       8},
-    {'SourceDB',  30},
-    {$parentlast_head, 35},
-    {'Used(GB)',  10},
-    {'Status',    10},
-    {'Enabled',   10},
-  );
+  if (defined($masking)) {
+    $output->addHeader(
+      {'Appliance',   10},
+      {$hostenv_head, 20},
+      {'Database',    30},
+      {'Group',       15},
+      {'Type',         8},
+      {'SourceDB',    30},
+      {'Masked',      10},
+      {'Masking job', 15}
+    );  
+  } else {
+    $output->addHeader(
+      {'Appliance', 10},
+      {$hostenv_head,  20},
+      {'Database',  30},
+      {'Group',     15},
+      {'Type',       8},
+      {'SourceDB',  30},
+      {$parentlast_head, 35},
+      {'Used(GB)',  10},
+      {'Status',    10},
+      {'Enabled',   10},
+    );
+  }
 }
 
 
@@ -190,7 +204,10 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $capacity;
   my $timeflows;
   my $groups = new Group_obj($engine_obj, $debug);
-  my $maskingjob = new MaskingJob_obj ($engine_obj, $debug);
+  my $maskingjob;
+  if (defined($masking)) {
+    $maskingjob = new MaskingJob_obj ($engine_obj, $debug);
+  }
   my $templates;
   my $snapshots;
   if ( defined($backup) || defined($config) ) {
@@ -240,6 +257,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $hostenv_line = $dbobj->getEnvironmentName();
     }
 
+    my $groupname = $groups->getName($dbobj->getGroup());
 
     if (defined($config)) {
 
@@ -248,7 +266,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $engine,
         $hostenv_line,
         $dbobj->getName(),
-        $groups->getName($dbobj->getGroup()),
+        $groupname,
         $dbobj->getType(),
         $parentname,
         $dbobj->getHome(),
@@ -260,7 +278,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     } elsif (defined($backup)) {
       
       #backup($engine, $dbobj, $output, $dsource_output, $groups, $parentname, $hostenv_line, $parentgroup, $templates);
-      my $groupname = $groups->getName($dbobj->getGroup());
       $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates);
 
     } else {
@@ -280,27 +297,40 @@ for my $engine ( sort (@{$engine_list}) ) {
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
       }
 
-#      print Dumper $dbobj->getMasked();
-#      print Dumper $dbobj->getReference();
-      
-      my $a = $maskingjob->getMaskingJobForContainer($dbobj->getReference());
-
-#      print Dumper $a;
-#      print Dumper $maskingjob->getMaskingJobName($a);
-
-      $output->addLine(
-        $engine,
-        $hostenv_line,
-        $dbobj->getName(),
-        $groups->getName($dbobj->getGroup()),
-        $dbobj->getType(),
-        $parentname,
-        #$timeflows->getParentSnapshot($dbobj->getCurrentTimeflow()),
-        $snaptime,
-        $capacity->getDatabaseUsage($dbobj->getReference()),
-        $dbobj->getRuntimeStatus(),
-        $dbobj->getEnabled()
-      );
+      if (defined($masking)) {
+        my $masked;
+        my $maskedjob_name;
+        if ($dbobj->getMasked()) {
+          $maskedjob_name = $maskingjob->getMaskingJobForContainer($dbobj->getReference());
+          $masked = 'YES'
+        } else {
+          $masked = 'NO';
+          $maskedjob_name = '';
+        }
+        $output->addLine(
+          $engine,
+          $hostenv_line,
+          $dbobj->getName(),
+          $groupname,
+          $dbobj->getType(),
+          $parentname,
+          $masked,
+          $maskedjob_name
+        );      
+      } else {
+        $output->addLine(
+          $engine,
+          $hostenv_line,
+          $dbobj->getName(),
+          $groupname,
+          $dbobj->getType(),
+          $parentname,
+          $snaptime,
+          $capacity->getDatabaseUsage($dbobj->getReference()),
+          $dbobj->getRuntimeStatus(),
+          $dbobj->getEnabled()
+        );
+      }
 
     }
 

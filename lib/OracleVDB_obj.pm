@@ -31,6 +31,7 @@ use Data::Dumper;
 use Template_obj;
 use JSON;
 use Toolkit_helpers qw (logger);
+use SourceConfig_obj;
 our @ISA = qw(VDB_obj);
 
 # use Group_obj;
@@ -159,24 +160,34 @@ sub getConfig
       my $redogroups = $self->getRedoGroupNumber();
 
         
-      if ($redogroups ne 'N/A') {
-        $config = join($joinsep,($config, "-redoGroup $redogroups")); 
-        my $redosize = $self->getRedoGroupSize();
-        if (($redosize ne 'N/A') && ($redosize ne 0)) {
-          $config = join($joinsep,($config, "-redoSize $redosize"));
+
+      
+      my $cdbname = $self->getCDBContainer();
+      
+      if (defined($cdbname)) {
+        #vPDB
+        $config = join($joinsep,($config, "-cdb $cdbname"));
+      } else {
+        #non vPDB
+        if ($redogroups ne 'N/A') {
+          $config = join($joinsep,($config, "-redoGroup $redogroups")); 
+          my $redosize = $self->getRedoGroupSize();
+          if (($redosize ne 'N/A') && ($redosize ne 0)) {
+            $config = join($joinsep,($config, "-redoSize $redosize"));
+          }
         }
-        
+        $config = join($joinsep,($config, "-$archlog")) ;   
+        if (defined($listnames) && ($listnames ne '')) {
+          $config = join($joinsep,($config, "-listeners $listnames"));
+        }     
       }
+
                   
       if (defined($tempref)) {
         my $tempname = $templates->getTemplate($tempref)->{name};
         $config = join($joinsep,($config, "-template $tempname"));
       }
       $config = join($joinsep,($config, "-mntpoint \"$mntpoint\""));
-      $config = join($joinsep,($config, "-$archlog")) ;
-      if (defined($listnames) && ($listnames ne '')) {
-        $config = join($joinsep,($config, "-listeners $listnames"));
-      }
         
       #if one instance use -instanceName
       my $instances = $self->getInstances();
@@ -189,7 +200,9 @@ sub getConfig
         }
         $config = join($joinsep,($config, $rac));
       } else {
-        $config = join($joinsep,($config, "-instname " . $instances->[-1]->{instanceName}));
+        if ($instances ne 'UNKNOWN') {
+          $config = join($joinsep,($config, "-instname " . $instances->[-1]->{instanceName}));
+        }
       }
         
       my $unique = $self->getUniqueName();
@@ -312,6 +325,25 @@ sub getInstanceStatus
         $ret = 'down';
     }
 
+    return $ret;
+}
+
+# Procedure getCDBContainer
+# parameters: 
+# Return CDB name or undef if not vPDB
+
+sub getCDBContainer 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getCDBContainer",1);
+
+    my $ret;
+
+    if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
+      my $cdbref = $self->{sourceConfig}->{cdbConfig};      
+      $ret = $self->{_sourceconfig}->getName($cdbref); 
+    };
+    
     return $ret;
 }
 
@@ -463,11 +495,11 @@ sub setSource {
     my $debug = $self->{_debug};
 
     if (defined ($source)) {
-
-        #print Dumper $source->{container};
-
+        
         my $sourcetype = $source->{container}->{'type'};
         if (($sourcetype eq 'OracleDatabaseContainer') || ($sourcetype eq 'OracleVirtualSource')) {
+            my $configtype = $source->getSourceConfigType();
+            $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
             $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"}  = $source->{container}->{reference};
             return 0;
         } else {
@@ -1270,6 +1302,54 @@ sub addSource {
 
 }
 
+# Procedure findCDBonEnvironment
+# parameters: 
+# - group - new DB group
+# - env - new DB environment
+# - home - new DB home
+# - rac
+# - instance array
+# Start job to create Single Instance Oracle VDB
+# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
+# Return job number if provisioning has been started, otherwise return undef 
+
+sub findCDBonEnvironment {
+    my $self = shift; 
+    my $cdbname = shift;
+
+    my $sourceconfig = new SourceConfig_obj($self->{_dlpxObject}, $self->{_debug});
+    
+    my $cdbconf;
+    
+    if (defined($cdbname)) {
+      my $cdbobj = $sourceconfig->getSourceConfigByName($cdbname);
+      if (defined($cdbobj)) {
+        $cdbconf = $cdbobj->{reference};   
+      } else {
+        print "CDB named $cdbname not found in Oracle Home and envitonment\n";
+      }
+    } else {
+      my $list = $sourceconfig->getSourceConfigsListForRepo($self->{"NEWDB"}->{"sourceConfig"}->{"repository"});
+      my @cdbList = grep { defined($sourceconfig->getSourceConfig($_)->{cdbType}) && (($sourceconfig->getSourceConfig($_))->{cdbType} eq 'ROOT_CDB') } @{$list};
+
+      if (scalar(@cdbList) > 1) {
+        print "There is more than 1 CDB in Oracle home. Please specify it\n";
+        return undef;
+      } elsif (scalar(@cdbList) < 1) {
+        print "There is non CDB in found in Oracle Home and environment. Please check it\n";
+        return undef;
+      } 
+      
+      $cdbconf = $cdbList[-1];
+      
+    }
+
+    
+    return $cdbconf;
+    
+}
+
+
 
 # Procedure createVDB
 # parameters: 
@@ -1289,6 +1369,7 @@ sub createVDB {
     my $env = shift;
     my $home = shift;
     my $instances = shift;
+    my $cdbname = shift;
 
 
     logger($self->{_debug}, "Entering OracleVDB_obj::createVDB",1);
@@ -1307,12 +1388,18 @@ sub createVDB {
         print "Home $home in environment $env not found. VDB won't be created\n";
         return undef;
     }
+    
+    if ( $self->{"NEWDB"}->{"sourceConfig"}->{"type"} eq 'OraclePDBConfig') {
+
+      my $cdbconf = $self->findCDBonEnvironment($cdbname);      
+      $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
+    }
+    
 
     if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
-
 
     if ($self->{'_newenvtype'} eq 'OracleCluster') {
         if ( $self->setRacProvisioning($instances) ) {

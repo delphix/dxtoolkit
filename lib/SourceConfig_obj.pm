@@ -54,6 +54,17 @@ sub new {
     return $self;
 }
 
+# Procedure refresh
+# Refresh source config
+
+sub refresh {
+  my $self = shift;
+  logger($self->{_debug}, "Entering SourceConfig_obj::refresh",1); 
+  $self->getSourceConfigList();     
+}
+
+
+
 # Procedure getSourceConfig
 # parameters: 
 # - reference - reference of source config 
@@ -152,7 +163,30 @@ sub getSourceConfigByNameForRepo {
     return $ret;
 }
 
+# Procedure getSourceConfigsListForRepo
+# parameters: 
+# - repo reference
+# Return source config list for repository
 
+sub getSourceConfigsListForRepo {
+    my $self = shift;
+    my $repo = shift;
+    my $ret;
+    my @retarray;
+    
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigsListForRepo",1);  
+
+    for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
+      
+        if ($sourceitem ne 'NA') {
+          if ( $self->getRepository($sourceitem) eq $repo ) {
+              push(@retarray, $sourceitem); 
+          }
+        }
+    }
+
+    return \@retarray;
+}
 
 
 # Procedure getSourceByName
@@ -331,6 +365,8 @@ sub getSourceConfigList
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
+    
+    
 }
 
 1;
