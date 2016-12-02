@@ -54,10 +54,16 @@ sub new {
         _dlpxObject => $dlpxObject,
         _startTime => $startTime,
         _endTime => $endTime,
-        _status => $status,
-        _severity => $severity,
         _debug => $debug
     };
+    
+    if (defined($status)) {
+      $self->{_status} = uc $status;
+    }
+    
+    if (defined($severity)) {
+      $self->{_severity} = uc $severity;
+    }
     
     bless($self,$classname);
     my $detz = $dlpxObject->getTimezone();
