@@ -1023,4 +1023,37 @@ sub changePassword
     return $self->runJobOperation($operation, $json_data, 'ACTION');
 }
 
+
+# Procedure changeASEPassword
+# parameters:
+# - reference - env reference
+# - password - password
+# start enable job
+# Return job name is sucessful or undef
+
+sub changeASEPassword
+{
+    my $self = shift;
+    my $reference = shift;
+    my $password = shift;
+    logger($self->{_debug}, "Entering Environment_obj::changeASEPassword",1);
+
+
+    my $operation = "resources/json/delphix/environment/" . $reference;
+    my %pass_data = (
+        "type" => "UnixHostEnvironment",
+        "aseHostEnvironmentParameters" => { 
+            type => "ASEHostEnvironmentParameters",
+            "credentials" => {
+              "password" => $password,
+              "type" => "PasswordCredential"
+            }
+          }
+    );
+
+    my $json_data = to_json(\%pass_data, {pretty=>1});
+
+    return $self->runJobOperation($operation, $json_data, 'ACTION');
+}
+
 1;

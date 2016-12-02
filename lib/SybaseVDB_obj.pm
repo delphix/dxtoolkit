@@ -700,5 +700,42 @@ sub setEncryption {
 
 }
 
+# Procedure setCredentials
+# parameters: 
+# - username 
+# - password
+# - force - skip check password if defined (doesn't work for Oracle - check is a part of API)
+# Set credentials for a db
+# Return 0 if success, 1 if not found
+
+sub setCredentials {
+    my $self = shift; 
+    my $username = shift;
+    my $password = shift;
+    my $force = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setCredentials",1);
+
+    my $ret;
+
+    if ($self->{_sourceconfig}->setCredentials($self->{sourceConfig}->{reference}, $username, $password, $force)) {
+        print "Username or password is invalid.\n";
+        $ret = 1;
+    } else {
+        $ret = 0;
+    }
+    
+    
+    if ($ret eq 0) {
+      my $jobid = $self->{_environment}->changeASEPassword($self->{environment}->{reference}, $password);
+      $ret = $ret + Toolkit_helpers::waitForAction($self->{_dlpxObject}, $jobid, "Password changed on environment", "Problem with password change");
+    }
+
+
+    return $ret;
+        
+
+}
+
+1;
 
 

@@ -186,6 +186,18 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Setting new password
+
+ dx_set_dbpass -d Landshark5 -dbname "Oracle dsource" -username delphixdb -password newpass
+ Password has been set.
+
+Trying to set a wrong password 
+
+ dx_set_dbpass -d Landshark5 -dbname "Oracle dsource" -username delphixdb -password fake
+ Password check failed.
+ Username or password is invalid.
 
 
 
