@@ -1491,3 +1491,4 @@ sub upgradeVDB {
 # end of OracleVDB_obj class
 #######################
 
+1;
