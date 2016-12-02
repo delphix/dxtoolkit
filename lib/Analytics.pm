@@ -127,7 +127,11 @@ sub getAnalyticByName {
 # Procedure get_perf
 # parameters: 
 # - name - analytic name / all
-# Print list of analytics for engine
+# - outdir - location of output filenames
+# - arguments - URL arguments
+# - resolution - requested resolution of data
+# - format - output format
+# Generate a analytic data
 
 
 sub get_perf {
@@ -176,9 +180,7 @@ sub get_perf {
 
         my $fn = "$outdir/" . $self->{_dlpxObject}->getEngineName() . "-analytics-" . $n . "-raw" . $suffix;
 
-        #$arguments = "endTime=$encodedEndTime" . "&startTime=$encodedStartTime" . "&resolution=$resolution&numberofDatapoints=10000";
-
-
+        print "Gathering data for " . $analytic->getName() . "\n";
         if ($analytic->getData($arguments, $resolution)) {
             print "Error gathering a data for " . $analytic->getName() . "\n";
 
