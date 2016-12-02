@@ -345,7 +345,6 @@ sub calculate_latency {
     my $latency_hash = shift;
     logger($self->{_debug}, "Entering Analytics_obj::calculate_latency",1);
 
-    #print Dumper \$latency_hash;
     
     my $sumCount = 0;
     my $sumLatency = 0;
@@ -509,6 +508,10 @@ sub get_avg {
     }
 
     my $timestamp = ( keys %{ $self->{aggreg} } )[0]; # take time stamp - we aggregate for century here so there will be only one timestamp
+    
+    if (!defined($timestamp)) {
+      return -1;
+    }
     
     if (! defined ($self->{aggreg}->{$timestamp}->{$client})) {
       return -1;
@@ -763,7 +766,8 @@ sub getData {
     return 1;
    }
 
-   
+   $self->{_overflow} = $result->{result}->{overflow};
+      
 
    # for every data stream
    
@@ -891,7 +895,7 @@ sub doAggregation {
     if ($self->{_name} =~ m/nfs-all/ ) {
         $self->doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w,cache_hit_ratio');
     } else {  
-        $self->doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w');
+        $self->doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w,iops_r,iops_w,iops');
     }
 }
 
@@ -917,6 +921,8 @@ sub processData {
 
     undef $self->{size_hist};
     my %size_hist;
+    my %read_hist_total;
+    my %write_hist_total;
     
     my $resultset = $self->{resultset};
     
@@ -934,7 +940,10 @@ sub processData {
           {'write_throughput', 20},
           {'total_throughput', 20},
           {'read_latency', 20},
-          {'write_latency', 20}
+          {'write_latency', 20},
+          {'ops_read', 20},
+          {'ops_write', 20},
+          {'total_ops', 20}
         );        
     } elsif ($self->{_name} =~ m/nfs-all/ ) {    
         # NFS output for cache
@@ -947,7 +956,10 @@ sub processData {
           {'total_throughput', 20},
           {'read_latency', 10},
           {'write_latency', 10},
-          {'read_cache_hit_ratio', 10}
+          {'read_cache_hit_ratio', 10},
+          {'ops_read', 20},
+          {'ops_write', 20},
+          {'total_ops', 20}
         );                  
     } elsif ($self->{_name} =~ m/default.nfs/ ) { 
         $output->addHeader(
@@ -956,7 +968,10 @@ sub processData {
           {'write_throughput', 20},
           {'total_throughput', 20},
           {'read_latency', 20},
-          {'write_latency', 20}
+          {'write_latency', 20},
+          {'ops_read', 20},
+          {'ops_write', 20},
+          {'total_ops', 20}
         ); 
     }else {
         # Disk output
@@ -1002,7 +1017,10 @@ sub processData {
         }
     }    
 
-    
+    if ($self->{_overflow}) {
+      print "Please reduce a range. API is not able to provide all data.\n";
+      print "min date " . $timestamps[0] . " max date " . $timestamps[-1] . "\n";
+    } 
     
     for my $ts (@timestamps) {
         
@@ -1116,6 +1134,14 @@ sub processData {
                 $self->aggregation($ts, $aggregation, $dc_cur, 'throughput_w', $write_tp_MBytes);
                 $self->aggregation($ts, $aggregation, $dc_cur, 'throughput_t', $total_tp_MBytes);
 
+                # aggregate iops
+                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_read', $read_iops);
+                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_write', $write_iops);
+                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_total', $total_iops);
+
+                $self->add_histogram(\%read_hist_total,\%r_latency_hist);
+                $self->add_histogram(\%write_hist_total,\%w_latency_hist);
+
                 my $cal_r_latency = $self->calculate_latency(\%r_latency_hist);
                 my $cal_w_latency = $self->calculate_latency(\%w_latency_hist);
                 my $cal_t_latency = $self->calculate_latency(\%total_latency_hist);
@@ -1151,22 +1177,22 @@ sub processData {
                     if ($dc_cur eq "none") {
                         if (defined $rchr) {
                             $output->addLine(
-                                $ts,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency,$rchr
+                                $ts,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency,$rchr, $read_iops, $write_iops, $total_iops
                             );
                         } else {
                             $output->addLine(
-                                $ts,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency
+                                $ts,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency, $read_iops, $write_iops, $total_iops
                             );
                         }
                     } else {
 
                         if (defined $rchr) {
                             $output->addLine(
-                                $ts,$dc_cur,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency,$rchr
+                                $ts,$dc_cur,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency,$rchr, $read_iops, $write_iops, $total_iops
                             );
                         } else {
                             $output->addLine(
-                                $ts,$dc_cur,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency
+                                $ts,$dc_cur,$read_tp_MBytes,$write_tp_MBytes,$total_tp_MBytes,$r_latency,$w_latency, $read_iops, $write_iops, $total_iops
                             );
                         }                 
                     }
@@ -1185,13 +1211,16 @@ sub processData {
 
         }
 
-        $size_hist{$ts}{rsize} = $self->calculate_size(\%r_size_hist);
-        $size_hist{$ts}{wsize} = $self->calculate_size(\%w_size_hist)
+        #$size_hist{$ts}{rsize} = $self->calculate_size(\%r_size_hist);
+        #$size_hist{$ts}{wsize} = $self->calculate_size(\%w_size_hist)
         #calculate_size(\%w_size_hist);
     }
 
-    $self->{size_hist} = \%size_hist;
+    #$self->{size_hist} = \%size_hist;
     $self->{_output} = $output;
+    
+    $self->{_read_hist_total} = \%read_hist_total;
+    $self->{_write_hist_total} = \%write_hist_total;
 }
 
 
@@ -1253,6 +1282,7 @@ sub getData {
     return 1;
    }
 
+   $self->{_overflow} = $result->{result}->{overflow};
    
    # for every data stream
    
@@ -1350,6 +1380,11 @@ sub processData {
       {'util',      10}
     );
     
+    if ($self->{_overflow}) {
+      print "Please reduce a range. API is not able to provide all data.\n";
+      print "min date " . $timestamps[0] . " max date " . $timestamps[-1] . "\n";
+    } 
+    
     for my $ts (@timestamps) {
         
         my $kernel  = $resultset->{$ts}->{kernel} ;
@@ -1432,6 +1467,9 @@ sub getData {
    if ($retcode) {
     return 1;
    }
+
+   $self->{_overflow} = $result->{result}->{overflow};
+   
 
    # for every data stream
    
@@ -1556,14 +1594,18 @@ sub processData {
           {'outBytes',  20},
         );     
     }
-    
+  
+    if ($self->{_overflow}) {
+      print "Please reduce a range. API is not able to provide all data.\n";
+      print "min date " . $timestamps[0] . " max date " . $timestamps[-1] . "\n";
+    } 
 
     for my $ts (@timestamps) {
 
         
         my $inBytes  = 0;
         my $outBytes  = 0;
-
+        
         for my $nic ( keys %{$resultset->{$ts}} ) {
             $inBytes = $inBytes + $resultset->{$ts}->{$nic}->{inBytes} ;
             $outBytes = $outBytes + $resultset->{$ts}->{$nic}->{outBytes};
@@ -1681,6 +1723,7 @@ sub getData {
     return 1;
    }
 
+   $self->{_overflow} = $result->{result}->{overflow};
    
    # for every data stream
    
@@ -1835,8 +1878,12 @@ sub processData {
       {'unacknowledgedBytes', 20},
       {'congestionWindowSize', 20}
     );        
-   
-
+  
+    if ($self->{_overflow}) {
+      print "Please reduce a range. API is not able to provide all data.\n";
+      print "min date " . $timestamps[0] . " max date " . $timestamps[-1] . "\n";
+    } 
+    
     for my $ts (@timestamps) {
         
         my @client_keys = sort (keys %{ $resultset->{$ts} });
