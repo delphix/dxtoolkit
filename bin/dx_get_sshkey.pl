@@ -113,6 +113,14 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Display engine public key
+
+ dx_get_sshkey -d Landshark
+ ssh-rsa AAAAB3NzaC1yc2EAAAABIddddO/7kftMSY5iYd6y3PstFxoJisRfewfysgqyEgl+FDv6V/OnefwfefewfwefZR1zeIzanMfNk
+ Zp7IeB64xvtZ4AGw1FGM2XkY04gIKwQysBhWcL+ddddddddd/ewewewewew/lxRljK46VpGXdFw== root@LandsharkEngine
+
 
 =cut
 

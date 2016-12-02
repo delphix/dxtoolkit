@@ -334,7 +334,29 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display a retention policy
+
+ dx_get_policy -d DE001 -policy RETENTION
+
+ Appliance            Group           Database                       Retention                      Retention schedule
+ -------------------- --------------- ------------------------------ ------------------------------ ----------------------------------------------------------------------------------------------------
+ DE001                Sources                                        Default Retention              Logs 1 day(s), snapshots 1 week(s)
+ DE001                                vasmsrc1                       Default Retention              Logs 1 day(s), snapshots 1 week(s)
+ DE001                Untitled                                       Default Retention              Logs 1 day(s), snapshots 1 week(s)
+ DE001                                SLOB                           * Default Retention            Logs 1 day(s), snapshots 1 week(s)
+ DE001                                SLOB1                          * Default Retention            Logs 1 day(s), snapshots 1 week(s)
+ DE001                                Vvas_DA3                       * Default Retention            Logs 1 day(s), snapshots 1 week(s)
+ DE001                                installs                       * Default Retention            Logs 1 day(s), snapshots 1 week(s)
+
+Export polices and mapping into files 
+
+ dx_get_policy -d Landshark -export -outdir /tmp/policy -mapping /tmp/policy/mapping.Landshark
+ Exporting policy into file /tmp/policy/Default Retention.policy
+ Exporting policy into file /tmp/policy/Default Snapshot.policy
+ Exporting policy into file /tmp/policy/Default SnapSync.policy
+ Exporting mapping into file /tmp/policy/mapping.Landshark
 
 
 =cut

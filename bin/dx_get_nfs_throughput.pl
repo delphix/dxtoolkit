@@ -114,7 +114,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st)) {
     # take engine time minus 5 min
-    $st = $engine_obj->getTime('5');
+    $st = "-5min";
   }
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
@@ -211,6 +211,18 @@ Print this screen
 Turn on debugging
 
 =back
+
+=head1 EXAMPLES
+
+Average NFS read and write throughput for a last 5 minutes using 1-second sample
+
+ dx_get_nfs_throughput -d DE1
+ WARNING: pioro nfs throughput MB/s 111.37
+
+Average disk read and write throughput for a last 5 minutes using 1-second sample and warning set to 500 MB/s 
+
+ dx_get_nfs_throughput -d DE1 -w 500 
+ OK: pioro nfs throughput MB/s 236.25
 
 =cut
 

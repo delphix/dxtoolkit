@@ -241,6 +241,33 @@ Run action on all targets in parallel. Limit number of jobs to maxjob.
 
 =back
 
+=head1 EXAMPLES
+
+Refresh one VDB using latest snapshot from dSource
+
+ dx_refresh_db -d Landshark -name autoprov
+ Starting job JOB-241 for database autoprov. 
+ 0 - 10 - 25 - 29 - 31 - 33 - 36 - 40 - 49 - 53 - 55 - 58 - 59 - 60 - 61 - 62 - 63 - 70 - 100
+ Job JOB-241 finised with state: COMPLETED
+
+Refresh one VDB using snapshot taken on 2015-10-12 7:56 on dSource
+
+  dx_refresh_db -d Landshark43 -name testsybase -timestamp '2015-10-12 07:56'
+  Starting job JOB-822 for database testsybase.
+  0 - 2 - 6 - 32 - 36 - 40 - 88 - 100
+  Job JOB-822 finised with state: COMPLETED
+
+Refresh all VDBs provisioned from dSource racdb using bookmark on dSource
+
+   dx_refresh_db -d Delphix32 -dsource racdb -timestamp test_bookmark
+   Starting job JOB-267187 for database Vrac_08B.
+   0 - 12 - 25 - 31 - 34 - 35 - 40 - 46 - 58 - 64 - 67 - 70 - 71 - 72 - 73 - 74 - 76 - 85 - 100
+   Job JOB-267187 finished with state: COMPLETED
+   Starting job JOB-267193 for database Vracdb_FEE.
+   0 - 12 - 25 - 31 - 34 - 35 - 40 - 58 - 64 - 67 - 70 - 71 - 72 - 73 - 74 - 76 - 85 - 100
+   Job JOB-267193 finished with state: COMPLETED
+
+
 
 
 =cut

@@ -224,6 +224,23 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+List templates
+
+ dx_get_js_templates -d Landshark5
+ 
+ Appliance            Template name
+ -------------------- --------------------
+ Landshark5           test
+
+List templates with properties
+
+ dx_get_js_templates -d Landshark5 -properties
+ 
+ Appliance            Template name        Property name        Property value
+ -------------------- -------------------- -------------------- --------------------
+ Landshark5           test                 prop1                value
 
 
 

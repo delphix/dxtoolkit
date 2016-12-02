@@ -388,6 +388,7 @@ __DATA__
  dx_get_db_env.pl [-engine|d <delphix identifier> | -all ] 
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
                   [-save]
+                  [-masking]
                   [-parentlast l|p] 
                   [-config]
                   [-backup path] 
@@ -456,6 +457,9 @@ Instance number
 
 =item B<-config>
 Display a config of databases (db type, version, instance / Oracle home) plus others
+
+=item B<-masking>
+Display a masking status of databases plus a masking job
 
 =item B<-backup path>
 Gnerate a dxToolkit commands to recreate databases ( Oracle / MS SQL support )

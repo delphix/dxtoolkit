@@ -83,6 +83,7 @@ $output->addHeader(
   {'Appliance', 10},
   {'Database',  30},
   {'Group',     15},
+  {'Data Source', 30},
   {'Log Sync',  10},
   {'BCT',       10},
 );
@@ -116,11 +117,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
-
+    
     $output->addLine(
       $engine,
       $dbobj->getName(),
       $groups->getName($dbobj->getGroup()),
+      $dbobj->getSourceConfigName(),
       $dbobj->getLogSync(),
       $dbobj->getBCT()
     );
@@ -199,7 +201,23 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+Display information about data sources
+
+ dx_get_source_info -d Landshark5
+
+ Appliance  Database                       Group           Data Source                    Log Sync   BCT
+ ---------- ------------------------------ --------------- ------------------------------ ---------- ----------
+ Landshark5 AdventureWorksLT2008R2         Sources         AdventureWorksLT2008R2         INACTIVE   N/A
+ Landshark5 Oracle dsource                 Sources         orcl                           INACTIVE   UNKNOWN
+ Landshark5 PDB                            Sources         PDB                            ACTIVE     UNKNOWN
+ Landshark5 RMAN dsource                   Sources         rmantest                       INACTIVE   UNKNOWN
+ Landshark5 Swingbench                     Sources         Swingbench dir                 INACTIVE   N/A
+ Landshark5 Sybase dsource                 Sources         pubs3                          INACTIVE   N/A
+ Landshark5 orcl_tar                       Sources         orcl_tar                       INACTIVE   UNKNOWN
+ Landshark5 racdba                         Sources         racdba                         INACTIVE   UNKNOWN
+ Landshark5 singpdb                        Sources         singpdb                        ACTIVE     DISABLED
 
 
 =cut

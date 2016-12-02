@@ -212,6 +212,15 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+List all containers
+
+ dx_get_js_containers -d Landshark5
+
+ Appliance            Container name       Template name        Active branch
+ -------------------- -------------------- -------------------- --------------------
+ Landshark5           cont                 test                 default
 
 
 

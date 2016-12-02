@@ -186,6 +186,27 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Display list of VDB templates
+
+ dx_get_template -d Landshark43
+ 
+ Appliance            Template name
+ -------------------- ------------------------------
+ Landshark43          Training Template
+ Landshark43          QA Template
+ Landshark43          Dev Template
+ Landshark43          new 
+
+Export all VDB templates into /tmp/test directory
+
+ dx_get_template -d Landshark -export -outdir /tmp/test/
+ Exporting template into file /tmp/test//Dev Template.template
+ Exporting template into file /tmp/test//Training Template.template
+ Exporting template into file /tmp/test//new.template
+ Exporting template into file /tmp/test//GC Template.template
+ Exporting template into file /tmp/test//QA Template.template
 
 
 

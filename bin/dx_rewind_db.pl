@@ -241,6 +241,22 @@ Run action on all targets in parallel. Limit number of jobs to maxjob.
 
 =back
 
+=head1 EXAMPLES
+
+Single VDB rewind to the last snapshot
+
+ dx_rewind_db -d Landshark -name autoprov
+ Starting job JOB-244 for database autoprov.
+ 0 - 25 - 32 - 36 - 38 - 43 - 65 - 73 - 77 - 81 - 83 - 85 - 86 - 87 - 88 - 100
+ Job JOB-244 finised with state: COMPLETED
+
+
+Single VDB rewind to the snapshot take at 2015-10-14 00:41
+
+ dx_rewind_db -d Landshark43 -name testsybase -timestamp '2015-10-14 00:41'
+ Starting job JOB-820 for database testsybase.
+ 1 - 2 - 6 - 25 - 36 - 40 - 100
+ Job JOB-820 finised with state: COMPLETED
 
 
 =cut

@@ -114,7 +114,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st)) {
     # take engine time minus 5 min
-    $st = $engine_obj->getTime('5');
+    $st = "-5min";
   }
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {

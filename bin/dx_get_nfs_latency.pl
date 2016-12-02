@@ -116,7 +116,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st)) {
     # take engine time minus 5 min
-    $st = $engine_obj->getTime('5');
+    $st = "-5min";
   }
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
@@ -214,5 +214,17 @@ Print this screen
 Turn on debugging
 
 =back
+
+=head1 EXAMPLES
+
+Average NFS read and write latency for a last 5 minutes using 1-second sample
+
+ dx_get_nfs_latency -d DE1
+ OK:DE1 disk latency milliseconds 3
+
+Average disk write latency for a last 5 minutes using 1-second sample 
+
+ dx_get_nfs_latency -d DE1 -opname w 
+ OK: DE1 disk latency milliseconds  2
 
 =cut
