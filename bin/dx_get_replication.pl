@@ -218,9 +218,6 @@ Print this screen
 =item B<-debug>
 Turn on debugging
 
-=item B<-details>
-Display more information about database capacity
-
 =item B<-nohead>
 Turn off header output
 
@@ -228,14 +225,32 @@ Turn off header output
 
 =head1 EXAMPLES
 
+List replication jobs, status and schedule
 
-Last replication status
+ dx_get_replication -d de01loca
 
- dx_get_replication.pl -d Landshark5 -last
+ Appliance  Profile name         Replication target   Enable    Last Run             Status          Schedule                                 Run Time   Next run             Objects
+ ---------- -------------------- -------------------- --------- -------------------- --------------- ---------------------------------------- ---------- -------------------- --------------------
+ de01loca   DB-de02locb-rep      de02locb-rep         ENABLED   2016-11-30 11:06:00  COMPLETED       every 15 min on every hour daily         00:01:42   2016-11-30 11:21:00  DB
+ de01loca   FS-de02locb-rep      de02locb-rep         ENABLED   2016-11-30 11:00:00  COMPLETED       every 15 min on every hour daily         00:00:25   2016-11-30 11:15:00  FS
+
+
+Last replication status (>4.2)
+
+ dx_get_replication -d Landshark5 -last
  Appliance  Profile name         Replication target   Last replication          Avg throu Transfered
  ---------- -------------------- -------------------- ------------------------- --------- ----------
  de         DBE_Replica          de-rep                2016-10-13 08:30:01 PDT       26.76    196.99
 
+
+List a replication profiles (>4.2)
+
+ dx_get_replication -d Landshark5 -list
+ 
+ Appliance  Profile name         Replication target   Enable
+ ---------- -------------------- -------------------- ---------
+ Landshark5 DB1-Landshark5-rep   Landshark5-rep       ENABLED
+ Landshark5 DB2-Landshark5-rep   Landshark5-rep       ENABLED
 
 =cut
 

@@ -128,6 +128,12 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Logout a Delphix Engine session
+
+ dx_logout -d DE001
+ Session logged out from DE001
 
 =cut
 

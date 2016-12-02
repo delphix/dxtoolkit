@@ -234,6 +234,15 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+List of data sources for database called Oracle dsource
+
+ dx_get_js_datasources -d Landshark5 -dbname "Oracle dsource"
+
+ Appliance            Datasource name      Template name        Database name
+ -------------------- -------------------- -------------------- -------------------------------------------
+ Landshark5           oracle               test                 Sources / Oracle dsource
 
 
 

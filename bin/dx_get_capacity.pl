@@ -326,7 +326,8 @@ __DATA__
                     [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
                     [-details [all]] 
                     [-sortby size ]
-                    [-format csv|json ]  
+                    [-format csv|json ] 
+                    [-unvirt] 
                     [-help|? ] 
                     [-debug ]
 

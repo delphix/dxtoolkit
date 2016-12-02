@@ -373,8 +373,60 @@ Turn off header output
 
 =back
 
+=head1 EXAMPLES
+
+List all snapshot from engine
+
+ dx_get_snapshots -d de01loca
+
+ Engine                         Group                Database                       Snapshot name                  Start time                End time
+ ------------------------------ -------------------- ------------------------------ ------------------------------ ------------------------- -------------------------
+ de01loca                       DB                   DBP                            @2015-12-03T08:51:51.462Z      2015-12-03 03:50:39 EST   2015-12-03 09:50:39 EST
+ de01loca                       DB                   DBP                            @2016-05-04T02:02:12.594Z      2016-05-04 04:01:11 MEST  2016-05-04 04:01:11 MEST
+ de01loca                       DB                   DBP                            @2016-08-14T07:44:44.679Z      2016-08-14 09:43:48 MEST  2016-08-14 09:43:48 MEST
+ de01loca                       DB                   DBP                            @2016-09-07T08:30:29.854Z      2016-09-07 10:25:22 MEST  2016-09-07 10:25:22 MEST
+ de01loca                       DB                   VDBA                           @2016-11-23T23:30:34.144Z      2016-11-24 00:30:43 CET   2016-11-24 00:30:47 CET
+ de01loca                       DB                   VDBA                           @2016-11-24T23:30:25.975Z      2016-11-25 00:30:47 CET   2016-11-25 00:30:51 CET
+ de01loca                       DB                   VDBA                           @2016-11-25T23:30:49.476Z      2016-11-26 00:31:10 CET   2016-11-26 00:31:15 CET
+ de01loca                       DB                   VDBA                           @2016-11-26T23:30:32.775Z      2016-11-27 00:30:40 CET   2016-11-27 00:30:48 CET
+ de01loca                       DB                   VDBA                           @2016-11-27T23:30:20.903Z      2016-11-28 00:30:24 CET   2016-11-28 00:30:28 CET
+ de01loca                       DB                   VDBA                           @2016-11-28T23:30:17.095Z      2016-11-29 00:30:22 CET   2016-11-29 00:30:31 CET
+ de01loca                       DB                   VDBA                           @2016-11-29T23:30:15.738Z      2016-11-30 00:30:25 CET   2016-11-30 17:03:23 CET
+ de01loca                       DB                   VDBC                           @2016-11-23T23:30:42.307Z      2016-11-24 00:30:49 CET   2016-11-24 00:30:52 CET
+ de01loca                       DB                   VDBC                           @2016-11-24T23:30:20.147Z      2016-11-25 00:30:27 CET   2016-11-25 00:30:38 CET
+ de01loca                       DB                   VDBC                           @2016-11-25T23:30:55.772Z      2016-11-26 00:31:08 CET   2016-11-26 00:31:12 CET
 
 
+List all snapshots for database VDBA
+
+ dx_get_snapshots -d de01loca -name VDBA
+
+ Engine                         Group                Database                       Snapshot name                  Start time                End time
+ ------------------------------ -------------------- ------------------------------ ------------------------------ ------------------------- -------------------------
+ de01loca                       DB                   VDBA                           @2016-11-23T23:30:34.144Z      2016-11-24 00:30:43 CET   2016-11-24 00:30:47 CET
+ de01loca                       DB                   VDBA                           @2016-11-24T23:30:25.975Z      2016-11-25 00:30:47 CET   2016-11-25 00:30:51 CET
+ de01loca                       DB                   VDBA                           @2016-11-25T23:30:49.476Z      2016-11-26 00:31:10 CET   2016-11-26 00:31:15 CET
+ de01loca                       DB                   VDBA                           @2016-11-26T23:30:32.775Z      2016-11-27 00:30:40 CET   2016-11-27 00:30:48 CET
+ de01loca                       DB                   VDBA                           @2016-11-27T23:30:20.903Z      2016-11-28 00:30:24 CET   2016-11-28 00:30:28 CET
+ de01loca                       DB                   VDBA                           @2016-11-28T23:30:17.095Z      2016-11-29 00:30:22 CET   2016-11-29 00:30:31 CET
+ de01loca                       DB                   VDBA                           @2016-11-29T23:30:15.738Z      2016-11-30 00:30:25 CET   2016-11-30 17:03:23 CET
+ 
+List all snapshots for database VDBR from all timeflows with details 
+
+ dx_get_snapshots -d de01loca -name VDBR -details -timeflow a
+
+ Engine               Group                Database             Snapshot name                  Start time                End time                  Creation time             Timeflow   Retentio Vers
+ -------------------- -------------------- -------------------- ------------------------------ ------------------------- ------------------------- ------------------------- ---------- -------- ----
+ de01loca             DB                   VDBR                 @2016-11-24T08:30:01.679Z      2016-11-24 03:30:02 EST   2016-11-25 03:30:03 EST   2016-11-24 03:30:01 EST   old        Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-25T08:30:02.560Z      2016-11-25 03:30:03 EST   2016-11-26 03:30:01 EST   2016-11-25 03:30:02 EST   old        Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-26T08:30:01.550Z      2016-11-26 03:30:01 EST   2016-11-27 03:30:01 EST   2016-11-26 03:30:01 EST   old        Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-27T08:30:01.564Z      2016-11-27 03:30:01 EST   2016-11-27 03:30:03 EST   2016-11-27 03:30:01 EST   old        Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-28T04:25:35.839Z      2016-11-27 23:25:36 EST   2016-11-27 23:25:36 EST   2016-11-27 23:25:35 EST   current    Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-28T08:30:01.724Z      2016-11-28 03:30:02 EST   2016-11-28 03:30:02 EST   2016-11-28 03:30:01 EST   current    Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-29T08:30:01.690Z      2016-11-29 03:30:02 EST   2016-11-30 01:42:17 EST   2016-11-29 03:30:01 EST   current    Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-30T06:42:17.547Z      2016-11-30 01:42:17 EST   2016-11-30 03:30:02 EST   2016-11-30 01:42:17 EST   current    13       11.2
+ de01loca             DB                   VDBR                 @2016-11-30T08:30:01.636Z      2016-11-30 03:30:02 EST   2016-11-30 08:42:24 EST   2016-11-30 03:30:01 EST   current    Policy   11.2
+ de01loca             DB                   VDBR                 @2016-11-30T13:42:23.915Z      2016-11-30 08:42:24 EST   2016-11-30 11:14:55 EST   2016-11-30 08:42:23 EST   current    Policy   12.1
 
 =cut
 

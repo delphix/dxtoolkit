@@ -128,11 +128,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st)) {
       # take engine time minus 5 days
-    $st = $engine_obj->getTime(24*60*7);
-  } else {
-    # changing to DE timezone
-    $st = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($st, $engine_obj);
-  }
+    $st = "-5days";
+  } 
   
   my $st_timestamp;
 
@@ -153,7 +150,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } 
   }
 
-  my $faults = new Faults_obj($engine_obj, $st_timestamp, $et_timestamp,  uc $status, uc $severity , $debug);
+  my $faults = new Faults_obj($engine_obj, $st_timestamp, $et_timestamp,  $status, $severity , $debug);
 
   if (defined($fault) && (lc $fault eq 'all')) {
 
@@ -282,6 +279,37 @@ Turn on debugging
 Turn off header output
 
 =back
+
+=head1 EXAMPLES
+
+Resolve fault with reference FAULT-130
+
+ dx_resolve_faults -d Landshark -fault FAULT-130 
+ 
+ Appliance            Fault ref            Resolved
+ -------------------- -------------------- ----------
+ Landshark            FAULT-130            RESOLVED
+
+
+Resolve all faults
+
+ dx_resolve_faults -d Landshark -fault all
+ 
+ Appliance            Fault ref            Resolved
+ -------------------- -------------------- ----------
+ Landshark            FAULT-128            RESOLVED
+ Landshark            FAULT-129            RESOLVED
+ Landshark            FAULT-130            RESOLVED
+
+
+Resolve faults for target "Employee Oracle DB" since 2015-08-01
+
+ dx_resolve_faults -d Landshark -fault all -target "Employee Oracle DB" -st "2015-08-01"
+ 
+ Appliance            Fault ref            Resolved
+ -------------------- -------------------- ----------
+ Landshark            FAULT-125            RESOLVED
+ Landshark            FAULT-126            RESOLVED
 
 
 =cut

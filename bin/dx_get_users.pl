@@ -197,6 +197,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     if (defined($profile)) {
       my $profile_data = $user->getProfile();
+            
       for my $item (sort (keys %{$profile_data->{'group'} } ) ) {
           $output_profile->addLine(
             $user->getName(),
@@ -246,8 +247,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_users.pl [ -engine|d <delphix identifier> | -all ] [ -format output_format ] [-save file_name] [-user <username> | all] [-profile filename] 
-                 [ -export filename ] [ --help|? ] [ -debug ]
+ dx_get_users.pl [ -engine|d <delphix identifier> | -all ] 
+                 [ -format output_format ] 
+                 [ -save file_name] 
+                 [ -username <username> ] 
+                 [ -profile filename] 
+                 [ -export filename ] 
+                 [ -help|? ] 
+                 [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -278,7 +285,7 @@ Pretty print if not specified
 =item B<-save file_name>
 Save data into file instead of screen
 
-=item B<-username use_name | all>
+=item B<-username username>
 Specify a username to display user profile for
 
 =item B<-export filename>
@@ -305,7 +312,28 @@ Turn off csv and pretty print headers
 
 =back
 
+=head1 EXAMPLES
 
+Display all users
+
+ dx_get_users -d Landshark5
+
+ Username             First Name           Last Name            Email                          work phone   home phone   mobile phone Authtype principal                      password admin_pr js_user
+ -------------------- -------------------- -------------------- ------------------------------ ------------ ------------ ------------ -------- ------------------------------ -------- -------- --------
+ sysadmin                                                       test@delphix.com                                                      NATIVE                                  password N        N
+ delphix_admin                                                  test@delphix.com                                                      NATIVE                                  password Y        N
+ dev_admin            Dev                  Eloper               dev_admin@delphix.com                       555-555-1212              NATIVE                                  password N        N
+ qa_admin             QA                   Dude                 qa_admin@delphix.com                        555-555-1212              NATIVE                                  password N        N
+ dev                  Dev                  Eloper               dev@delphix.com                             555-555-1212              NATIVE                                  password N        Y
+ qa                   QA                   Dude                 qa@delphix.com                              555-555-1212              NATIVE                                  password N        Y
+
+
+
+Export all users into files which can be used by dx_ctl_users
+
+ dx_get_users -d SourceEngine -export /tmp/source/users.csv -profile /tmp/source/profile.csv
+ 
+ 
 
 
 =cut

@@ -235,6 +235,25 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Remove a VDB called testsybase
+
+ dx_remove_db -d Landshark43 -name testsybase
+ Going to delete database - Analytics / testsybase
+ Are you sure (y/(n)) - use -skip to skip this confirmation
+ y
+ Starting job JOB-824 for database testsybase.
+ 0 - 10 - 25 - 90 - 100
+ Job JOB-824 finised with state: COMPLETED
+
+Remove a VDB called autofs without confirmation
+
+ dx_remove_db -d Landshark43 -name autofs -skip
+ Going to delete database - Analytics / autofs
+ Starting job JOB-826 for database autofs.
+ 0 - 25 - 100
+ Job JOB-826 finised with state: COMPLETED
 
 
 =cut

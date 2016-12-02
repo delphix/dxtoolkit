@@ -341,7 +341,32 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLE
+
+Display a list of storage tests
+
+ dx_get_storage_tests -d Delphix35
+ 
+ engine name                         test id         start time                     status
+ ----------------------------------- --------------- ------------------------------ ----------
+ Delphix35                           STORAGE_TEST-5  2016-09-07 12:15:09 IST        COMPLETED
 
 
+Display a results of last storage test 
+
+ dx_get_storage_tests -d Delphix35 -details -testid last
+ 
+ engine name                         test id         test name                      IOPS       Throughput      Grade   average    95pct      minimum    maximum    stddev
+ ----------------------------------- --------------- ------------------------------ ---------- --------------- ------- ---------- ---------- ---------- ---------- ----------
+ Delphix35                           STORAGE_TEST-5  Random 4K Read w/ 16 jobs      492              1.92      D       32.365     100.86     0.098      1526.1     53.673
+ Delphix35                           STORAGE_TEST-5  Random 8K Read w/ 16 jobs      403              3.15      D       39.066     122.37     0.102      1053.9     65.168
+ Delphix35                           STORAGE_TEST-5  Sequential 1K Write w/ 4 jobs  19893           19.43      A+      0.189      0.35       0.052      179.751    0.478
+ Delphix35                           STORAGE_TEST-5  Sequential 128K Write w/ 4 job 1706           213.35      A+      0.443      0.58       0.086      1044.6     7.764
+ Delphix35                           STORAGE_TEST-5  Sequential 1M Read w/ 4 jobs   2413          2413.70      A+      1.645      2.32       0.518      86.777     3.472
+
+Extract IO report card of last storage test into /tmp directory
+
+ dx_get_storage_tests -d Delphix35 -iorc /tmp -testid last
+ IORC saved into file /tmp/Delphix35_IORC_STORAGE_TEST-5.txt
 
 =cut

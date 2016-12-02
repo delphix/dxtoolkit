@@ -339,7 +339,57 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Display a latency test results for all targets
+
+ dx_get_network_tests -d Landshark -type latency
+ 
+ engine               name                                remote host     VDB found  state           average    minimum    maximum    stddev     count      size       loss
+ -------------------- ----------------------------------- --------------- ---------- --------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+ Landshark            192.168.166.11-2016-11-11T14:42:55. 192.168.166.11  NO         COMPLETED       424        288        549        51         60         8192       0
+ Landshark            192.168.166.24-2016-11-11T14:43:55. 192.168.166.24  YES        COMPLETED       409        279        515        51         60         8192       0
 
 
+Display a latency test results for 192.168.166.11 host
+
+ dx_get_network_tests -d Landshark -type latency -remoteaddr 192.168.166.11
+
+ engine               name                                remote host     VDB found  state           average    minimum    maximum    stddev     count      size       loss
+ -------------------- ----------------------------------- --------------- ---------- --------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+ Landshark            192.168.166.11-2016-11-11T14:42:55. 192.168.166.11  NO         COMPLETED       424        288        549        51         60         8192       0
+ Landshark            192.168.166.11-2016-11-11T14:56:34. 192.168.166.11  NO         COMPLETED       760        325        4077       572        60         8192       0
+ Landshark            192.168.166.11-2016-11-11T14:58:37. 192.168.166.11  NO         COMPLETED       616        239        3169       450        60         8192       0
+ Landshark            192.168.166.11-2016-11-11T16:48:39. 192.168.166.11  NO         COMPLETED       396        304        516        46         60         8192       0
+ Landshark            192.168.166.11-2016-11-11T16:50:47. 192.168.166.11  NO         COMPLETED       421        310        539        48         60         8192       0
+
+Display a last latency test results for 192.168.166.11 host
+
+ dx_get_network_tests -d Landshark -type latency -remoteaddr 192.168.166.11 -last
+
+ engine               name                                remote host     VDB found  state           average    minimum    maximum    stddev     count      size       loss
+ -------------------- ----------------------------------- --------------- ---------- --------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+ Landshark            192.168.166.11-2016-11-11T16:50:47. 192.168.166.11  NO         COMPLETED       421        310        539        48         60         8192       0
+
+Display a throughput tests results for all hosts
+
+ dx_get_network_tests -d Landshark -type throughput
+
+ engine               name                                remote host     VDB found  state           direction       no of conn throughput block size
+ -------------------- ----------------------------------- --------------- ---------- --------------- --------------- ---------- ---------- ----------
+ Landshark            192.168.166.24-2016-11-07T14:25:54. 192.168.166.24  YES        COMPLETED       TRANSMIT        8             6874.66 131072
+ Landshark            192.168.166.24-2016-11-07T14:27:07. 192.168.166.24  YES        COMPLETED       RECEIVE         8             8959.60 131072
+ Landshark            192.168.166.24-2016-11-07T14:29:32. 192.168.166.24  YES        COMPLETED       TRANSMIT        1             6609.78 131072
+ Landshark            192.168.166.24-2016-11-07T14:32:14. 192.168.166.24  YES        COMPLETED       TRANSMIT        1             7398.02 131072
+ Landshark            192.168.166.24-2016-11-07T14:42:40. 192.168.166.24  YES        COMPLETED       TRANSMIT        1             9391.31 131072
+
+Display a last throughput test results for all hosts
+
+ dx_get_network_tests -d DE001 -type throughput -remoteaddr all -last
+ 
+ engine               name                                remote host     VDB found  state           direction       no of conn throughput block size
+ -------------------- ----------------------------------- --------------- ---------- --------------- --------------- ---------- ---------- ----------
+ DE001                192.168.166.24-2016-11-07T14:42:40. 192.168.166.24  YES        COMPLETED       TRANSMIT        1             9391.31 131072
+ DE001                192.168.166.24-2016-11-07T14:27:07. 192.168.166.24  YES        COMPLETED       RECEIVE         8             8959.60 131072
 
 =cut
