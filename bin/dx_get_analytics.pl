@@ -41,10 +41,6 @@ use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
-my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time()-604800);
-$mon = $mon + 1;
-# default start time is -6 min ( 5 min resolution for 60 sec interval)
-my $st = $year+1900 . "-" . sprintf("%02d",$mon) . "-" . sprintf("%02d",$mday) . " " . sprintf("%02d",$hour) . ":" . sprintf("%02d",$min) . ":" . sprintf("%02d",$sec);
 
 # default resolution is 1 h
 my $resolution = '3600';
@@ -57,7 +53,7 @@ GetOptions(
   'all' => (\my $all),
   'type|t=s' => (\my $type),
   'outdir=s' => \(my $outdir), 
-  'st=s' => \($st), 
+  'st=s' => \(my $st), 
   'et=s' => \(my $et), 
   'dever=s' => \(my $dever),
   'interval|i=s' => \($resolution), 
@@ -130,7 +126,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $st_timestamp;
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
-    print "Wrong start time (st) format \n";
+    print "Wrong start time (st) format. Use 'yyyy-mm-dd [hh24:mi:ss]' or -Xmin or -Xdays\n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);  
   }
@@ -147,13 +143,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
 
-
-
   if ( defined( $convertres{$resolution} ) ) {
     $resolution = $convertres{$resolution};
   }
-
-
 
 
   my $arguments = "&resolution=$resolution&startTime=$st_timestamp";
