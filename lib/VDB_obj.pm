@@ -155,6 +155,34 @@ sub getMasked
     return $self->{container}->{masked};
 }
 
+# Procedure getMaskingJob
+# parameters: none
+# Return masked job
+
+sub getMaskingJob 
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getMaskingJob",1);
+    my $ret = '';
+
+    # type: VirtualSourceOperations
+    # configureClone:
+    #     0:
+    #         type: RunMaskingJobOnSourceOperation
+    #         name: SCOTT_JOB
+    #         applicationId: SCOTT
+    #         maskingJobId: 0
+    
+    for my $hook (@{$self->{source}->{operations}->{configureClone}}) {
+      if ($hook->{type} eq 'RunMaskingJobOnSourceOperation') {
+        $ret = $hook->{name};
+      }
+    }
+    
+    return $ret;
+}
+
+
 # Procedure getDbUser
 # parameters: none
 # Return database user
