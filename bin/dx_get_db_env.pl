@@ -205,9 +205,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $timeflows;
   my $groups = new Group_obj($engine_obj, $debug);
   my $maskingjob;
-  if (defined($masking)) {
-    $maskingjob = new MaskingJob_obj ($engine_obj, $debug);
-  }
+
   my $templates;
   my $snapshots;
   if ( defined($backup) || defined($config) ) {
@@ -301,7 +299,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $masked;
         my $maskedjob_name;
         if ($dbobj->getMasked()) {
-          $maskedjob_name = $maskingjob->getMaskingJobForContainer($dbobj->getReference());
+          $maskedjob_name = $dbobj->getMaskingJob();
           $masked = 'YES'
         } else {
           $masked = 'NO';
@@ -385,7 +383,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_db_env.pl [-engine|d <delphix identifier> | -all ] 
+ dx_get_db_env    [-engine|d <delphix identifier> | -all ] 
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
                   [-save]
                   [-masking]
@@ -487,14 +485,85 @@ Print this screen
 Turn on debugging
 
 =item B<-save <filename> >
-Save enabled column into JSON file <filename.engine_name> to restore it later using dx_ctl_db.pl
+Save enabled column into JSON file <filename.engine_name> to restore it later using dx_ctl_db
 
 =item B<-nohead>
 Turn off header output
 
 =back
 
+=head1 EXAMPLES
 
+List all databases known to Delphix Engine
 
+ dx_get_db_env -d Landshark51
+
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
+ Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 10:32:26 PST             0.01       UNKNOWN    enabled
+ Landshark5 172.16.180.133       AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled
+ Landshark5 linuxsource          Oracle dsource                 Sources         dSource                                 N/A                                 0.64       RUNNING    enabled
+ Landshark5 linuxsource          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled
+
+List databases from group "Analytics" and display last snapshot time 
+
+ dx_get_db_env -d Landshark51 -group Analytics -parentlast l
+
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Last snapshot                       Used(GB)   Status     Enabled
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
+ Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 18:49:04 GMT             0.01       RUNNING    enabled
+
+List databases created from dSource "Sybase dsource"
+
+ dx_get_db_env -d Landshark51 -dsource "Sybase dsource"
+
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
+ Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+ Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+
+List all databases known to Delphix Engine showing environment name instead of hostname
+
+ dx_get_db_env -d Landshark51 -hostenv e
+
+ Appliance  Env. name            Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
+ Landshark5 LINUXTARGET          autotest                       Analytics       VDB      Oracle dsource                 2016-12-08 10:44:38 EST             0.01       RUNNING    enabled
+ Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+ Landshark5 WINDOWSSOURCE        AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled
+ Landshark5 LINUXSOURCE          Oracle dsource                 Sources         dSource                                 N/A                                 0.67       RUNNING    enabled
+ Landshark5 LINUXSOURCE          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled
+ Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+
+List databases from group "Analytics" with configuration
+
+ dx_get_db_env -d Landshark51 -group "Analytics" -config
+
+ Appliance  Env. name            Database                       Group           Type     SourceDB                       Repository                          DB type    Version    Other
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------------------------------------------------------------------------------------------------
+ Landshark5 LINUXTARGET          autotest                       Analytics       VDB      Oracle dsource                 /u01/app/oracle/11.2.0.4/db1        oracle     11.2.0.4.0 -redoGroup 3,-redoSize 100,-archivelog=yes,-mntpoint "/mnt/provision",-instname autotest,-uniqname a
+ Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 LINUXTARGET                         sybase     15.7 SP101
+
+Generate backup of databases metadata from group "Analytics" into directory /tmp 
+
+ dx_get_db_env -d Landshark51 -group "Analytics" -backup /tmp
+ Exporting database autotest hooks into  /tmp/autotest.dbhooks
+ Exporting database testsybase hooks into  /tmp/testsybase.dbhooks
+ Backup exported into /tmp/backup_metadata_dsource.txt
+ Backup exported into /tmp/backup_metadata_vdb.txt
+ 
+ 
+List masking status and jobs
+
+ dx_get_db_env -d Delphix32 -masking
+
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Masked     Masking job
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ---------- ---------------
+ Delphix32  NA                   orcl_tar@LandsharkEngine       Sources@Landsha dSource                                 NO
+ Delphix32  CLUSTER              racdb                          Sources         dSource                                 NO
+ Delphix32  10.0.0.152           test1                          Sources         dSource                                 NO
+ Delphix32  10.0.0.152           maskvdb                        Test            VDB      test1                          YES        SCOTT_JOB
+
+ 
 
 =cut
