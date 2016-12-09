@@ -183,6 +183,27 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Upgrade of MS SQL ( including enabling and disabling VDB)
+
+ dx_ctl_db -d Landshark43 -name autotest -action disable
+ Disabling database autotest.
+ Starting job JOB-830 for database autotest.
+ 0 - 5 - 10 - 20 - 30 - 100
+ Job JOB-830 finised with state: COMPLETED
+
+ dx_upgrade_db -d Landshark43 -name autotest -envinst MSSQL2012
+ Waiting for all actions to complete. Parent action is ACTION-1698
+ Upgrade completed with success.
+
+
+ dx_ctl_db -d Landshark43 -name autotest -action enable
+ Enabling database autotest.
+ Starting job JOB-831 for database autotest.
+ 0 - 25 - 75 - 100
+ Job JOB-831 finised with state: COMPLETED 
+
 
 
 =cut

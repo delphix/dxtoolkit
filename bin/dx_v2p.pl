@@ -315,6 +315,23 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Oracle V2P process 
+
+ dx_v2p -d Landshark -sourcename testdx -dbname v2p -environment LINUXTARGET -type oracle -envinst "/u01/app/oracle/product/11.2.0/dbhome_1" -targetDirectory /data/u02/v2p
+ Starting provisioning job - JOB-231 
+ 0 - 2 - 3 - 5 - 6 - 7 - 8 - 9 - 10 - 12 - 13 - 14 - 15 - 16 - 17 - 18 - 19 - 20 - 21 - 22 - 23 - 25 - 26 - 27 - 28 - 29 - 30 - 31 - 32 - 33 - 34 - 35 - 36 - 37 - 38 - 39 - 40 - 41 - 42 - 43 - 44 - 46 - 47 - 49 - 50 - 51 - 52 - 54 - 55 - 56 - 57 - 58 - 59 - 60 - 61 - 62 - 63 - 64 - 65 - 66 - 67 - 68 - 69 - 70 - 71 - 72 - 73 - 74 - 75 - 76 - 77 - 78 - 79 - 80 - 81 - 82 - 83 - 84 - 85 - 86 - 87 - 88 - 89 - 90 - 92 - 93 - 94 - 95 - 96 - 97 - 98 - 99 - 100
+ Job JOB-231 finised with state: COMPLETED
+ V2P job finished with COMPLETED status.
+
+MS SQL V2P proces
+
+ dx_v2p -d Landshark43 -sourcename autotest -environment WINDOWSTARGET -type mssql -envinst MSSQL2012 -dbname v2p -targetDirectory "c:\temp"
+ Starting provisioning job - JOB-832
+ 0 - 1 - 5 - 10 - 20 - 80 - 100
+ Job JOB-832 finised with state: COMPLETED
+ V2P job finished with COMPLETED status.
 
 
 =cut
