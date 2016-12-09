@@ -171,7 +171,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_datasource.pl [ -engine|d <delphix identifier> | -all ] [-template_name template_name]
+ dx_get_js_datasource    [ -engine|d <delphix identifier> | -all ] [-template_name template_name]
                          [-datasource_name datasource_name]
                          [-dbname dbname]
                          [-group group] 

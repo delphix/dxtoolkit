@@ -97,7 +97,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_logout.pl [ -d <delphix identifier> | all ] [ -help|? ]
+dx_logout  [ -d <delphix identifier> | all ] [ -help|? ]
 
 =head1 DESCRIPTION
 

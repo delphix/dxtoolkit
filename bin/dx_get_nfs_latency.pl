@@ -165,7 +165,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_nfs_latency.pl -d <delphix identifier> [-w <warning millisec>] [-i time_interval] [-c <critical millisec>] [-opname operation] [-read | -write] [ -raw ] [-st \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -debug ] [ -help|-? ]
+ dx_get_nfs_latency -d <delphix identifier> [-w <warning millisec>] [-i time_interval] [-c <critical millisec>] [-opname operation] [-read | -write] [ -raw ] [-st \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -debug ] [ -help|-? ]
 
 =head1 ARGUMENTS
 

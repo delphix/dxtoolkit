@@ -297,7 +297,7 @@ Create new collector - nfs-all
 
 Display collectors specified as a comma separated list
 
- dx_ctl_analytics.pl -d Landshark5 -action display -type cpu,disk,nfs 
+ dx_ctl_analytics -d Landshark5 -action display -type cpu,disk,nfs 
  Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
  Engine         Analytic   State    Axes 
  -------------- ---------- -------- -------------------------------------------------------

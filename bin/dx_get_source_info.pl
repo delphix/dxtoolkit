@@ -141,7 +141,11 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_source_info.pl [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name ] [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_source_info    [ -engine|d <delphix identifier> | -all ] 
+                       [ -group group_name | -name db_name | -host host_name ] 
+                       [ -format csv|json ]  
+                       [ -help|? ] 
+                       [ -debug ]
 
 =head1 DESCRIPTION
 

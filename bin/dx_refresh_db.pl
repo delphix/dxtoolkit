@@ -177,8 +177,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_refresh_db.pl [ -engine|d <delphix identifier> | -all ] < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
- [-timestamp timestamp] [ --help|? ] [ -debug ] [-parallel p]
+ dx_refresh_db  [ -engine|d <delphix identifier> | -all ] 
+                < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
+                [ -timestamp timestamp] 
+                [ -help|? ] 
+                [ -debug ] 
+                [ -parallel p]
 
 =head1 DESCRIPTION
 

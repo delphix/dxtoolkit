@@ -493,7 +493,7 @@ Turn on debugging
 Create template bookmarks for all snapshots for template "template"" and source "oracle", bookmarks name starts with prefix "pre" 
 plus time of snapshot, 
 
- dx_ctl_js_bookmarks.pl -d Landshark5 -bookmark_name "pre" -template_name template -snapshots all -source oracle -action create
+ dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "pre" -template_name template -snapshots all -source oracle -action create
  Starting job JOB-7623 for bookmark pre-2016-10-12 12:02:31.
  5 - 100
  Job JOB-7623 finished with state: COMPLETED

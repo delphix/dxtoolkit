@@ -172,7 +172,7 @@ Existing configuration file will be copy into backup file.
 
 ex.
 
- dx_config.pl -convert todxconf -csvfile dxtools.csv -configfile dxtools.conf
+ dx_config -convert todxconf -csvfile dxtools.csv -configfile dxtools.conf
 
 =head1 ARGUMENTS
 

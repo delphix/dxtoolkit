@@ -89,7 +89,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_get_sshkey.pl [ -d <delphix identifier> ] [ -help|? ]
+dx_get_sshkey [ -d <delphix identifier> ] [ -help|? ]
 
 =head1 ARGUMENTS
 

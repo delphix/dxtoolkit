@@ -133,7 +133,9 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_set_key.pl [ -engine|d <delphix identifier> | -all ]  -group group_name | -name db_name | -host host_name   <-key password>
+ dx_set_key  [ -engine|d <delphix identifier> | -all ]  
+               -group group_name | -name db_name | -host host_name   
+               <-key password>
 
  [-help] [-debug]
 
@@ -189,6 +191,18 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Set backup encryption key for database "Sybase dsource"
+
+ dx_set_key -d Landshark51 -name "Sybase dsource" -key "SecurePassword"
+ Encryption key for database Sybase dsource set with success.
+ 
+ 
+Remove backup encryption key from database "Sybase dsource"
+
+  dx_set_key -d Landshark51 -name "Sybase dsource" -key ""
+  Encryption key for database Sybase dsource set with success.
 
 
 =cut

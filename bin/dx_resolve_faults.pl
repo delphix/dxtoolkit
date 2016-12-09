@@ -207,8 +207,16 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_resolve_faults.pl [ -engine|d <delphix identifier> | -all ] [-fault FAULTREF | all] [-st timestamp] [-et timestamp] [-severity severity] [-status status] [-target target]
-                  [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_resolve_faults [ -engine|d <delphix identifier> | -all ] 
+                   [ -fault FAULTREF | all] 
+                   [ -st timestamp] 
+                   [ -et timestamp] 
+                   [ -severity severity] 
+                   [ -status status] 
+                   [ -target target]
+                   [ -format csv|json ]  
+                   [ -help|? ] 
+                   [ -debug ]
 
 =head1 DESCRIPTION
 

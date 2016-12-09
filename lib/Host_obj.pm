@@ -159,6 +159,19 @@ sub getTimezone {
     return $self->{_hosts}->{$reference}->{hostConfiguration}->{operatingSystem}->{timezone};
 }
 
+# Procedure getOSVersion
+# parameters:
+# - reference - reference of host
+# Return OS version for host ref
+
+sub getOSVersion {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Host_obj::getTimezone",1);
+    return $self->{_hosts}->{$reference}->{hostConfiguration}->{operatingSystem}->{version};
+}
+
 
 
 # Procedure getToolkitpath

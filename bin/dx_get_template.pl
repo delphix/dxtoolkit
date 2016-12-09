@@ -135,7 +135,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_template.pl [ -engine|d <delphix identifier> | -all ] [ -name template_name ] [  -format csv|json ]  [ -help|? ] [ -debug ] [-export -outdir dir]
+ dx_get_template  [ -engine|d <delphix identifier> | -all ] [ -name template_name ] [  -format csv|json ]  [ -help|? ] [ -debug ] [-export -outdir dir]
 
 =head1 DESCRIPTION
 

@@ -177,8 +177,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_remove_db.pl [ -engine|d <delphix identifier> | -all ] < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
- [-force] [-skip] [ --help|? ] [ -debug ] [-parallel p]
+ dx_remove_db [ -engine|d <delphix identifier> | -all ] 
+              < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
+              [ -force] 
+              [ -skip] 
+              [ -help|? ] 
+              [ -debug ] 
+              [-parallel p]
 
 =head1 DESCRIPTION
 

@@ -289,7 +289,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_network_tests.pl [ -engine|d <delphix identifier> | -all ] -type latency|throughput
+ dx_get_network_tests    [ -engine|d <delphix identifier> | -all ] -type latency|throughput
                          [ -remoteaddr env_ip ] 
                          [ -last]  
                          [ -format csv|json ]  

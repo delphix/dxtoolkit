@@ -212,12 +212,24 @@ exit $ret;
 
 =head1 SYNOPSIS
 
- dx_v2p.pl [ -engine|d <delphix identifier> | -all ]  -sourcename src_name  -dbname db_name -environment environment_name -type oracle|mssql -envinst OracleHome/MSSQLinstance
- -targetDirectory target_directory 
- [-timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
- [-template template_name] [-mapfile mapping_file]  [-instname SID] [-uniqname db_unique_name] [-archiveDirectory arch_directory] [-dataDirectory data_dir]
- [-externalDirectory external_dir] [-tempDirectory temp_dir]
- [-help] [-debug]
+ dx_v2p   [ -engine|d <delphix identifier> | -all ] 
+            -sourcename src_name  
+            -dbname db_name 
+            -environment environment_name 
+            -type oracle|mssql 
+            -envinst OracleHome/MSSQLinstance
+            -targetDirectory target_directory 
+          [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
+          [ -template template_name] 
+          [ -mapfile mapping_file]  
+          [ -instname SID] 
+          [ -uniqname db_unique_name] 
+          [ -archiveDirectory arch_directory] 
+          [ -dataDirectory data_dir]
+          [ -externalDirectory external_dir] 
+          [ -tempDirectory temp_dir]
+          [ -help] 
+          [ -debug]
 
 
 =head1 DESCRIPTION

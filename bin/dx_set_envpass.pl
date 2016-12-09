@@ -191,7 +191,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_set_envpass.pl [ -engine|d <delphix identifier> | -all ] [ -envname env_name ] -username <username> -password <password> [ --help|? ] [ -debug ]
+ dx_set_envpass  [ -engine|d <delphix identifier> | -all ] [ -envname env_name ] -username <username> -password <password> [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -232,6 +232,13 @@ Turn on debugging
 
 =back
 
+=head1 EXAMPLES
+
+Set a new environment password for environment LINUXSOURCE
+
+ dx_set_envpass -d Landshark5 -envname LINUXSOURCE -username delphix -password delphix
+ Waiting for all actions to complete. Parent action is ACTION-5877
+ Password change actions is completed with success for environment LINUXSOURCE.
 
 
 

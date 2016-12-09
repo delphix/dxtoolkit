@@ -141,6 +141,7 @@ sub getPrimaryUser {
     
     if (defined($environments->{$reference})) {
       $ret = $environments->{$reference}->{primaryUser};
+      
     } else {
       $ret = 'N/A';
     }
@@ -160,7 +161,6 @@ sub getPrimaryUserName {
     logger($self->{_debug}, "Entering Environment_obj::getPrimaryUser",1);
 
     my $environments = $self->{_environments};
-
 
     #my $username = $self->{_envusers}->{name};
     my $ret;
@@ -202,6 +202,110 @@ sub getPrimaryUserAuth {
     return $ret;
 }
 
+# Procedure getConfig
+# parameters:
+# - reference
+# Return environment metadata 
+
+sub getConfig {
+    my $self = shift;
+    my $envitem = shift;
+    my $host_obj = shift;
+    my $backup = shift;
+    
+    logger($self->{_debug}, "Entering Environment_obj::getConfig",1);
+    
+    my $config = '';
+    my $joinsep;
+    
+    if (defined($backup)) {
+      $joinsep = ' ';
+    } else {
+      $joinsep = ',';
+    }
+    
+    my $envtype = $self->getType($envitem);
+    my $host_ref = $self->getHost($envitem);
+    if ($envtype eq 'rac') {
+      my $clusenvnode = $self->getClusterNode($envitem);
+      $host_ref = $self->getHost($clusenvnode);
+    } 
+
+    my $toolkit = $host_obj->getToolkitpath($host_ref);
+    if (!defined($toolkit)) {
+      $toolkit = 'N/A';
+    }
+    my $proxy_ref = $self->getProxy($envitem);
+    my $proxy;
+    if ($proxy_ref eq 'N/A') {
+      $proxy = 'N/A';
+    } else {
+      $proxy = $host_obj->getHostAddr($proxy_ref);
+    }
+
+    my $primaryUser = $self->getPrimaryUser($envitem);
+    my @users_withoutprim = grep { $_ ne $primaryUser  } keys %{$self->{_envusers}->{$envitem}};
+    
+    #print Dumper \@users_withoutprim;
+
+    if ($toolkit eq 'N/A') {
+      $config = join($joinsep,($config, "-proxy $proxy"));
+    } else {
+      $config = join($joinsep,($config, "-toolkitdir \"$toolkit\""));
+    }
+    
+    if ($envtype eq 'rac') {
+      my $clusloc = $self->getClusterloc($envitem);
+      my $clustname = $self->getClusterName($envitem);
+      $config = join($joinsep,($config, "-clusterloc $clusloc -clustername $clustname "));
+    }
+    
+    my $asedbuser =  $self->getASEUser($envitem);
+    if ($asedbuser ne 'N/A') {
+      $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass ChangeMeDB"));
+    }
+    
+    if ( (my $rest) = $config =~ /^,(.*)/ ) {
+      $config = $rest;
+    }
+
+    return $config;
+  
+}
+
+
+
+# Procedure getBackup
+# parameters:
+# - reference
+# Return environment metadata backup
+
+sub getBackup {
+    my $self = shift;
+    my $envitem = shift;
+    my $host_obj = shift;
+    my $engine = shift;
+    my $envname = shift;
+    my $envtype = shift;
+    my $hostname = shift;
+    my $user = shift;
+    my $userauth = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getBackup",1);
+
+    my $suffix = '';
+    if ( $^O eq 'MSWin32' ) { 
+      $suffix = '.exe';
+    }
+    
+    my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password ChangeMe ";
+    $backup = $backup . $self->getConfig($envitem, $host_obj, 1);
+    
+    return $backup;
+
+}
+
+
 # Procedure getName
 # parameters:
 # - reference
@@ -242,9 +346,11 @@ sub getType {
     my $reference = shift;
 
     logger($self->{_debug}, "Entering Environment_obj::getType",1);
+    
 
     my $environments = $self->{_environments};
     my $ret = $environments->{$reference}->{'type'};
+    
     if ($ret eq 'UnixHostEnvironment') {
       $ret = 'unix';
     } elsif ($ret eq 'WindowsHostEnvironment') {

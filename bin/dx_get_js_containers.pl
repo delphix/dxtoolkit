@@ -159,7 +159,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_containers.pl [ -engine|d <delphix identifier> | -all ] [-template_name template_name] [-container_name container_name] 
+ dx_get_js_containers [ -engine|d <delphix identifier> | -all ] [-template_name template_name] [-container_name container_name] 
                         [ -format csv|json ]  [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
