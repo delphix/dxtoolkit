@@ -286,7 +286,7 @@ Adding Unix/Linux environment with Oracle RAC
 
 Adding Windows target environment
 
- dx_create_env.pl -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -toolkitdir "C:\Program Files\Delphix\DelphixConnector"
+ dx_create_env -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -toolkitdir "C:\Program Files\Delphix\DelphixConnector"
  Starting adding environment job - JOB-7495
  0 - 2 - 7 - 8 - 10 - 20 - 60 - 64 - 100
  Job JOB-7495 finished with state: COMPLETED
@@ -294,7 +294,7 @@ Adding Windows target environment
 
 Adding Windows source environment
 
- dx_create_env.pl -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -proxy 172.16.180.132
+ dx_create_env -d Landshark5 -envname WINDOWSTARGET -envtype windows -host 172.16.180.132 -username "DELPHIX\delphix_admin" -authtype password -password xxxxxxx -proxy 172.16.180.132
  Starting adding environment job - JOB-7496
  0 - 2 - 7 - 8 - 10 - 20 - 60 - 64 - 100
  Job JOB-7496 finished with state: COMPLETED

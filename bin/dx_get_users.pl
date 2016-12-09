@@ -247,7 +247,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_users.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_get_users    [ -engine|d <delphix identifier> | -all ] 
                  [ -format output_format ] 
                  [ -save file_name] 
                  [ -username <username> ] 

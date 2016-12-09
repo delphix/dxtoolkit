@@ -114,7 +114,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (! defined($st)) {
     # take engine time minus 5 min
-    $st = $engine_obj->getTime('5');
+    $st = "-5min";
   }
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
@@ -200,9 +200,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $nfs = $analytic_list->getAnalyticByName('nfs');
 
   if ($stat eq 't') {
-    printf("%20s  %12s %15s %20s %12s %12s %12s \n", "", "CPU", "", "Disk throughput", "", "NFS throughput");
+    printf("%20s  %12s %15s %20s %12s %12s  \n", "", "CPU", "", "Disk throughput", "", "NFS throughput");
   } else {
-    printf("%20s  %12s %15s %20s %12s %12s %12s \n", "", "CPU", "", "Disk latency", "", "NFS latency");
+    printf("%20s  %12s %15s %20s %12s %12s  \n", "", "CPU", "", "Disk latency", "", "NFS latency");
   }
   printf("%20s : %5s %5s %5s %5s : %6s %6s %6s %6s : %6s %6s %6s %6s\n", "Timestamp", "avg", "min", "max", "85pct", 
     "avg", "min", "max", "85pct","avg", "min", "max", "85pct");
@@ -253,9 +253,9 @@ sub printData {
   $nfs->processData(2);
   #$nfs_throughput->doAggregation();
 
-  my ($avgcpu, $mincpu, $maxcpu, $per85cpu);
-  my ($avgdisk, $mindisk, $maxdisk, $per85disk);
-  my ($avgnfs, $minnfs, $maxnfs, $per85nfs);
+  my ($avgcpu, $mincpu, $maxcpu, $per85cpu) = ("","","");
+  my ($avgdisk, $mindisk, $maxdisk, $per85disk) = ("","","");
+  my ($avgnfs, $minnfs, $maxnfs, $per85nfs) = ("","","");
 
   if ($stat eq 't') {
     ($avgcpu, $mincpu, $maxcpu, $per85cpu) = $cpu->get_stats('utilization');
@@ -266,9 +266,10 @@ sub printData {
     ($avgdisk, $mindisk, $maxdisk, $per85disk) = $disk->get_stats('latency_t');
     ($avgnfs, $minnfs, $maxnfs, $per85nfs) = $nfs->get_stats('latency_t');   
   }
-
-  printf("%20s : %5.2f %5.2f %5.2f %5.2f : %6.2f %6.2f %6.2f %6.2f : %6.2f %6.2f %6.2f %6.2f\n", $st, $avgcpu, $mincpu, $maxcpu, $per85cpu, 
-    $$avgdisk, $mindisk, $maxdisk, $per85disk, $$avgnfs, $minnfs, $maxnfs, $per85nfs);
+    
+  printf("%20s : %5.2f %5.2f %5.2f %5.2f : %6.2f %6.2f %6.2f %6.2f : %6.2f %6.2f %6.2f %6.2f\n", 
+    $st, $avgcpu, $mincpu, $maxcpu, $per85cpu, 
+    $avgdisk, $mindisk, $maxdisk, $per85disk, $avgnfs, $minnfs, $maxnfs, $per85nfs);
 
 
 }

@@ -256,7 +256,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_policy.pl [ -engine|d <delphix identifier> | -all ] -policy ( RETENTION | SNAPSYNC | SNAPSHOT  | REFRESH ) | -policyname name [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -envname environment ] [-export -ourdir dir] [-mapping file] [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_policy [ -engine|d <delphix identifier> | -all ] -policy ( RETENTION | SNAPSYNC | SNAPSHOT  | REFRESH ) | -policyname name [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -envname environment ] [-export -ourdir dir] [-mapping file] [ -format csv|json ]  [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

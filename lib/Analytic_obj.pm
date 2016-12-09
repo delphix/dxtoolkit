@@ -545,8 +545,12 @@ sub get_stats {
 
     my $timestamp = ( keys %{ $self->{aggreg} } )[0]; # take time stamp - we aggregate for century here so there will be only one timestamp
     
+    if (! defined ($timestamp) ) {
+      return (0, 0, 0, 0);
+    }
+    
     if (! defined ($self->{aggreg}->{$timestamp}->{$client})) {
-      return -1;
+      return (0, 0, 0, 0);
     }
 
     my @values = sort  {$a <=> $b} ( @{ $self->{aggreg}->{$timestamp}->{$client}->{$stat} } );
@@ -555,7 +559,7 @@ sub get_stats {
     my $min = sprintf( "%2.2f",$values[0] );
     my $max = sprintf( "%2.2f",$values[$#values] );
     my $per85 = sprintf( "%2.2f",$self->calc_percentile (\@values, 0.85) );
-
+    
     return ($avg, $min, $max, $per85);
     
 }
@@ -1135,9 +1139,9 @@ sub processData {
                 $self->aggregation($ts, $aggregation, $dc_cur, 'throughput_t', $total_tp_MBytes);
 
                 # aggregate iops
-                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_read', $read_iops);
-                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_write', $write_iops);
-                $self->aggregation($ts, $aggregation, $dc_cur, 'ops_total', $total_iops);
+                $self->aggregation($ts, $aggregation, $dc_cur, 'iops_r', $read_iops);
+                $self->aggregation($ts, $aggregation, $dc_cur, 'iops_w', $write_iops);
+                $self->aggregation($ts, $aggregation, $dc_cur, 'iops', $total_iops);
 
                 $self->add_histogram(\%read_hist_total,\%r_latency_hist);
                 $self->add_histogram(\%write_hist_total,\%w_latency_hist);

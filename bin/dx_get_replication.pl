@@ -174,7 +174,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_replication.pl [ -engine|d <delphix identifier> | -all ] [-cron] [ -format csv|json ]  [ -help|? ] [ -debug ]
+ dx_get_replication [ -engine|d <delphix identifier> | -all ] [-cron] [ -format csv|json ]  [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

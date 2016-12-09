@@ -288,7 +288,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_snapshots.pl [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+ dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
                      [-timeloc t|l] 
                      [-startDate startDate]
                      [-endDate endDate]

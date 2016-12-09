@@ -178,7 +178,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_snapshot_db.pl [ -engine|d <delphix identifier> | -all ] 
+ dx_snapshot_db    [ -engine|d <delphix identifier> | -all ] 
                    < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
                    [-usebackup yes|no ] 
                    [-backupfileslist backupfile1,backupfile2,...]
@@ -252,6 +252,24 @@ Run action on all targets in parallel. Limit number of jobs to maxjob.
 
 =back
 
+=head1 EXAMPLES
+
+Take snapshot of database "autoprov"
+
+ dx_snapshot_db -d Landshark -name autoprov
+ Starting job JOB-251 for database autoprov.
+ 0 - 95 - 100
+ Job JOB-251 finised with state: COMPLETED
+ 
+Take snapshot of all databases provisioned from dSource "Sybase dsource"
+
+ dx_snapshot_db -d Landshark51 -dsource "Sybase dsource"
+ Starting job JOB-191 for database testsybase.
+ 0 - 100
+ Job JOB-191 finished with state: COMPLETED
+ Starting job JOB-192 for database testvdb.
+ 0 - 100
+ Job JOB-192 finished with state: COMPLETED
 
 
 =cut

@@ -106,8 +106,7 @@ if (defined($replist)) {
     {'Host name',         30},
     {'User Name',         30},
     {'Auth Type',         30},
-    {'Toolkit dir',       60},
-    {'Proxy',             30}
+    {'Config'   ,         60}
   );
 } elsif (defined($backup)) {
   $output->addHeader(
@@ -120,7 +119,8 @@ else {
     {'Reference', 30},
     {'Environment Name',  30},
     {'Type',      25},
-    {'Status',     8}
+    {'Status',     8},
+    {'OS Version', 20}
   );
 }
 
@@ -139,11 +139,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   # load objects for current engine
   my $environments = new Environment_obj( $engine_obj, $debug);
   my $repository_obj = new Repository_obj($engine_obj, $debug);
-  my $hosts;
+  my $host_obj = new Host_obj ( $engine_obj, $debug );
 
-  if (defined($config) || defined($backup)) {
-    $hosts = new Host_obj ( $engine_obj, $debug );
-  }
 
   # filter implementation
 
@@ -184,73 +181,49 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       my $envtype = $environments->getType($envitem);
       my $host_ref = $environments->getHost($envitem);
-      if ($envtype eq 'rac') {
-        my $clusenvnode = $environments->getClusterNode($envitem);
-        $host_ref = $environments->getHost($clusenvnode);
-      } 
-      my $hostname = $hosts->getHostAddr($host_ref);
-      my $user = $environments->getPrimaryUserName($envitem);
-      my $toolkit = $hosts->getToolkitpath($host_ref);
-      if (!defined($toolkit)) {
-        $toolkit = 'N/A';
-      }
-      my $proxy_ref = $environments->getProxy($envitem);
-      my $proxy;
-      if ($proxy_ref eq 'N/A') {
-        $proxy = 'N/A';
-      } else {
-        $proxy = $hosts->getHostAddr($proxy_ref);
-      }
-
       my $envname = $environments->getName($envitem);
       my $userauth = $environments->getPrimaryUserAuth($envitem);
+      my $hostname = $host_obj->getHostAddr($host_ref);
+      my $user = $environments->getPrimaryUserName($envitem);
 
       if (defined($backup)) {
-        my $suffix = '';
-        if ( $^O eq 'MSWin32' ) { 
-          $suffix = '.exe';
-        }
         
-        my $restore_args = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password ChangeMe ";
-        if ($toolkit eq 'N/A') {
-          $restore_args = $restore_args . "-proxy $proxy";
-        } else {
-          $restore_args = $restore_args . "-toolkitdir \"$toolkit\"";
-        }
-        
-        if ($envtype eq 'rac') {
-          my $clusloc = $environments->getClusterloc($envitem);
-          my $clustname = $environments->getClusterName($envitem);
-          $restore_args = $restore_args . " -clusterloc $clusloc -clustername $clustname ";
-        }
-        
-        my $asedbuser =  $environments->getASEUser($envitem);
-        if ($asedbuser ne 'N/A') {
-          $restore_args = $restore_args . " -asedbuser $asedbuser -asedbpass ChangeMeDB ";
-        }
-        
+        my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
         $output->addLine(
-          $restore_args
+          $backup
         );
+        
       } else {
+        
+        $config = $environments->getConfig($envitem, $host_obj);
         $output->addLine(
-          $engine,
-          $envname,
-          $envtype,
-          $hostname,
-          $user,
-          $userauth,
-          $toolkit,
-          $proxy
+         $engine,
+         $envname,
+         $envtype,
+         $hostname,
+         $user,
+         $userauth,
+         $config
         );
+
       }
     } else {
+      
+      my $host_ref = $environments->getHost($envitem);
+      my $hostos;
+      if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
+        $hostos = $host_obj->getOSVersion($host_ref);
+      } else {
+        $hostos = 'UNKNOWN';
+      }    
+      
       $output->addLine(
         $engine,
         $envitem,
         $environments->getName($envitem),
         $environments->getType($envitem),
         $environments->getStatus($envitem),
+        $hostos
       );
     }
 

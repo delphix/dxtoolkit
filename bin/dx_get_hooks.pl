@@ -285,7 +285,7 @@ Export database hooks from all databases from group Analytics
 
 Export operation template script 
 
- dx_get_hooks.pl -d Landshark5 -name test1 -exportHookScript /tmp/test1.sh
+ dx_get_hooks -d Landshark5 -name test1 -exportHookScript /tmp/test1.sh
  Exporting template into file /tmp/test1.sh
 
 

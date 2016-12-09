@@ -341,7 +341,7 @@ Set policy retention for all snapshot of database "Oracle dsource"
 
 Set policy retention for snapshot created after 2016-10-12 13:30 of database autotest
 
- dx_ctl_snapshots.pl -d Landshark5 -action update -retention policy -name "test2" -startDate "2016-10-12 13:30"
+ dx_ctl_snapshots -d Landshark5 -action update -retention policy -name "test2" -startDate "2016-10-12 13:30"
  Snapshots list:
  Group 'Analytics' DB name 'test2' Snapshot time: 2016-10-12 15:20:09 IST Snapshot name: @2016-10-12T14:20:08.826Z
 

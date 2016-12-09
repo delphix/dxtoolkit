@@ -675,6 +675,11 @@ sub setEncryption {
             type=> "PasswordCredential"
         }
     );
+    
+    if ($password eq '') {
+      $encryption_hash{dumpCredentials} = JSON::null; 
+    }
+
 
     my $json_data = encode_json(\%encryption_hash);
 

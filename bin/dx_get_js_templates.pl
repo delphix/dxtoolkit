@@ -169,7 +169,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_templates.pl [ -engine|d <delphix identifier> | -all ] [-template_name template_name] [-properties] [-property_name property_name] 
+ dx_get_js_templates    [ -engine|d <delphix identifier> | -all ] [-template_name template_name] [-properties] [-property_name property_name] 
                         [ -format csv|json ]  [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION

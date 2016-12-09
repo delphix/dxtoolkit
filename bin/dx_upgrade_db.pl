@@ -126,9 +126,11 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_upgrade_db.pl [ -engine|d <delphix identifier> | -all ]  -envinst OracleHome/MSSQLinstance -group group_name | -name db_name | -host host_name | -type dsource|vdb 
-
- [-help] [-debug]
+ dx_upgrade_db  [ -engine|d <delphix identifier> | -all ]  
+                < -envinst OracleHome/MSSQLinstance >
+                < -group group_name | -name db_name | -host host_name | -type dsource|vdb >
+                [ -help] 
+                [ -debug]
 
 =head1 DESCRIPTION
 

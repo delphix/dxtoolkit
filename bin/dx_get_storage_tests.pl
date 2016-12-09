@@ -287,7 +287,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_storage_tests.pl [-engine|d <delphix identifier> | -all ] 
+ dx_get_storage_tests    [-engine|d <delphix identifier> | -all ] 
                          [-iorc path]
                          [-testid ref] 
                          [-details] 

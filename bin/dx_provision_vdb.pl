@@ -552,41 +552,41 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_provision_vdb.pl [ -engine|d <delphix identifier> | -all ]  
- -group group_name 
- -sourcename src_name 
- -targetname targ_name 
- -dbname db_name | -path vfiles_mountpoint 
- -environment environment_name 
- -type oracle|mssql|sybase|vFiles 
- -envinst OracleHome/MSSQLinstance/SybaseServer
- [-creategroup]
- [-srcgroup Source group]
- [-timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
- [-template template_name] 
- [-mapfile mapping_file]  
- [-instname SID] 
- [-uniqname db_unique_name] 
- [-mntpoint mount_point ]
- [-noopen]
- [-truncateLogOnCheckpoint]
- [-archivelog yes/no]
- [-postrefresh pathtoscript ]
- [-configureclone pathtoscript ]
- [-prerefresh  pathtoscript ]  
- [-prescript pathtoscript ]
- [-postscript pathtoscript ]
- [-recoveryModel model ]
- [-snapshotpolicy name]
- [-retentionpolicy name]
- [-additionalMount envname,mountpoint,sharedpath]
- [-rac_instance env_node,instance_name,instance_no ]
- [-redoGroup N]
- [-redoSize N]
- [-listeners listener_name]
- [-hooks path_to_hooks]
- [-envUser username]
- [-help] [-debug]
+ dx_provision_vdb [ -engine|d <delphix identifier> | -all ]  
+                  -group group_name 
+                  -sourcename src_name 
+                  -targetname targ_name 
+                  -dbname db_name | -path vfiles_mountpoint 
+                  -environment environment_name 
+                  -type oracle|mssql|sybase|vFiles 
+                  -envinst OracleHome/MSSQLinstance/SybaseServer
+                  [-creategroup]
+                  [-srcgroup Source group]
+                  [-timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
+                  [-template template_name] 
+                  [-mapfile mapping_file]  
+                  [-instname SID] 
+                  [-uniqname db_unique_name] 
+                  [-mntpoint mount_point ]
+                  [-noopen]
+                  [-truncateLogOnCheckpoint]
+                  [-archivelog yes/no]
+                  [-postrefresh pathtoscript ]
+                  [-configureclone pathtoscript ]
+                  [-prerefresh  pathtoscript ]  
+                  [-prescript pathtoscript ]
+                  [-postscript pathtoscript ]
+                  [-recoveryModel model ]
+                  [-snapshotpolicy name]
+                  [-retentionpolicy name]
+                  [-additionalMount envname,mountpoint,sharedpath]
+                  [-rac_instance env_node,instance_name,instance_no ]
+                  [-redoGroup N]
+                  [-redoSize N]
+                  [-listeners listener_name]
+                  [-hooks path_to_hooks]
+                  [-envUser username]
+                  [-help] [-debug]
 
 
 =head1 DESCRIPTION
