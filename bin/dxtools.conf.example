@@ -7,7 +7,7 @@
 		"password" : "delphix",
 		"port" : "80",
 		"default" : "false",
-		"encrypted" : "false"
+		"encrypted" : "false",
 		"timeout" : "60"
 	},
 	{
