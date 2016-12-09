@@ -5,6 +5,10 @@
 Dxtoolkit is a set of scripts, which are delivered by Delphix professional services team. 
 Dxtoolkit scripts look and feel like UNIX executables, following the typical conventions of using flags for arguments.  Dxtoolkit is written in Perl, but no knowledge of Perl is required unless you want to extend it.  In fact, no programming experience whatsoever is required to use the dxtoolkit.
 
+## What's new
+
+Please check a [change log](https://github.com/delphix/dxtoolkit/blob/master/CHANGELOG.md) for list of changes.
+
 ## How to get started
 ### Compiled version
 
@@ -34,6 +38,7 @@ Perl version 5.16 or higher
 - Net::SSLeay
 - IO::Socket::SSL
 - LWP::Protocol::https
+
 
 ## Legalness
 ```
