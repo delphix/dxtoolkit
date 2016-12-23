@@ -42,6 +42,7 @@ use Group_obj;
 use Toolkit_helpers;
 use FileMap;
 use Policy_obj;
+use MaskingJob_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -90,6 +91,7 @@ GetOptions(
   'recoveryModel=s' => \(my $recoveryModel),
   'snapshotpolicy=s' => \(my $snapshotpolicy),
   'retentionpolicy=s' => \(my $retentionpolicy),
+  'maskingjob=s' => \(my $maskingjob),
   'noopen' => \(my $noopen),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug), 
@@ -404,6 +406,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       $ret = $ret + 1;
       next;  
     }
+  }
+  
+  if (defined($maskingjob)) {
+    my $mjobs = new MaskingJob_obj($engine_obj, $debug);
+    my $source_ref = $source->getReference();
+    my $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
+    $db->setMaskingJob($job);
   }
 
   # Database specific code

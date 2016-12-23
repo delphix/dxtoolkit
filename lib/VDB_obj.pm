@@ -183,6 +183,22 @@ sub getMaskingJob
 }
 
 
+# Procedure setMaskingJob
+# parameters: 
+# - maskingjob - reference of masking job
+
+
+sub setMaskingJob 
+{
+    my $self = shift;
+    my $maskingjob = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setMaskingJob",1);
+
+    $self->{"NEWDB"}->{maskingJob} = $maskingjob;
+    
+}
+
+
 # Procedure getDbUser
 # parameters: none
 # Return database user
@@ -219,7 +235,7 @@ sub getOSUser
       $user = $self->{sourceConfig}->{environmentUser};
       my $envref = $self->{"environment"}->{reference};
       if (defined($envref)) {
-        $ret = $self->{_environment}->getEnvironmentUserByRef($envref, $user);
+        $ret = $self->{_environment}->getEnvironmentUserNamebyRef($envref, $user);
       } else {
         $ret = 'N/A';
       }
@@ -246,7 +262,7 @@ sub getStagingUser
     
     if (defined($staging_env)) {
       $staging_user_ref = $self->{staging_sourceConfig}->{environmentUser};
-      $ret = $self->{_environment}->getEnvironmentUserByRef($staging_env, $staging_user_ref);
+      $ret = $self->{_environment}->getEnvironmentUserNamebyRef($staging_env, $staging_user_ref);
     } else {
       $ret = 'N/A';
     }
@@ -351,7 +367,7 @@ sub getEnvironmentUserName
     my $ret;
     
     if (defined($self->{_environment})) {
-        $ret = $self->{_environment}->getEnvironmentUserByRef($self->{environment}->{reference}, $self->{sourceConfig}->{environmentUser});
+        $ret = $self->{_environment}->getEnvironmentUserNamebyRef($self->{environment}->{reference}, $self->{sourceConfig}->{environmentUser});
     } else {
         $ret = 'NA';
     }
