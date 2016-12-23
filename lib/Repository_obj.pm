@@ -51,7 +51,7 @@ sub new {
     
     bless($self,$classname);
     
-    $self->getRepositoryList($debug);
+    $self->listRepositoryList($debug);
     return $self;
 }
 
@@ -163,16 +163,16 @@ sub getRepositoryByEnv {
 }
 
 
-# Procedure getRepositoryList
+# Procedure listRepositoryList
 # parameters: none
 # Load a list of repository objects from Delphix Engine
 
-sub getRepositoryList 
+sub listRepositoryList 
 {
     my $self = shift;
     my $debug = shift;
 
-    logger($self->{_debug}, "Entering Repository_obj::getRepositoryList",1);  
+    logger($self->{_debug}, "Entering Repository_obj::listRepositoryList",1);  
     my $operation = "resources/json/delphix/repository";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
@@ -185,5 +185,112 @@ sub getRepositoryList
         print "No data returned for $operation. Try to increase timeout \n";
     }
 }
+
+
+# Procedure createRepository
+# parameters:
+# - reference - env reference
+# - repotype
+# - repopath
+# Create repository
+# Return 0 if OK 
+
+sub createRepository
+{
+    my $self = shift;
+    my $reference = shift;
+    my $repotype = shift;
+    my $repopath = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::createRepository",1);
+
+    my $type;
+    
+    if (!defined($repotype)) {
+      print "Repository type has to be set\n";
+      return 1;
+    }
+
+    if (!defined($repopath)) {
+      print "Repository path or instance has to be set\n";
+      return 1;
+    }
+
+    if (lc $repotype eq 'oracle') {
+      $type = 'OracleInstall';
+    } else {
+      print "Only Oracle is supported\n";
+      return 1;
+    }
+
+
+    my $operation = "resources/json/delphix/repository";
+    my %repo_data = (
+      "type" => $type,
+      "environment" => $reference,
+      "installationHome" => $repopath
+    );
+
+    my $json_data = to_json(\%repo_data, {pretty=>1});
+    logger($self->{_debug}, $json_data, 2);
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "Repository $repopath created \n";
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with repository creation " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+}
+
+# Procedure createRepository
+# parameters:
+# - reference - env reference
+# - repopath
+# Create repository
+# Return 0 if OK 
+
+sub deleteRepository
+{
+    my $self = shift;
+    my $reference = shift;
+    my $repopath = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::createRepository",1);
+
+    my $repo = $self->getRepositoryByNameForEnv($repopath, $reference);
+    
+    
+    if (!defined($repo->{reference})) {
+      print "Can't find repository $repopath \n";
+      return 1;
+    }
+    
+
+    my $operation = "resources/json/delphix/repository/" . $repo->{reference} . "/delete";
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "Repository $repopath deleted \n";
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with repository deletion " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+}
+
 
 1;

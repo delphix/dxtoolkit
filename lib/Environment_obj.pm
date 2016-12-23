@@ -56,7 +56,7 @@ sub new {
     bless($self,$classname);
 
     $self->getEnvironmentList(1);
-    $self->getEnvironmentUsers();
+    $self->listEnvironmentUsers();
     $self->getEnvironmentListeners();
     return $self;
 }
@@ -94,21 +94,25 @@ sub getEnvironment {
 }
 
 
-# Procedure getEnvironmentUser
+# Procedure getEnvironmentUsers
 # parameters:
 # - reference
-# Return environment hash for specific environment reference
+# Return environment users for environment
 
 
-sub getEnvironmentUser {
+sub getEnvironmentUsers {
     my $self = shift;
     my $reference = shift;
 
-    logger($self->{_debug}, "Entering Environment_obj::getEnvironmentUser",1);
+    logger($self->{_debug}, "Entering Environment_obj::getEnvironmentUsers",1);
 
     my $envusers = $self->{_envusers};
+        
     return $envusers->{$reference};
 }
+
+
+
 
 # Procedure getProxy
 # parameters:
@@ -174,6 +178,37 @@ sub getPrimaryUserName {
     return $ret;
 }
 
+
+# Procedure getEnvironmentUserAuth
+# parameters:
+# - environmet ref
+# - user ref
+# Return environment user auth for environment and user
+
+
+sub getEnvironmentUserAuth {
+    my $self = shift;
+    my $reference = shift;
+    my $userref = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::getEnvironmentUserAuth",1);
+
+    my $envusers = $self->{_envusers};
+    my $ret;
+
+    if ( defined($envusers->{$reference}) && ( defined($envusers->{$reference}->{$userref})  ) ) {
+      my $auth = $envusers->{$reference}->{$userref}->{credential}->{type};
+      if ($auth eq 'PasswordCredential') {
+        $ret = 'password';
+      } elsif ($auth eq 'KeyPairCredential') {
+        $ret = 'systemkey';
+      }    
+    }
+        
+    return $ret;
+}
+
+
 # Procedure getPrimaryUserAuth
 # parameters:
 # - reference
@@ -184,23 +219,40 @@ sub getPrimaryUserAuth {
     my $reference = shift;
 
     logger($self->{_debug}, "Entering Environment_obj::getPrimaryUserAuth",1);
+    
+    return $self->getEnvironmentUserAuth($reference, $self->getPrimaryUser($reference));
 
-    my $environments = $self->{_environments};
-
-
-    #my $username = $self->{_envusers}->{name};
-
-
-
-    my $ret = $environments->{$reference}->{_primaryUserAuth};
-    if ($ret eq 'PasswordCredential') {
-      $ret = 'password';
-    } elsif ($ret eq 'KeyPairCredential') {
-      $ret = 'systemkey';
-    }
-
-    return $ret;
+    # my $environments = $self->{_environments};
+    # 
+    # #my $username = $self->{_envusers}->{name};
+    # 
+    # my $ret = $environments->{$reference}->{_primaryUserAuth};
+    # if ($ret eq 'PasswordCredential') {
+    #   $ret = 'password';
+    # } elsif ($ret eq 'KeyPairCredential') {
+    #   $ret = 'systemkey';
+    # }
+    # 
+    # return $ret;
 }
+
+# Procedure getEnvironmentNotPrimaryUsers
+# parameters:
+# - reference
+# Return environment user array without primary user
+
+sub getEnvironmentNotPrimaryUsers {
+    my $self = shift;
+    my $envitem = shift;
+    logger($self->{_debug}, "Entering Environment_obj::getEnvironmentNotPrimaryUsers",1);
+
+    my $primaryUser = $self->getPrimaryUser($envitem);
+    my @users_withoutprim = grep { $_ ne $primaryUser  } keys %{$self->{_envusers}->{$envitem}};
+    
+    return \@users_withoutprim;
+  
+}
+
 
 # Procedure getConfig
 # parameters:
@@ -243,11 +295,6 @@ sub getConfig {
       $proxy = $host_obj->getHostAddr($proxy_ref);
     }
 
-    my $primaryUser = $self->getPrimaryUser($envitem);
-    my @users_withoutprim = grep { $_ ne $primaryUser  } keys %{$self->{_envusers}->{$envitem}};
-    
-    #print Dumper \@users_withoutprim;
-
     if ($toolkit eq 'N/A') {
       $config = join($joinsep,($config, "-proxy $proxy"));
     } else {
@@ -265,8 +312,10 @@ sub getConfig {
       $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass ChangeMeDB"));
     }
     
-    if ( (my $rest) = $config =~ /^,(.*)/ ) {
-      $config = $rest;
+    my $rest;
+    
+    if ( ( $rest = $config ) =~ /^,(.*)/ )   {    
+      $config = $1;
     }
 
     return $config;
@@ -304,6 +353,46 @@ sub getBackup {
     return $backup;
 
 }
+
+# Procedure getUserBackup
+# parameters:
+# - reference
+# Return environment metadata backup
+
+sub getUsersBackup {
+   my $self = shift;
+   my $envitem = shift;
+   my $output = shift;
+   my $engine = shift;
+   
+   my $backup;
+
+   logger($self->{_debug}, "Entering Environment_obj::getUserBackup",1);
+   
+   my $suffix = '';
+   if ( $^O eq 'MSWin32' ) { 
+     $suffix = '.exe';
+   }
+
+   my $name = $self->getName($envitem);
+   my $auth;
+
+   for my $useritem (@{$self->getEnvironmentNotPrimaryUsers($envitem)}) {
+     
+     $backup = "dx_ctl_env$suffix -d $engine -envname " . $name . " -action adduser -username \"" .$self->getEnvironmentUserNamebyRef($envitem,$useritem) . "\"";
+     $auth = $self->getEnvironmentUserAuth($envitem,$useritem);
+     if ($auth eq 'password') {
+       $backup = $backup . " -authtype password -password ChangeMe";
+     } else {
+       $backup = $backup . " -authtype systemkey";
+     }
+     
+     $output->addLine(
+      $backup
+     );
+   }   
+
+}  
 
 
 # Procedure getName
@@ -511,9 +600,9 @@ sub getEnvironmentByName {
 # parameters:
 # - name - repository refrence
 # - user - user ref
-# Return environment user reference for environment name and user name
+# Return environment user name for environment name and user ref
 
-sub getEnvironmentUserByRef {
+sub getEnvironmentUserNamebyRef {
     my $self = shift;
     my $ref = shift;
     my $user = shift;
@@ -523,7 +612,7 @@ sub getEnvironmentUserByRef {
 
     if (defined($self->{_environments}->{$ref})) {
         # is this a environment refrerence
-        my $users = $self->getEnvironmentUser($ref);
+        my $users = $self->getEnvironmentUsers($ref);
         if (defined($users->{$user})) {
           $ret = $users->{$user}->{name};
         } else {
@@ -551,7 +640,7 @@ sub getEnvironmentUserByName {
 
     if (defined($self->{_environments}->{$name})) {
         # is this a environment refrerence
-        my $users = $self->getEnvironmentUser($name);
+        my $users = $self->getEnvironmentUsers($name);
         
         my @t = grep { $users->{$_}->{name} eq $username } keys %{$users};
         # if (defined($users->{$username})) {
@@ -569,7 +658,7 @@ sub getEnvironmentUserByName {
         for my $envitem ( sort ( keys %{$self->{_environments}} ) ) {
 
             if ( $self->getName($envitem) eq $name) {
-                my $users = $self->getEnvironmentUser($envitem);
+                my $users = $self->getEnvironmentUsers($envitem);
                 # if (defined($users->{$username})) {
                 #     $ret = $users->{$username}->{reference};
                 # }
@@ -646,19 +735,22 @@ sub getEnvironmentList
         for my $envitem (@res) {
             $environments->{$envitem->{reference}} = $envitem;
         }
+        
     }
+    
+
 
 
 }
 
-# Procedure getEnvironmentUsers
+# Procedure listEnvironmentUsers
 # parameters: none
 # Load a list of users for all environment objects from Delphix Engine
 
-sub getEnvironmentUsers
+sub listEnvironmentUsers
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Environment_obj::getEnvironmentUsers",1);
+    logger($self->{_debug}, "Entering Environment_obj::listEnvironmentUsers",1);
 
     my $operation = "resources/json/delphix/environment/user";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -759,9 +851,7 @@ sub getListenerName {
     my $envlisteners = $self->{_envlisteners};
     
     my $ret;
-    
-    #my $listref = { $envlisteners->{$envref}->{$_}->{reference} eq $listref } keys %{$envlisteners->{$envref}};
-    
+      
     if (defined($envlisteners->{$envref}->{$listref})) {
       $ret = $envlisteners->{$envref}->{$listref}->{name};
     } else {
@@ -1160,6 +1250,220 @@ sub changeASEPassword
     my $json_data = to_json(\%pass_data, {pretty=>1});
 
     return $self->runJobOperation($operation, $json_data, 'ACTION');
+}
+
+# Procedure createEnvUser
+# parameters:
+# - reference - env reference
+# - username
+# - authtype
+# - password - password
+# Create environment user
+# Return 0 if OK 
+
+sub createEnvUser
+{
+    my $self = shift;
+    my $reference = shift;
+    my $username = shift;
+    my $authtype = shift;
+    my $password = shift;
+    logger($self->{_debug}, "Entering Environment_obj::createEnvUser",1);
+
+
+    my %cred;
+
+    if ($authtype eq 'systemkey') {
+        %cred = (
+            "type" => "SystemKeyCredential"
+        );
+    }
+    elsif ($authtype eq 'password') {
+        %cred = (
+            "type" => "PasswordCredential",
+            "password" => $password
+        );
+
+    } 
+
+    my $operation = "resources/json/delphix/environment/user/";
+    my %pass_data = (
+        "type" => "EnvironmentUser",
+        "credential" => \%cred,
+        "name" => $username,
+        "environment" => $reference
+    );
+
+    my $json_data = to_json(\%pass_data, {pretty=>1});
+    logger($self->{_debug}, $json_data, 2);
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "User $username created \n";
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with user creation " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+}
+
+
+# Procedure deleteEnvUser
+# parameters:
+# - reference - env reference
+# - username - username
+# Delete environent user
+# Return 0 if OK 
+
+sub deleteEnvUser
+{
+    my $self = shift;
+    my $reference = shift;
+    my $username = shift;
+    logger($self->{_debug}, "Entering Environment_obj::deleteEnvUser",1);
+
+
+    my $userref = $self->getEnvironmentUserByName($reference, $username);
+    
+    if (!defined($userref)) {
+      print "Username $username not found \n";
+      return 1;
+    }
+
+    my $operation = "resources/json/delphix/environment/user/" . $userref ."/delete";
+
+    my %del_data = (
+      "type" => "DeleteParameters"
+    );
+
+    my $json_data = to_json(\%del_data, {pretty=>1});
+    logger($self->{_debug}, $json_data, 2);
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "User $username deleted \n";
+      $ret = 0;
+    } else {
+        $ret = 1;
+        if (defined($result->{error})) {
+            print $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+    return $ret;
+}
+
+
+# Procedure createListener
+# parameters:
+# - reference - env reference
+# - listenername - name of listener
+# - endpoint - array of end points
+# Create listener
+# Return 0 if OK 
+
+sub createListener
+{
+    my $self = shift;
+    my $reference = shift;
+    my $listenername = shift;
+    my $endpoint = shift;
+    logger($self->{_debug}, "Entering Environment_obj::createListener",1);
+
+
+    my $operation = "resources/json/delphix/environment/oracle/listener";
+    my $env = $self->getEnvironment($reference);
+    
+    if (!defined($env->{host})) {
+      print "RAC environment is not supported now\n";
+      return 1;
+    }
+    
+    my @badendpoint = grep { scalar(split(':',$_)) ne 2 } @{$endpoint};
+    
+    if (scalar(@badendpoint)>0) {
+      print "Endpoint definition doesn't match hostname:port \n";
+      return 1;
+    }
+    
+    
+    my %listener_hash = (
+        "type" => "OracleNodeListener",
+        "name" => $listenername,
+        "endPoints" => $endpoint,
+        "environment" => $reference,
+        "host" => $env->{host}
+    );
+
+    my $json_data = to_json(\%listener_hash, {pretty=>1});
+    logger($self->{_debug}, $json_data, 2);
+    
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $ret;
+    
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "Listener $listenername created \n";
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with listener creation " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+}
+
+
+
+# Procedure deleteListener
+# parameters:
+# - reference - env reference
+# - listenername 
+
+# Delete listener by name
+# Return 0 if OK 
+
+sub deleteListener
+{
+    my $self = shift;
+    my $reference = shift;
+    my $listenername = shift;
+    logger($self->{_debug}, "Entering Environment_obj::deleteListener",1);
+
+    my $listref = $self->getListenerByName($reference,$listenername);
+    
+    if (!defined($listref)) {
+      print "Listener $listenername not found\n";
+      return 1;
+    }
+
+    my $operation = "resources/json/delphix/environment/oracle/listener/" . $listref . "/delete";
+    
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+    my $ret;
+    
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      print "Listener $listenername deleted \n";
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with listener deletion " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
 }
 
 1;
