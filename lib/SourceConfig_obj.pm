@@ -369,4 +369,80 @@ sub getSourceConfigList
     
 }
 
+# Procedure createSourceConfig
+# parameters: 
+# - type 
+# - repository
+# - dbname 
+# - uniquename 
+# - instancename
+# - jdbc 
+# Create a SourceConfig ( database to be added as dSource )
+# Return 0 if OK
+
+sub createSourceConfig {
+    my $self = shift;
+    my $type = shift;
+    my $reference = shift;
+    my $dbname = shift;
+    my $uniquename = shift;
+    my $instancename = shift;
+    my $jdbc = shift;
+    my $ret;
+    
+    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);  
+
+
+    my %sourceconfig_hash;
+    
+    if ($type eq 'oracleSI') {  
+      my @services;
+      my %service = (
+        "type" => "OracleService",
+        "jdbcConnectionString" => "jdbc:oracle:thin:@" . $jdbc
+      );
+      
+      push(@services, \%service);
+      
+      %sourceconfig_hash = (
+        "type" => "OracleSIConfig",
+        "repository" => $reference,
+        "services" => \@services,
+        "databaseName" => $dbname,
+        "uniqueName" => $uniquename,
+        "instance" => {
+            "type" => "OracleInstance",
+            "instanceName" => $instancename,
+            "instanceNumber" => 1
+        }
+      );
+    }
+
+
+    my $json_data = encode_json(\%sourceconfig_hash);
+
+    my $operation = 'resources/json/delphix/sourceconfig';
+    
+    logger($self->{_debug}, $json_data ,2);
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with adding database " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+
+    return $ret;
+}
+
+
+
+
 1;

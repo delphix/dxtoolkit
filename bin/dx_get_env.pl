@@ -48,6 +48,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
+  'userlist' => \(my $userlist),
   'config' => \(my $config),
   'backup=s' => \(my $backup),
   'replist' => \(my $replist),
@@ -91,8 +92,14 @@ if (defined($backup)) {
   }
 }
 
-
-if (defined($replist)) {
+if (defined($userlist)) {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Environment Name',   30},
+    {'User name'       ,   30},
+    {'Auth Type',          30}    
+  );
+} elsif (defined($replist)) {
   $output->addHeader(
     {'Appliance', 20},
     {'Environment Name',  30},
@@ -116,11 +123,10 @@ if (defined($replist)) {
 else {
   $output->addHeader(
     {'Appliance', 20},
-    {'Reference', 30},
     {'Environment Name',  30},
     {'Type',      25},
     {'Status',     8},
-    {'OS Version', 20}
+    {'OS Version', 50}
   );
 }
 
@@ -162,7 +168,22 @@ for my $engine ( sort (@{$engine_list}) ) {
   # for filtered databases on current engine - display status
   for my $envitem ( @env_list ) {
 
-    if (defined($replist)) {
+    if (defined($userlist)) {
+      $output->addLine(
+        $engine,
+        $environments->getName($envitem),
+        '*' . $environments->getPrimaryUserName($envitem),
+        $environments->getPrimaryUserAuth($envitem)
+      );
+      for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
+        $output->addLine(
+          '',
+          '',
+          $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
+          $environments->getEnvironmentUserAuth($envitem,$useritem)
+        );
+      }
+    } elsif (defined($replist)) {
       $output->addLine(
         $engine,
         $environments->getName($envitem),
@@ -183,8 +204,18 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $host_ref = $environments->getHost($envitem);
       my $envname = $environments->getName($envitem);
       my $userauth = $environments->getPrimaryUserAuth($envitem);
-      my $hostname = $host_obj->getHostAddr($host_ref);
+      my $hostname;
       my $user = $environments->getPrimaryUserName($envitem);
+      
+      if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
+        $hostname = $host_obj->getHostAddr($host_ref);
+      } else {
+        my $clusenvnode = $environments->getClusterNode($envitem);
+        $host_ref = $environments->getHost($clusenvnode);
+        $hostname = $host_obj->getHostAddr($host_ref);
+      }  
+      
+      
 
       if (defined($backup)) {
         
@@ -192,6 +223,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         $output->addLine(
           $backup
         );
+        
+        #add users
+        
+        $environments->getUsersBackup($envitem,$output,$engine);
+        
+      
         
       } else {
         
@@ -214,12 +251,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
         $hostos = $host_obj->getOSVersion($host_ref);
       } else {
-        $hostos = 'UNKNOWN';
+        my $clusenvnode = $environments->getClusterNode($envitem);
+        $host_ref = $environments->getHost($clusenvnode);
+        $hostos = $host_obj->getOSVersion($host_ref);
       }    
       
       $output->addLine(
         $engine,
-        $envitem,
         $environments->getName($envitem),
         $environments->getType($envitem),
         $environments->getStatus($envitem),

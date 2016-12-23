@@ -210,10 +210,9 @@ sub getConfig
         $config = join($joinsep,($config, "-uniqname $unique"));
       }
     
-
     }
     
-    if ( (my $rest) = $config =~ /^,(.*)/ ) {
+    if ( (my $rest) = $config =~ m/^,(.*)/ ) {
       $config = $rest;
     }
   

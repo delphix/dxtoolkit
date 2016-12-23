@@ -36,7 +36,9 @@ use Engine;
 use Formater;
 use Environment_obj;
 use Toolkit_helpers;
+use Repository_obj;
 use Jobs_obj;
+use SourceConfig_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -46,6 +48,18 @@ GetOptions(
   'name|n=s' => \(my $envname), 
   'reference|r=s' => \(my $reference),
   'action=s' => \(my $action),
+  'username=s' => \(my $username),
+  'authtype=s' => \(my $authtype),
+  'password=s' => \(my $password),
+  'listener=s' => \(my $listener),
+  'repotype=s' => \(my $repotype),
+  'repopath=s' => \(my $repopath),
+  'dbname=s'   => \(my $dbname),
+  'uniquename=s' => \(my $uniquename),
+  'instancename=s' => \(my $instancename),
+  'jdbc=s'     => \(my $jdbc),
+  'listenername=s' => \(my $listenername), 
+  'endpoint=s@' => \(my $endpoint),
   'parallel=n' => \(my $parallel),
   'debug:i' => \(my $debug), 
   'restore=s' => \(my $restore),
@@ -72,6 +86,80 @@ if (defined($all) && defined($dx_host)) {
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
+
+if (!defined($action)) {
+  print "Action has to be defined\n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq 'disable') ||
+    (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') || 
+    (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') || 
+    (lc $action eq 'addlistener') || (lc $action eq 'deletelistener'))) 
+    {
+      print "Unknown action $action\n";
+      pod2usage(-verbose => 1,  -input=>\*DATA);
+      exit (1);
+} 
+
+if (lc $action eq 'addrepo') {
+  if (!defined($repotype)) {
+    print "Repository type has to be set\n";
+    exit 1;
+  }
+}
+
+if ((lc $action eq 'addrepo') || (lc $action eq 'deleterepo')) {
+  if (!defined($repopath)) {
+    print "Repository path or instance has to be set\n";
+    exit 1;
+  }
+}
+
+if (lc $action eq 'adddatabase') {
+  if (!defined($repopath)) {
+    print "Repository path or instance has to be set\n";
+    exit 1;
+  }
+  if (!defined($uniquename)) {
+    print "uniquename has to be set\n";
+    exit 1;
+  }
+  if (!defined($instancename)) {
+    print "instancename has to be set\n";
+    exit 1;
+  }
+  if (!defined($jdbc)) {
+    print "jdbc has to be set\n";
+    exit 1;
+  }
+}
+
+if ((lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase')) {
+  if (!defined($repopath)) {
+    print "Repository path or instance has to be set\n";
+    exit 1;
+  }
+  if (!defined($dbname)) {
+    print "dbname has to be set\n";
+    exit 1;
+  }
+}
+
+if (lc $action eq 'addlistener') {
+  if (!defined($endpoint)) {
+    print "At least one endpoint parameter has to be set\n";
+    exit 1;
+  }
+}
+
+if ((lc $action eq 'addlistener') || (lc $action eq 'deletelistener')) {
+  if (!defined($listenername)) {
+    print "listenername parameter has to be set\n";
+    exit 1;
+  }
+}
 
 my %restore_state;
 
@@ -115,53 +203,124 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $envitem ( @env_list ) {
 
     my $env_name = $environments->getName($envitem);
+    
+    if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh')) {
 
-    if ( $action eq 'enable' ) {
-      if ( $environments->getStatus($envitem) eq 'enabled' ) {
-        print "Environment $env_name is already enabled.\n";
-      } else {
-        print "Enabling environment $env_name \n";
-        $jobno = $environments->enable($envitem);
-      }
-    }
-
-    if ( $action eq 'disable' ) {
-      if ( $environments->getStatus($envitem) eq 'disabled' ) {
-        print "Environment $env_name is already disabled.\n";
-      } else {
-        print "Disabling environment $env_name \n";
-        if ($environments->disable($envitem)) {
-          print "Error while disabling environment\n";
+      if ( $action eq 'enable' ) {
+        if ( $environments->getStatus($envitem) eq 'enabled' ) {
+          print "Environment $env_name is already enabled.\n";
+        } else {
+          print "Enabling environment $env_name \n";
+          $jobno = $environments->enable($envitem);
         }
       }
-    }
 
-    if ( $action eq 'refresh' ) {
-      print "Refreshing environment $env_name \n";
-      $jobno = $environments->refresh($envitem);
-    }
+      if ( $action eq 'disable' ) {
+        if ( $environments->getStatus($envitem) eq 'disabled' ) {
+          print "Environment $env_name is already disabled.\n";
+        } else {
+          print "Disabling environment $env_name \n";
+          if ($environments->disable($envitem)) {
+            print "Error while disabling environment\n";
+          }
+        }
+      }
 
-    if (defined ($jobno) ) {
-      print "Starting job $jobno for environment $env_name.\n";
-      my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
+      if ( $action eq 'refresh' ) {
+        print "Refreshing environment $env_name \n";
+        $jobno = $environments->refresh($envitem);
+      }
+
+      if (defined ($jobno) ) {
+        print "Starting job $jobno for environment $env_name.\n";
+        my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
+        if (defined($parallel)) {
+          push(@jobs, $job);
+        } else {
+          my $jobstat = $job->waitForJob();
+          if ($jobstat ne 'COMPLETED') {
+            $ret = $ret + 1;
+          }
+        }
+      }
+
       if (defined($parallel)) {
-        push(@jobs, $job);
-      } else {
-        my $jobstat = $job->waitForJob();
-        if ($jobstat ne 'COMPLETED') {
-          $ret = $ret + 1;
+        if ((scalar(@jobs) >= $parallel ) || (scalar(@env_list) eq scalar(@jobs) )) {
+          my $pret = Toolkit_helpers::parallel_job(\@jobs);
+          $ret = $ret + $pret;
         }
+      }
+      undef $jobno;  
+    }
+    
+    if ( lc $action eq 'adduser' ) {
+      print "Adding user to environment $env_name \n";
+      if ($environments->createEnvUser($envitem, $username, $authtype, $password)) {
+        print "Problem with adding user \n";
+        $ret = $ret + 1;
       }
     }
 
-    if (defined($parallel)) {
-      if ((scalar(@jobs) >= $parallel ) || (scalar(@env_list) eq scalar(@jobs) )) {
-        my $pret = Toolkit_helpers::parallel_job(\@jobs);
-        $ret = $ret + $pret;
+    if ( lc $action eq 'deleteuser' ) {
+      print "Deleting user from environment $env_name \n";
+      if ($environments->deleteEnvUser($envitem, $username)) {
+        print "Problem with deleting user \n";
+        $ret = $ret + 1;
+      }
+    }
+
+    if ( lc $action eq 'addrepo' ) {
+      print "Adding repository $repopath to environment $env_name \n";
+      my $repository_obj = new Repository_obj($engine_obj, $debug);
+      if ($repository_obj->createRepository($envitem, $repotype, $repopath)) {
+        print "Problem with adding repository \n";
+        $ret = $ret + 1;
       }
     }
     
-    undef $jobno;
+    if ( lc $action eq 'deleterepo' ) {
+      print "Deleting repository $repopath from environment $env_name \n";
+      my $repository_obj = new Repository_obj($engine_obj, $debug);
+      if ($repository_obj->deleteRepository($envitem, $repopath)) {
+        print "Problem with adding repository \n";
+        $ret = $ret + 1;
+      }
+    }
+    
+    if ( lc $action eq 'adddatabase' ) {
+      print "Adding database $dbname into $repopath on environment $env_name \n";
+      my $repository_obj = new Repository_obj($engine_obj, $debug);
+      my $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem);
+      
+      if (defined($repo->{reference})) {
+        my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
+        if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
+          print "Can't add database $dbname \n";
+          $ret = $ret + 1;
+        } else {
+          print "Database $dbname added into $repopath\n";
+        }
+      } else {
+        print "Can't find repository path $repopath \n";
+        $ret = $ret + 1;
+      }
+    }
+    
+    if ( lc $action eq 'addlistener' ) {
+      print "Adding listener to environment $env_name \n";
+      if ($environments->createListener($envitem, $listenername, $endpoint)) {
+        print "Problem with adding listener \n";
+        $ret = $ret + 1;
+      }
+    }
+
+    if ( lc $action eq 'deletelistener' ) {
+      print "Adding listener to environment $env_name \n";
+      if ($environments->deleteListener($envitem, $listenername)) {
+        print "Problem with deleting listener \n";
+        $ret = $ret + 1;
+      }
+    }
 
   }
 
