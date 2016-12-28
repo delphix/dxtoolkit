@@ -48,9 +48,7 @@ sub new {
     logger($debug, "Entering MaskingJob_obj::constructor",1);
 
     my %maskingjob;
-    my %conttomask;
     my $self = {
-        _conttomask => \%conttomask,
         _maskingjob => \%maskingjob,
         _dlpxObject => $dlpxObject,
         _debug => $debug
@@ -59,6 +57,39 @@ sub new {
     bless($self,$classname);
     $self->loadMaskingJobList();
     return $self;
+}
+
+
+# Procedure verifyMaskingJobForContainer
+# parameters: 
+# - reference
+# - jobname
+# Return job ref is job is assigned to source and can be used
+# undef otherwise
+
+sub verifyMaskingJobForContainer {
+    my $self = shift;
+    my $container = shift;
+    my $name = shift;
+    
+    logger($self->{_debug}, "Entering MaskingJob_obj::verifyMaskingJobForContainer",1);    
+    
+    my $contjobs = $self->getMaskingJobForContainer($container);
+    
+    my @refarray = grep { lc $self->getName($_) eq lc $name } @{$contjobs};
+    
+    if (scalar(@refarray) gt 1) {
+      print "Too many jobs with same name defined in source\n";
+      return undef;
+    }
+    
+    if (scalar(@refarray) lt 1) {
+      print "Job with name $name not defined in source database\n";
+      return undef;
+    }  
+    
+    return $refarray[-1];
+
 }
 
 # Procedure getMaskingJobForContainer
@@ -71,29 +102,92 @@ sub getMaskingJobForContainer {
     my $container = shift;
     
     logger($self->{_debug}, "Entering MaskingJob_obj::getMaskingJobForContainer",1);    
-    my $conttomask = $self->{_conttomask};
+    my $jobs = $self->{_maskingjob};
     
-    my $ret;
+    my @retarray = grep { defined($jobs->{$_}->{associatedContainer}) && ($jobs->{$_}->{associatedContainer} eq $container) } keys %{$jobs};
     
-    print Dumper $container;
-        
-    if (defined($conttomask->{$container})) {
-      $ret = $conttomask->{$container};
-    } 
-    
-    return $ret;
+    return \@retarray;
 }
 
-# Procedure getMaskingJobName
+
+# Procedure getAssociatedContainer
 # parameters: 
 # - reference
 # Return a masking job name
 
-sub getMaskingJobName {
+sub getAssociatedContainer {
     my $self = shift;
     my $reference = shift;
     
-    logger($self->{_debug}, "Entering MaskingJob_obj::getMaskingJobName",1);    
+    logger($self->{_debug}, "Entering MaskingJob_obj::getAssociatedContainer",1);    
+    my $maskingjob = $self->{_maskingjob};
+    
+    my $ret;
+    
+    if (defined($reference)) {
+      if (defined($maskingjob->{$reference}) && defined($maskingjob->{$reference}->{associatedContainer})) {
+        $ret = $maskingjob->{$reference}->{associatedContainer};
+      } else {
+        $ret = 'N/A';
+      }
+    } else {
+      $ret = 'N/A';
+    }
+    
+    return $ret;
+}
+
+# Procedure setAssociatedContainer
+# parameters: 
+# - job reference
+# - containter reference
+# Assign job to container
+
+sub setAssociatedContainer {
+    my $self = shift;
+    my $jobref = shift;
+    my $contref = shift;
+    
+    logger($self->{_debug}, "Entering MaskingJob_obj::setAssociatedContainer",1);    
+    my $maskingjob = $self->{_maskingjob};
+    my $ret;
+    my $operation = "resources/json/delphix/maskingjob/" . $jobref;
+    
+    my %masking_hash = (
+      "type" => "MaskingJob",
+      "associatedContainer" => $contref
+    );
+    
+    my $json_data = to_json(\%masking_hash);
+    logger($self->{_debug}, $json_data,2);
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+    
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      $ret = 0;
+    } else {
+        $ret = 1;
+        if (defined($result->{error})) {
+            print "Problem with assigning job " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+    
+    return $ret;
+}
+
+# Procedure getName
+# parameters: 
+# - reference
+# Return a masking job name
+
+sub getName {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering MaskingJob_obj::getName",1);    
     my $maskingjob = $self->{_maskingjob};
     
     my $ret;
@@ -109,6 +203,34 @@ sub getMaskingJobName {
     }
     
     return $ret;
+}
+
+# Procedure getMaskingJobByName
+# parameters: 
+# - name
+# Return a masking job reference for a name
+
+sub getMaskingJobByName {
+    my $self = shift;
+    my $name = shift;
+    
+    logger($self->{_debug}, "Entering MaskingJob_obj::getMaskingJobByName",1);    
+    my $maskingjob = $self->{_maskingjob};
+        
+    my @refarray = grep { lc $self->getName($_) eq lc $name } keys %{$maskingjob};
+    
+    if (scalar(@refarray) gt 1) {
+      print "Too many jobs with same name\n";
+      return undef;
+    }
+    
+    if (scalar(@refarray) lt 1) {
+      print "Job with name $name not defined\n";
+      return undef;
+    }  
+    
+    return $refarray[-1];
+    
 }
 
 
@@ -131,6 +253,20 @@ sub getMaskingJob {
     } 
     
     return $ret;
+}
+
+# Procedure getMaskingJobs
+# parameters: 
+# Return array of masking jobs
+
+sub getMaskingJobs {
+    my $self = shift;
+    
+    logger($self->{_debug}, "Entering MaskingJob_obj::getMaskingJobs",1);    
+    my $maskingjob = $self->{_maskingjob};
+    
+    my @retarray = sort (keys %{$maskingjob});
+    return \@retarray;
 }
 
 
@@ -157,9 +293,6 @@ sub loadMaskingJobList
       
       for my $maskjobitem (@res) {
           $maskingjob->{$maskjobitem->{reference}} = $maskjobitem;
-          if (defined($maskjobitem->{associatedContainer})) {
-            $self->{_conttomask}->{$maskjobitem->{associatedContainer}} = $maskjobitem->{reference};
-          }
       } 
 
     } else {
