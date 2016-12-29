@@ -120,7 +120,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $databases = new Databases($engine_obj,$debug);
   my $groups = new Group_obj($engine_obj, $debug);
 
-  my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, $debug);
+  my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, undef, $debug);
 
   if (!defined($source_ref)) {
     print "Source database not found.\n";

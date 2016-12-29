@@ -53,6 +53,7 @@ GetOptions(
   'type=s' => \(my $type), 
   'group=s' => \(my $group), 
   'host=s' => \(my $host),
+  'dsource=s' => \(my $dsource),
   'timeloc=s' => \($timeloc),
   'timeflow=s' => \($timeflow),
   'startDate=s' => \(my $startDate),
@@ -167,8 +168,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $groups = new Group_obj($engine_obj, $debug);  
 
   # filter implementation 
-
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, d$source, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -288,7 +288,8 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+ dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] 
+                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
                      [-timeloc t|l] 
                      [-startDate startDate]
                      [-endDate endDate]
@@ -331,6 +332,9 @@ Host Name
 
 =item B<-type>
 Type (dsource|vdb)
+
+=item B<-dsource name>
+Name of dSource 
 
 =item B<-startDate startDate>
 Display snapshot created after startDate

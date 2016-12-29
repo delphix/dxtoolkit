@@ -249,6 +249,34 @@ sub getInstances
     return $ret;
 }
 
+# Procedure getInstanceNumber
+# parameters: 
+# - instance name
+# Return instance number or undef if not found
+
+sub getInstanceNumber 
+{
+    my $self = shift;
+    my $instancename = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getInstanceNumber",1);
+
+    my $ret;
+    
+    my $inst = $self->{instances};
+
+    my @num = grep { $inst->{$_}->{name} eq $instancename } keys %{$inst};
+
+    if (scalar(@num) ne 1) {
+      $ret = undef;
+    } else {
+      $ret = $num[-1]+0;
+    }
+
+
+    return $ret;
+}
+
+
 # Procedure getInstanceNode
 # parameters: 
 # - instanceNumber

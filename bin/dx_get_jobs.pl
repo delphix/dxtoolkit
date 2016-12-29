@@ -140,7 +140,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   
   
   if (defined($dbname) || defined($host) || defined($group) || defined($type) || defined($dsource) ) {
-     $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, $debug);
+     $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
      
      if (!defined($db_list)) {
         print "Object not found. Skipping jobs\n";

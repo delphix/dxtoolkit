@@ -50,6 +50,7 @@ GetOptions(
   'format=s' => \(my $format), 
   'type=s' => \(my $type), 
   'group=s' => \(my $group), 
+  'dsource=s' => \(my $dsource),
   'host=s' => \(my $host),
   'sortby=s' => \(my $sortby),
   'debug:i' => \(my $debug), 
@@ -151,7 +152,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation 
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -323,7 +324,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_capacity    [-engine|d <delphix identifier> | -all ] 
-                    [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+                    [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
                     [-details [all]] 
                     [-sortby size ]
                     [-format csv|json ] 
@@ -355,17 +356,20 @@ Filter databases using one of the following filters
 
 =over 4
 
-=item B<-group>
+=item B<-group groupname>
 Group Name
 
-=item B<-name>
+=item B<-name dbname>
 Database Name
 
-=item B<-host>
+=item B<-host hostname>
 Host Name
 
-=item B<-type>
+=item B<-type type>
 Type (dsource|vdb)
+
+=item B<-dsource name>
+Name of dsource
 
 =back
 

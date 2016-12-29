@@ -193,14 +193,6 @@ sub LoadDBList
         logger($self->{_debug},"host name - $host ",2);
         if ( $host eq 'CLUSTER' ) {
 
-            # my $cluhosts =  $self->{_environments}->getOracleClusterNode($environment);
-            # for my $clunode ( @{$cluhosts} ) {
-
-            #   my $cluhost = $self->{_hosts}->getHost($clunode->{host});
-            #   print Dumper $cluhost;
-
-            # }
-
             my %fake = ( "name" => "CLUSTER");
             $db->{"host"}  = \%fake;
         } else {
@@ -485,6 +477,34 @@ sub getDBForGroup
         if ( $dbobj->getGroup() eq $group ) {
             push (@dbs, $dbname)
         }
+    }
+    
+    return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() } ( @dbs );
+}
+
+# Procedure getDBForInstanceName
+# parameters: 
+# instance name
+# Return list of database names which has a instance name
+
+sub getDBForInstanceName 
+{
+    my $self = shift;
+    my $instancename = shift;
+    my @dbs;
+    
+    logger($self->{_debug}, "Entering Databases::getDBForInstanceName",1);
+    for my $dbname ( $self->getDBList() ) {
+        my $dbobj = $self->getDB($dbname); 
+        if (defined($dbobj->{instances})) {
+          # Oracle 
+          for my $i (keys %{$dbobj->{instances}}) {
+            if ($dbobj->{instances}->{$i}->{name} eq $instancename) {
+              push (@dbs, $dbname);
+            }
+          }
+        }
+
     }
     
     return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() } ( @dbs );

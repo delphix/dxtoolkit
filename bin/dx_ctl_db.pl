@@ -52,6 +52,7 @@ GetOptions(
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'envname=s' => \(my $envname),
+  'instancename=s' => \(my $instancename),
   'restore=s' => \(my $restore),
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
@@ -89,11 +90,24 @@ if (defined($action) && ( ! ( ( $action eq 'start') || ( $action eq 'stop') || (
   exit (1);
 }
 
+if (defined($instance) && defined($instancename)) {
+  print "Filter -instance and -instancename are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+
+if (defined($instancename) && ((lc $action eq 'disable') || (lc $action eq 'enable') )) {
+  print "Filter -instancename can't be specified for enable or disable action\n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 if ( defined($restore) ) {
   # we don't need filters
   Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, $envname, $dsource);
 } else {
-   Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, $envname, $dsource);   
+   Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, $envname, $dsource, $instancename);   
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -114,8 +128,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $groups = new Group_obj($engine_obj, $debug);  
 
   # filter implementation 
-
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $debug);
+              
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $instancename, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -165,6 +179,22 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
 
     }
+    
+    if (defined($instancename)) {
+      if ($dbobj->isRAC()) {
+        $instance = $dbobj->getInstanceNumber($instancename);
+        if (!defined($instance)) {
+          print "Instance number not defined for name $instancename\n";
+          $ret = $ret + 1;
+          next;  
+        }
+      } else {
+        print "Target DB is not Oracle RAC. Can't use instance name to control status of instances.\n";
+        $ret = $ret + 1;
+        next;
+      }
+      
+    }
 
 
 
@@ -198,6 +228,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
       }
     }
+    
 
     if ( $action eq 'disable' ) {
       if ( $dbobj->getEnabled() eq 'enabled' ) {
@@ -315,7 +346,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_db    [ -engine|d <delphix identifier> | -all ] 
-              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
               [-instance inst_no] 
               <-action start|stop|enable|disable>  
               [-restore filename]
@@ -362,11 +393,15 @@ Type (dsource|vdb)
 =item B<-envname>
 Environment name
 
+=item B<-instancename instname>
+Instance name ( can be used only for Oracle RAC )
+
+
 =back
 
 =head3 Instance option
 
-Specify a instance number to perfom operation on ( this is not a filer )
+Specify an Oracle RAC instance number to perfom operation on ( this is not a filer )
 
 =over 4
 
