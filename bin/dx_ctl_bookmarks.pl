@@ -110,11 +110,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if (lc $action eq 'create') {
-    #my $db = new Databases ( $engine_obj, $debug );
 
-    #my $bookmarks = new Bookmark_obj ($engine_obj, $db );
-
-    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef);
+    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef, undef, undef, undef, $debug);
 
     if (! defined($db_list)) {
       print "There is no DB selected to process on $engine . Please check filter definitions. \n";

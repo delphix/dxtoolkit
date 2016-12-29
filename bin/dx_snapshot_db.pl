@@ -117,9 +117,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $databases = new Databases( $engine_obj, $debug);
   my $groups = new Group_obj($engine_obj, $debug);  
 
-  # filter implementation 
+  # filter implementation  
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;

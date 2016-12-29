@@ -100,7 +100,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $databases = new Databases ( $engine_obj, $debug );
     my $groups = new Group_obj($engine_obj, $debug); 
     my $maskingjob_list;
-    my $dbobj = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, undef, $debug);
+
+    my $dbobj = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, undef, undef, $debug);
 
     if (!defined($dbobj)) {
       print "Database not found\n";

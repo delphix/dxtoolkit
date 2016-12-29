@@ -65,6 +65,7 @@ GetOptions(
   'masking' => \(my $masking),
   'envname=s' => \(my $envname),
   'instance=n' => \(my $instance),
+  'instancename=s' => \(my $instancename),
   'debug:i' => \(my $debug),
   'parentlast=s' =>  \($parentlast),
   'hostenv=s' =>  \($hostenv),
@@ -89,6 +90,12 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($instance) && defined($instancename)) {
+  print "Filter -instance and -instancename are mutually exclusive \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -220,7 +227,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -384,7 +391,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_db_env    [-engine|d <delphix identifier> | -all ] 
-                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb ] 
+                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
                   [-save]
                   [-masking]
                   [-parentlast l|p] 
@@ -435,6 +442,9 @@ Environment name
 
 =item B<-dsource dsourcename>
 Dsource name
+
+=item B<-instancename instname>
+Instance name 
 
 =back
 

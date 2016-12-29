@@ -164,7 +164,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $contref = \@cont;
   } else {
-    $contref = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $db, $groups, $envname);
+       
+    $contref = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $db, $groups, $envname, undef, undef, undef, undef, $debug);
     if (! defined($contref)) {
       next;
     }

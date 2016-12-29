@@ -66,7 +66,7 @@ GetOptions(
 
 
 
-pod2usage(-verbose => 1, -man=>1, -input=>\*DATA) && exit if $help;
+pod2usage(-verbose => 2, -man=>1, -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;
 
 

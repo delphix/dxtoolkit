@@ -137,12 +137,13 @@ sub check_filer_options {
 	my $dbname = shift;
 	my $envname = shift;
 	my $dsource = shift;
+	my $instancename = shift;
 
 
 
 	if (defined($required)) {
 		# at least one filter is required
-		if ( ! ( defined($type) || defined($group) || defined($host) || defined($dbname) || defined($envname) || defined($dsource)  ) )  {
+		if ( ! ( defined($type) || defined($group) || defined($host) || defined($dbname) || defined($envname) || defined($dsource) || defined($instancename)  ) )  {
 			print "At least one filter option -host, -name, -type, -envname, -dsource or -group is required \n\n";
 			pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
 			exit (1);
@@ -237,6 +238,7 @@ sub get_dblist_from_filter {
 	my $dsource = shift;
 	my $primary = shift;
 	my $instance = shift;
+	my $instancename = shift;
 	my $debug = shift;
 
 	my @db_list;
@@ -259,7 +261,7 @@ sub get_dblist_from_filter {
 	if ( defined($host) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBForHost($host, $instance) );
-		logger($debug, "list of DB on host" ,1);
+		  logger($debug, "list of DB on host" ,1);
     	logger($debug, join(",", @hostfilter) ,1);
   		$ret = filter_array($ret, \@hostfilter);
   		logger($debug, "list of DB after host filter" ,1);
@@ -269,10 +271,20 @@ sub get_dblist_from_filter {
 	if ( defined($dsource) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBByParent($dsource) );
-		logger($debug, "list of DB on parent " ,1);
+		  logger($debug, "list of DB on parent " ,1);
     	logger($debug, join(",", @hostfilter) ,1);
   		$ret = filter_array($ret, \@hostfilter);
   		logger($debug, "list of DB after parent filter" ,1);
+  		logger($debug, join(",", @{$ret}) ,1);
+  	} 
+
+	if ( defined($instancename) ) {
+    	# get all DB from one host
+    	my @hostfilter =  ( $databases->getDBForInstanceName($instancename) );
+		  logger($debug, "list of DB on instancename " ,1);
+    	logger($debug, join(",", @hostfilter) ,1);
+  		$ret = filter_array($ret, \@hostfilter);
+  		logger($debug, "list of DB after instancename filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
   	} 
 
@@ -280,7 +292,7 @@ sub get_dblist_from_filter {
 	if ( defined($envname) ) {
     	# get all DB from one env
     	my @envfilter =  ( $databases->getDBForEnvironment($envname) );
-		logger($debug, "list of DB on env" ,1);
+		  logger($debug, "list of DB on env" ,1);
     	logger($debug, join(",", @envfilter) ,1);
   		$ret = filter_array($ret, \@envfilter);
   		logger($debug, "list of DB after env filter" ,1);
@@ -290,7 +302,7 @@ sub get_dblist_from_filter {
   	if ( defined($type) ) {
     	# get all DB of one type
     	my @typefilter =  ( $databases->getDBByType($type) );   
-		logger($debug, "list of DB on env" ,1);
+		  logger($debug, "list of DB on env" ,1);
     	logger($debug, join(",", @typefilter) ,1); 
     	$ret = filter_array($ret, \@typefilter);
   		logger($debug, "list of DB after type filter" ,1);
@@ -301,7 +313,7 @@ sub get_dblist_from_filter {
 	    # get all DB of one group
 	    my $group_ref = defined($groups->getGroupByName($group)) ? $groups->getGroupByName($group)->{reference} : '';
 	    my @groupfilter =  ( $databases->getDBForGroup($group_ref) );   
-		logger($debug, "list of DB in group" ,1);
+		  logger($debug, "list of DB in group" ,1);
     	logger($debug, join(",", @groupfilter) ,1);
 	    $ret = filter_array($ret, \@groupfilter);
   		logger($debug, "list of DB after group filter" ,1);

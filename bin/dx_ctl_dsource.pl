@@ -198,7 +198,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (($action eq 'attach') || ($action eq 'detach'))  {
     my $databases = new Databases($engine_obj,$debug);
-    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, $debug);
+       
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, $debug);
 
     if (!defined($source_ref)) {
       print "Source database not found.\n";
