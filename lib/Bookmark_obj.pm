@@ -148,6 +148,7 @@ sub getBookmarkTimestamp
             if (defined($container_obj)) {
                 my $container_timezone = $container_obj->getTimezone();
                 $bookmark_timestamp =~ s/\....Z//;
+                
 
                 my $dt = ParseDate($bookmark_timestamp);
                 my $tz = new Date::Manip::TZ;
@@ -378,7 +379,7 @@ sub getBookmarkList
             if (! defined($timeflow_name)) {
                 $timeflow_name = 'N/A';
             }
-
+            
             if ($timeflow_name =~ /^JETSTREAM/) {
                 next;
             } else {

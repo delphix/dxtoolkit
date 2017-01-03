@@ -1,5 +1,23 @@
 # Change Log
 
+## 2.3.0-rc3
+
+### Added
+
+* Masking job added to provision vdb script
+* Enhancement of dx_ctl_env by:
+  * adding environemnt users
+  * manually adding repository (Oracle Home)
+  * manually adding database with jdbc string
+* Masking job support on virtualization engine 
+  * dx_get_maskingjob
+  * dx_ctl_maskingjob
+* instance name added as filter
+
+### Changed
+* Various bug fixes 
+
+
 ## 2.3.0-rc1
 
 ### Added

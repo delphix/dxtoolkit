@@ -133,10 +133,13 @@ if (! (defined($export) || defined($mapping) ) ) {
   }
 }
 
+my $ret = 0;
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -190,6 +193,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (defined($export)) {
         $policy->exportPolicy($polref, $outdir);
       }
+    } else {
+      print "Policy $policyname not found\n";
+      $ret = $ret + 1;
     }
 
   } else {
@@ -252,6 +258,7 @@ if ((! defined($export) ) && (! defined($mapping)) )  {
   Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
+exit $ret;
 
 __DATA__
 
