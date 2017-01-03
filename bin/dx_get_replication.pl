@@ -111,10 +111,13 @@ if (defined($last)) {
   );
 }
 
+my $ret = 0;
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
-    #print "Can't connect to Dephix Engine $engine\n\n";
+    print "Can't connect to Dephix Engine $engine\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -168,7 +171,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 Toolkit_helpers::print_output($output, $format, $nohead);
 
-
+exit $ret;
 
 __DATA__
 

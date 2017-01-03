@@ -169,7 +169,12 @@ sub getCommand {
 
     my $hooks = $self->{_hooks_templates};
     my $ret = $hooks->{$reference}->{operation}->{command};
-    $ret =~ s/\n/<cr>/g;
+    my $type = $hooks->{$reference}->{operation}->{type};
+    if ($type eq 'RunPowerShellOnSourceOperation') {
+      $ret =~ s/\r\n/<cr>/g;
+    } else {
+      $ret =~ s/\n/<cr>/g;
+    }
     return $ret;
 }
 

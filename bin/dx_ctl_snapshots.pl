@@ -14,7 +14,7 @@
 # Copyright (c) 2014,2016 by Delphix. All rights reserved.
 #
 # Program Name : dx_get_snapshots.pl
-# Description  : Get database and host information
+# Description  : Get snapshot information
 # Author       : Edward de los Santos
 # Created      : 30 Jan 2014 (v1.0.0)
 #
@@ -238,7 +238,7 @@ __DATA__
 
 =head1 DESCRIPTION
 
-Get the information about databases capacity.
+Update retention policy on snapshots or delete snapshots
 
 =head1 ARGUMENTS
 

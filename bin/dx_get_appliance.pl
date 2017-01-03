@@ -85,7 +85,7 @@ $output->addHeader(
   {'Total Objects', 8}
 );
 
-
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
@@ -106,6 +106,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       "" 
     );
     next;
+    $ret = $ret + 1;
   };
 
   # load objects for current engine
@@ -136,6 +137,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 Toolkit_helpers::print_output($output, $format, $nohead);
 
+exit $ret;
 
 
 __DATA__

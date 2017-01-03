@@ -135,10 +135,13 @@ if (defined($profile) && ($profile ne '')) {
   open($FDPROF,'>',$profile) or die("Can't open file $profile $!" );
 }
 
+my $ret = 0;
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -149,7 +152,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   my @user_list;
 
   if (defined($username)) {
-    push (@user_list, $users_obj->getUserByName($username)->getReference());
+    my $userobj = $users_obj->getUserByName($username);
+    if (!defined($userobj)) {
+      $ret = $ret + 1;
+      next;
+    }
+    push (@user_list, $userobj->getReference());
   } else {
     @user_list = $users_obj->getUsers();
   }
@@ -239,7 +247,7 @@ if (defined($profile)) {
   close($FDPROF);
 }
 
-
+exit $ret;
 
 
 __DATA__

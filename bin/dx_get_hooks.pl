@@ -105,6 +105,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -148,7 +149,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $hook = $hooks->getHookByName($name);
       if (!defined($hook)) {
         print "Can't find operation template - $name\n";
-        exit 1;
+        $ret = $ret + 1;
       }
       push (@hooks_list, $hook);
     } else {
@@ -163,6 +164,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       } elsif (defined($exportHookScript)) {
         $hooks->exportHookScript($hookitem,$exportHookScript);
       } else {
+        
         $output->addLine(
           $hooks->getName($hookitem),
           $hooks->getType($hookitem),
@@ -180,7 +182,7 @@ if (! (defined($exportDBHooks) || defined($exportHook) || defined($exportHookScr
   Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
-
+exit $ret;
 
 __DATA__
 

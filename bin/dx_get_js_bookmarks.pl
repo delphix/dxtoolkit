@@ -121,6 +121,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -165,7 +166,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       push(@bookmark_array, $book_ref);
     } else {
       print "Can't find bookmark name $bookmark_name \n";
-      exit 1;
+      $ret = $ret + 1;
     }
   } else {
     @bookmark_array = @{$bookmarks->getJSBookmarkList($container_only)};
@@ -236,7 +237,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 Toolkit_helpers::print_output($output, $format, $nohead);
 
-
+exit $ret;
 
 
 __DATA__

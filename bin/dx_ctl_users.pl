@@ -69,23 +69,30 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
+if (!defined($file)) {
+  print "Parameter -file is mandatory\n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
 my $FD;
 
-
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
   if (defined($file)) {
-    process_user($engine_obj, $file);
+    $ret = $ret + process_user($engine_obj, $file);
   }
 
   if (defined($profile)) {
@@ -95,6 +102,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
+exit $ret;
+
 
 ######################################################
 
@@ -103,6 +112,8 @@ sub process_user {
   my $file = shift;
 
   my @csv;
+  
+  my $ret=0;
 
   if (defined($file)) {
     open($FD,$file) or die("Can't open file $file $!" );
@@ -127,6 +138,7 @@ sub process_user {
       ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS) = $csv_obj->fields();
     } else {
       print "Can't parse line : $line \n";
+      $ret = $ret + 1;
       next;
     }
 
@@ -146,6 +158,7 @@ sub process_user {
 
         if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
           print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
+          $ret = $ret + 1;
           next;
         }
 
@@ -162,6 +175,7 @@ sub process_user {
 
         if ($newuser->createUser($username)) {
           print "User $username not created. Run with -debug flag. \n";
+          $ret = $ret + 1;
         } else {
           print "User $username created. ";
           $newuser->setAdmin(uc ($is_admin));
@@ -180,6 +194,7 @@ sub process_user {
 
         if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
           print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
+          $ret = $ret + 1;
           next;
         }
 
@@ -203,12 +218,14 @@ sub process_user {
 
         if ($user->updateUser() ) {
           print "Problem with update. \n";
+          $ret = $ret + 1;
         } else {
           print "User $username updated. ";
         }
         if ($password ne '') {
           if ($user->updatePassword($password)) {
             print "Problem with password update. \n";
+            $ret = $ret + 1;
           } else {
             print "Password for user $username updated. ";
           }
@@ -216,12 +233,14 @@ sub process_user {
         print "\n";
       } else {
         print "User $username doens't exist. Can't update\n";
+        $ret = $ret + 1;
       }
     }
     if (lc $command eq 'd') {
       if (defined($user) ) {    
         if ($user->deleteUser() ) {
           print "Problem with delete. \n";
+          $ret = $ret + 1;
         } else {
           print "User $username deleted. \n";
         }
@@ -229,11 +248,13 @@ sub process_user {
       }
       else {
         print "User $username doens't exist. Can't delete\n";
+        $ret = $ret + 1;
       }
     }
 
   }
 
+  return $ret;
 }
 
 sub process_profile {
