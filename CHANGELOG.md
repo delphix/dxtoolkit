@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.3.0
+
+No changes between this release. Check list below
+
 ## 2.3.0-rc3
 
 ### Added
