@@ -442,7 +442,50 @@ sub createSourceConfig {
     return $ret;
 }
 
+# Procedure deleteSourceConfig
+# parameters: 
+# - name 
+# - repository
+# Drop an SourceConfig with specific name ( database to be added as dSource )
+# Return 0 if OK
 
+sub deleteSourceConfig {
+    my $self = shift;
+    my $name = shift;
+    my $repository = shift;
+    my $ret;
+    
+    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);    
+    
+    my $obj = $self->getSourceConfigByNameForRepo($name, $repository);
+    
+    my $ref = $obj->{reference};
+    
+    if (!defined($ref)) {
+      print "Database $name not found\n";
+      return 1;
+    }
+
+    my $operation = 'resources/json/delphix/sourceconfig/' . $ref . '/delete';
+    
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with deleting database " . $result->{error}->{details} . "\n";
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+    
+    return $ret;
+
+}
 
 
 1;

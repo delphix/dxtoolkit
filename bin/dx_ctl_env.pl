@@ -51,7 +51,6 @@ GetOptions(
   'username=s' => \(my $username),
   'authtype=s' => \(my $authtype),
   'password=s' => \(my $password),
-  'listener=s' => \(my $listener),
   'repotype=s' => \(my $repotype),
   'repopath=s' => \(my $repopath),
   'dbname=s'   => \(my $dbname),
@@ -96,7 +95,9 @@ if (!defined($action)) {
 if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq 'disable') ||
     (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') || 
     (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') || 
-    (lc $action eq 'addlistener') || (lc $action eq 'deletelistener'))) 
+    (lc $action eq 'addlistener') || (lc $action eq 'deletelistener') ||
+    (lc $action eq 'adduser') || (lc $action eq 'deleteuser')
+    )) 
     {
       print "Unknown action $action\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -306,6 +307,26 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
     
+    if ( lc $action eq 'deletedatabase' ) {
+      print "Deleting database $dbname from $repopath on environment $env_name \n";
+      my $repository_obj = new Repository_obj($engine_obj, $debug);
+      my $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem); 
+      if (defined($repo->{reference})) {
+        my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
+        if ($sourceconfig_obj->deleteSourceConfig($dbname, $repo->{reference})) {
+          print "Can't delete database $dbname \n";
+          $ret = $ret + 1;
+        } else {
+          print "Database $dbname deleted from $repopath\n";
+        }
+      } else {
+        print "Repository $repopath not found\n";
+        $ret = $ret + 1;
+      }
+      
+         
+    }
+    
     if ( lc $action eq 'addlistener' ) {
       print "Adding listener to environment $env_name \n";
       if ($environments->createListener($envitem, $listenername, $endpoint)) {
@@ -342,7 +363,18 @@ __DATA__
 
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] 
             [ -name env_name | -reference reference ]  
-            -acton <enable|disable|refresh> 
+            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
+            [-dbname dbname]
+            [-instancename instancename]
+            [-uniquename db_unique_name]
+            [-jdbc jdbc_connection_string]
+            [-listenername listenername]
+            [-endpoint ip:port] 
+            [-username name]
+            [-authtype password|systemkey]
+            [-password password]
+            [-repotype oracle]
+            [-repopath ORACLE_HOME]
             [-help|? ] 
             [-debug ]
 
@@ -368,7 +400,7 @@ Display databases on all Delphix appliance
 
 =over 1
 
-=item B<-action> enable|disable|refresh
+=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
 Run an action specified for environments selected by filter or all environments deployed on Delphix Engine
 
 =back
@@ -380,14 +412,45 @@ Run an action specified for environments selected by filter or all environments 
 =item B<-name>
 Environment Name
 
-=item B<-reference>
-Database Name
-
 =back
 
 =head1 OPTIONS
 
 =over 2
+
+=item B<-dbname dbname>
+Name of database to add (use with adddatabase)
+
+=item B<-instancename instancename>
+Name of database instance to add (use with adddatabase)
+
+=item B<-uniquename db_unique_name>
+Unique name of database to add (use with adddatabase)
+
+=item B<-jdbc IP:PORT:SID | IP:PORT/SERVICE>
+JDBC connection string (use with adddatabase)
+
+=item B<-listenername listenername>
+Listener name (use with addlistener)
+
+=item B<-endpoint ip:port>
+Listener endpoint (use with addlistener)
+
+=item B<-username username>
+Username to add (use with adduser)
+
+=item B<-authtype password|systemkey>
+Authentication type for user (use with adduser)
+
+=item B<-password password>
+Password for user (use with adduser)
+
+=item B<-repotype oracle>
+Repository type to add (only Oracle support for now - use with addrepo)
+
+=item B<-repopath ORACLE_HOME>
+Oracle Home to add (use with addrepo)
+
 
 =item B<-help>          
 Print this screen
@@ -419,6 +482,54 @@ Refreshing environment
  Starting job JOB-7544 for environment LINUXTARGET.
  0 - 40 - 100
  Job JOB-7544 finished with state: COMPLETED
+ 
+Adding an Oracle Home not discovered automatically 
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action addrepo -repotype oracle -repopath /u01/app/oracle/121_64
+ Adding repository /u01/app/oracle/121_64 to environment LINUXTARGET
+ Repository /u01/app/oracle/121_64 created
+ 
+Deleteing an Oracle Home 
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action deleterepo  -repopath /u01/app/oracle/121_64
+ Deleting repository /u01/app/oracle/121_64 from environment LINUXTARGET
+ Repository /u01/app/oracle/121_64 deleted
+ 
+Adding an additional user to environment
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action adduser -username www-data -authtype password -password delphix
+ Adding user to environment LINUXTARGET
+ User www-data created
+ 
+Deleting an additional user from environment 
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action deleteuser -username www-data
+ Deleting user from environment LINUXTARGET
+ User www-data deleted
+ 
+Adding an additional listener called ADDLIS
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action addlistener -listenername ADDLIS -endpoint 127.0.0.1:1522
+ Adding listener to environment LINUXTARGET
+ Listener ADDLIS created 
+ 
+Deleting an additional listener called ADDLIS
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action deletelistener -listenername ADDLIS
+ Adding listener to environment LINUXTARGET
+ Listener ADDLIS deleted
+ 
+Adding an Oracle database rmantest into environment
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action adddatabase -dbname rmantest -instancename rmantest -uniquename rmantest -jdbc 172.16.111.222:1521:rmantest -repopath "/u01/app/oracle/12.1.0.2/rachome1"
+ Adding database rmantest into /u01/app/oracle/12.1.0.2/rachome1 on environment LINUXTARGET
+ Database rmantest added into /u01/app/oracle/12.1.0.2/rachome1 
+
+Deleting an Oracle database rmantest from environment
+
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action deletedatabase -dbname rmantest -repopath "/u01/app/oracle/12.1.0.2/rachome1"
+ Deleting database rmantest from /u01/app/oracle/12.1.0.2/rachome1 on environment LINUXTARGET
+ Database rmantest deleted from /u01/app/oracle/12.1.0.2/rachome1
 
 =cut
 
