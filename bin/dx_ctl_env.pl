@@ -53,6 +53,7 @@ GetOptions(
   'password=s' => \(my $password),
   'repotype=s' => \(my $repotype),
   'repopath=s' => \(my $repopath),
+  'vfilepath=s' => \(my $vfilepath),
   'dbname=s'   => \(my $dbname),
   'uniquename=s' => \(my $uniquename),
   'instancename=s' => \(my $instancename),
@@ -119,26 +120,45 @@ if ((lc $action eq 'addrepo') || (lc $action eq 'deleterepo')) {
 }
 
 if (lc $action eq 'adddatabase') {
-  if (!defined($repopath)) {
-    print "Repository path or instance has to be set\n";
-    exit 1;
-  }
-  if (!defined($uniquename)) {
-    print "uniquename has to be set\n";
-    exit 1;
-  }
-  if (!defined($instancename)) {
-    print "instancename has to be set\n";
-    exit 1;
-  }
-  if (!defined($jdbc)) {
-    print "jdbc has to be set\n";
+  if (defined($repotype)) {
+    if (lc $repotype eq 'oracle') {
+      if (!defined($repopath)) {
+        print "Repository path or instance has to be set\n";
+        exit 1;
+      }
+      if (!defined($uniquename)) {
+        print "uniquename has to be set\n";
+        exit 1;
+      }
+      if (!defined($instancename)) {
+        print "instancename has to be set\n";
+        exit 1;
+      }
+      if (!defined($jdbc)) {
+        print "jdbc has to be set\n";
+        exit 1;
+      }
+    } elsif (lc $repotype eq 'vfiles') {
+      if (!defined($vfilepath)) {
+        print "vfilepath has to be set\n";
+        exit 1;
+      }
+    } else {
+      print "Repotype parameter $repotype unknown. Use oracle or vfiles\n";
+      exit 1;
+    }
+  } else {
+    print "Repotype parameter is required with adddatabase\n";
     exit 1;
   }
 }
 
 if ((lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase')) {
-  if (!defined($repopath)) {
+  if (!defined($repotype)) {
+    print "Repotype parameter is required with deletedatabase\n";
+    exit 1;
+  }
+  if ((!defined($repopath)) && (lc $repotype ne 'vfiles'))  {
     print "Repository path or instance has to be set\n";
     exit 1;
   }
@@ -289,18 +309,38 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     
     if ( lc $action eq 'adddatabase' ) {
-      print "Adding database $dbname into $repopath on environment $env_name \n";
+      
       my $repository_obj = new Repository_obj($engine_obj, $debug);
-      my $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem);
+      
+      my $repo;
+      if (lc $repotype eq 'vfiles') {
+        print "Adding vfiles $vfilepath as $dbname into environment $env_name \n";
+        $repo = $repository_obj->getRepositoryByNameForEnv('Unstructured Files', $envitem);
+      } else {
+        print "Adding database $dbname into $repopath on environment $env_name \n";
+        $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem);
+      }
       
       if (defined($repo->{reference})) {
         my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
-        if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
-          print "Can't add database $dbname \n";
-          $ret = $ret + 1;
-        } else {
-          print "Database $dbname added into $repopath\n";
+        
+        if (lc $repotype eq 'oracle') {
+          if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
+            print "Can't add database $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "Database $dbname added into $repopath\n";
+          }          
+        } elsif (lc $repotype eq 'vfiles') {
+          if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, undef, undef, undef, $vfilepath)) {
+            print "Can't add directory $vfilepath as $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "vFiles source $vfilepath added into environment $env_name\n";
+          } 
         }
+        
+
       } else {
         print "Can't find repository path $repopath \n";
         $ret = $ret + 1;
@@ -308,9 +348,17 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     
     if ( lc $action eq 'deletedatabase' ) {
-      print "Deleting database $dbname from $repopath on environment $env_name \n";
-      my $repository_obj = new Repository_obj($engine_obj, $debug);
-      my $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem); 
+      my $repository_obj = new Repository_obj($engine_obj, $debug); 
+      my $repo;
+      if (lc $repotype eq 'vfiles') {
+        print "Deleting vfiles $dbname from environment $env_name \n";
+        $repo = $repository_obj->getRepositoryByNameForEnv('Unstructured Files', $envitem);
+        $repopath = "Unstructured Files";
+      } else {
+        print "Deleting database $dbname from $repopath on environment $env_name \n";
+        $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem);
+      }
+
       if (defined($repo->{reference})) {
         my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
         if ($sourceconfig_obj->deleteSourceConfig($dbname, $repo->{reference})) {
@@ -373,7 +421,7 @@ __DATA__
             [-username name]
             [-authtype password|systemkey]
             [-password password]
-            [-repotype oracle]
+            [-repotype oracle|vfiles]
             [-repopath ORACLE_HOME]
             [-help|? ] 
             [-debug ]
@@ -445,8 +493,8 @@ Authentication type for user (use with adduser)
 =item B<-password password>
 Password for user (use with adduser)
 
-=item B<-repotype oracle>
-Repository type to add (only Oracle support for now - use with addrepo)
+=item B<-repotype oracle|vfiles>
+Repository type to add (only Oracle and vFiles support for now - use with addrepo or adddatabase)
 
 =item B<-repopath ORACLE_HOME>
 Oracle Home to add (use with addrepo)
@@ -530,6 +578,18 @@ Deleting an Oracle database rmantest from environment
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action deletedatabase -dbname rmantest -repopath "/u01/app/oracle/12.1.0.2/rachome1"
  Deleting database rmantest from /u01/app/oracle/12.1.0.2/rachome1 on environment LINUXTARGET
  Database rmantest deleted from /u01/app/oracle/12.1.0.2/rachome1
+ 
+Adding a vfiles into environment 
+
+ dx_ctl_env -d Landshark51 -name LINUXSOURCE -action adddatabase -dbname swingbench -repotype vfiles -vfilepath "/home/delphix/swingbench"
+ Adding vfiles /home/delphix/swingbench as swingbench into environment LINUXSOURCE
+ vFiles source /home/delphix/swingbench added into environment LINUXSOURCE
+
+Delete a vfiles from environment
+
+ dx_ctl_env -d Landshark51 -name LINUXSOURCE -action deletedatabase -dbname swingbench -repotype vfiles
+ Deleting vfiles swingbench from environment LINUXSOURCE
+ Database swingbench deleted from Unstructured Files
 
 =cut
 

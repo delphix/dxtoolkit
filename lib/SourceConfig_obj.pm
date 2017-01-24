@@ -388,6 +388,7 @@ sub createSourceConfig {
     my $uniquename = shift;
     my $instancename = shift;
     my $jdbc = shift;
+    my $path = shift;
     my $ret;
     
     logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);  
@@ -416,6 +417,17 @@ sub createSourceConfig {
             "instanceNumber" => 1
         }
       );
+    } elsif ($type eq 'vfiles') {
+      
+      %sourceconfig_hash = (
+        "type" => "AppDataDirectSourceConfig",
+        "repository" => $reference,
+        "name" => $dbname,
+        "path" => $path        
+      );  
+      
+    } else {
+      return 1;
     }
 
 

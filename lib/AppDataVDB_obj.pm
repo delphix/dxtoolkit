@@ -393,25 +393,44 @@ sub addSource {
     
     my @followarray;
     my @excludes;
-  
-    my %dsource_params = (
-        "type" => "AppDataLinkParameters",
-        "container" => {
-            "type" => "AppDataContainer",
-            "name" => $dsource_name,
-            "group" => $self->{"NEWDB"}->{"container"}->{"group"},
-        },
-        "source" => {
-            "type" => "AppDataLinkedDirectSource",
-            "config" => $config->{reference},
-            "excludes" => \@excludes,
-            "followSymlinks" => \@followarray
-        },
-        "environmentUser" => $source_os_ref
-    );
+    my %dsource_params;
     
-    if ($self->{_dlpxObject}->getApi() gt "1.6") {
-        $dsource_params{"source"}{"parameters"} = {};
+    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+  
+      my %dsource_params = (
+          "type" => "AppDataLinkParameters",
+          "container" => {
+              "type" => "AppDataContainer",
+              "name" => $dsource_name,
+              "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          },
+          "source" => {
+              "type" => "AppDataLinkedDirectSource",
+              "config" => $config->{reference},
+              "excludes" => \@excludes,
+              "followSymlinks" => \@followarray
+          },
+          "environmentUser" => $source_os_ref
+      );
+      
+      if ($self->{_dlpxObject}->getApi() gt "1.6") {
+          $dsource_params{"source"}{"parameters"} = {};
+      }
+    } else {
+            
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "AppDataDirectLinkData",
+            "config" => $config->{reference},
+            "environmentUser" => $source_os_ref,
+            "excludes" => \@excludes,
+            "followSymlinks" => \@followarray,
+            "parameters" => {}
+        }
+      );
     }
 
     my $operation = 'resources/json/delphix/database/link';

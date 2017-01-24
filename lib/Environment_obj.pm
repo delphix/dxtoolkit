@@ -71,7 +71,7 @@ sub getAllEnvironments {
     logger($self->{_debug}, "Entering Environment_obj::getAllEnvironments",1);
 
 
-    my @mainenv = grep { $self->{_environments}->{$_}->{type} ne 'OracleClusterNode' } keys %{$self->{_environments}};
+    my @mainenv = grep { ($self->{_environments}->{$_}->{type} ne 'OracleClusterNode') && ($self->{_environments}->{$_}->{type} ne 'WindowsClusterNode') } keys %{$self->{_environments}};
 
     return sort ( @mainenv );
 }
@@ -444,7 +444,9 @@ sub getType {
       $ret = 'unix';
     } elsif ($ret eq 'WindowsHostEnvironment') {
       $ret = 'windows';
-    } elsif ($ret eq 'OracleCluster') {
+    } elsif ($ret eq 'WindowsCluster') {
+      $ret = 'windows-cluster';
+    }elsif ($ret eq 'OracleCluster') {
       $ret = 'rac';
     }
 
@@ -508,7 +510,8 @@ sub getClusterNode {
 
     my $environments = $self->{_environments};
     my $ret;
-    if ($environments->{$reference}->{'type'} eq 'OracleCluster') {
+        
+    if (($environments->{$reference}->{'type'} eq 'OracleCluster') || ($environments->{$reference}->{'type'} eq 'WindowsCluster')) {
       my @nodes = grep { defined($environments->{$_}->{cluster}) && ( $environments->{$_}->{cluster} eq $reference ) } sort (keys %{$environments} );
       $ret = $nodes[0];
     } else {
@@ -738,6 +741,17 @@ sub getEnvironmentList
         
     }
     
+    $operation = "resources/json/delphix/environment/windows/clusternode";
+    ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        my $environments = $self->{_environments};
+        for my $envitem (@res) {
+            $environments->{$envitem->{reference}} = $envitem;
+        }
+        
+    }
 
 
 
