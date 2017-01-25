@@ -87,6 +87,7 @@ GetOptions(
   'redoGroup=s' => \(my $redoGroup),
   'redoSize=s' => \(my $redoSize),
   'archivelog=s' => \($archivelog),
+  'autostart=s' => \(my $autostart),
   'truncateLogOnCheckpoint' => \(my $truncateLogOnCheckpoint),
   'recoveryModel=s' => \(my $recoveryModel),
   'snapshotpolicy=s' => \(my $snapshotpolicy),
@@ -409,6 +410,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   }
   
+
   if (defined($maskingjob)) {
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
     my $source_ref = $source->getReference();
@@ -416,6 +418,10 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db->setMaskingJob($job);
   }
 
+  # set autostart
+  $db->setAutostart($autostart);
+
+  
   # Database specific code
   if ( $type eq 'oracle' ) {  
     if (length($dbname) > 8) {
@@ -596,6 +602,8 @@ __DATA__
                   [-listeners listener_name]
                   [-hooks path_to_hooks]
                   [-envUser username]
+                  [-maskingjob jobname]
+                  [-autostart yes]
                   [-help] [-debug]
 
 
@@ -710,6 +718,9 @@ Path to postscript on Windows target
 =item B<-snapshotpolicy policy_name>
 Snapshot policy name for VDB
 
+=item B<-maskingjob jobname>
+Name of masking job to use during VDB provisioning
+
 =item B<-retentionpolicy retention_policy>
 Retention policy name for VDB
 
@@ -745,6 +756,9 @@ Import hooks exported using dx_get_hooks
 
 =item B<-envUser username>
 Use an environment user "username" for provisioning database
+
+=item B<-autostart yes>
+Set VDB autostart flag to yes. Default is no
 
 =back
 

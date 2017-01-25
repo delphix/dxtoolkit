@@ -589,10 +589,6 @@ sub createVDB {
         return undef;
     }
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
-      $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
-    }
-    
 
 
     my $operation = 'resources/json/delphix/database/provision';
