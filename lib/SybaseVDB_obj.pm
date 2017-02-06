@@ -618,7 +618,7 @@ sub snapshot
 
     my %snapshot_type;
 
-    if (defined($files)) {
+    if (scalar(@{$files}) > 0) {
       %snapshot_type = (
           "type" => "ASESpecificBackupSyncParameters",
           "backupFiles" => $files
