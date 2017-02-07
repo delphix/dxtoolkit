@@ -203,10 +203,11 @@ sub getSourceConfigByName {
     logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigByName",1);  
 
     for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
-
-        if (  $self->getName($sourceitem) eq $name  ) {
+          
+        if ( defined($self->getName($sourceitem))  && ( $self->getName($sourceitem) eq $name  )) {
             $ret = $self->getSourceConfig($sourceitem); 
         }
+        
     }
 
     return $ret;

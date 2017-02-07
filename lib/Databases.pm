@@ -35,7 +35,7 @@ use SourceConfig_obj;
 use Repository_obj;
 use Environment_obj;
 use Host_obj;
-use VDB_obj;
+require VDB_obj;
 use OracleVDB_obj;
 use MSSQLVDB_obj;
 use SybaseVDB_obj;
@@ -169,6 +169,7 @@ sub LoadDBList
 
         #added to keep object
         $db->{_sourceconfig} = $self->{_sourceconfigs};
+        $db->{_repository} = $self->{_repositories};
         
         # load repostory information ( home / env )
         my $repository = $self->{_sourceconfigs}->getRepository($configname); # Source Config name is inside source object
@@ -530,6 +531,8 @@ sub getPrimaryDB
     
     return  ( @dbs );
 }
+
+
 
 # 
 # End of package
