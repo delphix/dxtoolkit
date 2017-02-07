@@ -42,7 +42,7 @@ use Host_obj;
 use Source_obj;
 use Snapshot_obj;
 use Action_obj;
-use Namespace_obj;
+require Namespace_obj;
 use Bookmark_obj;
 use SourceConfig_obj;
 use Environment_obj;
@@ -378,7 +378,6 @@ sub getParentContainer
     logger($self->{_debug}, "Entering VDB_obj::getParentContainer",1);
     return defined($self->{"container"}->{provisionContainer}) ? $self->{"container"}->{provisionContainer} : '';
 }
-
 
 
 # Procedure getTimezone
