@@ -49,12 +49,6 @@ sub new {
     
     bless($self,$classname);
 
-    my $groups = new Group_obj($self->{_dlpxObject},$self->{_debug});
-    $self->{_groups} = $groups;
-
-    my $databases = new Databases($self->{_dlpxObject},$self->{_debug});
-    $self->{_databases} = $databases;
-
     $self->loadReplicationList($debug);
         
     if ($self->{_dlpxObject}->getApi() ge '1.5') {
@@ -65,7 +59,47 @@ sub new {
     return $self;
 }
 
+# Procedure setGroups
+# parameters: 
+# - groups
+# Set object or load a groups from DE
 
+sub setGroups {
+    my $self = shift;
+    my $groups = shift;
+    
+    logger($self->{_debug}, "Entering Replication_obj::setGroups",1); 
+    
+    if (!defined($self->{_groups})) {
+      if (defined($groups)) {
+        $self->{_groups} = $groups;
+      } else {
+        my $local_groups = new Group_obj($self->{_dlpxObject},$self->{_debug});
+        $self->{_groups} = $local_groups;
+      }
+    }
+}
+
+# Procedure setDatabases
+# parameters: 
+# - databases
+# Set object or load a databases from DE
+
+sub setDatabases {
+    my $self = shift;
+    my $databases = shift;
+    
+    logger($self->{_debug}, "Entering Replication_obj::setDatabases",1); 
+    
+    if (!defined($self->{_databases})) {
+      if (defined($databases)) {
+        $self->{_databases} = $databases;
+      } else {
+        my $local_databases = new Databases($self->{_dlpxObject},$self->{_debug});
+        $self->{_databases} = $local_databases;
+      }
+    }
+}
 
 # Procedure getReplication
 # parameters: 
@@ -102,6 +136,25 @@ sub getReplicationByName {
     return $ret;
 }
 
+# Procedure getReplicationByTag
+# parameters: 
+# Return replication refernce for tag
+
+sub getReplicationByTag {
+    my $self = shift;
+    my $tag = shift;
+    my $ret;
+    logger($self->{_debug}, "Entering Replication_obj::getReplicationByTag",1);    
+    my @list = grep { $self->getTag($_) eq $tag } keys %{$self->{_replication}};
+    if (scalar(@list) < 1) {
+      print "Can't find replication specification using tag - $tag\n";
+    } elsif (scalar(@list) > 1) {
+      print "Too many replication specification using same tag - $tag\n";
+    } else {
+      $ret = $list[-1];
+    }
+    return $ret;
+}
 
 
 # Procedure getReplicationList
@@ -130,6 +183,21 @@ sub getName {
 
     my $replication = $self->{_replication};
     return $replication->{$reference}->{name};
+}
+
+# Procedure getTag
+# parameters: 
+# - reference
+# Return replication tag for specific replication reference
+
+sub getTag {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Replication_obj::getTag",1);   
+
+    my $replication = $self->{_replication};
+    return $replication->{$reference}->{tag};
 }
 
 # Procedure getLastPoint
@@ -254,6 +322,11 @@ sub getObjectsName {
     
     my $objects = $self->getObjects($reference);
     
+    
+    $self->setGroups();
+    $self->setDatabases();
+    
+    
     if (defined($objects)) {
 
       for my $objitem  ( sort ( @{$objects} ) ) {
@@ -305,6 +378,10 @@ sub getLastJob {
     logger($self->{_debug}, "Entering Replication_obj::getLastJob",1);   
 
     my $jobs;
+    
+    $self->setGroups();
+    $self->setDatabases();
+    
     my $groups = $self->{_groups};
 
     if ( ! defined($self->{_jobs})) {
