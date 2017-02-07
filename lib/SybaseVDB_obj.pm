@@ -401,23 +401,47 @@ sub attach_dsource {
         print "Source OS user $stage_osuser not found\n";
         return undef;
     }
+    
+    my %dsource_params;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+      %dsource_params = (
+          "type" => "ASEAttachSourceParameters",
+          "sourceHostUser" => $source_os_ref,
+          "stagingHostUser" => $stage_osuser_ref,
+          "source" => {
+              "type" => "ASELinkedSource",
+              "config" => $config->{reference},
+              "loadBackupPath" => $backup_dir
+          },
+          "dbCredentials" => {
+              "type" => "PasswordCredential",
+              "password" => $password
+          },
+          "dbUser" => $dbuser,
+          "stagingRepository"=> $stagingrepo
+      );
+    } else {
+      %dsource_params = (
+          "type" => "AttachSourceParameters",
+          "attachData" => {
+                "type" => "ASEAttachData",
+                "config" => $config->{reference},
+                "dbCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+                },
+                "dbUser" => $dbuser,
+                "environmentUser" => $source_os_ref,
+                "loadBackupPath" => $backup_dir,
+                "stagingRepository"=> $stagingrepo,
+                "sourceHostUser" => $source_os_ref,
+                "stagingHostUser" => $stage_osuser_ref
+          }
+      );    
+    }
 
-    my %dsource_params = (
-        "type" => "ASEAttachSourceParameters",
-        "sourceHostUser" => $source_os_ref,
-        "stagingHostUser" => $stage_osuser_ref,
-        "source" => {
-            "type" => "ASELinkedSource",
-            "config" => $config->{reference},
-            "loadBackupPath" => $backup_dir
-        },
-        "dbCredentials" => {
-            "type" => "PasswordCredential",
-            "password" => $password
-        },
-        "dbUser" => $dbuser,
-        "stagingRepository"=> $stagingrepo,
-    );
+
 
 
 

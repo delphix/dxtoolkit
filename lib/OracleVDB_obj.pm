@@ -977,7 +977,6 @@ sub attach_dsource
 
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
-
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
 
     if (!defined($source_os_ref)) {
