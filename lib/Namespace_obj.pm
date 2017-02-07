@@ -29,6 +29,7 @@ use strict;
 use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
+require Replication_obj;
 
 # constructor
 # parameters 
@@ -124,6 +125,22 @@ sub getName {
 }
 
 
+# Procedure getTag
+# parameters: 
+# - reference
+# Return namespace tag for specific namespace reference
+
+sub getTag {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Namespace_obj::getTag",1);   
+
+    my $namespaces = $self->{_namespace};
+    return $namespaces->{$reference}->{tag};
+}
+
+
 
 
 # Procedure loadNamespaceList
@@ -148,5 +165,95 @@ sub loadNamespaceList
         print "No data returned for $operation. Try to increase timeout \n";
     }
 }
+
+# Procedure translateObject
+# parameters: 
+# - namespace - local namespace ref
+# - object - object id from replication source
+# Return a object name from local namespace for a object from replication source
+# undef if error
+
+sub translateObject 
+{
+    my $self = shift;
+    my $namespace = shift;
+    my $object = shift;
+    logger($self->{_debug}, "Entering Namespace_obj::translateObject",1);  
+    
+    my $localobj;
+    
+    if (!defined($self->{_namespace}->{$namespace})) {
+      print "Namespace not found\n";
+      return undef;
+    } 
+
+    my $operation = "resources/json/delphix/namespace/" . $namespace . "/translate?object=" . $object;
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+      $localobj = $result->{result};
+    } else {
+      if (!($result->{error}->{details} =~ m/(.*)could not be translated to namespace(.*)/)) {
+        print "Error during object translation \n";
+      }
+    }
+
+    return $localobj;
+
+}
+
+
+# Procedure generate_replicate_mapping
+# parameters: 
+# - engine_parent - parent Engine object
+# - timeflow_parent - parent Timeflow object 
+# Return a hash with current and parent engine object mapping
+
+sub generate_replicate_mapping {
+    my $self = shift;
+    my $engine_parent = shift;
+    my $timeflow_parent = shift;
+    logger($self->{_debug}, "Entering Namespace_obj::translateObject",1);  
+
+  
+    my @namespace_list = $self->getNamespaceList();
+    my $replication_parent = new Replication_obj ($engine_parent, $self->{_debug});
+  
+    my %object_hash;
+  
+    for my $nsitem (@namespace_list) {
+      my $tag = $self->getTag($nsitem);
+      my $replica_source_ref = $replication_parent->getReplicationByTag($tag);
+      my $localobj;  
+      my $localtf;  
+    
+      logger($self->{_debug}, "Namespace id: " . $nsitem, 2);
+    
+      for my $obj (@{$replication_parent->getObjects($replica_source_ref)}) {
+      
+      logger($self->{_debug}, "obj " . $obj, 2);
+      
+      for my $remotetf (@{$timeflow_parent->getTimeflowsForContainer($obj)}) {
+        
+        $localobj = $self->translateObject($nsitem,$remotetf);
+
+        if (!defined($localobj)) {
+          $localobj = 'no replica for ' . $obj . ' in ' . $nsitem;
+        }
+      
+        logger($self->{_debug}, "remotetf - " . Dumper $remotetf, 2);
+        logger($self->{_debug}, "localtf  - " . Dumper $localobj, 2);
+
+        $object_hash{$localobj} = $remotetf;
+        
+      }
+    }
+  }
+  
+  logger($self->{_debug}, \%object_hash, 2);
+  
+  return \%object_hash;
+  
+}
+
 
 1;
