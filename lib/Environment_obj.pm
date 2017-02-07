@@ -1139,6 +1139,23 @@ sub createEnv
 }
 
 
+# Procedure delete
+# parameters:
+# - reference - environment reference
+# Delete environment
+# Return job name is sucessful or undef
+
+sub delete
+{
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Environment_obj::delete",1);
+
+
+    my $operation = "resources/json/delphix/environment/" . $reference . "/delete";
+
+    return $self->runJobOperation($operation, "{}");
+}
 
 
 # Procedure refresh
