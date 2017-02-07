@@ -83,10 +83,58 @@ sub getSnapshotTime {
 sub getParentSnapshot {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Timeflow_obj::getParentSnapshot",1);   
-
-    my $snap = $self->{_timeflows}->{$reference}->{parentSnapshot};
+    logger($self->{_debug}, "Entering Timeflow_obj::getParentSnapshot",1); 
+    
+    my $snap;
+        
+    if (defined($reference)) {
+      if (defined($self->{_timeflows}->{$reference})) {
+        $snap = $self->{_timeflows}->{$reference}->{parentSnapshot}; 
+      } 
+    }
+     
     return defined($snap) ? $snap : '';
+}
+
+# Procedure isReplica
+# parameters: none
+# Return is this timeflow is a replica or not
+
+sub isReplica 
+{
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::isReplica",1);
+    return $self->{_timeflows}->{$reference}->{namespace} ? 'YES' : 'NO';
+}
+
+# Procedure getParentTimeflow
+# parameters: 
+# - reference
+# Return refrence to parent timeflow, deleted or ''
+
+sub getParentTimeflow {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getParentTimeflow",1);  
+    
+    my $tf; 
+    
+    #print Dumper "pt " . $reference;
+
+    if (defined($self->{_timeflows}->{$reference}->{parentPoint})) {
+      if (defined($self->{_timeflows}->{$reference}->{parentPoint}->{timeflow})) {
+        $tf = $self->{_timeflows}->{$reference}->{parentPoint}->{timeflow};
+      } else {
+        $tf = 'deleted';
+      }
+    } else {
+      $tf = '';
+    }
+    
+    #print Dumper "ret " . $tf;
+    
+    return $tf;
 }
 
 
@@ -115,6 +163,33 @@ sub getName {
     logger($self->{_debug}, "Entering Timeflow_obj::getName",1);   
 
     return $self->{_timeflows}->{$reference}->{name};
+}
+
+# Procedure getAllTimeflows
+# parameters: 
+# Return refrerence list of all timeflows
+
+sub getAllTimeflows {
+    my $self = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getAllTimeflows",1);   
+
+    return keys %{$self->{_timeflows}};
+}
+
+
+# Procedure getTimeflowsForContainer
+# parameters: 
+# - container
+# Return refrerence list of all timeflows for container
+
+sub getTimeflowsForContainer {
+    my $self = shift;
+    my $container = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getTimeflowsForContainer",1);   
+
+    my @retarr = grep { $self->getContainer($_) eq $container } keys %{$self->{_timeflows}};
+
+    return \@retarr;
 }
 
 
@@ -229,5 +304,168 @@ sub getTimeflowList
     }
 
 }
+
+# Procedure generateHierarchy
+# parameters: 
+# - remote - mapping of local / parent objects
+# - timeflow_parent - parent timeflow
+# - database - obejct with local databases
+# Generate a timeflow hierarchy 
+# if timeflow_parent is defined also for parent delphix engine
+
+sub generateHierarchy 
+{
+    my $self = shift;
+    my $remote = shift;
+    my $timeflows_parent = shift;
+    my $databases = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::generateHierarchy",1);   
+
+
+    
+    my %hierarchy;
+    
+    
+    for my $tfitem ( $self->getAllTimeflows() ) {
+
+
+      my $parent_ref = $self->getParentTimeflow($tfitem);
+      
+      # if there is no parent, but VDB is replicated 
+      # we need to add parent timeflow from source
+      # if there is no parent timeflow parent is set to not local
+      if ($parent_ref eq '') {
+        if ($self->isReplica($tfitem) eq 'YES') {
+          my $dbcont = $self->getContainer($tfitem);
+          
+          if ($databases->getDB($dbcont)->getType() eq 'VDB') {
+            if (defined($remote->{$tfitem})) {
+              $parent_ref = $remote->{$tfitem};
+            } else {
+              $parent_ref = 'notlocal'
+            }
+          }
+        } 
+      } 
+      
+      $hierarchy{$tfitem}{parent} = $parent_ref;
+      $hierarchy{$tfitem}{source} = 'l';
+      
+    }
+    
+    if (defined($timeflows_parent)) {
+    
+      for my $tfitem ( $timeflows_parent->getAllTimeflows() ) {
+        my $parent_ref = $timeflows_parent->getParentTimeflow($tfitem);        
+        $hierarchy{$tfitem}{parent} = $parent_ref;
+        $hierarchy{$tfitem}{source} = 'p';
+        
+      }
+    
+    }
+    
+    logger($self->{_debug}, \%hierarchy, 2);
+      
+    return \%hierarchy;
+
+}
+
+# Procedure finddSource
+# parameters: 
+# - ref - VDB refrerence
+# - hier - hierarchy hash
+# Return a dSource and child timeflows
+
+
+sub finddSource 
+{
+    my $self = shift;
+    my $ref = shift;
+    my $hier = shift;
+
+    logger($self->{_debug}, "Entering Timeflow_obj::generateHierarchy",1);   
+
+    my $local_ref = $ref;
+    my $child;
+    my $parent;
+  
+  
+    logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
+    
+    #leave loop if there is no parent, parent is deleted or not local
+    #local_ref - is pointed to a timeflow without parent (dSource)
+    #child - is a child timeflow of local_ref
+
+    do {
+      $parent = $hier->{$local_ref}->{parent};
+      
+      logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
+      
+      if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
+          $child = $local_ref;
+          $local_ref = $parent;
+      }
+      
+    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    
+    if ($parent eq 'deleted') {
+      $local_ref = 'deleted'; 
+      undef $child;       
+    } 
+    
+    if ($parent eq 'notlocal') {
+      $local_ref = 'notlocal'; 
+      undef $child;     
+    }
+
+    return ($local_ref, $child);
+  
+}
+
+# Procedure returnHierarchy
+# parameters: 
+# - ref - VDB refrerence
+# - hier - hierarchy hash
+# Return a array with timeflow hashes
+
+sub returnHierarchy 
+{
+    my $self = shift;
+    my $ref = shift;
+    my $hier = shift;
+
+    logger($self->{_debug}, "Entering Timeflow_obj::generateHierarchy",1);   
+
+    my $local_ref = $ref;
+    my $child;
+    my $parent;
+  
+    my @retarr;
+
+  
+    logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
+    
+    #leave loop if there is no parent, parent is deleted or not local
+    #local_ref - is pointed to a timeflow without parent (dSource)
+    #child - is a child timeflow of local_ref
+
+    do {
+      $parent = $hier->{$local_ref}->{parent};
+      my %hashpair;
+      $hashpair{ref} = $local_ref;
+      $hashpair{source} = $hier->{$local_ref}->{source};
+      push(@retarr, \%hashpair);
+      if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
+          $child = $local_ref;
+          $local_ref = $parent;
+      }
+      
+    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    
+    return \@retarr;
+  
+}
+
+
 
 1;
