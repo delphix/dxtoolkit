@@ -1869,19 +1869,32 @@ sub processData {
     
 
 
-
-
-    $output->addHeader(
-      {'timestamp', 20},
-      {'client',   20},
-      {'protocol',  20},
-      {'inBytes', 20},
-      {'outBytes', 20},
-      {'inUnorderedBytes', 20},
-      {'retransmittedBytes', 20},
-      {'unacknowledgedBytes', 20},
-      {'congestionWindowSize', 20}
-    );        
+    if ($self->{_dlpx}->getApi() lt "1.8") {
+      $output->addHeader(
+        {'timestamp', 20},
+        {'client',   20},
+        {'protocol',  20},
+        {'inBytes', 20},
+        {'outBytes', 20},
+        {'inUnorderedBytes', 20},
+        {'retransmittedBytes', 20},
+        {'unacknowledgedBytes', 20},
+        {'congestionWindowSize', 20}
+      );    
+    } else {
+      $output->addHeader(
+        {'timestamp', 20},
+        {'client',   20},
+        {'protocol',  20},
+        {'inBytes', 20},
+        {'outBytes', 20},
+        {'inUnorderedBytes', 20},
+        {'retransmittedBytes', 20},
+        {'unacknowledgedBytes', 20},
+        {'congestionWindowSize', 20},
+        {'roundTripTime', 20}
+      );  
+    }    
   
     if ($self->{_overflow}) {
       print "Please reduce a range. API is not able to provide all data.\n";
@@ -1906,16 +1919,21 @@ sub processData {
                   my $inUnorderedBytes = $cur_line->{inUnorderedBytes};
                   my $retransmittedBytes = $cur_line->{retransmittedBytes};
                   my $unacknowledgedBytes = $cur_line->{unacknowledgedBytes};
-                  my $congestionWindowSize = $cur_line->{congestionWindowSize};  
-
+                  my $congestionWindowSize = $cur_line->{congestionWindowSize}; 
+                  my $rtt = $cur_line->{roundTripTime}; 
 
                   $self->aggregation($ts, $aggregation,  $client_cur .'-' . $type_cur, 'inBytes', $in_bytes);
                   $self->aggregation($ts, $aggregation,  $client_cur .'-' . $type_cur, 'outBytes', $out_bytes);
 
-
-                  $output->addLine(
-                      $ts,$client_cur, $type_cur, $in_bytes, $out_bytes, $inUnorderedBytes, $retransmittedBytes, $unacknowledgedBytes, $congestionWindowSize
-                  );
+                  if ($self->{_dlpx}->getApi() lt "1.8") {
+                    $output->addLine(
+                        $ts,$client_cur, $type_cur, $in_bytes, $out_bytes, $inUnorderedBytes, $retransmittedBytes, $unacknowledgedBytes, $congestionWindowSize
+                    );
+                  } else {
+                    $output->addLine(
+                        $ts,$client_cur, $type_cur, $in_bytes, $out_bytes, $inUnorderedBytes, $retransmittedBytes, $unacknowledgedBytes, $congestionWindowSize, $rtt
+                    );                
+                  }
 
 
                 }
