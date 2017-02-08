@@ -851,6 +851,9 @@ sub attach_dsource
         "postSync" => \@postSync
     );
     
+    if (!defined($vsm)) {
+      $vsm='NONE';
+    }
     
     my %attach_data;
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
