@@ -29,7 +29,6 @@ use strict;
 use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
-require Replication_obj;
 
 # constructor
 # parameters 
@@ -212,12 +211,12 @@ sub generate_replicate_mapping {
     my $self = shift;
     my $engine_parent = shift;
     my $timeflow_parent = shift;
+    my $replication_parent = shift;
     logger($self->{_debug}, "Entering Namespace_obj::translateObject",1);  
 
   
     my @namespace_list = $self->getNamespaceList();
-    my $replication_parent = new Replication_obj ($engine_parent, $self->{_debug});
-  
+    
     my %object_hash;
   
     for my $nsitem (@namespace_list) {

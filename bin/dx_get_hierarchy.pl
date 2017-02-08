@@ -119,6 +119,7 @@ my $snapshots_parent;
 my $timeflows_parent;
 my $groups_parent;
 my $engine_parent;
+my $replication_parent;
 
 if (defined($parent_engine)) {
 
@@ -132,6 +133,7 @@ if (defined($parent_engine)) {
   
   $snapshots_parent = new Snapshot_obj($engine_parent, undef, undef, $debug);
   $timeflows_parent = new Timeflow_obj($engine_parent, $debug);
+  $replication_parent = new Replication_obj ($engine_parent, $debug);
 }  
 
 
@@ -155,7 +157,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   
   if (defined($parent_engine)) {
-    $object_map = $databases->{_namespace}->generate_replicate_mapping($engine_parent, $timeflows_parent);
+    $object_map = $databases->{_namespace}->generate_replicate_mapping($engine_parent, $timeflows_parent, $replication_parent);
   }  
 
 
@@ -307,6 +309,7 @@ __DATA__
 
  dx_get_hierarchy [-engine|d <delphix identifier> | -all ] 
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
+                  [-parent_engine <delphix identifier>]
                   [-printhierarchy]
                   [-format csv|json ] 
                   [-help|? ] [ -debug ]
@@ -373,6 +376,9 @@ Instance number
 
 =over 3
 
+=item B<-parent_engine delphix identifier>
+When replication between engines is configured, specify a parent engine to the engine from -d parameter.
+
 =item B<-printhierarchy>
 Display a hierarchy of databases (from VDB to dSource)
 
@@ -391,9 +397,65 @@ Turn off header output
 
 =back
 
+=head1 Output columns
+
+dS snapshot - time of dSource snapshot used to create/refresh a VDB. If there is a chain of VDB's it's a snapshot used to create first one
+Physical DB - name of physical database used to create dSource                   
+First child DB - name of first VDB in chain. 
+
 =head1 EXAMPLES
 
+Print database hierarchy on single engine
 
- 
+ dx_get_hierarchy -d Landshark51
+
+ Appliance  Database                       Group           Type     dSource                        dS snapshot                         Physical DB                    First child DB
+ ---------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ------------------------------ ------------------------------
+ Landshark5 autotest                       Analytics       VDB      Oracle dsource                 2017-02-08 09:00:35 EST             orcl                           autotest
+ Landshark5 AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 AdventureWorksLT2008R2         N/A
+ Landshark5 Oracle dsource                 Sources         dSource                                 N/A                                 orcl                           N/A
+ Landshark5 racdba                         Sources         dSource                                 N/A                                 racdba                         N/A
+ Landshark5 Sybase dsource                 Sources         dSource                                 N/A                                 pubs3                          N/A
+
+
+Print database hierarchy on replication target engine 
+
+ dx_get_hierarchy -d Delphix33
+
+ Appliance  Database                       Group           Type     dSource                        dS snapshot                         Physical DB                    First child DB
+ ---------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ------------------------------ ------------------------------
+ Delphix33  racdb@delphix32-2              Sources@delphix dSource                                 N/A                                 racdb                          N/A
+ Delphix33  mask1@delphix32-4              Test@delphix32- VDB      dSource on other DE            N/A                                 N/A                            N/A
+ Delphix33  maskedms@delphix32-4           Test@delphix32- VDB      dSource on other DE            N/A                                 N/A                            N/A
+ Delphix33  cloneMSmas                     Untitled        VDB      dSource on other DE            N/A                                 N/A                            N/A
+ Delphix33  mask1clone                     Untitled        VDB      dSource on other DE            N/A                                 N/A                            N/A
+ Delphix33  maskclone                      Untitled        VDB      parent deleted                 N/A                                 N/A                            N/A
+ Delphix33  Vracdb_70C                     Untitled        VDB      racdb@delphix32-2              2016-09-28 14:57:16 GMT             racdb                          Vracdb_70C
+
+Print database hierarchy on replication target engine with connection to replication source
+
+dx_get_hierarchy -d Delphix33 -parent_engine Delphix32
+
+ Appliance  Database                       Group           Type     dSource                        dS snapshot                         Physical DB                    First child DB
+ ---------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ------------------------------ ------------------------------
+ Delphix33  racdb@delphix32-2              Sources@delphix dSource                                 N/A                                 racdb                          N/A
+ Delphix33  mask1@delphix32-4              Test@delphix32- VDB      test1                          2017-01-30 13:02:53 GMT             test1                          man
+ Delphix33  maskedms@delphix32-4           Test@delphix32- VDB      tpcc                           2017-02-03 12:05:15 GMT             tpcc                           maskedms
+ Delphix33  cloneMSmas                     Untitled        VDB      tpcc                           2017-02-03 12:05:15 GMT             tpcc                           maskedms
+ Delphix33  mask1clone                     Untitled        VDB      test1                          2017-01-30 09:15:28 GMT             test1                          man
+ Delphix33  maskclone                      Untitled        VDB      parent deleted                 N/A                                 N/A                            N/A
+ Delphix33  Vracdb_70C                     Untitled        VDB      racdb@delphix32-2              2016-09-28 14:57:16 GMT             racdb                          Vracdb_70C
+
+Print database hierarchy chain starting with VDB up to dSource
+
+ dx_get_hierarchy -d Delphix33 -parent_engine Delphix32 -printhierarchy
+ Delphix33 : racdb@delphix32-2
+ Delphix33 : mask1@delphix32-4 --> mask1 --> man --> test1
+ Delphix33 : maskedms@delphix32-4 --> maskedms --> tpcc
+ Delphix33 : cloneMSmas --> maskedms@delphix32-4 --> maskedms --> tpcc
+ Delphix33 : mask1clone --> mask1@delphix32-4
+ Delphix33 : maskclone
+ Delphix33 : Vracdb_70C --> racdb@delphix32-2
+
 
 =cut
