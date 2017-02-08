@@ -1,5 +1,20 @@
 # Change Log
 
+## 2.3.1
+
+### Added
+
+* Round time trip extract for TCP analytics for 5.1.X engines
+* dx_remove_env - script to remove environment
+* dx_get_hierarchy - script to display hierarchy - first release
+* dx_get_autostart - script to display autostart flag
+* dx_set_autostart - script to set autostart flag
+* Autostart flag added to provisioning script 
+* Adding a support for adding database, vfiles manually using dx_ctl_env
+
+### Changed
+* Various bug fixes 
+
 ## 2.3.0
 
 No changes between this release. Check list below
