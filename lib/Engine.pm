@@ -816,8 +816,10 @@ sub getJSONResult {
       $decoded_response = $response->decoded_content;
       $result = decode_json($decoded_response);
       if (defined($self->{_debug}) && ( $self->{_debug} eq 3) ) {
-         if (! -e "debug") {
-            mkdir "debug" or die("Can't create root directory for debug ");
+         my $enginename = $self->getEngineName();
+         my $debug_dir = "debug_" . $enginename;
+         if (! -e $debug_dir) {
+            mkdir $debug_dir or die("Can't create root directory for debug ");
          }
          my $tempname = $operation;
          $tempname =~ s|resources/json/delphix/||;
@@ -826,7 +828,7 @@ sub getJSONResult {
             my @dirname;
             for (my $i=0; $i<scalar(@filenames)-1; $i++) {
                @dirname = @filenames[0..$i];
-               my $md = "debug/" . join('/',@dirname);
+               my $md = $debug_dir . "/" . join('/',@dirname);
                if (! -e $md) {
                   mkdir $md or die("Can't create directory for debug " . $md);
                }
@@ -838,7 +840,7 @@ sub getJSONResult {
          $filename =~ s|\&|_|g;
          $filename =~ s|\:|_|g;
          #print Dumper $filename;
-         open (my $fh, ">", "debug/" . $filename) or die ("Can't open new debug file $filename for write");
+         open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
          print $fh to_json($result, {pretty=>1});
          close $fh;
       }

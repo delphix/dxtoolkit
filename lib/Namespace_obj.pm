@@ -226,30 +226,48 @@ sub generate_replicate_mapping {
       my $localtf;  
     
       logger($self->{_debug}, "Namespace id: " . $nsitem, 2);
+      
+      if (defined($replica_source_ref)) {
     
-      for my $obj (@{$replication_parent->getObjects($replica_source_ref)}) {
-      
-      logger($self->{_debug}, "obj " . $obj, 2);
-      
-      for my $remotetf (@{$timeflow_parent->getTimeflowsForContainer($obj)}) {
+        for my $obj (@{$replication_parent->getObjects($replica_source_ref)}) {
         
-        $localobj = $self->translateObject($nsitem,$remotetf);
+          logger($self->{_debug}, "obj " . $obj, 2);
 
-        if (!defined($localobj)) {
-          $localobj = 'no replica for ' . $obj . ' in ' . $nsitem;
+          $localobj = $self->translateObject($nsitem,$obj);
+
+          if (!defined($localobj)) {
+            $localobj = 'no replica for ' . $obj . ' in ' . $nsitem;
+          }
+        
+          logger($self->{_debug}, "remotetf - " . Dumper $obj, 2);
+          logger($self->{_debug}, "localtf  - " . Dumper $localobj, 2);
+
+          $object_hash{$localobj} = $obj;
+
+        
+          for my $remotetf (@{$timeflow_parent->getTimeflowsForContainer($obj)}) {
+            
+
+            $localobj = $self->translateObject($nsitem,$remotetf);
+
+            if (!defined($localobj)) {
+              $localobj = 'no replica for ' . $obj . ' in ' . $nsitem;
+            }
+          
+            logger($self->{_debug}, "remotetf - " . Dumper $remotetf, 2);
+            logger($self->{_debug}, "localtf  - " . Dumper $localobj, 2);
+
+            $object_hash{$localobj} = $remotetf;
+            
+          }
         }
-      
-        logger($self->{_debug}, "remotetf - " . Dumper $remotetf, 2);
-        logger($self->{_debug}, "localtf  - " . Dumper $localobj, 2);
-
-        $object_hash{$localobj} = $remotetf;
-        
+      } else {
+        print "Repication profile not found (possibly deleted) - parents for some objects can't be found\n";
       }
-    }
   }
   
   logger($self->{_debug}, \%object_hash, 2);
-  
+    
   return \%object_hash;
   
 }

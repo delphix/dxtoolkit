@@ -284,7 +284,7 @@ sub getTargetHost {
 sub getObjects {
     my $self = shift;
     my $reference = shift;
-    
+        
     logger($self->{_debug}, "Entering Replication_obj::getObjects",1);   
 
     my $replication = $self->{_replication};
