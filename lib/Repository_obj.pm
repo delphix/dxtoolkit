@@ -192,6 +192,9 @@ sub listRepositoryList
 # - reference - env reference
 # - repotype
 # - repopath
+# - bits (Oracle)
+# - ohversion (Oracle)
+# - oraclebase (Oracle)
 # Create repository
 # Return 0 if OK 
 
@@ -201,6 +204,9 @@ sub createRepository
     my $reference = shift;
     my $repotype = shift;
     my $repopath = shift;
+    my $bits = shift;
+    my $ohversion = shift;
+    my $oraclebase = shift;
 
     logger($self->{_debug}, "Entering Environment_obj::createRepository",1);
 
@@ -223,13 +229,36 @@ sub createRepository
       return 1;
     }
 
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      if (!defined($bits)) {
+        print "Bits flag has to be specified\n";
+        return 1;
+      }
+      if (!defined($ohversion)) {
+        print "Oracle home version (ohversion) has to be specified\n";
+        return 1;      
+      }
+    }
 
     my $operation = "resources/json/delphix/repository";
-    my %repo_data = (
-      "type" => $type,
-      "environment" => $reference,
-      "installationHome" => $repopath
-    );
+    
+    my %repo_data;
+    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+      %repo_data = (
+        "type" => $type,
+        "environment" => $reference,
+        "installationHome" => $repopath,
+        "version" => $ohversion,
+        "bits" => $bits,
+        "oracleBase" => $oraclebase
+      );
+    } else {
+      %repo_data = (
+        "type" => $type,
+        "environment" => $reference,
+        "installationHome" => $repopath
+      );
+    }
 
     my $json_data = to_json(\%repo_data, {pretty=>1});
     logger($self->{_debug}, $json_data, 2);
@@ -241,6 +270,7 @@ sub createRepository
       print "Repository $repopath created \n";
       $ret = 0;
     } else {
+        $ret = 1;
         if (defined($result->{error})) {
             print "Problem with repository creation " . $result->{error}->{details} . "\n";
             logger($self->{_debug}, $result->{error}->{action} ,1);
@@ -248,6 +278,8 @@ sub createRepository
             print "Unknown error. Try with debug flag\n";
         }
     }
+    
+    return $ret;
 }
 
 # Procedure createRepository

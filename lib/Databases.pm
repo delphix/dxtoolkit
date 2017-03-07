@@ -533,6 +533,123 @@ sub getPrimaryDB
 }
 
 
+# Procedure generateHierarchy
+# parameters: 
+# - remote - mapping of local / parent objects
+# - databases_parent - parent databases
+
+sub generateHierarchy 
+{
+    my $self = shift;
+    my $remote = shift;
+    my $databases_parent = shift;
+    logger($self->{_debug}, "Entering Databases::generateHierarchy",1);   
+
+
+    
+    my %hierarchy;
+    
+    for my $dbitem ( $self->getDBList() ) {
+
+      my $dbobj = $self->getDB($dbitem);
+      
+      my $parent_ref = $dbobj->getParentContainer();
+                  
+      # if there is no parent, but VDB is replicated 
+      # we need to add parent container from source or set to no local
+      # if VDB is not replicated but there is no parent - set parent to deleted
+      if ($parent_ref eq '') {
+        if ($dbobj->getType() eq 'VDB') {
+          if ($dbobj->isReplica() eq 'YES') {
+            if (defined($remote->{$dbitem})) {
+              $parent_ref = $remote->{$dbitem};
+            } else {
+              $parent_ref = 'notlocal'
+            }
+          }
+          else {
+            $parent_ref = 'deleted';
+          }
+        } 
+
+      } 
+      
+      $hierarchy{$dbitem}{parent} = $parent_ref;
+      $hierarchy{$dbitem}{source} = 'l';
+      
+    }
+    
+    if (defined($databases_parent)) {
+    
+      for my $dbitem ( $databases_parent->getDBList() ) {
+        my $dbobj = $databases_parent->getDB($dbitem);
+        my $parent_ref = $dbobj->getParentContainer();     
+        $hierarchy{$dbitem}{parent} = $parent_ref;
+        $hierarchy{$dbitem}{source} = 'p';
+        
+      }
+    
+    }
+    
+    logger($self->{_debug}, \%hierarchy, 2);
+          
+    return \%hierarchy;
+
+}
+
+
+# Procedure finddSource
+# parameters: 
+# - ref - VDB refrerence
+# - hier - hierarchy hash
+# Return a dSource and child timeflows
+
+
+sub finddSource 
+{
+    my $self = shift;
+    my $ref = shift;
+    my $hier = shift;
+
+    logger($self->{_debug}, "Entering Databases::generateHierarchy",1);   
+
+    my $local_ref = $ref;
+    my $child;
+    my $parent;
+  
+  
+    logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
+    
+    #leave loop if there is no parent, parent is deleted or not local
+    #local_ref - is pointed to a timeflow without parent (dSource)
+    #child - is a child timeflow of local_ref
+
+    do {
+      $parent = $hier->{$local_ref}->{parent};
+      
+      logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
+      
+      if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
+          $child = $local_ref;
+          $local_ref = $parent;
+      }
+      
+    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    
+    if ($parent eq 'deleted') {
+      $local_ref = 'deleted'; 
+      undef $child;       
+    } 
+    
+    if ($parent eq 'notlocal') {
+      $local_ref = 'notlocal'; 
+      undef $child;     
+    }
+
+    return ($local_ref, $child);
+  
+}
+
 
 # 
 # End of package

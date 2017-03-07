@@ -92,7 +92,7 @@ sub getParentSnapshot {
         $snap = $self->{_timeflows}->{$reference}->{parentSnapshot}; 
       } 
     }
-     
+         
     return defined($snap) ? $snap : '';
 }
 
@@ -324,8 +324,7 @@ sub generateHierarchy
 
     
     my %hierarchy;
-    
-    
+        
     for my $tfitem ( $self->getAllTimeflows() ) {
 
 
@@ -335,9 +334,9 @@ sub generateHierarchy
       # we need to add parent timeflow from source
       # if there is no parent timeflow parent is set to not local
       if ($parent_ref eq '') {
+        
         if ($self->isReplica($tfitem) eq 'YES') {
           my $dbcont = $self->getContainer($tfitem);
-          
           if ($databases->getDB($dbcont)->getType() eq 'VDB') {
             if (defined($remote->{$tfitem})) {
               $parent_ref = $remote->{$tfitem};
@@ -388,7 +387,6 @@ sub finddSource
     my $local_ref = $ref;
     my $child;
     my $parent;
-  
   
     logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
     

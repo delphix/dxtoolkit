@@ -189,6 +189,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $hier = $timeflows->generateHierarchy($object_map, $timeflows_parent, $databases);
+  
+  my $hierc = $databases->generateHierarchy($object_map, $databases_parent);
 
 
   my $parentname;
@@ -224,28 +226,29 @@ for my $engine ( sort (@{$engine_list}) ) {
           
       if ($dbobj->getType() eq 'VDB') {
         my ($topds, $child);
+        my ($topdsc, $childc);
         ($topds, $child) = $timeflows->finddSource($dbobj->getCurrentTimeflow(), $hier);
-        
+        ($topdsc, $childc) = $databases->finddSource($dbitem, $hierc);
 
               
-        if (defined($topds)) {
-          if ($topds eq 'deleted') {
+        if (defined($topdsc)) {
+          if ($topdsc eq 'deleted') {
             $parentname = 'parent deleted';
             $physicaldb = 'N/A';
-          } elsif ($topds eq 'notlocal') {
+          } elsif ($topdsc eq 'notlocal') {
             $parentname = 'dSource on other DE';
             $physicaldb = 'N/A';
-          } else {
-            my $topdsdb = ($tfs{$hier->{$topds}->{source}})->getContainer($topds);
-            $parentname = ($dbs{$hier->{$topds}->{source}})->getDB($topdsdb)->getName();
-            $physicaldb = ($dbs{$hier->{$topds}->{source}})->getDB($topdsdb)->getSourceConfigName();
+          } else {            
+            $parentname = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getName();
+            $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getSourceConfigName();
           }
         } else {
           print "no dSource found - error ?\n";
           $ret = $ret + 1;
           next;
         }
-
+        
+        #check time 
         if (defined($child)) {        
           my $childdb = ($tfs{$hier->{$topds}->{source}})->getContainer($child);
           my $cobj = ($dbs{$hier->{$child}->{source}})->getDB($childdb);
@@ -260,7 +263,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         } else {
           $dsource_snapforchild = '';
-          $snaptime = 'N/A';
+          if ($topdsc eq 'notlocal') {
+            $snaptime = 'N/A'
+          } else {
+            $snaptime = 'N/A - timeflow deleted';            
+          }
           $childname = 'N/A';
         }  
               
