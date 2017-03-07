@@ -60,6 +60,9 @@ GetOptions(
   'jdbc=s'     => \(my $jdbc),
   'listenername=s' => \(my $listenername), 
   'endpoint=s@' => \(my $endpoint),
+  'bits=n' => \(my $bits),
+  'ohversion=s' => \(my $ohversion), 
+  'oraclebase=s' => \(my $oraclebase),
   'parallel=n' => \(my $parallel),
   'debug:i' => \(my $debug), 
   'restore=s' => \(my $restore),
@@ -293,7 +296,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if ( lc $action eq 'addrepo' ) {
       print "Adding repository $repopath to environment $env_name \n";
       my $repository_obj = new Repository_obj($engine_obj, $debug);
-      if ($repository_obj->createRepository($envitem, $repotype, $repopath)) {
+      if ($repository_obj->createRepository($envitem, $repotype, $repopath, $bits, $ohversion, $oraclebase)) {
         print "Problem with adding repository \n";
         $ret = $ret + 1;
       }
@@ -499,6 +502,14 @@ Repository type to add (only Oracle and vFiles support for now - use with addrep
 =item B<-repopath ORACLE_HOME>
 Oracle Home to add (use with addrepo)
 
+=item B<-bits 32|64>
+Oracle Home binary bit version (32/64) 
+
+=item B<-ohversion x.x.x.x>
+Oracle Home version ex. 11.2.0.4 or 12.1.0.2
+ 
+=item B<-oraclebase path>
+Oracle Base path
 
 =item B<-help>          
 Print this screen
@@ -533,7 +544,7 @@ Refreshing environment
  
 Adding an Oracle Home not discovered automatically 
 
- dx_ctl_env -d Landshark51 -name LINUXTARGET -action addrepo -repotype oracle -repopath /u01/app/oracle/121_64
+ dx_ctl_env -d Landshark51 -name LINUXTARGET -action addrepo -repotype oracle -repopath /u01/app/oracle/121_64 -bits 64 -ohversion 12.1.0.2 -oraclebase /u01/app/oracle
  Adding repository /u01/app/oracle/121_64 to environment LINUXTARGET
  Repository /u01/app/oracle/121_64 created
  
