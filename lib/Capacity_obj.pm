@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2015,2016 by Delphix. All rights reserved.
+# Copyright (c) 2015-2017 by Delphix. All rights reserved.
 #
 # Program Name : Capacity_obj.pm
 # Description  : Delphix Engine Capacity object
@@ -21,8 +21,6 @@
 # Created      : 13 Apr 2015 (v2.0.0)
 #
 #
-
-
 
 package Capacity_obj;
 
@@ -115,62 +113,6 @@ sub getDetailedDBUsage {
 
     return \%dbutil_hash;
 }
-
-
-# Procedure getDetailedDBUsage
-# parameters: 
-# - db reference
-# Return detailed usage of database as hash
-
-
-# sub getDetailedDBUsage_old {
-#     my $self = shift; 
-#     my $db_ref = shift;
-#     logger($self->{_debug}, "Entering Capacity_obj::getDetailedDBUsage_old",1);    
-#     my $operation = "resources/json/domain/DOMAIN/group/dummy/database/" . $db_ref. "/capacity";
-#     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-
-#     #build snapshot hash with ts as key
-#     my %snaphash;
-#     my $snapsize_db = 0;
-#     my $snapsize_ext = 0;
-
-#     for my $snapitem (@{$result->{view}->{snapshotList} }) {
-#         my %snaphashitem = (
-#             dbsnapsize => $snapitem->{actualUsedSize},
-#             externalsnapsize => $snapitem->{externalActualUsedSize}
-#         );
-#         $snaphash{$snapitem->{timestamp}} = \%snaphashitem;
-#         $snapsize_db = $snapsize_db + $snapitem->{actualUsedSize};
-#         $snapsize_ext = $snapsize_ext + $snapitem->{externalActualUsedSize};
-#     }
-
-#     # sort snapshot into array
-#     my @snapshot_list;
-
-#     for my $snapitem ( sort ( keys %snaphash ) ) {
-#         push (@snapshot_list, $snaphash{$snapitem});
-#     }
-
-#     my %dbutil_hash;
-
-#     $dbutil_hash{currentCopySize} = $result->{view}->{currentCopySize};
-
-#     $dbutil_hash{snapshotsdb_total} = $snapsize_db + $result->{view}->{snapshotsSharedSize};
-#     $dbutil_hash{snapshotsext_total} = $snapsize_ext + $result->{view}->{externalSharedSize};
-#     $dbutil_hash{dblogs} = $result->{view}->{logActualUsedSize};
-#     $dbutil_hash{tempfiles} = $result->{view}->{tempActualUsedSize};
-
-
-#     $dbutil_hash{snapshots_shared} = $result->{view}->{snapshotsSharedSize};
-#     $dbutil_hash{external_shared} = $result->{view}->{externalSharedSize};
-#     $dbutil_hash{snapshots_list} = \@snapshot_list;
-#     $dbutil_hash{totalsize} = $result->{view}->{actualUsedSize}; 
-
-
-#     return \%dbutil_hash;
-# }
-
 
 
 # Procedure getDatabaseUsage
@@ -291,5 +233,122 @@ sub LoadDatabases
     
 }
 
+# Procedure LoadSystemHistory
+# parameters: 
+# - start date
+# - end date
+# - resolution in sec
+# Load system capacity history from Delphix Engine
+
+sub LoadSystemHistory 
+{
+    my $self = shift;
+    my $startDate = shift;
+    my $endDate = shift;
+    my $resolution = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::LoadSystemHistory",1);
+    my $operation = "resources/json/delphix/capacity/system/historical?resolution=" . $resolution;
+    
+    if (defined($startDate)) {
+      $operation = $operation . "&startDate=" . $startDate;
+    }
+    
+    if (defined($endDate)) {
+      $operation = $operation . "&endDate=" . $endDate;
+    }
+    
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    my @res;
+    my @sorted;
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+
+        @res = @{$result->{result}};
+        @sorted = sort { $a->{timestamp} cmp $b->{timestamp} } @res;
+        $self->{_systemHistory} = \@sorted;
+
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+    
+}
+
+
+# Procedure processSystemHistory
+# parameters: 
+# - output
+# - details
+# Process capacity history and put into Formatter object
+
+sub processSystemHistory 
+{
+    my $self = shift;
+    my $output = shift;
+    my $details = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::processSystemHistory",1);
+
+    my $total;
+    my $enginename = $self->{_dlpxObject}->getEngineName();
+    my $enginezone = $self->{_dlpxObject}->getTimezone();
+    
+    my $tz = new Date::Manip::TZ;
+    my $dt = new Date::Manip::Date;
+    my ($err,$date,$offset,$isdst,$abbrev);
+    my $histtime;
+    my $usage;
+
+    $dt->config("setdate","zone,GMT");
+    
+    for my $histitem (@{$self->{_systemHistory}}) {
+      $err = $dt->parse($histitem->{timestamp});
+      my $dttemp = $dt->value();
+      ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $enginezone);
+      if (scalar(@{$date}) > 0) {
+          $histtime = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+      } else {
+          $histtime = 'N/A';
+      }
+
+      $total = ($histitem->{source}->{actualSpace} + $histitem->{virtual}->{actualSpace});
+      $usage = $total / $histitem->{totalSpace} * 100;
+      
+      if (defined($details)) {
+
+        $output->addLine(
+          $enginename,
+          $histtime,
+          sprintf("%15.2f" ,$histitem->{source}->{actualSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{source}->{activeSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{source}->{logSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{source}->{syncSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{virtual}->{actualSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{virtual}->{activeSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{virtual}->{logSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$histitem->{virtual}->{syncSpace}/1024/1024/1024),
+          sprintf("%15.2f" ,$total/1024/1024/1024),
+          sprintf("%12.2f" ,$usage)
+        );
+        
+      } else {
+        
+        $output->addLine(
+          $enginename,
+          $histtime,
+          sprintf("%12.2f" ,$histitem->{source}->{actualSpace}/1024/1024/1024),
+          sprintf("%12.2f" ,$histitem->{virtual}->{actualSpace}/1024/1024/1024),
+          sprintf("%12.2f" ,$total/1024/1024/1024),
+          sprintf("%12.2f" ,$usage)
+        );
+      }
+      
+
+      
+
+      
+
+      
+    }
+}
 
 1;
