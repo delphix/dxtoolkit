@@ -29,6 +29,7 @@ use Pod::Usage;
 use FindBin;
 use Data::Dumper;
 use File::Spec;
+use Date::Manip;
 
 my $abspath = $FindBin::Bin;
 
@@ -105,7 +106,7 @@ $output->addHeader(
       {'Group',       15},
       {'Type',         8},
       {'dSource',     30},
-      {'dS snapshot', 35},
+      {'dS time',     35},
       {'Physical DB', 30},
       {'First child DB', 30}
     );
@@ -209,14 +210,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dsource_snapforchild;
     
     if (defined($printhierarchy)) {
-      my $arr = $timeflows->returnHierarchy($dbobj->getCurrentTimeflow(), $hier);
+      my $arr = $databases->returnHierarchy($dbitem, $hierc);
             
       my @printarr;      
       
       for my $hi (@{$arr}) {
-        my $tf = $tfs{$hi->{source}};
-        my $dbref = $tf->getContainer($hi->{ref});
-        my $db = $dbs{$hi->{source}}->getDB($dbref)->getName();
+        my $db = $dbs{$hi->{source}}->getDB($hi->{ref})->getName();
         push(@printarr, $db);
       }
       
@@ -256,7 +255,42 @@ for my $engine ( sort (@{$engine_list}) ) {
           $dsource_snapforchild = ($tfs{$hier->{$child}->{source}})->getParentSnapshot($child);
 
           if (($dsource_snapforchild ne '') && ($cobj->getType() eq 'VDB')) {
-            ($snaptime,$timezone) = ($snps{$hier->{$child}->{source}})->getSnapshotTimewithzone($dsource_snapforchild);
+            
+            my $timestamp = ($tfs{$hier->{$child}->{source}})->getParentPointTimestamp($child);
+            my $loc = ($tfs{$hier->{$child}->{source}})->getParentPointLocation($child);
+            my $lastsnaploc = ($snps{$hier->{$child}->{source}})->getlatestChangePoint($dsource_snapforchild);
+            my $timestampwithtz;
+                        
+            if (defined($timestamp)) {
+              $timezone = ($snps{$hier->{$child}->{source}})->getSnapshotTimeZone($dsource_snapforchild);
+              if ($timezone ne 'N/A') {
+                my $tz = new Date::Manip::TZ;
+                my $dt = new Date::Manip::Date;
+                my ($err,$date,$offset,$isdst,$abbrev);
+
+                #$dt->config("tz","GMT");
+                $dt->config("setdate","zone,GMT");
+                $err = $dt->parse($timestamp);
+                my $dttemp = $dt->value();
+
+
+                ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
+                
+                if (scalar(@{$date}) > 0) {
+                    $snaptime = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+                } else {
+                    $snaptime = 'N/A';
+                }
+              } else {
+                $snaptime = 'N/A - unknown timezone';
+              }
+            } elsif ( $loc != $lastsnaploc) {
+              $snaptime = $loc;
+            } else {
+              ($snaptime,$timezone) = ($snps{$hier->{$child}->{source}})->getSnapshotTimewithzone($dsource_snapforchild);
+            }
+            
+            
           } else {
             $snaptime = 'N/A';
           }

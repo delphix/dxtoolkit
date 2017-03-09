@@ -651,6 +651,51 @@ sub finddSource
 }
 
 
+# Procedure returnHierarchy
+# parameters: 
+# - ref - VDB refrerence
+# - hier - hierarchy hash
+# Return a array with databases hashes
+
+sub returnHierarchy 
+{
+    my $self = shift;
+    my $ref = shift;
+    my $hier = shift;
+
+    logger($self->{_debug}, "Entering Databases::generateHierarchy",1);   
+
+    my $local_ref = $ref;
+    my $child;
+    my $parent;
+  
+    my @retarr;
+
+  
+    logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
+    
+    #leave loop if there is no parent, parent is deleted or not local
+    #local_ref - is pointed to a timeflow without parent (dSource)
+    #child - is a child timeflow of local_ref
+
+    do {
+      $parent = $hier->{$local_ref}->{parent};
+      my %hashpair;
+      $hashpair{ref} = $local_ref;
+      $hashpair{source} = $hier->{$local_ref}->{source};
+      push(@retarr, \%hashpair);
+      if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
+          $child = $local_ref;
+          $local_ref = $parent;
+      }
+      
+    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    
+    return \@retarr;
+  
+}
+
+
 # 
 # End of package
 

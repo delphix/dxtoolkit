@@ -106,16 +106,29 @@ sub getFirstPoint {
     return defined($self->{_snapshots}->{$reference}->{firstChangePoint}->{timestamp}) ? $self->{_snapshots}->{$reference}->{firstChangePoint}->{timestamp} : 'N/A';
 }
 
-# Procedure getContainer
-# parameters: refrerence
-# Return cointainer for reference
+# # Procedure getContainer
+# # parameters: refrerence
+# # Return cointainer for reference
+# 
+# sub getLatestPoint {
+#     my $self = shift;
+#     my $reference = shift;
+#     logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);   
+# 
+#     return defined($self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp}) ? $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp} : 'N/A';
+# }
 
-sub getLatestPoint {
+
+# Procedure getlatestChangePoint
+# parameters: refrerence
+# Return latest scn for snapshot - to detect if provision by scn was used
+
+sub getlatestChangePoint {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getlatestChangePoint",1);   
 
-    return defined($self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp}) ? $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp} : 'N/A';
+    return defined($self->{_snapshots}->{$reference}->{latestChangePoint}->{location}) ? $self->{_snapshots}->{$reference}->{latestChangePoint}->{location} : 'N/A';
 }
 
 
