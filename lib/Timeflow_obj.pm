@@ -92,8 +92,50 @@ sub getParentSnapshot {
         $snap = $self->{_timeflows}->{$reference}->{parentSnapshot}; 
       } 
     }
-         
+             
     return defined($snap) ? $snap : '';
+}
+
+# Procedure getParentPointTimestamp
+# parameters: 
+# - reference
+# Return refrence to parent snapshot
+
+sub getParentPointTimestamp {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getParentPointTimestamp",1); 
+    
+    my $timestamp;
+        
+    if (defined($reference)) {
+      if (defined($self->{_timeflows}->{$reference}) && (defined($self->{_timeflows}->{$reference}->{parentPoint}->{timestamp}))) {
+        $timestamp = $self->{_timeflows}->{$reference}->{parentPoint}->{timestamp}; 
+      } 
+    }
+         
+    return $timestamp;
+}
+
+# Procedure getParentPointLocation
+# parameters: 
+# - reference
+# Return refrence to parent snapshot
+
+sub getParentPointLocation {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getParentPointLocation",1); 
+    
+    my $loc;
+        
+    if (defined($reference)) {
+      if (defined($self->{_timeflows}->{$reference}) && (defined($self->{_timeflows}->{$reference}->{parentPoint}->{location}))) {
+        $loc = $self->{_timeflows}->{$reference}->{parentPoint}->{location}; 
+      } 
+    }
+         
+    return $loc;
 }
 
 # Procedure isReplica
