@@ -46,6 +46,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host), 
   'nohead' => \(my $nohead),
   'format=s' => \(my $format), 
+  'details' => \(my $details),
   'debug:i' => \(my $debug), 
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -72,18 +73,35 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
-$output->addHeader(
-  {'Appliance', 20},
-  {'Status',  8},
-  {'Version', 8},
-  {'Total (GB)', 10},
-  {'Used (GB)',  10},
-  {'Free (GB)',  10},
-  {'PctUsed(%)', 10},
-  {'dSource#',   8},
-  {'VDBs#',      8},
-  {'Total Objects', 8}
-);
+if (defined($details)) {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Status',  8},
+    {'Version', 8},
+    {'Total (GB)', 10},
+    {'Used (GB)',  10},
+    {'Free (GB)',  10},
+    {'PctUsed(%)', 10},
+    {'dSource#',   8},
+    {'VDBs#',      8},
+    {'Total Objects', 8},
+    {'vCpu',  8},
+    {'vMem [GB]',  9}
+  );
+} else {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Status',  8},
+    {'Version', 8},
+    {'Total (GB)', 10},
+    {'Used (GB)',  10},
+    {'Free (GB)',  10},
+    {'PctUsed(%)', 10},
+    {'dSource#',   8},
+    {'VDBs#',      8},
+    {'Total Objects', 8}
+  );
+}
 
 my $ret = 0;
 
@@ -93,18 +111,35 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $status = "UP";
   if ($engine_obj->dlpx_connect($engine)) {
     $status = "DOWN";
-    $output->addLine(
-      $engine,
-      $status,
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "" 
-    );
+    if (defined($details)) {
+      $output->addLine(
+        $engine,
+        $status,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "" 
+      );
+    } else {
+      $output->addLine(
+        $engine,
+        $status,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "" 
+      );
+    }
     next;
     $ret = $ret + 1;
   };
@@ -119,20 +154,37 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $storageinfo = $system->getStorage();
-  $output->addLine(
-    $engine,
-    $status,
-    $system->getVersion(),
-    $storageinfo->{Total},
-    $storageinfo->{Used},
-    $storageinfo->{Free},
-    $storageinfo->{pctused},
-    scalar(@dsource),
-    scalar(@vdb),
-    scalar(@dsource) +  scalar(@vdb)
-  );
- 
-
+  
+  if (defined($details)) {
+    $output->addLine(
+      $engine,
+      $status,
+      $system->getVersion(),
+      $storageinfo->{Total},
+      $storageinfo->{Used},
+      $storageinfo->{Free},
+      $storageinfo->{pctused},
+      scalar(@dsource),
+      scalar(@vdb),
+      scalar(@dsource) +  scalar(@vdb),
+      $system->getvCPU(),
+      sprintf("%8.2f",$system->getvMem())
+    );    
+  } else {
+    $output->addLine(
+      $engine,
+      $status,
+      $system->getVersion(),
+      $storageinfo->{Total},
+      $storageinfo->{Used},
+      $storageinfo->{Free},
+      $storageinfo->{pctused},
+      scalar(@dsource),
+      scalar(@vdb),
+      scalar(@dsource) +  scalar(@vdb)
+    );
+  }
+  
 }
 
 Toolkit_helpers::print_output($output, $format, $nohead);
