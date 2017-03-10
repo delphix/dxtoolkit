@@ -98,7 +98,7 @@ sub getVersion
 
 # Procedure getUUID
 # parameters: none
-# return timezone of Delphix engine
+# return UUID of Delphix engine
 
 sub getUUID {
    my $self = shift;
@@ -109,6 +109,27 @@ sub getUUID {
 
 }
 
+# Procedure getvCPU
+# parameters: none
+# return number of vCPU allocated to Delphix engine
+
+sub getvCPU {
+   my $self = shift;
+   logger($self->{_debug}, "Entering System_obj::getvCPU",1);
+   my $vCPU = $self->{_system}->{processors};
+   return scalar(@{$vCPU});
+}
+
+# Procedure getvMem
+# parameters: none
+# return number of vMem allocated to Delphix engine
+
+sub getvMem {
+   my $self = shift;
+   logger($self->{_debug}, "Entering System_obj::getvMem",1);
+   my $vMem = $self->{_system}->{memorySize}/1024/1024/1024;
+   return $vMem;
+}
 
 # Procedure LoadSystem
 # parameters: none
@@ -125,8 +146,7 @@ sub LoadSystem
       $self->{_system} = $result->{result};
     } else {
       print "No data returned for $operation. Try to increase timeout \n";
-    }
-    
+    }    
 }
 
 # Procedure getDNS
