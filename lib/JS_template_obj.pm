@@ -192,4 +192,85 @@ sub loadJSTemplateList
     }
 }
 
+# Procedure createTemplate
+# parameters: 
+# - template name - template name
+# - Source - array of arrays with container, source name, priority
+# Create require template
+
+sub createTemplate 
+{
+    my $self = shift;
+    my $template_name = shift;
+    my $sources = shift;
+    logger($self->{_debug}, "Entering JS_template_obj::createTemplate",1); 
+    
+    
+    my @sources;
+    
+
+    
+    for my $item ( @{$sources} ) {
+      my %source_hash = (
+        "type" => "JSDataSourceCreateParameters",
+        "source" => {
+          "type"=> "JSDataSource",
+          "priority"=> 1,
+          "name"=> "N/A"
+        },
+        "container" => "N/A"
+      );
+      $source_hash{container} = $item->[0];
+      $source_hash{source}{name} = $item->[1];
+      $source_hash{source}{priority} = 0 + $item->[2];
+      push(@sources, \%source_hash);
+    }
+    
+    
+    my %template_hash = (
+      "type" => "JSDataTemplateCreateParameters",
+      "name" => $template_name,
+      "dataSources" => \@sources
+    );
+    
+    my $json_data = to_json(\%template_hash);
+        
+    my $operation = "resources/json/delphix/jetstream/template";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      return 0;
+    } else {
+      print "Error: " . $result->{error}->{details} . "\n";
+      return 1;
+    } 
+      
+}
+
+# Procedure deleteTemplate
+# parameters: 
+# - template name - template name
+# Delete template
+
+sub deleteTemplate 
+{
+    my $self = shift;
+    my $template_ref = shift;
+    logger($self->{_debug}, "Entering JS_template_obj::deleteTemplate",1); 
+    
+    
+    my @sources;
+            
+    my $operation = "resources/json/delphix/jetstream/template/" . $template_ref . "/delete";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      return 0;
+    } else {
+      print "Error: " . $result->{error}->{details} . "\n";
+      return 1;
+    } 
+      
+}
+
 1;
