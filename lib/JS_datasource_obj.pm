@@ -57,7 +57,7 @@ sub new {
 }
 
 
-# Procedure getJSTemplateByName
+# Procedure getJSDataSourceByName
 # parameters:
 # - name
 # Return template reference for particular name
