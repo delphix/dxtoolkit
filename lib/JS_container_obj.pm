@@ -218,47 +218,6 @@ sub loadJSContainerList
     }
 }
 
-#{"sourceDataLayout":"JS_DATA_CONTAINER-36","time":"2016-06-28T13:12:28.642Z","type":"JSTimelinePointTimeInput"}
-
-# === POST /resources/json/delphix/jetstream/container/JS_DATA_CONTAINER-36/restore ===
-# {
-#     "type": "JSTimelinePointTimeInput",
-#     "sourceDataLayout": "JS_DATA_CONTAINER-36",
-#     "time": "2016-06-28T11:12:28.642Z"
-# }
-# === RESPONSE ===
-# {
-#     "type": "ErrorResult",
-#     "status": "ERROR",
-#     "error": {
-#         "type": "APIError",
-#         "details": "There is no valid data available on data layout \"cont1\" at time \"Tue Jun 28 12:12:28 IST 2016\".",
-#         "action": null,
-#         "id": "exception.jetstream.no.provisionable.point",
-#         "commandOutput": null,
-#         "diagnoses": []
-#     }
-# }
-# === END ===
-
-# === POST /resources/json/delphix/jetstream/container/JS_DATA_CONTAINER-36/restore ===
-# {
-#     "type": "JSTimelinePointTimeInput",
-#     "sourceDataLayout": "JS_DATA_CONTAINER-36",
-#     "time": "2016-06-28T14:11:28.642Z"
-# }
-# === RESPONSE ===
-# {
-#     "type": "OKResult",
-#     "status": "OK",
-#     "result": "",
-#     "job": "JOB-3867",
-#     "action": "ACTION-6834"
-# }
-
-
-#template restore
-#{sourceDataLayout: "JS_DATA_TEMPLATE-15", time: "2016-06-28T16:16:41.370Z",…}
 
 # Procedure recoverContainer
 # parameters: 
@@ -366,6 +325,108 @@ sub resetContainer {
     return $self->runJobOperation($operation, '{}');
 
 }
+
+# Procedure createContainer
+# parameters: 
+# - container name
+# - template reference
+# - container def
+# create container 
+# return job reference
+
+sub createContainer {
+    my $self = shift;
+    my $name = shift;
+    my $template_ref = shift;
+    my $container_def = shift;
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::createContainer",1);
+
+    my $operation = "resources/json/delphix/jetstream/container";
+    
+    # [
+    #     {
+    #         "type": "JSDataSourceCreateParameters",
+    #         "source": {
+    #             "type": "JSDataSource",
+    #             "priority": 1,
+    #             "name": "Oracle dsource"
+    #         },
+    #         "container": "ORACLE_DB_CONTAINER-142"
+    #     }
+    
+    my @datasources;
+    
+    for my $contitem (@{$container_def}) {
+      my %conthashitem = (
+        "type" => "JSDataSourceCreateParameters",
+        "source" => {
+            "type" => "JSDataSource",
+            "priority" => 1,
+            "name" => $contitem->{source}
+        },
+        "container" => $contitem->{vdb_ref}
+      );
+      push(@datasources, \%conthashitem);
+      
+    }
+    
+    my %conthash = (
+      "type" => "JSDataContainerCreateParameters",
+      "dataSources" => \@datasources,
+      "name" => $name,
+      "template" => $template_ref,
+      "timelinePointParameters" => {
+          "type" => "JSTimelinePointLatestTimeInput",
+          "sourceDataLayout" => $template_ref
+      }
+    );
+
+    my $json_data = to_json(\%conthash);
+    return $self->runJobOperation($operation, $json_data);
+
+}
+
+# Procedure deleteContainer
+# parameters: 
+# - container ref
+# - dropvdb
+# drop container 
+# return job reference
+
+sub deleteContainer {
+    my $self = shift;
+    my $container_ref = shift;
+    my $dropvdb = shift;
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::deleteContainer",1);
+
+    my $operation = "resources/json/delphix/jetstream/container/" . $container_ref . "/delete";
+    
+    my $drop;
+    
+    if ($dropvdb eq 'yes') {
+      $drop = JSON::true
+    } else {
+      $drop = JSON::false
+    }
+  
+    my %dropcont = (
+        "type" => "JSDataContainerDeleteParameters",
+        "deleteDataSources" => $drop
+    );
+
+    my $json_data = to_json(\%dropcont);
+    return $self->runJobOperation($operation, $json_data);
+  
+}
+
+#     "timelinePointParameters": {
+#         "type": "JSTimelinePointTimeInput",
+#         "branch": "JS_BRANCH-26",
+#         "time": "2017-03-18T00:00:00.000Z"
+#     }
+# }
 
 
 # Procedure runJobOperation
