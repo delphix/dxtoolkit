@@ -112,6 +112,24 @@ sub getJSActiveBranch {
     return $container->{$reference}->{activeBranch};
 }
 
+# Procedure getJSOwners
+# parameters: 
+# - reference
+# Return array with ref to owners
+
+sub getJSOwners {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering JS_container_obj::getJSOwners",1); 
+
+    my $container = $self->{_jscontainer};
+    
+    print Dumper $container->{$reference};
+    
+    return $container->{$reference}->{owners};
+}
+
 
 # Procedure getJSContainerTemplate
 # parameters: 
@@ -219,19 +237,23 @@ sub loadJSContainerList
 }
 
 
-# Procedure recoverContainer
+# Procedure restoreContainer
 # parameters: 
 # - reference
+# - branchref
 # - timestamp
+# - $dataobj_ref (if restore in 5.0 or lower)
 # recover container 
 # return job reference
 
-sub recoverContainer {
+sub restoreContainer {
     my $self = shift;
     my $reference = shift;
+    my $branchref = shift;
     my $timestamp = shift;
+    my $dataobj_ref = shift;
 
-    logger($self->{_debug}, "Entering JS_bookmark_obj::recoverContainer",1);
+    logger($self->{_debug}, "Entering JS_bookmark_obj::restoreContainer",1);
 
     my $detz = $self->{_dlpxObject}->getTimezone();
 
@@ -250,11 +272,19 @@ sub recoverContainer {
         if (! $err) {
             $zulutime = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 
-            %recover_hash = (
-                "type" => "JSTimelinePointTimeInput",
-                "sourceDataLayout" => $reference,
-                "time" => $zulutime
-            );
+            if ($self->{_dlpxObject}->getApi() lt "1.8") {
+              %recover_hash = (
+                  "type" => "JSTimelinePointTimeInput",
+                  "sourceDataLayout" => $dataobj_ref,
+                  "time" => $zulutime
+              );
+            } else {
+              %recover_hash = (
+                  "type" => "JSTimelinePointTimeInput",
+                  "branch" => $branchref,
+                  "time" => $zulutime
+              );  
+            }
         } else {
             print "Can't parse timestamp - $timestamp \n";
             return undef;
@@ -331,6 +361,7 @@ sub resetContainer {
 # - container name
 # - template reference
 # - container def
+# - owner array
 # create container 
 # return job reference
 
@@ -339,6 +370,7 @@ sub createContainer {
     my $name = shift;
     my $template_ref = shift;
     my $container_def = shift;
+    my $owners_array = shift;
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::createContainer",1);
 
@@ -376,6 +408,7 @@ sub createContainer {
       "dataSources" => \@datasources,
       "name" => $name,
       "template" => $template_ref,
+      "owners" => $owners_array,
       "timelinePointParameters" => {
           "type" => "JSTimelinePointLatestTimeInput",
           "sourceDataLayout" => $template_ref
