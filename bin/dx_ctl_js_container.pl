@@ -38,6 +38,7 @@ use JS_template_obj;
 use JS_container_obj;
 use JS_branch_obj;
 use JS_datasource_obj;
+use Users;
 use Databases;
 use Group_obj;
 use Jobs_obj;
@@ -52,8 +53,10 @@ GetOptions(
   'container_name=s' => \(my $container_name),
   'template_name=s' => \(my $template_name),
   'container_def=s@' => \(my $container_def),
+  'container_owner=s@' => \(my $container_owners),
   'timestamp=s' => \(my $timestamp),
   'action=s' => \(my $action),
+  'fromtemplate' => \(my $fromtemplate),
   'dropvdb=s' => \(my $dropvdb),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -80,7 +83,7 @@ if (defined($all) && defined($dx_host)) {
 
 
 
-if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'recover' ) 
+if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' ) 
     || (lc $action eq 'create' ) || (lc $action eq 'delete' ) ) ) ) {
   print "Action parameter not specified or has a wrong value - $action \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -105,6 +108,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
   
+  
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
 
   my $template_ref;
@@ -121,7 +125,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $jobno;
   my $jscontainers = new JS_container_obj ( $engine_obj, $template_ref, $debug);
   
-  if ((lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'recover' ) 
+  if ((lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' ) 
       || (lc $action eq 'delete' )) {
     my $jscontainer_ref = $jscontainers->getJSContainerByName($container_name);
     if (! defined($jscontainer_ref)) {
@@ -133,8 +137,21 @@ for my $engine ( sort (@{$engine_list}) ) {
       $jobno = $jscontainers->resetContainer($jscontainer_ref);
     } elsif (lc $action eq 'refresh') {
       $jobno = $jscontainers->refreshContainer($jscontainer_ref);
-    } elsif (lc $action eq 'recover') {
-      $jobno = $jscontainers->recoverContainer($jscontainer_ref, $timestamp);
+    } elsif (lc $action eq 'restore') {
+      my $branch_ref;
+      if (defined($fromtemplate)) {
+        if (!defined($template_ref)) {
+          print "Option fromtemplate require a template name to be specified\n";
+          exit(1);
+        }
+        my $branch_obj = new JS_branch_obj ( $engine_obj, $template_ref, $debug);
+        $branch_ref = $branch_obj->getJSBranchByName('master');
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);        
+      } else {
+        my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
+        $branch_ref = $branch_obj->getJSBranchByName('default');
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $jscontainer_ref);
+      }
     } elsif (lc $action eq 'delete') {
       if (!defined($dropvdb) || ( ! ( ( lc $dropvdb eq 'yes' ) || (lc $dropvdb eq 'no' ) ) ) ) {
         print "dropvdb parameter has to be set to yes or no \n";
@@ -159,12 +176,33 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit (1);     
     }
     
+    my @contowner_array;
+    if (defined($container_owners)) {
+      my $users = new Users ( $engine_obj, $debug );
+      my $userobj;
+      for my $cowner (@{$container_owners}) {
+          my $userobj = $users->getUserByName($cowner);
+          if (defined($userobj)) {
+            if (($userobj->isJS()) || ($userobj->isAdmin())) {
+              push(@contowner_array, $userobj->getReference());
+            }
+          }
+      }
+      if (scalar(@contowner_array) < scalar(@{$container_owners})) {
+        print "Not all users defined as owners found. Skipping creation on engine $engine\n";
+        $ret = $ret + 1;
+        next;
+      }
+    }
+    
+    
     # find a source definition from template matching a VDB provided
-    my $jsdatasources = new JS_datasource_obj ( $engine_obj, $template_ref, $debug );
+    my $jsdatasources = new JS_datasource_obj ( $engine_obj, $template_ref, undef, $debug );
     my $databases = new Databases($engine_obj, $debug);
     my $groups = new Group_obj($engine_obj, $debug);
     
     my @cont_array;
+
     
     my %dupVDBprotection;
     
@@ -201,7 +239,6 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $pc = ($databases->getDB($vdb_ref->[0]))->getParentContainer();
 
         if ($dsource eq $pc) {
-          #($databases->getDB($pc))->getName(),
           my %con = (
             "source" => $jsdatasources->getName($ds),
             "vdb_ref" => $vdb_ref->[0]
@@ -223,7 +260,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit(1);
     }
     
-    $jobno = $jscontainers->createContainer($container_name, $template_ref, \@cont_array);
+    $jobno = $jscontainers->createContainer($container_name, $template_ref, \@cont_array, \@contowner_array);
 
   }
 
@@ -254,9 +291,10 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] 
-                        -action reset|refresh|recover|create
+                        -action reset|refresh|restore|create
                         -container_name container_name 
                         [-container_def GroupName,VDBName]
+                        [-container_owner username]
                         [-template_name template_name]  
                         [-timestamp timestamp]
                         [-dropvdb yes|no]
@@ -291,7 +329,10 @@ Run a action on the container
 
 =item B<-refresh> - refresh JS container from latest point of template
 
-=item B<-recover> - recover a JS container to point in time or bookmark
+=item B<-restore> - restore a JS container to point in time or bookmark name.
+Bookmark name can be from template or container timeline.
+If ones want to restore container from template's point in time - template_name
+and fromtemplate flag is required.
 
 =back
 
@@ -311,11 +352,18 @@ Name of container's templates
 Specify a VDB which will be used for  container.
 This parameter can be repeated if more than one VDB is required.
 
+=item B<-container_owner de_username>
+Specify a container owner
+This parameter can be repeated if more than one owner is required.
+
 =item B<-timestamp "YYYY-MM-DD HH24:MI:SS" or bookmark name >                                                                                                                                            
-Use timestamp or bookmark name to recover container
+Use timestamp or bookmark name to restore container
 
 =item B<-dropvdb yes|no>
 Drop VDB when deleteing container
+
+=item B<-fromtemplate>
+Use template timeline for container restore
 
 =item B<-help>          
 Print this screen
@@ -343,12 +391,33 @@ Refresh of the container from latest point in time in source
  0 - 3 - 4 - 12 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 70 - 77 - 83 - 100 
  Job JOB-5050 finished with state: COMPLETED
 
-Recover of the cointainer to a bookmark "fixeddate"
+Restore of the cointainer to a bookmark "fixeddate" 
 
- dx_ctl_js_container -d Landshark5 -container_name cont1 -action recover -timestamp fixeddate
+ dx_ctl_js_container -d Landshark5 -container_name cont1 -action restore -timestamp fixeddate
  Starting job JOB-7637 for container cont1.
  0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 68 - 77 - 82 - 100
  Job JOB-7637 finished with state: COMPLETED
+
+Restore if the container from template timeline 
+
+ dx_ctl_js_container -d Landshark51 -action restore -template_name template2 -container_name cont2 -timestamp "2017-04-15 12:00:00" -fromtemplate
+ Starting job JOB-2356 for container cont2.
+ 0 - 2 - 3 - 11 - 24 - 26 - 28 - 52 - 53 - 66 - 67 - 68 - 72 - 77 - 100
+ Job JOB-2356 finished with state: COMPLETED
+
+Create a new container based on template with 2 sources
+
+ dx_ctl_js_container -d Landshark51 -action create -container_def "Analytics,testdx" -container_def "Analytics,autotest" -container_name cont2 -template_name template2 -container_owner js
+ Starting job JOB-2411 for container cont2.
+ 0 - 2 - 3 - 13 - 24 - 26 - 27 - 48 - 52 - 53 - 66 - 67 - 68 - 75 - 81 - 100
+ Job JOB-2411 finished with state: COMPLETED
+ 
+Delete a container cont2 without dropping a VDB
+
+ dx_ctl_js_container -d Landshark51 -action delete -container_name cont2 -dropvdb no
+ Starting job JOB-2434 for container cont2.
+ 0 - 100
+ Job JOB-2434 finished with state: COMPLETED
 
 =cut
 
