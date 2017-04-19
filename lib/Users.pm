@@ -112,6 +112,37 @@ sub getUsers {
     return sort (keys %{$self->{_users}});
 }
 
+
+# Procedure getJSUsers
+# parameters: 
+# Return list of JS users plus delphix admin one as they can have JS objects
+
+sub getJSUsers {
+    my $self = shift;
+    logger($self->{_debug}, "Entering Users::getJSUsers",1); 
+    my @retarray;
+    for my $userref (sort (keys %{$self->{_users}})) {
+      if (($self->{_users}->{$userref}->isJS()) || ($self->{_users}->{$userref}->isAdmin())) {
+        push(@retarray, $userref);
+      }
+    }
+    return \@retarray;
+}
+
+
+# Procedure getUsersByTarget
+# parameters: 
+# - target ref
+# Return list of users for target
+
+sub getUsersByTarget {
+    my $self = shift;
+    my $target_ref = shift;
+    logger($self->{_debug}, "Entering Users::getUsersByTarget",1); 
+    
+    return $self->{_authorizations}->getUsersByTarget($target_ref);
+}
+
 # Procedure getUserList
 # parameters: none
 # Load a list of user objects from Delphix Engine

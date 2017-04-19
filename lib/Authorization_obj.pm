@@ -83,6 +83,32 @@ sub getAuthorizationByUser {
     return \@ret;
 }
 
+# Procedure getUsersByTarget
+# parameters: 
+# - target_ref 
+# Return array of hash ( user / role name) for particular target ref 
+
+
+sub getUsersByTarget {
+    my $self = shift;
+    my $target_ref = shift;
+    logger($self->{_debug}, "Entering Authorization_obj::getUsersByTarget",1); 
+    
+    my @retarray;
+
+    for my $authitem ( sort ( keys %{$self->{_authorizations}} ) ) {
+
+      if ( $self->getTarget($authitem) eq $target_ref) {  
+        push(@retarray, $self->getUser($authitem));
+      }
+      
+    }
+
+    return \@retarray;
+
+}
+
+
 # Procedure getDatabasesByUser
 # parameters: 
 # - user_ref 
@@ -206,6 +232,21 @@ sub isJS {
 
     return $ret;
 
+}
+
+# Procedure getTarget
+# parameters: 
+# - reference
+# Return authorization target ref for specific authorization reference
+
+sub getTarget {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Authorization_obj::getTarget",1);   
+
+    my $authorizations = $self->{_authorizations};
+    return $authorizations->{$reference}->{target};
 }
 
 # Procedure getUser

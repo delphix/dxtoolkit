@@ -37,6 +37,7 @@ use Toolkit_helpers;
 use JS_template_obj;
 use JS_container_obj;
 use JS_branch_obj;
+use Users;
 
 
 my $version = $Toolkit_helpers::version;
@@ -77,19 +78,12 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
 
-# if (defined($properties) || defined($property_name)) {
-#   $output->addHeader(
-#       {'Appliance',       20},
-#       {'Template name',   20}, 
-#       {'Propertie name',  20},
-#       {'Propertie value', 20},
-#   );
-# } else {
 $output->addHeader(
     {'Appliance'     , 20},
     {'Container name', 20},  
     {'Template name' , 20}, 
-    {'Active branch' , 20}
+    {'Active branch' , 20},
+    {'Owners'        , 50}
 );
 # }
 
@@ -135,14 +129,30 @@ for my $engine ( sort (@{$engine_list}) ) {
   } else {
     @contarr = @{$jscontainers->getJSContainerList()};
   }
+  
+  my $users = new Users ( $engine_obj, $debug);
 
   for my $jsconitem (@contarr) {
+
+    my @owners_array = ();
+    my $owners = $users->getUsersByTarget($jsconitem);    
+    if (defined($owners)) {
+      for my $owner (@{$owners}) {
+        my $userobj = $users->getUser($owner);
+        if (defined($userobj)) {
+          push(@owners_array, $userobj->getName());
+        }
+      }
+    }
+    
+    my $owners_string = join(',',@owners_array);
 
     $output->addLine(
        $engine,
        $jscontainers->getName($jsconitem),
        $jstemplates->getName($jscontainers->getJSContainerTemplate($jsconitem)),
-       $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)) 
+       $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)),
+       $owners_string
     );  
     
 
