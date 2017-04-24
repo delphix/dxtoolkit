@@ -112,23 +112,6 @@ sub getJSActiveBranch {
     return $container->{$reference}->{activeBranch};
 }
 
-# Procedure getJSOwners
-# parameters: 
-# - reference
-# Return array with ref to owners
-
-sub getJSOwners {
-    my $self = shift;
-    my $reference = shift;
-    
-    logger($self->{_debug}, "Entering JS_container_obj::getJSOwners",1); 
-
-    my $container = $self->{_jscontainer};
-    
-    print Dumper $container->{$reference};
-    
-    return $container->{$reference}->{owners};
-}
 
 
 # Procedure getJSContainerTemplate
@@ -371,21 +354,12 @@ sub createContainer {
     my $template_ref = shift;
     my $container_def = shift;
     my $owners_array = shift;
+    my $dontrefresh = shift;
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::createContainer",1);
 
     my $operation = "resources/json/delphix/jetstream/container";
     
-    # [
-    #     {
-    #         "type": "JSDataSourceCreateParameters",
-    #         "source": {
-    #             "type": "JSDataSource",
-    #             "priority": 1,
-    #             "name": "Oracle dsource"
-    #         },
-    #         "container": "ORACLE_DB_CONTAINER-142"
-    #     }
     
     my @datasources;
     
@@ -403,17 +377,47 @@ sub createContainer {
       
     }
     
-    my %conthash = (
-      "type" => "JSDataContainerCreateParameters",
-      "dataSources" => \@datasources,
-      "name" => $name,
-      "template" => $template_ref,
-      "owners" => $owners_array,
-      "timelinePointParameters" => {
-          "type" => "JSTimelinePointLatestTimeInput",
-          "sourceDataLayout" => $template_ref
+    my %conthash;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.8.2") { 
+      if (defined($dontrefresh)) {
+        print "Your Delphix Engine version doesn't allow JS container creation without refresh.\n";
+        return undef;
+      }   
+      %conthash = (
+        "type" => "JSDataContainerCreateParameters",
+        "dataSources" => \@datasources,
+        "name" => $name,
+        "template" => $template_ref,
+        "owners" => $owners_array,
+        "timelinePointParameters" => {
+            "type" => "JSTimelinePointLatestTimeInput",
+            "sourceDataLayout" => $template_ref
+        }
+      );
+    } else {
+      if (defined($dontrefresh)) {
+        %conthash = (
+          "type" => "JSDataContainerCreateWithoutRefreshParameters",
+          "dataSources" => \@datasources,
+          "name" => $name,
+          "template" => $template_ref,
+          "owners" => $owners_array
+        );
+      } else {
+        %conthash = (
+          "type" => "JSDataContainerCreateWithRefreshParameters",
+          "dataSources" => \@datasources,
+          "name" => $name,
+          "template" => $template_ref,
+          "owners" => $owners_array,
+          "timelinePointParameters" => {
+              "type" => "JSTimelinePointLatestTimeInput",
+              "sourceDataLayout" => $template_ref
+          }
+        );  
       }
-    );
+    }
 
     my $json_data = to_json(\%conthash);
     return $self->runJobOperation($operation, $json_data);

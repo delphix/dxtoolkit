@@ -337,10 +337,11 @@ sub dlpx_connect {
    my $dlpxObject;
    my $rc = 0;
 
-   my %api_list = ( '4.1' => '1.4',
-                    '4.2' => '1.5',
-                    '4.3' => '1.6',
-                    '5.0' => '1.7'
+   my %api_list = ( '4.1' => '1.4.0',
+                    '4.2' => '1.5.0',
+                    '4.3' => '1.6.0',
+                    '5.0' => '1.7.0',
+                    '5.1' => '1.8.0'
                   );
 
    my $engine_config = $self->{_engines}->{$engine};
@@ -409,11 +410,12 @@ sub dlpx_connect {
             }
          } else {
             # use an Engine API 
-            $self->session('1.3');
+            $self->session('1.3.0');
             my $operation = "resources/json/delphix/about";
             my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
             if ($result->{status} eq "OK") {
-               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor};
+               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor} 
+                              . "." . $result->{result}->{apiVersion}->{micro};
                $self->{_api} = $ses_version;
             } else {
                logger($self->{_debug}, "Can't determine Delphix API version" );
@@ -463,13 +465,15 @@ sub session {
 
    my $major;
    my $minor;
-
+   my $micro;
+   
    if (defined($version)) {
-         ($major,$minor) = split(/\./,$version);
+         ($major,$minor,$micro) = split(/\./,$version);
    }
    else {
          $major = 1;
          $minor = 2;
+         $micro = 0;
    }
 
    my %mysession =   
@@ -480,7 +484,7 @@ sub session {
             "type" => "APIVersion",
             "major" => $major + 0,
             "minor" => $minor + 0,
-            "micro" => 0
+            "micro" => $micro + 0
          }
       } 
    );
@@ -515,11 +519,12 @@ sub getSession {
 
    my $ret;
    my $ver_api;
-
+   
    if ($retcode || ($result->{status} eq 'ERROR') ) {
       $ret = 1 + $retcode;
    } else {
-      $ver_api = $result->{result}->{version}->{major} . "." . $result->{result}->{version}->{minor};
+      $ver_api = $result->{result}->{version}->{major} . "." . $result->{result}->{version}->{minor} . 
+                 "." . $result->{result}->{version}->{micro};
       $ret = 0;
    }
 
