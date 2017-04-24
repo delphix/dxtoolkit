@@ -58,6 +58,7 @@ GetOptions(
   'action=s' => \(my $action),
   'fromtemplate' => \(my $fromtemplate),
   'dropvdb=s' => \(my $dropvdb),
+  'dontrefresh' => \(my $dontrefresh),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -260,7 +261,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit(1);
     }
     
-    $jobno = $jscontainers->createContainer($container_name, $template_ref, \@cont_array, \@contowner_array);
+    $jobno = $jscontainers->createContainer($container_name, $template_ref, \@cont_array, \@contowner_array, $dontrefresh);
 
   }
 
@@ -298,6 +299,7 @@ __DATA__
                         [-template_name template_name]  
                         [-timestamp timestamp]
                         [-dropvdb yes|no]
+                        [-dontrefresh]
                         [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -364,6 +366,9 @@ Drop VDB when deleteing container
 
 =item B<-fromtemplate>
 Use template timeline for container restore
+
+=item B<<-dontrefresh>
+Don't refresh VDB while creating container (req. Delphix Enigne >= 5.1.6)
 
 =item B<-help>          
 Print this screen
