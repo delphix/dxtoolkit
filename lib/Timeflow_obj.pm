@@ -117,6 +117,50 @@ sub getParentPointTimestamp {
     return $timestamp;
 }
 
+
+# Procedure getParentPointTimestampWithTimezone
+# parameters: 
+# - reference
+# - snapshot_timezone
+# Return refrence to parent snapshot
+
+sub getParentPointTimestampWithTimezone {
+    my $self = shift;
+    my $reference = shift;
+    my $timezone = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getParentPointTimestampWithTimezone",1); 
+    
+    my $timestamp = $self->getParentPointTimestamp($reference);
+    
+    if (!defined($timestamp)) {
+      return 'N/A';
+    }
+
+    my $tz = new Date::Manip::TZ;
+    my $dt = new Date::Manip::Date;
+    my ($err,$date,$offset,$isdst,$abbrev);
+
+    #$dt->config("tz","GMT");
+    $dt->config("setdate","zone,GMT");
+
+    chomp($timestamp); 
+    $timestamp =~ s/T/ /;
+    $timestamp =~ s/\.000Z//;         
+
+
+    #$dt = ParseDate($zulutime );
+    $err = $dt->parse($timestamp);
+    my $dttemp = $dt->value();
+
+
+    ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
+    my $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+
+    return $ts;
+
+}
+
+
 # Procedure getParentPointLocation
 # parameters: 
 # - reference
