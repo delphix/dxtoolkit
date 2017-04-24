@@ -199,6 +199,7 @@ __DATA__
 dx_get_appliance [-d <delphix identifier> | -all ] 
                  [-format csv|json ] 
                  [-nohead ] 
+                 [-details ]
                  [-help|? ]
 
 =head1 ARGUMENTS
@@ -218,6 +219,9 @@ Display databases on all Delphix appliance
 =head1 OPTIONS
 
 =over 4
+
+=item B<-details>
+Display vCPU and vMemory
 
 =item B<-format>
 Display output in csv or json format
