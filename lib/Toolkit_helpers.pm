@@ -17,7 +17,7 @@
 package Toolkit_helpers;
 require Exporter;
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(logger);  # symbols to export on request
+@EXPORT_OK = qw(logger trim);  # symbols to export on request
 
 use warnings;
 use strict;
@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.3.2-rc1';
+our $version = '2.3.2-rc2';
 
 sub logger {
 	my $debug = shift;
@@ -246,7 +246,7 @@ sub get_dblist_from_filter {
 	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s" , defined($type) ? $type : 'N/A' , 
 		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A');
 	logger($debug, $msg ,1);
-
+	
 	# get all DB 
 
 	if (defined($primary) ) {
@@ -254,9 +254,9 @@ sub get_dblist_from_filter {
 	} else {
     	@db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getDBList();
     }
-
+		
 	my $ret = \@db_list;
-
+	
 	if ( defined($host) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBForHost($host, $instance) );
@@ -266,6 +266,7 @@ sub get_dblist_from_filter {
   		logger($debug, "list of DB after host filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
   	} 
+		
 
 	if ( defined($dsource) ) {
     	# get all DB from one host
@@ -276,7 +277,7 @@ sub get_dblist_from_filter {
   		logger($debug, "list of DB after parent filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
   	} 
-
+		
 	if ( defined($instancename) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBForInstanceName($instancename) );
@@ -716,6 +717,13 @@ sub readHook {
 	my $oneline = join('', @script);
 	return $oneline;
 }
+
+
+sub  trim { 
+	my $s = shift; 
+	$s =~ s/^\s+|\s+$//g; 
+	return $s 
+};
 
 # end of package
 1;
