@@ -33,6 +33,7 @@ use FindBin;
 use Data::Dumper;
 use File::Spec;
 
+
 my $abspath = $FindBin::Bin;
 
 use lib '../lib';
@@ -46,6 +47,7 @@ use Toolkit_helpers;
 use Snapshot_obj;
 use Hook_obj;
 use MaskingJob_obj;
+use OracleVDB_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -179,16 +181,18 @@ if (defined($backup)) {
     );  
   } else {
     $output->addHeader(
-      {'Appliance', 10},
-      {$hostenv_head,  20},
-      {'Database',  30},
-      {'Group',     15},
-      {'Type',       8},
-      {'SourceDB',  30},
-      {$parentlast_head, 35},
-      {'Used(GB)',  10},
-      {'Status',    10},
-      {'Enabled',   10},
+      {'Appliance'      ,10},
+      {$hostenv_head    ,20},
+      {'Database'       ,30},
+      {'Group'          ,15},
+      {'Type'            ,8},
+      {'SourceDB'       ,30},
+      {$parentlast_head ,35},
+      {'Used(GB)'       ,10},
+      {'Status'         ,10},
+      {'Enabled'        ,10},
+      {'Unique Name'    ,30},
+      {'Parent time'    ,35}
     );
   }
 }
@@ -235,8 +239,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
-
-
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
@@ -247,6 +249,14 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $timezone;
     my $parentname;
     my $parentgroup;
+    my $uniquename;
+    my $parenttime;
+    
+    if ($dbobj->getDBType() eq 'oracle') {
+      $uniquename = $dbobj->getUniqueName();
+    } else {
+      $uniquename = 'N/A';
+    }
 
     if ( $dbobj->getParentContainer() ne '' ) {
       $parentname = $databases->getDB($dbobj->getParentContainer())->getName();
@@ -288,7 +298,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } else {
 
       $parentsnap = $timeflows->getParentSnapshot($dbobj->getCurrentTimeflow());
-
+      
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
@@ -300,6 +310,12 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (lc $parentlast eq 'l') {
         my $dsource_snaps = new Snapshot_obj($engine_obj,$dbobj->getReference(), undef, $debug);
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
+      }
+      
+      $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
+      
+      if ($parenttime eq 'N/A') {
+        $parenttime = $snaptime;
       }
 
       if (defined($masking)) {
@@ -333,7 +349,9 @@ for my $engine ( sort (@{$engine_list}) ) {
           $snaptime,
           $capacity->getDatabaseUsage($dbobj->getReference()),
           $dbobj->getRuntimeStatus(),
-          $dbobj->getEnabled()
+          $dbobj->getEnabled(),
+          $uniquename,
+          $parenttime
         );
       }
 
@@ -502,48 +520,84 @@ Turn off header output
 
 =back
 
+=head1 COLUMNS
+
+Columns description
+
+=over 1
+
+=item B<Appliance> - Delphix Engine name from dxtools.conf file
+
+=item B<Hostname> - Delphix environment hostname or IP address 
+
+=item B<Env. name> - Delphix environment name
+
+=item B<Database> - Database name ( dSource or VDB )
+
+=item B<Group> - Group name 
+
+=item B<Type> - Database type
+
+=item B<SourceDB> - Parent name for VDB
+
+=item B<Parent snapshot> - Parent snapshot time for VDB
+
+=item B<Last snapshot> - Last snapshot time for VDB or dSource
+
+=item B<Used(GB)> - Space used by database
+
+=item B<Status> - Runtime status of database
+
+=item B<Enabled> - Status of database
+
+=item B<Unique Name> - Oracle database unique name
+
+=item B<Parent time> - Parent time used for VDB provision (it can be snapshot time or exact time selected )
+
+=back
+
 =head1 EXAMPLES
 
 List all databases known to Delphix Engine
 
  dx_get_db_env -d Landshark51
 
- Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
- ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
- Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 10:32:26 PST             0.01       UNKNOWN    enabled
- Landshark5 172.16.180.133       AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled
- Landshark5 linuxsource          Oracle dsource                 Sources         dSource                                 N/A                                 0.64       RUNNING    enabled
- Landshark5 linuxsource          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled      Unique Name
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------   -------------
+ Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 10:32:26 PST             0.01       UNKNOWN    enabled      N/A
+ Landshark5 172.16.180.133       AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled      N/A
+ Landshark5 linuxsource          Oracle dsource                 Sources         dSource                                 N/A                                 0.64       RUNNING    enabled      orcl
+ Landshark5 linuxsource          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled      N/A
 
 List databases from group "Analytics" and display last snapshot time 
 
  dx_get_db_env -d Landshark51 -group Analytics -parentlast l
 
- Appliance  Hostname             Database                       Group           Type     SourceDB                       Last snapshot                       Used(GB)   Status     Enabled
- ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
- Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 18:49:04 GMT             0.01       RUNNING    enabled
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Last snapshot                       Used(GB)   Status     Enabled      Unique Name
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------   -------------
+ Landshark5 172.16.180.132       autotest                       Analytics       VDB      AdventureWorksLT2008R2         2016-12-07 18:49:04 GMT             0.01       RUNNING    enabled      N/A
 
 List databases created from dSource "Sybase dsource"
 
  dx_get_db_env -d Landshark51 -dsource "Sybase dsource"
 
- Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
- ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
- Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
- Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+ Appliance  Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled      Unique Name
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------   -------------
+ Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled      N/A
+ Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled      N/A
 
 List all databases known to Delphix Engine showing environment name instead of hostname
 
  dx_get_db_env -d Landshark51 -hostenv e
 
- Appliance  Env. name            Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled
- ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------
- Landshark5 LINUXTARGET          autotest                       Analytics       VDB      Oracle dsource                 2016-12-08 10:44:38 EST             0.01       RUNNING    enabled
- Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
- Landshark5 WINDOWSSOURCE        AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled
- Landshark5 LINUXSOURCE          Oracle dsource                 Sources         dSource                                 N/A                                 0.67       RUNNING    enabled
- Landshark5 LINUXSOURCE          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled
- Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled
+ Appliance  Env. name            Database                       Group           Type     SourceDB                       Parent snapshot                     Used(GB)   Status     Enabled      Unique Name
+ ---------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ----------   -------------
+ Landshark5 LINUXTARGET          autotest                       Analytics       VDB      Oracle dsource                 2016-12-08 10:44:38 EST             0.01       RUNNING    enabled      N/A
+ Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled      N/A
+ Landshark5 WINDOWSSOURCE        AdventureWorksLT2008R2         Sources         dSource                                 N/A                                 0.00       UNKNOWN    enabled      N/A
+ Landshark5 LINUXSOURCE          Oracle dsource                 Sources         dSource                                 N/A                                 0.67       RUNNING    enabled      orcl
+ Landshark5 LINUXSOURCE          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled      N/A
+ Landshark5 LINUXTARGET          testvdb                        Tests           VDB      Sybase dsource                 2016-09-26 10:16:00 EDT             0.00       RUNNING    enabled      N/A
 
 List databases from group "Analytics" with configuration
 
