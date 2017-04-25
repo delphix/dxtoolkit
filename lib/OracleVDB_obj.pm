@@ -510,7 +510,7 @@ sub setVersion {
 # Procedure setSource
 # parameters: 
 # - source - source hash
-# Set dsource reference by name for new db. 
+# Set dsource reference by name for new db
 # Return 0 if success, 1 if not found
 
 sub setSource {
@@ -519,14 +519,13 @@ sub setSource {
     logger($self->{_debug}, "Entering OracleVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
-    my $debug = $self->{_debug};
+      
+    $self->{_source} = $source;
 
     if (defined ($source)) {
         
         my $sourcetype = $source->{container}->{'type'};
         if (($sourcetype eq 'OracleDatabaseContainer') || ($sourcetype eq 'OracleVirtualSource')) {
-            my $configtype = $source->getSourceConfigType();
-            $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
             $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"}  = $source->{container}->{reference};
             return 0;
         } else {
@@ -1415,25 +1414,46 @@ sub createVDB {
         return undef;
     }
     
-    if ( $self->{"NEWDB"}->{"sourceConfig"}->{"type"} eq 'OraclePDBConfig') {
 
-      my $cdbconf = $self->findCDBonEnvironment($cdbname);      
-      $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
-    }
     
 
     if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
-
+  
+  
+    logger($self->{_debug}, "Target environment type " . Dumper $self->{_newenvtype}, 2 );
+    
     if ($self->{'_newenvtype'} eq 'OracleCluster') {
         if ( $self->setRacProvisioning($instances) ) {
             print "Problem with node names or instance numbers. Please double check.";
             return undef;
         }
+    } else {
+      my $configtype = $self->{_source}->getSourceConfigType();
+      if ($configtype eq 'OracleRACConfig') {
+        $configtype = "OracleSIConfig";
+      }
+      $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
+         
     }
-    
+
+    logger($self->{_debug}, "Target sourceConfig type " . Dumper $self->{"NEWDB"}->{"sourceConfig"}->{"type"}, 2 );
+
+    if ( $self->{"NEWDB"}->{"sourceConfig"}->{"type"} eq 'OraclePDBConfig') {
+      if (!defined($cdbname)) {
+        print "Container name (-cdb) for vPDB provisioning has to be set. VDB won't be created\n";
+        return undef;
+      }
+
+      my $cdbconf = $self->findCDBonEnvironment($cdbname);  
+      if (!defined($cdbconf)) {
+        print "Container name $cdbname not found. VDB won't be created\n";
+        return undef;
+      }   
+      $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
+    }
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
