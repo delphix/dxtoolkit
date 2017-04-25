@@ -584,6 +584,7 @@ __DATA__
                   [-instname SID] 
                   [-uniqname db_unique_name] 
                   [-mntpoint mount_point ]
+                  [-cdb container_name]
                   [-noopen]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
@@ -690,6 +691,9 @@ Target VDB db_unique_name (for Oracle)
 
 =item B<-mntpoint path>
 Set a mount point for VDB (for Oracle)
+
+=item B<-cdb container_name>
+Set a target container for vPDB
 
 =item B<-noopen>
 Don't open database after provision (for Oracle)
