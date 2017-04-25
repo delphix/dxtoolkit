@@ -302,8 +302,20 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
+          $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
+          if ($parenttime eq 'N/A') {
+            my $loc = $timeflows->getParentPointLocation($dbobj->getCurrentTimeflow());
+            my $lastsnaploc = $snapshots->getlatestChangePoint($parentsnap);
+            if ( $loc != $lastsnaploc) {
+              $parenttime = $loc;
+            } else {
+              $parenttime = $snaptime;
+            }
+          }
+          
         } else {
           $snaptime = 'N/A';
+          $parenttime = 'N/A';
         }
       }
 
@@ -312,11 +324,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
       }
       
-      $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
       
-      if ($parenttime eq 'N/A') {
-        $parenttime = $snaptime;
-      }
 
       if (defined($masking)) {
         my $masked;
