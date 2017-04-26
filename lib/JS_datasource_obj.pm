@@ -80,6 +80,30 @@ sub getJSDataSourceByName {
     return $ret;
 }
 
+
+# Procedure getJSDataSourceByContainer
+# parameters:
+# - conref
+# Return data source reference for particular container
+
+sub getJSDataSourceByContainer {
+    my $self = shift;
+    my $conref = shift;
+    logger($self->{_debug}, "Entering JS_datasource_obj::getJSDataSourceByContainer",1);
+    my @retarray;
+
+    #print Dumper $$config;
+
+    for my $dsitem ( sort ( keys %{$self->{_jsdatasource}} ) ) {
+
+        if ( $self->getJSDataLayout($dsitem) eq $conref) {
+            push(@retarray, $dsitem);
+        }
+    }
+
+    return \@retarray;
+}
+
 # Procedure getJSDataSource
 # parameters:
 # - reference
@@ -155,6 +179,21 @@ sub getJSDBContainer {
 
     my $jsdatasource = $self->{_jsdatasource};
     return $jsdatasource->{$reference}->{container};
+}
+
+# Procedure getJSDataLayout
+# parameters:
+# - reference
+# Return JS datasource container
+
+sub getJSDataLayout {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering JS_datasource_obj::getJSDataLayout",1);
+
+    my $jsdatasource = $self->{_jsdatasource};
+    return $jsdatasource->{$reference}->{dataLayout};
 }
 
 # Procedure getProperties
