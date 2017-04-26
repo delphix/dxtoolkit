@@ -197,6 +197,25 @@ sub savecsv {
 	}
 }
 
+
+# Procedure sendtosyslog
+# Send data into syslog
+# - handler - syslog_wrap class
+
+
+sub sendtosyslog {
+	my $self = shift;
+	my $handler = shift;
+  logger($self->{_debug}, "Entering Engine::sendtosyslog",1);
+  logger($self->{_debug}, "Format " .  $self->{_format},2);
+
+    
+	for my $line ( @{$self->{_lines}} ) {
+		$handler->send(join(',',@{$line}));
+	}
+}
+
+
 # Procedure addLine
 # parameters: 
 # - array of columns
