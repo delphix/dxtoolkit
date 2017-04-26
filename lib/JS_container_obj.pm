@@ -29,6 +29,8 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 use JS_bookmark_obj;
+use JS_datasource_obj;
+use Snapshot_obj;
 use Date::Manip;
 
 # constructor
@@ -239,20 +241,33 @@ sub restoreContainer {
     logger($self->{_debug}, "Entering JS_bookmark_obj::restoreContainer",1);
 
     my $detz = $self->{_dlpxObject}->getTimezone();
-
+      
     my %recover_hash;
 
     my $zulutime;
 
     if ( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d?\d):(\d\d)/ ) {
+
         my $tz = new Date::Manip::TZ;
-        my $dt = ParseDate($timestamp);
+        my $dt = new Date::Manip::Date;
+
+        #$dt->config("tz","GMT");
+        $dt->config("setdate","zone,GMT");
+
+        chomp($timestamp); 
+        $timestamp =~ s/T/ /;
+        $timestamp =~ s/\.000Z//;    
+        
+
+        #$dt = ParseDate($zulutime );
+        my $errparse = $dt->parse($timestamp);
+        my $dttemp = $dt->value();
 
         my $ret;
 
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
+        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dttemp, $detz);
 
-        if (! $err) {
+        if (! $errparse ) {
             $zulutime = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 
             if ($self->{_dlpxObject}->getApi() lt "1.8") {
