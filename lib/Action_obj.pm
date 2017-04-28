@@ -158,17 +158,31 @@ sub getState {
     return $self->{_actions}->{$reference}->{state};
 }
 
-# Procedure getUser
+# Procedure getUserName
 # parameters: 
 # - reference
 # Return action username
 
-sub getUser {
+sub getUserName {
     my $self = shift;
     my $reference = shift;
     
-    logger($self->{_debug}, "Entering Action_obj::getUser",1); 
-    my $user =  defined($self->{_actions}->{$reference}->{userName}) ?  lc $self->{_actions}->{$reference}->{userName} : 'internal';   
+    logger($self->{_debug}, "Entering Action_obj::getUserName",1); 
+    my $user =  defined($self->{_actions}->{$reference}->{workSourceName}) ?  lc $self->{_actions}->{$reference}->{workSourceName} : 'internal';   
+    return $user;
+}
+
+# Procedure getUserRef
+# parameters: 
+# - reference
+# Return action username
+
+sub getUserRef {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getUserRef",1); 
+    my $user =  defined($self->{_actions}->{$reference}->{user}) ?  $self->{_actions}->{$reference}->{user} : 'N/A';   
     return $user;
 }
 
