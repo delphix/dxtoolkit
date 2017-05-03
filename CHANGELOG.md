@@ -1,5 +1,22 @@
 # Change Log
 
+
+## 2.3.2
+
+### added
+
+* vCPU and vMem information into dx_get_appliance
+* Parent time in dx_get_db_env will display a real provisioning time, SCN/LSN or parent snapshot time - depend what was used to deploy
+* added create and remove JetStream container actions in dx_ctl_js_container
+* new script dx_ctl_js_template to create and remove JetStream template 
+* added functionalty to restore container from template timeline
+
+### Changed
+
+* fix for RAC to nonRAC provisioning
+* missing cdb parameter in help
+* Various bug fixes 
+
 ## 2.3.1
 
 ### Added
