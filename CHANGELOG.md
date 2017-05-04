@@ -10,6 +10,7 @@
 * added create and remove JetStream container actions in dx_ctl_js_container
 * new script dx_ctl_js_template to create and remove JetStream template 
 * added functionalty to restore container from template timeline
+* new script dx_get_capacity_history to extract historical capacity
 
 ### Changed
 
