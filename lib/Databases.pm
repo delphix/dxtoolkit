@@ -113,8 +113,18 @@ sub LoadDBList
     for my $dbitem (@res) {
     
         if ($dbitem->{type} eq 'OracleDatabaseContainer' )
-        { 
-            $db = OracleVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+        {   
+            if (defined($dbitem->{contentType})) {
+              if ($dbitem->{contentType} eq 'AUX_CDB') {
+                next;
+              } else {
+                $db = OracleVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+              }
+            } else {
+              print "Content type for $dbitem->{name} not found\n";
+              next;
+            }
+            
         } 
         elsif ($dbitem->{type} eq 'MSSqlDatabaseContainer' )
         { 
@@ -592,7 +602,7 @@ sub generateHierarchy
     }
     
     logger($self->{_debug}, \%hierarchy, 2);
-          
+              
     return \%hierarchy;
 
 }
@@ -611,13 +621,12 @@ sub finddSource
     my $ref = shift;
     my $hier = shift;
 
-    logger($self->{_debug}, "Entering Databases::generateHierarchy",1);   
+    logger($self->{_debug}, "Entering Databases::finddSource",1);   
 
     my $local_ref = $ref;
     my $child;
     my $parent;
-  
-  
+    
     logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
     
     #leave loop if there is no parent, parent is deleted or not local
@@ -627,7 +636,11 @@ sub finddSource
     do {
       $parent = $hier->{$local_ref}->{parent};
       
-      logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
+      if (!defined($hier->{$local_ref}->{parent})) {
+        return ('deleted', undef);
+      }
+      
+      logger($self->{_debug}, "Parent " . Dumper $parent . " for " . $local_ref, 2);
       
       if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
           $child = $local_ref;
@@ -663,7 +676,7 @@ sub returnHierarchy
     my $ref = shift;
     my $hier = shift;
 
-    logger($self->{_debug}, "Entering Databases::generateHierarchy",1);   
+    logger($self->{_debug}, "Entering Databases::returnHierarchy",1);   
 
     my $local_ref = $ref;
     my $child;

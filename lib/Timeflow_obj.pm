@@ -468,12 +468,12 @@ sub finddSource
     my $ref = shift;
     my $hier = shift;
 
-    logger($self->{_debug}, "Entering Timeflow_obj::generateHierarchy",1);   
+    logger($self->{_debug}, "Entering Timeflow_obj::finddSource",1);   
 
     my $local_ref = $ref;
     my $child;
     my $parent;
-  
+      
     logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
     
     #leave loop if there is no parent, parent is deleted or not local

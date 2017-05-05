@@ -201,7 +201,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbobj = $databases->getDB($dbitem);
     my $groupname = $groups->getName($dbobj->getGroup());
     
-
     my $snaptime;
     my $timezone;
     my $childname;
@@ -237,7 +236,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           } elsif ($topdsc eq 'notlocal') {
             $parentname = 'dSource on other DE';
             $physicaldb = 'N/A';
-          } else {            
+          } else {           
             $parentname = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getName();
             $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getSourceConfigName();
           }
