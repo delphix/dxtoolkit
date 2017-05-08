@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.3.2.1
+
+### Changed
+
+* fix to skip display of AUX_CDB containers
 
 ## 2.3.2
 
