@@ -52,7 +52,8 @@ sub new {
     }
 
     my $handler = Log::Syslog::Fast->new($protocol, $server, $port, Log::Syslog::Constants::LOG_USER, Log::Syslog::Constants::LOG_INFO, "servername", "Delphix");
-
+    $handler->set_format(LOG_RFC5424);
+    $handler->set_pid(0);
     my $self = {
         _server => $server,
         _port => $port,
@@ -66,6 +67,18 @@ sub new {
     return $self;
 }
 
+# procedure setDE 
+# set source to Delphix Engine IP
+# - address
+
+sub setDE {
+  my $self = shift;
+  my $address = shift;
+    
+  $self->{_handler}->set_sender($address);
+    
+}
+
 # procedure send 
 # send message to syslog
 # - message
@@ -73,12 +86,17 @@ sub new {
 sub send {
   my $self = shift;
   my $message = shift;
+  my $time = shift;
   
   if ($self->{_protocol} eq LOG_TCP) {
     $message = $message . "\n";
   }
   
-  $self->{_handler}->send($message, time);
+  if (!defined($time)) {
+    $time = time;
+  }
+  
+  $self->{_handler}->send($message, $time);
     
 }
 

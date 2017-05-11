@@ -86,6 +86,25 @@ sub getStartTimeWithTZ {
     return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
 }
 
+# Procedure getEndTimeWithTZ
+# parameters: 
+# - reference
+# Return fault date with engine time zone
+
+sub getEndTimeWithTZ {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getEndTimeWithTZ",1);    
+    my $tz = new Date::Manip::TZ;
+    my $action = $self->{_actions}->{$reference};
+    my $ts = $action->{endTime};
+    $ts =~ s/\....Z//;
+    my $dt = ParseDate($ts);
+    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
+    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+}
+
 
 # Procedure waitForAction
 # parameters: 
@@ -142,6 +161,34 @@ sub getTitle {
     
     logger($self->{_debug}, "Entering Action_obj::getTitle",1);    
     return $self->{_actions}->{$reference}->{title};
+}
+
+
+# Procedure getFailureAction
+# parameters: 
+# - reference
+# Return action details
+
+sub getFailureAction {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getFailureAction",1);    
+    return defined($self->{_actions}->{$reference}->{failureAction}) ? $self->{_actions}->{$reference}->{failureAction} : "" ;
+}
+
+
+# Procedure getFailureAction
+# parameters: 
+# - reference
+# Return action details
+
+sub getFailureDescription {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getFailureAction",1);    
+    return defined($self->{_actions}->{$reference}->{failureDescription}) ? $self->{_actions}->{$reference}->{failureDescription} : "";
 }
 
 
@@ -264,8 +311,11 @@ sub loadActionList
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Action_obj::loadActionList",1);   
+    
+    my $offset = 0;
+    my $pageSize = 10;
 
-    my $operation = "resources/json/delphix/action?pageSize=10000";
+    my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset&";
 
     if ($self->{_startTime}) {
         $operation = $operation . "&fromDate=" . $self->{_startTime};
@@ -279,23 +329,35 @@ sub loadActionList
         $operation = $operation . "&state=" . $self->{_state};
     }
 
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-        my @res = @{$result->{result}};
-        my $actions = $self->{_actions};
 
-        my %parent_action;
+    my $total = 1;
+    
+    while ($total > 0) {
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          my @res = @{$result->{result}};
+          my $actions = $self->{_actions};
+          
+          if (scalar(@res) < $pageSize) {
+             $total = 0;
+          }
+          
+          $offset = $offset + 1;
+          $operation =~ s/pageOffset=(\d*)/pageOffset=$offset/;
 
-        for my $actionitem (@res) {
-            $actions->{$actionitem->{reference}} = $actionitem;
-            if (defined($actionitem->{parentAction})) {
-                $parent_action{$actionitem->{parentAction}} = $actionitem->{reference};
-            }
-        } 
+          my %parent_action;
 
-        $self->{_parent_action} = \%parent_action;
-    } else {
-        print "No data returned for $operation. Try to increase timeout \n";
+          for my $actionitem (@res) {
+              $actions->{$actionitem->{reference}} = $actionitem;
+              if (defined($actionitem->{parentAction})) {
+                  $parent_action{$actionitem->{parentAction}} = $actionitem->{reference};
+              }
+          } 
+
+          $self->{_parent_action} = \%parent_action;
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+      }
     }
 }
 

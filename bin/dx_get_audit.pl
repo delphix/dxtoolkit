@@ -139,7 +139,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $engine,
       $actions->getStartTimeWithTZ($actionitem),
       $actions->getState($actionitem),
-      $actions->getUser($actionitem),
+      $actions->getUserName($actionitem),
       $actions->getActionType($actionitem),
       $actions->getDetails($actionitem)
     )
