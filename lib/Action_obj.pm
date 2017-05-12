@@ -67,6 +67,21 @@ sub new {
 }
 
 
+# Procedure getStartTime
+# parameters: 
+# - reference
+# Return action start date
+
+sub getStartTime {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getStartTimeWithTZ",1);    
+    my $action = $self->{_actions}->{$reference};
+    return $action->{startTime};
+}    
+
+
 # Procedure getStartTimeWithTZ
 # parameters: 
 # - reference
@@ -315,7 +330,7 @@ sub loadActionList
     my $offset = 0;
     my $pageSize = 10;
 
-    my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset&";
+    my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset";
 
     if ($self->{_startTime}) {
         $operation = $operation . "&fromDate=" . $self->{_startTime};
@@ -357,8 +372,50 @@ sub loadActionList
           $self->{_parent_action} = \%parent_action;
       } else {
           print "No data returned for $operation. Try to increase timeout \n";
+          $total = 0;
       }
     }
+}
+
+# Procedure loadActionListbyID
+# parameters: 
+# hash of actions
+# Load a list of role objects from Delphix Engine
+
+sub loadActionListbyID 
+{
+    my $self = shift;
+    my $list = shift;
+    logger($self->{_debug}, "Entering Action_obj::loadActionListbyID",1);   
+    
+    my $operation;
+
+    for my $loaditem (keys %{$list}) {
+
+      $operation = "resources/json/delphix/action/" . $loaditem;
+
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        print Dumper $result->{result};
+        
+        
+        my $actions = $self->{_actions};
+        
+        my %parent_action;
+
+
+        $actions->{$result->{result}->{reference}} = $result->{result};
+        if (defined($result->{result}->{parentAction})) {
+            $parent_action{$result->{result}->{parentAction}} = $result->{result}->{reference};
+        }
+         
+
+        $self->{_parent_action} = \%parent_action;
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+    }
+    
 }
 
 1;
