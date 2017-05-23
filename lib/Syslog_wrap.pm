@@ -24,6 +24,7 @@ use Data::Dumper;
 use Log::Syslog::Fast ':all';
 use Log::Syslog::Constants;
 use Toolkit_helpers qw (logger);
+use Try::Tiny;
 
 
 
@@ -50,8 +51,16 @@ sub new {
       print "Wrong protocol\n";
       return undef;
     }
+    
+    my $handler;
 
-    my $handler = Log::Syslog::Fast->new($protocol, $server, $port, Log::Syslog::Constants::LOG_USER, Log::Syslog::Constants::LOG_INFO, "servername", "Delphix");
+    try {
+      $handler = Log::Syslog::Fast->new($protocol, $server, $port, Log::Syslog::Constants::LOG_USER, Log::Syslog::Constants::LOG_INFO, "servername", "Delphix");
+    }
+    catch {
+         print "Can't connect to syslog server: " . $_ . " \n" ;
+         return undef;
+    };
     $handler->set_format(LOG_RFC5424);
     $handler->set_pid(0);
     my $self = {
@@ -96,8 +105,14 @@ sub send {
     $time = time;
   }
   
-  $self->{_handler}->send($message, $time);
-    
+  try {
+    $self->{_handler}->send($message, $time);
+  } catch {
+    print "Can't send to syslog server: " . $_ . " \n" ;
+    return undef;  
+  }
+  
+  return 1;  
 }
 
 1;

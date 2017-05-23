@@ -276,6 +276,23 @@ sub getActionType {
     return $self->{_actions}->{$reference}->{actionType};
 }
 
+# Procedure getActionParent
+# parameters: 
+# - reference
+# Return action parent or N/A
+
+sub getActionParent {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getActionParent",1);    
+    my $ret = $self->{_actions}->{$reference}->{parentAction};
+    if (!defined($ret)) {
+      $ret = 'N/A';
+    }
+    return $ret;
+}
+
 
 # Procedure getActionList
 # - sort order asc / desc
@@ -396,13 +413,9 @@ sub loadActionListbyID
 
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-        print Dumper $result->{result};
-        
         
         my $actions = $self->{_actions};
-        
         my %parent_action;
-
 
         $actions->{$result->{result}->{reference}} = $result->{result};
         if (defined($result->{result}->{parentAction})) {

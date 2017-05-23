@@ -209,7 +209,7 @@ sub sendtosyslog {
 	my $handler = shift;
   logger($self->{_debug}, "Entering Engine::sendtosyslog",1);
   logger($self->{_debug}, "Format " .  $self->{_format},2);
-  
+  my $ret = 0;
   
   my $json = new JSON();
   #this is for sort if necessary
@@ -220,11 +220,9 @@ sub sendtosyslog {
 		for (my $i=0; $i < scalar(@{$line}); $i++) {
 			$json_line{ $self->{_header}[$i] } = @{$line}[$i];
       if ($self->{_header}[$i] eq 'StartTime') {
-        print Dumper @{$line}[$i];
         $timestamp = UnixDate( ParseDate(@{$line}[$i]), "%s" );
       }
       if ($self->{_header}[$i] eq 'Appliance') {
-        print Dumper @{$line}[$i];
         $handler->setDE(@{$line}[$i]);
       }
 		}
@@ -232,8 +230,13 @@ sub sendtosyslog {
       $timestamp = time;
     }
 		my $json_data =  $json->encode( \%json_line );
-    $handler->send($json_data, $timestamp);
+    if (!defined($handler->send($json_data, $timestamp))) {
+      print "Send to syslog error\n";
+      $ret = $ret + 1;
+    }
   }
+  
+  return $ret;
   
 }
 

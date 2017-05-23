@@ -262,7 +262,7 @@ sub generate_replicate_mapping {
           }
         }
       } else {
-        print "Repication profile not found (possibly deleted) - parents for some objects can't be found\n";
+        print "Replication profile not found (possibly deleted) - parents for some objects can't be found\n";
       }
   }
   
