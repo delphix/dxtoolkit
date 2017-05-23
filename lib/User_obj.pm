@@ -96,6 +96,19 @@ sub setNames {
 }
 
 
+# Procedure getAuthType
+# Return: 
+# - Native / LDAP
+
+sub getAuthType {
+    my $self = shift;
+    
+    logger($self->{_debug}, "Entering User_obj::getAuthType",1);
+    return $self->{_user}->{authenticationType};
+}
+
+
+
 # Procedure getNames
 # Return: 
 # - first_name 
