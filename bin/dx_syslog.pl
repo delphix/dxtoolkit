@@ -37,7 +37,7 @@ use FindBin;
 
 my $abspath = $FindBin::Bin;
 
-my $version = '0.5';
+my $version = '0.6';
 
 my $port = 514;
 my $protocol = 'tcp';
@@ -87,157 +87,183 @@ my $config_file = $path . '/dxtools.conf';
 $engine_obj->load_config($config_file);
 
 
-my $handler = new Syslog_wrap ( $syslog, 514, 'tcp', undef );
+my $handler = new Syslog_wrap ( $syslog, $port, $protocol, $debug );
+
 
 if (!defined($handler)) {
   print "Syslog connection error\n";
   exit(1);
 }
 
-my $f = new Formater();
-
-$engine_obj->dlpx_connect($dx_host);
-
-my $last_start_time;
-my $st_timestamp;
-if (defined($load_state->{last_start_time})) {
-  my $delta = $load_state->{last_start_time};
-  my ($d, $md) = ($delta =~ /(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.)(\d\d\d)/ );
-  my $newtime = sprintf("%s%sZ", $d, $md+1);
-  $st_timestamp = uri_escape($newtime);
-  $last_start_time = $load_state->{last_start_time};
-} else {
-  $st_timestamp = Toolkit_helpers::timestamp("-120min", $engine_obj);
-}
-
-# REMOVE IT
-$st_timestamp = Toolkit_helpers::timestamp("-1day", $engine_obj);
-# END
-
-
-if (defined($load_state->{running_actions})) {
-  %running_actions = %{$load_state->{running_actions}};
-}
-
-
-
-my $actions = new Action_obj($engine_obj, $st_timestamp, undef, undef);
-my $users = new Users ($engine_obj, undef);
-
-
-
-
-$f->addHeader(
-    {'Appliance',   20},
-    {'ActionID',    20},
-    {'ActionParentID', 20},
-    {'StartTime',   30},
-    {'State',       12},
-    {'User',        20},
-    {'User role',   20},
-    {'User auth',   10},
-    {'Type',        20},
-    {'Details',     80},
-    {'Failure Action', 80}
-);
-
-
-$actions->loadActionListbyID(\%running_actions);
 
 my $count = 0;
 
-for my $actionitem ( @{$actions->getActionList('asc', undef, undef)} ) {
-  
-  my $user = $actions->getUserRef($actionitem);
-  my $userole;
-  my $userauth; 
-  if ($user ne 'N/A') {
-    my $userobj = $users->getUser($user);
-    if (defined($userobj->isJS())) {
-      $userole = 'JetStream Only';
-    } elsif (defined($userobj->isAdmin())) {
-      $userole = 'Delphix Admin';
+my $f = new Formater();
+
+# this array will have all engines to go through (if -d is specified it will be only one engine)
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+
+my $ret = 0;
+
+for my $engine ( sort (@{$engine_list}) ) {
+  # main loop for all work
+  if ($engine_obj->dlpx_connect($engine)) {
+    print "Can't connect to Dephix Engine $engine\n\n";
+    $ret = $ret + 1;
+    if (defined($load_state->{$engine})) {
+      $save_state{$engine} = (
+        {
+          "last_start_time" => $load_state->{$engine}->{last_start_time},
+          "running_actions" => $load_state->{$engine}->{running_actions}
+        }
+      );
+    }
+    next;
+  };
+
+
+  my $last_start_time;
+  my $st_timestamp;
+  if (defined($load_state->{$engine}) && defined($load_state->{$engine}->{last_start_time})) {
+    my $delta = $load_state->{$engine}->{last_start_time};
+    my ($d, $md) = ($delta =~ /(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.)(\d\d\d)/ );
+    my $newtime = sprintf("%s%sZ", $d, $md+1);
+    $st_timestamp = uri_escape($newtime);
+    $last_start_time = $load_state->{$engine}->{last_start_time};
+  } else {
+    $st_timestamp = Toolkit_helpers::timestamp("-120min", $engine_obj);
+  }
+
+
+  if (defined($load_state->{$engine}) && defined($load_state->{$engine}->{running_actions})) {
+    %running_actions = %{$load_state->{$engine}->{running_actions}};
+  }
+
+
+
+  my $actions = new Action_obj($engine_obj, $st_timestamp, undef, undef);
+  my $users = new Users ($engine_obj, undef);
+
+
+
+
+  $f->addHeader(
+      {'Appliance',   20},
+      {'ActionID',    20},
+      {'ActionParentID', 20},
+      {'StartTime',   30},
+      {'State',       12},
+      {'User',        20},
+      {'User role',   20},
+      {'User auth',   10},
+      {'Type',        20},
+      {'Details',     80},
+      {'Failure Action', 80}
+  );
+
+
+  $actions->loadActionListbyID(\%running_actions);
+
+
+
+  for my $actionitem ( @{$actions->getActionList('asc', undef, undef)} ) {
+    
+    my $user = $actions->getUserRef($actionitem);
+    my $userole;
+    my $userauth; 
+    if ($user ne 'N/A') {
+      my $userobj = $users->getUser($user);
+      if (defined($userobj->isJS())) {
+        $userole = 'JetStream Only';
+      } elsif (defined($userobj->isAdmin())) {
+        $userole = 'Delphix Admin';
+      } else {
+        $userole = 'User with privs';
+      }
+      
+      $userauth = $userobj->getAuthType();
+    
     } else {
-      $userole = 'User with privs';
+      $userole = '';
+      $userauth = '';
     }
     
-    $userauth = $userobj->getAuthType();
-  
-  } else {
-    $userole = '';
-    $userauth = '';
-  }
-  
-  my $state = $actions->getState($actionitem);
-  
-  my $action = $actions->getActionType($actionitem);
+    my $state = $actions->getState($actionitem);
+    
+    my $action = $actions->getActionType($actionitem);
 
-  if (!defined($running_actions{$actionitem})) {
-    $f->addLine(
-      $engine_obj->getIP($dx_host),
-      $actionitem,
-      $actions->getActionParent($actionitem),
-      $actions->getStartTimeWithTZ($actionitem),
-      'STARTED',
-      $actions->getUserName($actionitem),
-      $userole,
-      $userauth,
-      $action,
-      $actions->getDetails($actionitem),
-      ''
-    );
-    $count=$count+1;
-  }
-
-  
-
-
-
-  if (($action ne 'USER_LOGIN') && ($action ne 'USER_LOGOUT')) {
-    if ($state ne 'WAITING') {
+    if (!defined($running_actions{$actionitem})) {
       $f->addLine(
         $engine_obj->getIP($dx_host),
         $actionitem,
         $actions->getActionParent($actionitem),
-        $actions->getEndTimeWithTZ($actionitem),
-        $state,
+        $actions->getStartTimeWithTZ($actionitem),
+        'STARTED',
         $actions->getUserName($actionitem),
         $userole,
         $userauth,
         $action,
-        $actions->getFailureDescription($actionitem),
-        $actions->getFailureAction($actionitem)
+        $actions->getDetails($actionitem),
+        ''
       );
       $count=$count+1;
-      delete $running_actions{$actionitem};
-    } else {
-      $running_actions{$actionitem} = 1;
     }
+
+    
+
+
+
+    if (($action ne 'USER_LOGIN') && ($action ne 'USER_LOGOUT') && ($action ne 'USER_FAILED_LOGIN') ) {
+      if ($state ne 'WAITING') {
+        $f->addLine(
+          $engine_obj->getIP($dx_host),
+          $actionitem,
+          $actions->getActionParent($actionitem),
+          $actions->getEndTimeWithTZ($actionitem),
+          $state,
+          $actions->getUserName($actionitem),
+          $userole,
+          $userauth,
+          $action,
+          $actions->getFailureDescription($actionitem),
+          $actions->getFailureAction($actionitem)
+        );
+        $count=$count+1;
+        delete $running_actions{$actionitem};
+      } else {
+        $running_actions{$actionitem} = 1;
+      }
+    }
+    
+    if (!defined($last_start_time)) {
+      $last_start_time = $actions->getStartTime($actionitem);
+    }
+    
+    if ($last_start_time lt $actions->getStartTime($actionitem)) {
+      $last_start_time = $actions->getStartTime($actionitem);
+    }
+
   }
   
   if (!defined($last_start_time)) {
-    $last_start_time = $actions->getStartTime($actionitem);
-  }
-  
-  if ($last_start_time lt $actions->getStartTime($actionitem)) {
-    $last_start_time = $actions->getStartTime($actionitem);
+    $last_start_time = $load_state->{$engine}->{last_start_time};
   }
 
+  $save_state{$engine} = (
+    {
+      "last_start_time" => $last_start_time,
+      "running_actions" => \%running_actions
+    }
+  );
+  
 }
 
-$f->sortbytextcolumn(3);
-$f->savecsv();
+#$f->sortbytextcolumn(3);
+# $f->savecsv();
 # print Dumper $last_start_time;
 # print Dumper \%running_actions;
 
-if (!defined($last_start_time)) {
-  $last_start_time = $load_state->{last_start_time};
-}
 
-%save_state = (
-  "last_start_time" => $last_start_time,
-  "running_actions" => \%running_actions
-);
 
 
 open ($json_stream, '>', 'syslog.dat') or die ("Can't load config file : $!");
@@ -248,31 +274,26 @@ print $json_stream $json_data;
 #print Dumper $json_data;
 close($json_stream);
 
+
 print "$count lines sent to syslog\n";
+$ret = $ret + $f->sendtosyslog($handler);
 
-
-
-#my $ret = $f->sendtosyslog($handler);
-
-#exit $ret;
+exit $ret;
 
 __DATA__
 
 =head1 SYNOPSIS
 
- dx_syslog       [-engine|d <delphix identifier> | -all ] 
-                 [-st timestamp] 
-                 [-et timestamp] 
-                 [-state state] 
-                 [-type type] 
-                 [-username username]
-                 [-format csv|json ]  
-                 [-outdir path]
-                 [ --help|? ] [ -debug ]
+ dx_syslog       -engine|d <delphix identifier> | -all 
+                 -syslog syslog_server 
+                 [ -port syslog_port] 
+                 [ -protocol tcp|udp] 
+                 [ -help|? ] 
+                 [ -debug ]
 
 =head1 DESCRIPTION
 
-Get the list of actions from Delphix Engine.
+Get the list of actions from Delphix Engine and send to external syslog
 
 =head1 ARGUMENTS
 
@@ -284,24 +305,11 @@ Delphix Engine selection - if not specified a default host(s) from dxtools.conf 
 Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
-Display databases on all Delphix appliance
+Run on all engines configured in dxtools.conf
 
-=back
+=item B<-syslog syslog_server>
+IP or name of syslog server
 
-=head2 Filters
-
-Filter faults using one of the following filters
-
-=over 4
-
-=item B<-state>
-Action state - COMPLETED / WAITING / FAILED
-
-=item B<-type>
-Action type ex. HOST_UPDATE, SOURCES_DISABLE, etc,
-
-=item B<-username>
-Display only action performed by user
 
 =back
 
@@ -310,19 +318,11 @@ Display only action performed by user
 =over 3
 
 
-=item B<-st timestamp>
-Start time for faults list - default value is 7 days
+=item B<-port syslog_port>
+Port of syslog server - default 514
 
-=item B<-et timestamp>
-End time for faults list 
-
-=item B<-format>                                                                                                                                            
-Display output in csv or json format
-If not specified pretty formatting is used.
-
-=item B<-outdir path>                                                                                                                                            
-Write output into a directory specified by path.
-Files names will include a timestamp and type name
+=item B<-protocol tcp|udp>
+Protocol for syslog server communication - default TCP
 
 =item B<-help>          
 Print this screen
@@ -330,8 +330,6 @@ Print this screen
 =item B<-debug>
 Turn on debugging
 
-=item B<-nohead>
-Turn off header output
 
 =back
 

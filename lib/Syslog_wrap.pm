@@ -53,26 +53,25 @@ sub new {
     }
     
     my $handler;
+    my $self;
 
     try {
       $handler = Log::Syslog::Fast->new($protocol, $server, $port, Log::Syslog::Constants::LOG_USER, Log::Syslog::Constants::LOG_INFO, "servername", "Delphix");
+      $handler->set_format(LOG_RFC5424);
+      $handler->set_pid(0);
+      $self = {
+          _server => $server,
+          _port => $port,
+          _protocol => $protocol,
+          _handler => $handler
+      };
+      
+      bless($self,$classname);
     }
     catch {
          print "Can't connect to syslog server: " . $_ . " \n" ;
-         return undef;
-    };
-    $handler->set_format(LOG_RFC5424);
-    $handler->set_pid(0);
-    my $self = {
-        _server => $server,
-        _port => $port,
-        _protocol => $protocol,
-        _handler => $handler
     };
 
-
-    
-    bless($self,$classname);
     return $self;
 }
 
@@ -105,14 +104,8 @@ sub send {
     $time = time;
   }
   
-  try {
-    $self->{_handler}->send($message, $time);
-  } catch {
-    print "Can't send to syslog server: " . $_ . " \n" ;
-    return undef;  
-  }
-  
-  return 1;  
+
+  $self->{_handler}->send($message, $time);
 }
 
 1;
