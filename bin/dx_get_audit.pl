@@ -183,7 +183,7 @@ Delphix Engine selection - if not specified a default host(s) from dxtools.conf 
 Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
-Display databases on all Delphix appliance
+Run on all engines configured in dxtools.conf 
 
 =back
 

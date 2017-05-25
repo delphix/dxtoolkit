@@ -114,10 +114,15 @@ sub getEndTimeWithTZ {
     my $tz = new Date::Manip::TZ;
     my $action = $self->{_actions}->{$reference};
     my $ts = $action->{endTime};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    
+    if (defined($ts)) {
+      $ts =~ s/\....Z//;
+      my $dt = ParseDate($ts);
+      my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
+      return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    } else {
+      return "N/A";
+    }
 }
 
 

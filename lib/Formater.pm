@@ -229,11 +229,9 @@ sub sendtosyslog {
     if (!defined($timestamp)) {
       $timestamp = time;
     }
+    
 		my $json_data =  $json->encode( \%json_line );
-    if (!defined($handler->send($json_data, $timestamp))) {
-      print "Send to syslog error\n";
-      $ret = $ret + 1;
-    }
+    $handler->send($json_data, $timestamp);
   }
   
   return $ret;
