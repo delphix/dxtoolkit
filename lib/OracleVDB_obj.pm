@@ -633,6 +633,7 @@ sub setListener {
 sub getUniqueName {
     my $self = shift;
     my $ret;
+    
     if (defined($self->{sourceConfig}) && ($self->{sourceConfig} ne 'NA') && defined($self->{sourceConfig}->{uniqueName}) ) {
       $ret = $self->{sourceConfig}->{uniqueName};
     } else {

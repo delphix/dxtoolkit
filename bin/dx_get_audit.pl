@@ -92,7 +92,7 @@ $output->addHeader(
     {'Appliance',   20},
     {'StartTime',   30},
     {'State',       12},
-    {'User',        20},
+    {'User or Policy',20},
     {'Type',        20},
     {'Details',     80}
 );
@@ -139,7 +139,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $engine,
       $actions->getStartTimeWithTZ($actionitem),
       $actions->getState($actionitem),
-      $actions->getUser($actionitem),
+      $actions->getUserName($actionitem),
       $actions->getActionType($actionitem),
       $actions->getDetails($actionitem)
     )
@@ -183,7 +183,7 @@ Delphix Engine selection - if not specified a default host(s) from dxtools.conf 
 Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
-Display databases on all Delphix appliance
+Run on all engines configured in dxtools.conf 
 
 =back
 
@@ -242,16 +242,16 @@ Display audit logs
 
  Appliance            StartTime                      State        User                 Type                 Details
  -------------------- ------------------------------ ------------ -------------------- -------------------- --------------------------------------------------------------------------------
- Landshark5           2016-11-08 12:27:35 GMT        COMPLETED    internal             USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
- Landshark5           2016-11-08 12:27:42 GMT        COMPLETED    internal             MASKINGJOB_FETCH     Fetching all Masking Jobs from the local Delphix Masking Engine instance.
- Landshark5           2016-11-08 12:28:49 GMT        CANCELED     internal             DB_PROVISION         Provision virtual database "VOra_744".
- Landshark5           2016-11-08 12:28:53 GMT        COMPLETED    internal             POLICY_APPLY         Apply policy "sss/log" on target "VOra_744".
- Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    internal             JOB_CANCEL           Cancel job "Provision virtual database "VOra_744".".
- Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    internal             SOURCE_DISABLE       Disable dataset "VOra_744".
- Landshark5           2016-11-08 12:29:07 GMT        COMPLETED    internal             SOURCE_STOP          Stop dataset "VOra_744".
- Landshark5           2016-11-08 12:32:21 GMT        COMPLETED    internal             DB_DELETE            Delete dataset "VOra_744".
- Landshark5           2016-11-08 12:32:22 GMT        COMPLETED    internal             CAPACITY_RECLAMATION Space is being reclaimed.
- Landshark5           2016-11-08 12:39:17 GMT        COMPLETED    internal             USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
+ Landshark5           2016-11-08 12:27:35 GMT        COMPLETED    delphix_admin        USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
+ Landshark5           2016-11-08 12:27:42 GMT        COMPLETED    delphix_admin        MASKINGJOB_FETCH     Fetching all Masking Jobs from the local Delphix Masking Engine instance.
+ Landshark5           2016-11-08 12:28:49 GMT        CANCELED     delphix_admin        DB_PROVISION         Provision virtual database "VOra_744".
+ Landshark5           2016-11-08 12:28:53 GMT        COMPLETED    delphix_admin        POLICY_APPLY         Apply policy "sss/log" on target "VOra_744".
+ Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    delphix_admin        JOB_CANCEL           Cancel job "Provision virtual database "VOra_744".".
+ Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    delphix_admin        SOURCE_DISABLE       Disable dataset "VOra_744".
+ Landshark5           2016-11-08 12:29:07 GMT        COMPLETED    delphix_admin        SOURCE_STOP          Stop dataset "VOra_744".
+ Landshark5           2016-11-08 12:32:21 GMT        COMPLETED    delphix_admin        DB_DELETE            Delete dataset "VOra_744".
+ Landshark5           2016-11-08 12:32:22 GMT        COMPLETED    delphix_admin        CAPACITY_RECLAMATION Space is being reclaimed.
+ Landshark5           2016-11-08 12:39:17 GMT        COMPLETED    delphix_admin        USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
 
 Extract audit to file 
 

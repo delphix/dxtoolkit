@@ -25,6 +25,7 @@ package Formater;
 use warnings;
 use strict;
 use Data::Dumper;
+use Date::Manip;
 use JSON;
 use Toolkit_helpers qw (logger);
 
@@ -196,6 +197,47 @@ sub savecsv {
 		print $FD "\n";
 	}
 }
+
+
+# Procedure sendtosyslog
+# Send data into syslog
+# - handler - syslog_wrap class
+
+
+sub sendtosyslog {
+	my $self = shift;
+	my $handler = shift;
+  logger($self->{_debug}, "Entering Engine::sendtosyslog",1);
+  logger($self->{_debug}, "Format " .  $self->{_format},2);
+  my $ret = 0;
+  
+  my $json = new JSON();
+  #this is for sort if necessary
+  #$json->canonical();
+  my $timestamp;
+  for my $line ( @{$self->{_lines}} ) {
+		my %json_line;
+		for (my $i=0; $i < scalar(@{$line}); $i++) {
+			$json_line{ $self->{_header}[$i] } = @{$line}[$i];
+      if ($self->{_header}[$i] eq 'StartTime') {
+        $timestamp = UnixDate( ParseDate(@{$line}[$i]), "%s" );
+      }
+      if ($self->{_header}[$i] eq 'Appliance') {
+        $handler->setDE(@{$line}[$i]);
+      }
+		}
+    if (!defined($timestamp)) {
+      $timestamp = time;
+    }
+    
+		my $json_data =  $json->encode( \%json_line );
+    $handler->send($json_data, $timestamp);
+  }
+  
+  return $ret;
+  
+}
+
 
 # Procedure addLine
 # parameters: 
