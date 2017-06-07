@@ -67,6 +67,21 @@ sub new {
 }
 
 
+# Procedure getStartTime
+# parameters: 
+# - reference
+# Return action start date
+
+sub getStartTime {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getStartTimeWithTZ",1);    
+    my $action = $self->{_actions}->{$reference};
+    return $action->{startTime};
+}    
+
+
 # Procedure getStartTimeWithTZ
 # parameters: 
 # - reference
@@ -84,6 +99,30 @@ sub getStartTimeWithTZ {
     my $dt = ParseDate($ts);
     my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
     return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+}
+
+# Procedure getEndTimeWithTZ
+# parameters: 
+# - reference
+# Return fault date with engine time zone
+
+sub getEndTimeWithTZ {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getEndTimeWithTZ",1);    
+    my $tz = new Date::Manip::TZ;
+    my $action = $self->{_actions}->{$reference};
+    my $ts = $action->{endTime};
+    
+    if (defined($ts)) {
+      $ts =~ s/\....Z//;
+      my $dt = ParseDate($ts);
+      my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
+      return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    } else {
+      return "N/A";
+    }
 }
 
 
@@ -145,6 +184,34 @@ sub getTitle {
 }
 
 
+# Procedure getFailureAction
+# parameters: 
+# - reference
+# Return action details
+
+sub getFailureAction {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getFailureAction",1);    
+    return defined($self->{_actions}->{$reference}->{failureAction}) ? $self->{_actions}->{$reference}->{failureAction} : "" ;
+}
+
+
+# Procedure getFailureAction
+# parameters: 
+# - reference
+# Return action details
+
+sub getFailureDescription {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getFailureAction",1);    
+    return defined($self->{_actions}->{$reference}->{failureDescription}) ? $self->{_actions}->{$reference}->{failureDescription} : "";
+}
+
+
 # Procedure getState
 # parameters: 
 # - reference
@@ -158,17 +225,31 @@ sub getState {
     return $self->{_actions}->{$reference}->{state};
 }
 
-# Procedure getUser
+# Procedure getUserName
 # parameters: 
 # - reference
 # Return action username
 
-sub getUser {
+sub getUserName {
     my $self = shift;
     my $reference = shift;
     
-    logger($self->{_debug}, "Entering Action_obj::getUser",1); 
-    my $user =  defined($self->{_actions}->{$reference}->{userName}) ?  lc $self->{_actions}->{$reference}->{userName} : 'internal';   
+    logger($self->{_debug}, "Entering Action_obj::getUserName",1); 
+    my $user =  defined($self->{_actions}->{$reference}->{workSourceName}) ?  lc $self->{_actions}->{$reference}->{workSourceName} : 'internal';   
+    return $user;
+}
+
+# Procedure getUserRef
+# parameters: 
+# - reference
+# Return action username
+
+sub getUserRef {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getUserRef",1); 
+    my $user =  defined($self->{_actions}->{$reference}->{user}) ?  $self->{_actions}->{$reference}->{user} : 'N/A';   
     return $user;
 }
 
@@ -198,6 +279,23 @@ sub getActionType {
     
     logger($self->{_debug}, "Entering Action_obj::getActionType",1);    
     return $self->{_actions}->{$reference}->{actionType};
+}
+
+# Procedure getActionParent
+# parameters: 
+# - reference
+# Return action parent or N/A
+
+sub getActionParent {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getActionParent",1);    
+    my $ret = $self->{_actions}->{$reference}->{parentAction};
+    if (!defined($ret)) {
+      $ret = 'N/A';
+    }
+    return $ret;
 }
 
 
@@ -250,8 +348,11 @@ sub loadActionList
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Action_obj::loadActionList",1);   
+    
+    my $offset = 0;
+    my $pageSize = 10;
 
-    my $operation = "resources/json/delphix/action?pageSize=10000";
+    my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset";
 
     if ($self->{_startTime}) {
         $operation = $operation . "&fromDate=" . $self->{_startTime};
@@ -265,24 +366,74 @@ sub loadActionList
         $operation = $operation . "&state=" . $self->{_state};
     }
 
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-        my @res = @{$result->{result}};
-        my $actions = $self->{_actions};
 
+    my $total = 1;
+    
+    while ($total > 0) {
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          my @res = @{$result->{result}};
+          my $actions = $self->{_actions};
+          
+          if (scalar(@res) < $pageSize) {
+             $total = 0;
+          }
+          
+          $offset = $offset + 1;
+          $operation =~ s/pageOffset=(\d*)/pageOffset=$offset/;
+
+          my %parent_action;
+
+          for my $actionitem (@res) {
+              $actions->{$actionitem->{reference}} = $actionitem;
+              if (defined($actionitem->{parentAction})) {
+                  $parent_action{$actionitem->{parentAction}} = $actionitem->{reference};
+              }
+          } 
+
+          $self->{_parent_action} = \%parent_action;
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+          $total = 0;
+      }
+    }
+}
+
+# Procedure loadActionListbyID
+# parameters: 
+# hash of actions
+# Load a list of role objects from Delphix Engine
+
+sub loadActionListbyID 
+{
+    my $self = shift;
+    my $list = shift;
+    logger($self->{_debug}, "Entering Action_obj::loadActionListbyID",1);   
+    
+    my $operation;
+
+    for my $loaditem (keys %{$list}) {
+
+      $operation = "resources/json/delphix/action/" . $loaditem;
+
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        
+        my $actions = $self->{_actions};
         my %parent_action;
 
-        for my $actionitem (@res) {
-            $actions->{$actionitem->{reference}} = $actionitem;
-            if (defined($actionitem->{parentAction})) {
-                $parent_action{$actionitem->{parentAction}} = $actionitem->{reference};
-            }
-        } 
+        $actions->{$result->{result}->{reference}} = $result->{result};
+        if (defined($result->{result}->{parentAction})) {
+            $parent_action{$result->{result}->{parentAction}} = $result->{result}->{reference};
+        }
+         
 
         $self->{_parent_action} = \%parent_action;
-    } else {
+      } else {
         print "No data returned for $operation. Try to increase timeout \n";
+      }
     }
+    
 }
 
 1;
