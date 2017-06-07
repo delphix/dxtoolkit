@@ -252,8 +252,8 @@ sub get_dblist_from_filter {
 	if (defined($primary) ) {
 		@db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getPrimaryDB();
 	} else {
-    	@db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getDBList();
-    }
+    @db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getDBList();
+  }
 		
 	my $ret = \@db_list;
 	
@@ -336,7 +336,10 @@ sub get_dblist_from_filter {
 	 if ( scalar(@{$ret}) < 1 ) {
 		  #exit (1);
 		  $ret = undef;
-	 } 
+	 } else {
+		 my @newret = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } @{$ret};
+	 	 $ret = \@newret;
+	 }
 
 	 logger($debug, "Finishing Toolkit_helpers::get_dblist_from_filter",1);
 	 return $ret;
@@ -724,6 +727,121 @@ sub  trim {
 	$s =~ s/^\s+|\s+$//g; 
 	return $s 
 };
+
+sub convert_using_offset {
+	my $timestamp = shift;
+	my $src = shift;
+	my $dst = shift;
+	my $printtz = shift;
+	my $makeiso = shift;
+
+	my $tz = new Date::Manip::TZ;
+	my $dt = new Date::Manip::Date;
+	my ($err,$date,$offset,$isdst,$abbrev);
+
+	chomp($timestamp); 
+	$timestamp =~ s/T/ /;
+	$timestamp =~ s/\.000Z//; 
+
+	$err = $dt->parse($timestamp);
+	my $dttemp = $dt->value();
+
+	my $delta;
+	my $ts;
+	my $off;
+	
+	if ($src eq 'UTC') {
+		my ($h, $m) = ($dst =~ /GMT([+|-]\d\d)\:(\d\d)/);
+		$off = $dst;
+		my $hn = $h+0;
+		my $mn = $m+0;
+		$delta = $dt->new_delta();
+		$delta->parse('0:0:0:0:' . $hn . ':' . $mn .':0');
+	}
+	
+	if ($dst eq 'UTC') {
+		my ($h, $m) = ($src =~ /GMT([+|-]\d\d)\:(\d\d)/);
+		$off = 'UTC';
+		my $hn = ($h+0)*-1;
+		my $mn = ($m+0)*-1;
+		$delta = $dt->new_delta();
+		$delta->parse('0:0:0:0:' . $hn . ':' . $mn .':0');
+	}
+	
+	my $nd = $dt->calc($delta);
+	
+	if (defined($makeiso)) {
+		$ts = $nd->printf("%Y-%m-%dT%T.000Z");
+	} else {
+		$ts = $nd->printf("%Y-%m-%d %T");		
+		if (defined($printtz)) {
+			$ts = $ts . ' ' . $off;
+		}	
+	}
+	
+	return $ts;
+
+}
+
+sub convert_timezone {
+	my $timestamp = shift;
+	my $src = shift;
+	my $dst = shift;
+	my $printtz = shift;
+
+	my $tz = new Date::Manip::TZ;
+	my $dt = new Date::Manip::Date;
+	my ($err,$date,$offset,$isdst,$abbrev);
+
+	$dt->config("setdate","zone," . $src);
+
+	chomp($timestamp); 
+	$timestamp =~ s/T/ /;
+	$timestamp =~ s/\.000Z//;         
+	 
+
+	$err = $dt->parse($timestamp);
+	my $dttemp = $dt->value();
+
+	($err,$date,$offset,$isdst,$abbrev) = $tz->convert($dttemp, $src, $dst);
+	my $ts;
+	
+	if (defined($printtz)) {
+		$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+	} else {
+		$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+	}
+	
+	return $ts; 
+	
+	
+}
+
+sub convert_from_utc {
+	my $timestamp = shift;
+	my $timezone = shift;
+	my $printtz = shift;
+  if ( $timezone =~ /GMT([+|-]\d\d)\:(\d\d)/ ) {
+		return convert_using_offset($timestamp, 'UTC', $timezone, $printtz);
+	} else {
+    return convert_timezone($timestamp, 'UTC', $timezone, $printtz);
+	}
+}
+
+sub convert_to_utc {
+	my $timestamp = shift;
+	my $timezone = shift;
+	my $printtz = shift;
+	my $doiso = shift;
+	if ( $timezone =~ /GMT([+|-]\d\d)\:(\d\d)/ ) {
+		return convert_using_offset($timestamp, $timezone, 'UTC', $printtz, $doiso);
+	} else {
+    return convert_timezone($timestamp, $timezone, 'UTC', $printtz, $doiso);
+	}
+}
+
+
+
 
 # end of package
 1;
