@@ -206,16 +206,11 @@ sub getSnapshotCreationTimeWithTimezone {
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
     } else {
-        my $tz = new Date::Manip::TZ;
-        $zulutime =~ s/T//;
-        $zulutime =~ s/...Z$//;
-        
-        #print Dumper $zulutime;
+      
+        my $creationDate = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1);
 
-        my $dt = ParseDate($zulutime);
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
-        if (scalar(@{$date}) > 0) {
-            $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+        if (defined($creationDate)) {
+            $ret = $creationDate;
         } else {
             $ret = 'N/A';
         }
@@ -326,6 +321,7 @@ sub getSnapshotTime {
 }
 
 # Procedure checkTZ 
+# if timezone defined as GMT+/-offset return undef
 # parameters: 
 # - timezone
 # Return 0 if OK
@@ -334,6 +330,7 @@ sub checkTZ {
     my $self = shift;
     my $timezone = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::checkTZ",1); 
+
 
     my $checktime = time();
     my $dt = ParseDate($checktime);
@@ -380,23 +377,11 @@ sub getSnapshotTimeZone {
 
     logger($self->{debug}, "Setting SGT timezone err-" . $err );
     
-    # checking if timezone if valid 
-    if ($self->checkTZ($ret)) {
-
-        # can't resolve time zone
-        # try to use offset
-                
-        my $offset = $temp[1];
-        if ( (my ($tzoff) = $offset =~ /[a-zA-Z]{3}(.\d\d\d\d)/ ) ) {
-            $ret = $tz->zone($tzoff);
-        } elsif ( ( ($tzoff) = $offset =~ /[a-zA-Z]{3}.\d\d:\d\d(.\d\d\d\d)/ ) ) {
-            $ret = $tz->zone($tzoff);
-        }  
-        else {
-            $ret = 'N/A';
-        }
-
-    } 
+    if (! ($ret =~ /[a-zA-Z]{3}.\d\d:\d\d/ )) {
+      if ($self->checkTZ($ret)) {
+        $ret = 'N/A';
+      }
+    }
 
     return $ret;
 }
@@ -601,14 +586,8 @@ sub getEndPointwithzone {
     logger($self->{_debug}, "Entering Snapshot_obj::getEndPointwithzone",1); 
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getEndPoint($reference) ;
-
-
-    $zulutime =~ s/T/ /;
-    $zulutime =~ s/\....Z//;
     my $timezone = $self->getSnapshotTimeZone($reference);
-    my $dt = ParseDate($zulutime);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
 }
 
 # Procedure getEndPoint
@@ -644,13 +623,8 @@ sub getStartPointwithzone {
     logger($self->{_debug}, "Entering Snapshot_obj::getStartPointwithzone",1); 
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getStartPoint($reference) ;
-
-    $zulutime =~ s/T/ /;
-    $zulutime =~ s/\....Z//;
     my $timezone = $self->getSnapshotTimeZone($reference);
-    my $dt = ParseDate($zulutime);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
 }
 
 # Procedure getStartPoint
@@ -832,12 +806,9 @@ sub getSnapshotList
             if (defined($result->{status}) && ($result->{status} eq 'OK')) {
                 my @res = @{$result->{result}};
                 if (scalar(@res) > 0) {
-                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
-                    #print Dumper $self->{_snapshots};    
+                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];    
                     $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
-                    #print Dumper $self->{_timezone};
                     delete $self->{_snapshots}->{$res[-1]->{reference}};
-                    #print Dumper $self->{_snapshots};  
                 }
             } else {
                 print "Can't check snapshot timezone \n";
@@ -846,39 +817,23 @@ sub getSnapshotList
         }
 
         if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
+            
+            my $startDate = Toolkit_helpers::convert_to_utc($self->{_startDate}, $self->{_timezone},0,1);
 
-            my $tz = new Date::Manip::TZ;
-            my $dt = ParseDate($self->{_startDate});
-
-            if ($dt eq '') {
-                print "Can't parse start date \n";
-                exit 1;
-            }
-
-            my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->{_timezone});
-
-            if (! $err) {
-                $operation = $operation . "&fromDate=" . sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+            if (defined($startDate)) {
+                $operation = $operation . "&fromDate=" . $startDate;
             } else {
-                print "Can't convert start date to GMT\n";
+                print "Can't parse or convert start date to GMT\n";
                 exit 1;
             }
             
         }
 
         if (defined($self->{_endDate}) && defined($self->{_timezone}) ) {
-            my $tz = new Date::Manip::TZ;
-            my $dt = ParseDate($self->{_endDate});
-
-            if ($dt eq '') {
-                print "Can't parse end date \n";
-                exit 1;
-            }
-
-            my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->{_timezone});
-
-            if (! $err) {
-                $operation = $operation . "&toDate=" . sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+          
+            my $endDate = Toolkit_helpers::convert_to_utc($self->{_endDate}, $self->{_timezone},0,1);
+            if (defined($endDate)) {
+                $operation = $operation . "&toDate=" . $endDate
             } else {
                 print "Can't convert end date to GMT\n";
                 exit 1;

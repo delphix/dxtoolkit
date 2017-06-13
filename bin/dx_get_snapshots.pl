@@ -121,9 +121,9 @@ if (defined($details)) {
       {'Group',          20},
       {'Database',       20},
       {'Snapshot name',  30},   
-      {'Start ' . $header,      25},
-      {'End ' . $header,        25},
-      {'Creation time ',        25},
+      {'Start ' . $header,      30},
+      {'End ' . $header,        30},
+      {'Creation time ',        30},
       {'Timeflow',   10},
       {'Retention',   8},
       {'Version',     4}
@@ -137,8 +137,8 @@ if (defined($details)) {
         {'Group',          20},
         {'Database',       30},
         {'Snapshot name',  30},   
-        {'Start ' . $header,      25},
-        {'End ' . $header,        25}
+        {'Start ' . $header,      30},
+        {'End ' . $header,        30}
     );  
   } else {
     $output->addHeader(
@@ -146,8 +146,8 @@ if (defined($details)) {
         {'Group',          20},
         {'Database',       30},
         {'Snapshot name',  30},   
-        {'Start ' . $header,      25},
-        {'End ' . $header,        25},
+        {'Start ' . $header,      30},
+        {'End ' . $header,        30},
         {'Timeflow',   10}
     );   
   }
