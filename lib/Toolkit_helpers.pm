@@ -788,7 +788,8 @@ sub convert_timezone {
 	my $src = shift;
 	my $dst = shift;
 	my $printtz = shift;
-
+	my $makeiso = shift;
+	
 	my $tz = new Date::Manip::TZ;
 	my $dt = new Date::Manip::Date;
 	my ($err,$date,$offset,$isdst,$abbrev);
@@ -801,16 +802,31 @@ sub convert_timezone {
 	 
 
 	$err = $dt->parse($timestamp);
+	
+	if ($err) {
+		return undef;
+	}
+	
 	my $dttemp = $dt->value();
-
 	($err,$date,$offset,$isdst,$abbrev) = $tz->convert($dttemp, $src, $dst);
 	my $ts;
 	
-	if (defined($printtz)) {
-		$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-	} else {
-		$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+	if ($err) {
+		return undef;
 	}
+
+	if (defined($makeiso)) {
+		$ts = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+	} else {
+		if (defined($printtz)) {
+			$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+		} else {
+			$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+		}
+	}
+
+
+
 	
 	return $ts; 
 	
