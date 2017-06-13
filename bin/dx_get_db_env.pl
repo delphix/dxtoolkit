@@ -322,6 +322,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (lc $parentlast eq 'l') {
         my $dsource_snaps = new Snapshot_obj($engine_obj,$dbobj->getReference(), undef, $debug);
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
+        $parenttime = 'N/A';
       }
       
       
