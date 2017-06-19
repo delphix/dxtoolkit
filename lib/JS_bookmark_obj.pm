@@ -426,20 +426,37 @@ sub createBookmark {
             return undef;
         }
 
-
-        %createbookmark_hash = (
-            "type" => "JSBookmarkCreateParameters",
-            "bookmark" => {
-                "type" => "JSBookmark",
-                "name" => $name,
-                "branch" => $branch
-            },
-            "timelinePointParameters" => {
-                "type" => "JSTimelinePointTimeInput",
-                "sourceDataLayout" => $datalayout,
-                "time" => $zulutime
-            }
-        );
+        
+        if ($self->{_dlpxObject}->getApi() lt "1.8") {
+          %createbookmark_hash = (
+              "type" => "JSBookmarkCreateParameters",
+              "bookmark" => {
+                  "type" => "JSBookmark",
+                  "name" => $name,
+                  "branch" => $branch
+              },
+              "timelinePointParameters" => {
+                  "type" => "JSTimelinePointTimeInput",
+                  "sourceDataLayout" => $datalayout,
+                  "time" => $zulutime
+              }
+          );
+        } else {
+          %createbookmark_hash = (
+              "type" => "JSBookmarkCreateParameters",
+              "bookmark" => {
+                  "type" => "JSBookmark",
+                  "name" => $name,
+                  "branch" => $branch
+              },
+              "timelinePointParameters" => {
+                  "type" => "JSTimelinePointTimeInput",
+                  "branch" => $branch,
+                  "time" => $zulutime
+              }
+          ); 
+        }
+        
     }
 
 
