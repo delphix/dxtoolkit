@@ -1,0 +1,3440 @@
+{
+   "type" : "ListResult",
+   "total" : 98,
+   "action" : null,
+   "job" : null,
+   "result" : [
+      {
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-01-05T01:31:43.311Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-05T01:20:12.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3051501082"
+         },
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-01-05T01:31:43.311Z",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3051124138",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-05T00:33:17.000Z"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1217"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-01-06T01:43:07.480Z",
+         "latestChangePoint" : {
+            "location" : "3057285236",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-06T01:16:12.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-01-06T01:16:12.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3057214989",
+            "type" : "OracleTimeflowPoint"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-01-06T01:43:07.480Z",
+         "reference" : "ORACLE_SNAPSHOT-1238",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-1256",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-01-06T08:47:08.537Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-01-06T08:12:49.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3058855340",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3059242173",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-06T08:12:49.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-01-06T08:47:08.537Z"
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "name" : "@2017-01-09T09:01:53.727Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3067922878",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-09T08:19:10.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1293",
+         "creationTime" : "2017-01-09T09:01:53.727Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-09T08:19:10.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3067894411"
+         },
+         "fractionTimeflows" : null
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-01-11T09:08:23.906Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-11T08:18:34.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3077622563"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1324",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-01-11T09:08:23.906Z",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3077608277",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-11T08:18:34.000Z"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38"
+      },
+      {
+         "name" : "@2017-01-13T09:12:12.930Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3089205746",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-13T09:12:03.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-01-13T08:14:58.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3088774117",
+            "type" : "OracleTimeflowPoint"
+         },
+         "creationTime" : "2017-01-13T09:12:12.930Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-1358",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3098035049",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-16T08:17:37.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-01-16T09:02:50.018Z",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-01-16T09:02:50.018Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3097674010",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-16T08:17:37.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-1398"
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-18T08:25:08.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3103173834"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-01-18T08:56:25.838Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-1428",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "name" : "@2017-01-18T08:56:25.838Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-01-18T08:45:58.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3103501324",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3117321616",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-20T09:11:41.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-01-20T09:18:58.172Z",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-01-20T09:18:58.172Z",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3116931754",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-20T08:27:12.000Z"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-1456"
+      },
+      {
+         "creationTime" : "2017-01-23T09:03:34.379Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "location" : "3127006416",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-23T08:16:24.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1497",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "name" : "@2017-01-23T09:03:34.379Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-01-23T08:16:24.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3127353110",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot"
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-01-25T09:07:47.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3146819001",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-01-25T09:15:29.459Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-1532",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "firstChangePoint" : {
+            "timestamp" : "2017-01-25T08:16:54.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3146517958",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-01-25T09:15:29.459Z"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3162814669",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-27T09:12:11.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-01-27T09:17:59.724Z",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3162278460",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-27T07:55:14.000Z"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-01-27T09:17:59.724Z",
+         "reference" : "ORACLE_SNAPSHOT-1564",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-1598",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3175166248",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-29T20:36:10.000Z"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-01-30T01:51:03.765Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-01-30T01:51:03.765Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-29T20:36:10.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3175277248"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         }
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-01-30T08:37:05.878Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-30T08:18:28.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3175680917"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1608",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-01-30T08:37:05.878Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3175380641",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-30T08:18:28.000Z"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-1621",
+         "creationTime" : "2017-01-31T01:25:27.554Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-01-31T01:01:11.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3180372524"
+         },
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "location" : "3180513949",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-01-31T01:17:57.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-01-31T01:25:27.554Z",
+         "fromPhysicalStandbyVdb" : false
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "name" : "@2017-02-01T01:43:23.606Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-02-01T00:56:27.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3187886498",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1643",
+         "creationTime" : "2017-02-01T01:43:23.606Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3187727691",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-01T00:56:27.000Z"
+         }
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3190180713",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-01T08:18:10.000Z"
+         },
+         "name" : "@2017-02-01T08:50:29.544Z",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-1663",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-01T08:18:10.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3189764337"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-02-01T08:50:29.544Z"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-02-02T01:29:55.135Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3196174823",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-02T01:18:08.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "reference" : "ORACLE_SNAPSHOT-1674",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-02T01:02:49.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3196066232",
+            "type" : "OracleTimeflowPoint"
+         },
+         "creationTime" : "2017-02-02T01:29:55.135Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1697",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-02-03T01:43:56.117Z",
+         "firstChangePoint" : {
+            "location" : "3204617418",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-03T01:02:24.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-02-03T01:43:56.117Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-02-03T01:02:24.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3204730515",
+            "type" : "OracleTimeflowPoint"
+         }
+      },
+      {
+         "latestChangePoint" : {
+            "location" : "3206971101",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-03T08:18:52.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-03T08:50:14.434Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-03T08:18:52.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3206567032",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-02-03T08:50:14.434Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "reference" : "ORACLE_SNAPSHOT-1716",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3212523852",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-04T01:01:05.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-04T01:30:18.402Z",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-1726",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-02-04T01:30:18.402Z",
+         "firstChangePoint" : {
+            "location" : "3212469152",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-04T01:01:05.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-02-05T01:39:54.215Z",
+         "latestChangePoint" : {
+            "location" : "3218569199",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-05T01:03:33.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3218560199",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-05T01:03:33.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-02-05T01:39:54.215Z",
+         "reference" : "ORACLE_SNAPSHOT-1747",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-1767",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-06T01:02:36.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3218766458"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-02-06T01:21:25.684Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "location" : "3218782708",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-06T01:02:36.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-06T01:21:25.684Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT"
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1783",
+         "creationTime" : "2017-02-06T08:34:05.926Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3219183454",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-06T08:20:54.000Z"
+         },
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "name" : "@2017-02-06T08:34:05.926Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-02-06T08:20:54.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3219215372",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false
+      },
+      {
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-02-08T09:14:48.591Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3234749495",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-08T08:04:11.000Z"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1820",
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-02-08T09:14:48.591Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-08T09:05:18.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3235128398"
+         },
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null
+      },
+      {
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-10T08:02:14.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3249594069"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-02-10T09:13:53.847Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-1853",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "name" : "@2017-02-10T09:13:53.847Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-10T09:10:12.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3249815303"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3262161696",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-13T08:19:26.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-13T09:05:48.694Z",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-1898",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-13T08:19:26.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3261865091",
+            "type" : "OracleTimeflowPoint"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-02-13T09:05:48.694Z"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-02-15T09:10:28.103Z",
+         "latestChangePoint" : {
+            "location" : "3276334469",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-15T09:06:02.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "reference" : "ORACLE_SNAPSHOT-1932",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-15T08:02:33.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3275915209"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-02-15T09:10:28.103Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false
+      },
+      {
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-02-17T09:19:05.392Z",
+         "latestChangePoint" : {
+            "location" : "3292858273",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-17T09:12:42.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-02-17T09:19:05.392Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-17T08:02:47.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3292444122"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EST-0500",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-1967"
+      },
+      {
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3304595507",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-20T08:14:29.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-02-20T09:04:49.492Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "reference" : "ORACLE_SNAPSHOT-2014",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "latestChangePoint" : {
+            "location" : "3304909582",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-20T08:14:29.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-20T09:04:49.492Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "name" : "@2017-02-22T09:00:49.605Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3318548501",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-22T08:21:51.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-22T08:21:51.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3318494385",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-02-22T09:00:49.605Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-2051",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-2061",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3324115828",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-23T01:01:12.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-02-23T01:30:24.379Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "location" : "3324219533",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-23T01:21:42.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-23T01:30:24.379Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-02-24T01:42:14.086Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3330969934",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-24T01:02:55.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "ORACLE_SNAPSHOT-2086",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-24T01:02:55.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3330936438",
+            "type" : "OracleTimeflowPoint"
+         },
+         "creationTime" : "2017-02-24T01:42:14.086Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false
+      },
+      {
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-24T08:21:12.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3332407591"
+         },
+         "creationTime" : "2017-02-24T08:46:03.831Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-2108",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "name" : "@2017-02-24T08:46:03.831Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3332705238",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-24T08:21:12.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-25T01:17:10.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3338089492"
+         },
+         "name" : "@2017-02-25T01:29:29.461Z",
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "creationTime" : "2017-02-25T01:29:29.461Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-25T01:01:40.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3338017215"
+         },
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2128"
+      },
+      {
+         "creationTime" : "2017-02-26T01:38:48.599Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-25T22:08:41.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3343472475"
+         },
+         "fractionTimeflows" : null,
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2150",
+         "temporary" : false,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "location" : "3343710994",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-25T22:08:41.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-02-26T01:38:48.599Z",
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot"
+      },
+      {
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-02-27T01:21:06.814Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3343936279",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-27T01:02:39.000Z"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2170",
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-02-27T01:21:06.814Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3343954065",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-27T01:02:39.000Z"
+         },
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2192",
+         "creationTime" : "2017-02-27T08:34:10.434Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timestamp" : "2017-02-27T08:02:40.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3344017576",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-27T08:02:40.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3344315835"
+         },
+         "name" : "@2017-02-27T08:34:10.434Z",
+         "fromPhysicalStandbyVdb" : false
+      },
+      {
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3348305360",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-02-28T01:03:12.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-02-28T01:25:04.009Z",
+         "reference" : "ORACLE_SNAPSHOT-2206",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3348359954",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-02-28T01:03:12.000Z"
+         },
+         "name" : "@2017-02-28T01:25:04.009Z",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "name" : "@2017-03-01T01:43:29.056Z",
+         "latestChangePoint" : {
+            "location" : "3356659890",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-01T01:00:28.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3356428837",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-01T01:00:28.000Z"
+         },
+         "creationTime" : "2017-03-01T01:43:29.056Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-2229",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "name" : "@2017-03-01T08:49:24.064Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3359074915",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-01T08:20:02.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "creationTime" : "2017-03-01T08:49:24.064Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-01T08:20:02.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3359011739"
+         },
+         "fractionTimeflows" : null,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2251"
+      },
+      {
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "name" : "@2017-03-02T01:30:29.422Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3365567330",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-02T01:23:53.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "creationTime" : "2017-03-02T01:30:29.422Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3365263551",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-02T00:23:35.000Z"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2262"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-03-03T01:44:54.425Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-03T01:33:09.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3374072133"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3373958038",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-03T01:01:17.000Z"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-03-03T01:44:54.425Z",
+         "reference" : "ORACLE_SNAPSHOT-2291",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2313",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-03-03T08:49:12.308Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3375773973",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-03T08:23:22.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-03-03T08:49:12.308Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-03-03T08:33:53.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3376149294",
+            "type" : "OracleTimeflowPoint"
+         }
+      },
+      {
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3382252513",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-04T01:05:55.000Z"
+         },
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-03-04T01:30:03.493Z",
+         "reference" : "ORACLE_SNAPSHOT-2325",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3382284459",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-04T01:05:55.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-03-04T01:30:03.493Z",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2349",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-03-05T01:51:35.152Z",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3390460568",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-05T01:09:47.000Z"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-03-05T01:51:35.152Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3390916050",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-05T01:48:46.000Z"
+         }
+      },
+      {
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3392395577",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-05T20:10:23.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-03-06T01:29:53.543Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-2372",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "name" : "@2017-03-06T01:29:53.543Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3392478518",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-05T20:10:23.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2427",
+         "creationTime" : "2017-03-08T09:22:54.317Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timestamp" : "2017-03-08T08:13:16.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3410387865",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "name" : "@2017-03-08T09:22:54.317Z",
+         "latestChangePoint" : {
+            "location" : "3410890692",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-08T09:13:00.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fromPhysicalStandbyVdb" : false
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "name" : "@2017-03-10T09:19:04.383Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-03-10T09:07:18.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3428146913",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2463",
+         "creationTime" : "2017-03-10T09:19:04.383Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EST-0500",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3427998083",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-10T08:20:04.000Z"
+         }
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2510",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-03-13T08:07:38.890Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3440928217",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-13T07:16:36.000Z"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3441270010",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-13T07:39:08.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-03-13T08:07:38.890Z"
+      },
+      {
+         "creationTime" : "2017-03-15T08:15:08.433Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3457840731",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-15T07:09:09.000Z"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2546",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "name" : "@2017-03-15T08:15:08.433Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-15T08:13:02.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3458154305"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot"
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2582",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-03-17T08:21:40.331Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-03-17T07:02:27.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3477187453",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-03-17T08:21:40.331Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-03-17T08:14:33.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3477634103",
+            "type" : "OracleTimeflowPoint"
+         }
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3490027434",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-20T07:22:40.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-03-20T08:05:41.871Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-2631",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "firstChangePoint" : {
+            "location" : "3489987671",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-20T07:22:40.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-03-20T08:05:41.871Z"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3509652059",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-22T08:13:41.000Z"
+         },
+         "name" : "@2017-03-22T08:16:48.982Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "reference" : "ORACLE_SNAPSHOT-2666",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "location" : "3509296842",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-22T07:19:23.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-03-22T08:16:48.982Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36"
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-2700",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3528337058",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-24T07:13:15.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-03-24T08:14:49.343Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-03-24T08:14:49.343Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3528790774",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-24T08:07:58.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         }
+      },
+      {
+         "name" : "@2017-03-27T08:06:54.183Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-03-27T07:21:40.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3542611306",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3542585446",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-27T07:21:40.000Z"
+         },
+         "creationTime" : "2017-03-27T08:06:54.183Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-2743",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-03-29T08:19:38.173Z",
+         "latestChangePoint" : {
+            "location" : "3561128335",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-29T08:11:07.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-03-29T07:22:52.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3560910393",
+            "type" : "OracleTimeflowPoint"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-03-29T08:19:38.173Z",
+         "reference" : "ORACLE_SNAPSHOT-2778",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-2789",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-30T00:09:38.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3569121016"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-03-30T00:30:50.817Z",
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3569148759",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-30T00:09:38.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-03-30T00:30:50.817Z",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false
+      },
+      {
+         "creationTime" : "2017-03-31T00:42:08.229Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3577625652",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-31T00:04:29.000Z"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-2812",
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "name" : "@2017-03-31T00:42:08.229Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-03-31T00:04:29.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3577654181"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "timestamp" : "2017-03-31T07:28:06.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3579644820",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-03-31T07:46:36.226Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "reference" : "ORACLE_SNAPSHOT-2833",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3579615955",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-03-31T07:28:06.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-03-31T07:46:36.226Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36"
+      },
+      {
+         "temporary" : false,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-01T00:02:08.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3586483841",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-04-01T00:30:14.653Z",
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "creationTime" : "2017-04-01T00:30:14.653Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3586429246",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-01T00:02:08.000Z"
+         },
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2843"
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3593544699",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-02T00:07:34.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-04-02T00:44:09.596Z",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2864",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-02T00:44:09.596Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3593537584",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-02T00:07:34.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400"
+      },
+      {
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-02T23:02:44.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3593751812",
+            "type" : "OracleTimeflowPoint"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-03T00:21:05.235Z",
+         "reference" : "ORACLE_SNAPSHOT-2883",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-03T00:21:05.235Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3593771391",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-02T23:02:44.000Z"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3594277263",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-03T07:19:32.000Z"
+         },
+         "name" : "@2017-04-03T07:34:20.828Z",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2903",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-03T07:34:20.828Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-03T07:19:32.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3593848937",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400"
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3602213679",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-04T00:07:45.000Z"
+         },
+         "name" : "@2017-04-04T00:26:32.985Z",
+         "fromPhysicalStandbyVdb" : false,
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-2916",
+         "creationTime" : "2017-04-04T00:26:32.985Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-04T00:07:45.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3602204211",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null
+      },
+      {
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-05T00:07:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3618600040"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-05T00:48:15.138Z",
+         "reference" : "ORACLE_SNAPSHOT-2938",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-05T00:48:15.138Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-05T00:07:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3618658128"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-05T07:51:03.175Z",
+         "latestChangePoint" : {
+            "location" : "3621251964",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-05T07:02:32.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-2960",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-05T07:02:32.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3620755188"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-05T07:51:03.175Z"
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-06T00:31:33.313Z",
+         "latestChangePoint" : {
+            "location" : "3630589851",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-06T00:05:58.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-2970",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-06T00:05:58.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3630530613"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-06T00:31:33.313Z"
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-07T07:25:17.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3645357507",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-04-07T08:10:43.912Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-3004",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3645095137",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-07T07:25:17.000Z"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-07T08:10:43.912Z"
+      },
+      {
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-10T07:16:25.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3661802251",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-10T08:07:42.482Z",
+         "reference" : "ORACLE_SNAPSHOT-3055",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-10T08:07:42.482Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-10T07:16:25.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3662180141",
+            "type" : "OracleTimeflowPoint"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-04-11T00:12:44.488Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-11T00:03:43.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3672572723",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "ORACLE_SNAPSHOT-3065",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3672089013",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-10T22:41:28.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-04-11T00:12:44.488Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-11T11:43:08.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3675331590"
+         },
+         "name" : "@2017-04-11T11:46:49.981Z",
+         "fromPhysicalStandbyVdb" : false,
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3081",
+         "creationTime" : "2017-04-11T11:46:49.981Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3674989532",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-11T11:00:23.000Z"
+         }
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3685222977",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-12T00:00:58.000Z"
+         },
+         "name" : "@2017-04-12T00:14:49.094Z",
+         "fromPhysicalStandbyVdb" : false,
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3095",
+         "creationTime" : "2017-04-12T00:14:49.094Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-11T21:55:53.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3684702065"
+         },
+         "fractionTimeflows" : null
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-3124",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-12T07:13:27.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3686804882",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-04-12T07:48:14.322Z",
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-04-12T07:48:14.322Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3687294664",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-12T07:13:27.000Z"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false
+      },
+      {
+         "name" : "@2017-04-13T00:16:15.810Z",
+         "latestChangePoint" : {
+            "location" : "3697575484",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-13T00:01:53.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3697250285",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-12T22:56:30.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-04-13T00:16:15.810Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-3137",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3167",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-14T00:29:49.419Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-13T23:21:28.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3707560133",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-14T00:01:54.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3707825532"
+         },
+         "name" : "@2017-04-14T00:29:49.419Z"
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3709911594",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-04-14T07:12:13.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-04-14T07:48:23.532Z",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-3193",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-14T07:12:13.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3709439745",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-14T07:48:23.532Z"
+      },
+      {
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "name" : "@2017-04-17T07:57:54.734Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-17T07:19:44.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3720540165",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "creationTime" : "2017-04-17T07:57:54.734Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3720507376",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-17T07:19:44.000Z"
+         },
+         "fractionTimeflows" : null,
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-3247"
+      },
+      {
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-04-19T08:26:43.861Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-19T08:13:08.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3742888374",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "reference" : "ORACLE_SNAPSHOT-3292",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-19T07:02:16.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3742448272"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-04-19T08:26:43.861Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-21T07:28:43.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3764966453"
+         },
+         "creationTime" : "2017-04-21T08:17:44.171Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-3339",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "name" : "@2017-04-21T08:17:44.171Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-21T08:11:00.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3765227732"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0
+      },
+      {
+         "name" : "@2017-04-24T08:27:33.362Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3782750505",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-24T08:27:00.000Z"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-24T07:25:23.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3782718241",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-04-24T08:27:33.362Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "reference" : "ORACLE_SNAPSHOT-3386",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3423",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-26T08:16:29.775Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-04-26T07:23:16.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3803128570",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-26T08:13:02.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3803514422",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-04-26T08:16:29.775Z"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3469",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-04-28T08:21:44.302Z",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3826278951",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-28T07:23:39.000Z"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3826851340",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-28T08:07:22.000Z"
+         },
+         "name" : "@2017-04-28T08:21:44.302Z"
+      },
+      {
+         "retention" : 0,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-30T00:38:08.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3841552044",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-04-30T00:52:19.406Z",
+         "fromPhysicalStandbyVdb" : false,
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3492",
+         "creationTime" : "2017-04-30T00:52:19.406Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3841419489",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-29T22:02:52.000Z"
+         },
+         "fractionTimeflows" : null
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-05-01T00:22:44.189Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-30T21:39:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3841755466"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-04-30T21:39:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3841718525"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-05-01T00:22:44.189Z",
+         "reference" : "ORACLE_SNAPSHOT-3517",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0"
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3541",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-01T07:33:38.661Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-01T07:14:57.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3841821672"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-05-01T07:14:57.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3842260480",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-05-01T07:33:38.661Z"
+      },
+      {
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-02T00:01:26.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3850967795"
+         },
+         "name" : "@2017-05-02T00:26:06.267Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "missingLogs" : null,
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "consistency" : "INCONSISTENT",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-02T00:01:26.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3850826167"
+         },
+         "creationTime" : "2017-05-02T00:26:06.267Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "reference" : "ORACLE_SNAPSHOT-3557",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912
+      },
+      {
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3864583177",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-02T23:30:36.000Z"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-03T00:50:44.262Z",
+         "reference" : "ORACLE_SNAPSHOT-3586",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3864979463",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-03T00:23:46.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-05-03T00:50:44.262Z",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-3613",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3867285137",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-03T07:23:19.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-05-03T07:50:39.228Z",
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-05-03T07:50:39.228Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3867399828",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-03T07:50:00.000Z"
+         },
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "temporary" : false
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-05-04T00:33:19.065Z",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3876662452",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-04T00:03:18.000Z"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-3623",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-05-04T00:33:19.065Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-05-04T00:03:18.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3876561875",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400"
+      },
+      {
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-05-05T00:46:29.316Z",
+         "latestChangePoint" : {
+            "location" : "3888139783",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-05T00:43:16.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-3658",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-05-05T00:46:29.316Z",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-05T00:02:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3888026799"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38"
+      },
+      {
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-05-05T07:38:13.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3889905616",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2017-05-05T07:49:09.307Z",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "reference" : "ORACLE_SNAPSHOT-3681",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "firstChangePoint" : {
+            "location" : "3889743338",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-05T07:27:32.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-05T07:49:09.307Z"
+      },
+      {
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3899481335",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-06T00:04:35.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-05-06T00:34:13.124Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "retention" : 0,
+         "firstChangePoint" : {
+            "location" : "3899453570",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-06T00:04:35.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "fractionTimeflows" : null,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-06T00:34:13.124Z",
+         "reference" : "ORACLE_SNAPSHOT-3694",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-3743",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-08T07:17:19.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3907595689"
+         },
+         "creationTime" : "2017-05-08T08:00:53.765Z",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3907642750",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-08T07:17:19.000Z"
+         },
+         "name" : "@2017-05-08T08:00:53.765Z",
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT"
+      },
+      {
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-08T12:00:52.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3908220350"
+         },
+         "name" : "@2017-05-08T12:06:18.872Z",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-08T12:06:18.872Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3907760702",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-08T12:00:52.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3750"
+      },
+      {
+         "reference" : "ORACLE_SNAPSHOT-3794",
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "location" : "3930838686",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-10T07:22:39.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "creationTime" : "2017-05-10T08:16:21.230Z",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "name" : "@2017-05-10T08:16:21.230Z",
+         "latestChangePoint" : {
+            "timestamp" : "2017-05-10T08:06:03.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3930989688",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "temporary" : false,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         }
+      },
+      {
+         "redoLogSizeInBytes" : 536870912,
+         "version" : "11.2.0.4.0",
+         "reference" : "ORACLE_SNAPSHOT-3839",
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "missingNonLoggedData" : false,
+         "creationTime" : "2017-05-12T08:19:35.459Z",
+         "firstChangePoint" : {
+            "timestamp" : "2017-05-12T07:28:10.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "location" : "3952338438",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "timezone" : "US/Eastern,EDT-0400",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "consistency" : "INCONSISTENT",
+         "runtime" : {
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true
+         },
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "name" : "@2017-05-12T08:19:35.459Z",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-12T08:18:22.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3953047796"
+         }
+      },
+      {
+         "version" : "11.2.0.4.0",
+         "redoLogSizeInBytes" : 536870912,
+         "reference" : "ORACLE_SNAPSHOT-3884",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ORACLE_TIMEFLOW-36",
+         "creationTime" : "2017-05-15T08:11:19.341Z",
+         "fractionTimeflows" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-36",
+            "timestamp" : "2017-05-15T07:23:07.000Z",
+            "type" : "OracleTimeflowPoint",
+            "location" : "3973349332"
+         },
+         "timezone" : "US/Eastern,EDT-0400",
+         "container" : "ORACLE_DB_CONTAINER-38",
+         "retention" : 0,
+         "type" : "OracleSnapshot",
+         "namespace" : null,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : null
+         },
+         "consistency" : "INCONSISTENT",
+         "temporary" : false,
+         "fromPhysicalStandbyVdb" : false,
+         "latestChangePoint" : {
+            "location" : "3973393876",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2017-05-15T08:02:34.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-36"
+         },
+         "name" : "@2017-05-15T08:11:19.341Z"
+      }
+   ],
+   "status" : "OK",
+   "overflow" : false
+}

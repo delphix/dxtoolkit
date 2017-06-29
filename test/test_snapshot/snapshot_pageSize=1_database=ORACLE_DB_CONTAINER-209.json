@@ -1,0 +1,45 @@
+{
+   "result" : [
+      {
+         "container" : "ORACLE_DB_CONTAINER-209",
+         "version" : "12.1.0.2.0",
+         "timezone" : "Europe/Dublin,IST+0100",
+         "timeflow" : "ORACLE_TIMEFLOW-406",
+         "temporary" : false,
+         "name" : "@2017-05-22T15:35:03.206Z",
+         "missingNonLoggedData" : false,
+         "type" : "OracleSnapshot",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "3418344",
+            "timestamp" : "2017-05-22T15:35:02.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-406"
+         },
+         "runtime" : {
+            "provisionable" : true,
+            "missingLogs" : null,
+            "type" : "OracleSnapshotRuntime"
+         },
+         "fromPhysicalStandbyVdb" : false,
+         "reference" : "ORACLE_SNAPSHOT-865",
+         "firstChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-406",
+            "timestamp" : "2017-05-22T15:35:02.000Z",
+            "location" : "3418330",
+            "type" : "OracleTimeflowPoint"
+         },
+         "consistency" : "INCONSISTENT",
+         "namespace" : null,
+         "retention" : 0,
+         "redoLogSizeInBytes" : 52428800,
+         "fractionTimeflows" : null,
+         "creationTime" : "2017-05-22T15:35:03.206Z"
+      }
+   ],
+   "action" : null,
+   "type" : "ListResult",
+   "total" : 1,
+   "job" : null,
+   "status" : "OK",
+   "overflow" : false
+}
