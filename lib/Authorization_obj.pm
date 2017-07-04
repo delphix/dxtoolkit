@@ -120,6 +120,7 @@ sub getDatabasesByUser {
     my $user_ref = shift;
     logger($self->{_debug}, "Entering Authorization_obj::getAuthorizationByUser",1);    
     my %db_hash;
+    my @retarray;
 
     #print Dumper $$config;
 
@@ -128,12 +129,16 @@ sub getDatabasesByUser {
         if ( $self->getUser($authitem) eq $user_ref) {
             if ( $self->isDatabaseObject($authitem) ) {
                 my $local_auth = $self->getAuthotization($authitem);
-                $db_hash{$local_auth->{target}} = $self->{_roles}->getName($local_auth->{role});
+                my %db_hash;
+                $db_hash{'obj_ref'} = $local_auth->{target};
+                $db_hash{'name'} = $self->{_roles}->getName($local_auth->{role});
+                $db_hash{'authref'} = $local_auth->{reference};
+                push(@retarray, \%db_hash);
             }
         }
     }
 
-    return \%db_hash;
+    return \@retarray;
 }
 
 # Procedure getAuthotization
@@ -281,7 +286,12 @@ sub setAuthorisation {
 
     my $operation = "resources/json/delphix/authorization";
     logger($self->{_debug}, $operation, 2);
-
+  
+    my $roleobj = $self->{_roles}->getRoleByName($role_name);
+    if (!defined($roleobj)) {
+      print "Role $role_name not found. ";
+      return 1;
+    }
 
     my $role_ref = $self->{_roles}->getRoleByName($role_name)->{reference};
 

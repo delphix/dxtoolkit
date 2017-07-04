@@ -69,8 +69,8 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if (!defined($file)) {
-  print "Parameter -file is mandatory\n";
+if ((!defined($file)) && (!defined($profile))) {
+  print "Parameter -file or -profile is required\n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -124,7 +124,7 @@ sub process_user {
   # load objects for current engine
   my $users_obj = new Users ($engine_obj, undef, $debug);
 
-  my $csv_obj = Text::CSV->new({sep_char=>','});
+  my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
   for my $line (@csv) {
     
@@ -273,11 +273,11 @@ sub process_profile {
   # load objects for current engine
   my $users_obj = new Users ($engine_obj);
 
-  my $csv_obj = Text::CSV->new({sep_char=>','});
+  my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
   for my $line (@csv) {
     
-    if ($line =~ /^#/) {
+    if ($line =~ /^[\s]*#/) {
       next;
     }
 
@@ -285,6 +285,8 @@ sub process_profile {
 
     if ($csv_obj->parse($line)) {
       ($username,$target_type,$target_name,$role) = $csv_obj->fields();
+      #trim objects
+      
     } else {
       print "Can't parse line : $line \n";
       next;
@@ -294,9 +296,13 @@ sub process_profile {
 
     if (defined($user)) {
       if ($user->setProfile($target_type,$target_name,$role)) {
-        print "Problem with setting profile for user $username \n";
+        print "Problem with granting or revoking role for/from user $username \n";
       } else {
-        print "Role $role for target $target_name set for $username\n";
+        if (lc $role eq 'none') {
+          print "Role on target $target_name revoked from $username\n";          
+        } else {
+          print "Role $role for target $target_name set for $username\n";
+        }
       }
     } else {
       print "User $username doesn't exist. Can't set profile.\n";
@@ -314,8 +320,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_users    [ -engine|d <delphix identifier> | -all ] 
-                 [-file filename] 
-                 [-profile filename] 
+                 <-file filename | -profile filename>  
                  [-help|?] 
                  [-debug]
 
@@ -348,6 +353,15 @@ command, username, firstname, lastname, email, workphone, homephone, mobilephone
 
 =item B<-profile filename>
 CSV file name with user profile definition. It can be generated using dx_get_users profile option. 
+To revoke existing role from user, role name should be set to None in profile file.
+Allowed role names:
+
+ - none
+ - read
+ - data
+ - provisioner
+ - owner
+
 Field list
 username, target_type, target_name, role
 
@@ -407,14 +421,15 @@ Example csv user file:
 Example csv profile file:
 
  #Username,Type,Name,Role
- testusr,group,Break Fix,AUDITOR
- testusr,group,QA Copies,AUDITOR 
- testusr,group,Sources,AUDITOR
- testusr,databases,ASE pubs3 DB,OWNER 
- testusr,databases,AdventureWorksLT2008R2,AUDITOR 
- testusr,databases,Agile Masking,AUDITOR 
- testusr,databases,Employee Oracle DB,OWNER 
- 
+ testusr,group,Break Fix,read
+ testusr,group,QA Copies,read 
+ testusr,group,Sources,read
+ testusr,databases,ASE pubs3 DB,owner 
+ testusr,databases,AdventureWorksLT2008R2,provisioner 
+ testusr,databases,Agile Masking,data
+ testusr,databases,Employee Oracle DB,data 
+
+
 =cut
 
 

@@ -65,11 +65,6 @@ sub new {
 
     $self->{_new}->{type} = "User";
 
-    # my $authorizations = new Authorization_obj($dlpxObject,$debug);
-    
-    # $self->{_authorizations} = $authorizations;
-
-    #$self->getUserList($debug);
     return $self;
 }
 
@@ -497,27 +492,65 @@ sub setProfile {
     }
 
     my $authorizations = $self->{_authorizations};
-
-
     my $target_ref;
+    
+    my $existing_profile = $self->getProfile();
+    
+    my @exiting_auths;
 
     if ($target_type eq 'group') {
-        $target_ref = $groups->getGroupByName($target_name)->{reference};
-    }
-
-    if ($target_type eq 'databases' ) {
-        my $db_obj = $databases->getDBByName($target_name);
-        if (defined($db_obj)) {
-            $target_ref = $db_obj->[0]->getReference();
+        if (defined($groups->getGroupByName($target_name))) {
+          $target_ref = $groups->getGroupByName($target_name)->{reference};
+        } else {
+          print "Group $target_name not found. ";
+          return 1;
         }
+        
+        for my $item (sort ( @{$existing_profile->{'groups'} } ) ) {
+          if ($item->{"name"} eq $target_name) {
+            push(@exiting_auths, $item->{'authref'});
+          }
+        }
+        
+    } elsif ($target_type eq 'databases' ) {
+        my $db_obj = $databases->getDBByName($target_name);
+        if (scalar(@{$db_obj}) > 0 ) {
+            $target_ref = $db_obj->[0]->getReference();
+        } else {
+          print "Database $target_name not found. ";
+          return 1;
+        }
+        
+        for my $item (sort ( @{$existing_profile->{'databases'} } ) ) {
+          if ($item->{"name"} eq $target_name) {
+            push(@exiting_auths, $item->{'authref'});
+          }
+        }
+        
+    } else {
+      print "Target type $target_type not found. ";
+      return 1;
     }
+    
 
-    if (! defined($target_ref)) {
-        print "Target not found.\n";
-        return 1;
+    if (lc $role_name eq 'none') {
+      if (scalar(@exiting_auths) < 1) {
+        print "User doesn't have any role assigned to $target_type named $target_name. ";
+        return 1;  
+      }
     }
-
-    return $authorizations->setAuthorisation($self->{_user}->{reference}, $role_name, $target_ref);
+    
+    my $ret = 0;
+    
+    for my $auth_ref (@exiting_auths) {
+      $ret = $ret + $authorizations->deleteAuthorisation($auth_ref);
+    }
+      
+    if (lc $role_name ne 'none') {
+      $ret = $ret + $authorizations->setAuthorisation($self->{_user}->{reference}, $role_name, $target_ref);
+    }
+    
+    return $ret;
 }
 
 # Procedure getProfile
@@ -526,6 +559,7 @@ sub setProfile {
 
 sub getProfile {
     my $self = shift;
+    my $ref = shift;
     
     logger($self->{_debug}, "Entering User_obj::getProfile",1); 
 
@@ -553,17 +587,36 @@ sub getProfile {
 
 
     my $obj_list = $authorizations->getDatabasesByUser($reference); 
+    
+    my @grouparray;
+    my @databasearray;
         
-    for my $obj_ref ( keys %{$obj_list} ) {
-              
+    for my $obj ( @{$obj_list} ) {
+      
+        my $obj_ref = $obj->{'obj_ref'};
+                      
         if (defined($groups->getName($obj_ref)) && ($groups->getName($obj_ref) ne 'N/A')  ) {
-            $profile{'group'}{$groups->getName($obj_ref)} = $obj_list->{$obj_ref};
+          my %authobj;
+          $authobj{'name'} = $groups->getName($obj_ref);
+          $authobj{'authref'} = $obj->{'authref'};
+          $authobj{'rolename'} = $obj->{'name'};
+          push(@grouparray, \%authobj);
         }
         if (defined($databases->getName($obj_ref))) {
-            $profile{'databases'}{$databases->getName($obj_ref)} = $obj_list->{$obj_ref};
+          my %authobj;
+          $authobj{'name'} = $databases->getName($obj_ref);
+          $authobj{'authref'} = $obj->{'authref'};
+          $authobj{'rolename'} = $obj->{'name'};
+          push(@databasearray, \%authobj);
         }
     }
+    
+    @grouparray = sort { $a->{'name'} cmp $b->{'name'} } @grouparray;
+    @databasearray = sort { $a->{'name'} cmp $b->{'name'} } @databasearray;
+    
 
+    $profile{'groups'} = \@grouparray;
+    $profile{'databases'} = \@databasearray;
     return \%profile;
 }
 

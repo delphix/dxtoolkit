@@ -71,7 +71,7 @@ sub getRoleByName {
 
     for my $roleitem ( sort ( keys %{$self->{_roles}} ) ) {
 
-        if ( $self->getName($roleitem) eq $name) {
+        if ( lc $self->getName($roleitem) eq lc $name) {
             $ret = $self->getRole($roleitem); 
         }
     }
