@@ -75,6 +75,59 @@ sub new {
     return $self;
 }
 
+
+# procedure set_facility 
+# set facility 
+# - facility
+
+sub set_facility {
+  my $self = shift;
+  my $facility_name = shift;
+  
+  my $facility = Log::Syslog::Constants::get_facility($facility_name);
+  
+  if ( ! defined($facility) ) {
+    print "Facility $facility_name not found\n";
+    return 1;
+  }
+  
+  try {
+    $self->{_handler}->set_facility($facility);
+    return 0;
+  }
+  catch {
+    print "Problem with setting facility" . $_ . " \n" ;
+    return 1;   
+  };
+    
+}
+
+# procedure set_severity 
+# set severity 
+# - severity
+
+sub set_severity {
+  my $self = shift;
+  my $severity_name = shift;
+
+  my $severity = Log::Syslog::Constants::get_severity($severity_name);
+  
+  if ( ! defined($severity) ) {
+    print "Severity $severity_name not found\n";
+    return 1;
+  }
+  
+  try {
+    $self->{_handler}->set_severity($severity);
+    return 0;
+  }
+  catch {
+    print "Problem with setting severity" . $_ . " \n" ;
+    return 1;   
+  };
+    
+}
+
 # procedure setDE 
 # set source to Delphix Engine IP
 # - address

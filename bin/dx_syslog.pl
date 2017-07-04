@@ -47,6 +47,8 @@ GetOptions(
   'd|engine=s' => \(my $dx_host), 
   'syslog=s' => \(my $syslog),
   'port=s' => (\$port),
+  'severity=s' => \(my $severity),
+  'facility=s' => \(my $facility), 
   'protocol=s' => (\$protocol),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -95,6 +97,22 @@ if (!defined($handler)) {
   exit(1);
 }
 
+if (defined($facility)) {
+  if ($handler->set_facility($facility)) {
+    print "Problem with setting facility\n";
+    exit(1);
+  }
+}
+
+if (defined($severity)) {
+  if ($handler->set_severity($severity)) {
+    print "Problem with setting severity\n";
+    exit(1);
+  }
+}
+
+
+exit;
 
 my $count = 0;
 
@@ -131,7 +149,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $st_timestamp = uri_escape($newtime);
     $last_start_time = $load_state->{$engine}->{last_start_time};
   } else {
-    $st_timestamp = Toolkit_helpers::timestamp("-120min", $engine_obj);
+    $st_timestamp = Toolkit_helpers::timestamp("-7days", $engine_obj);
   }
 
 
@@ -153,9 +171,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       {'ActionParentID', 20},
       {'StartTime',   30},
       {'State',       12},
-      {'User',        20},
+      {'User name',   20},
       {'User role',   20},
       {'User auth',   10},
+      {'Worksource',  10},
       {'Type',        20},
       {'Details',     80},
       {'Failure Action', 80}
@@ -202,6 +221,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $actions->getUserName($actionitem),
         $userole,
         $userauth,
+        $actions->getWorksource($actionitem),
         $action,
         $actions->getDetails($actionitem),
         ''
@@ -224,6 +244,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $actions->getUserName($actionitem),
           $userole,
           $userauth,
+          $actions->getWorksource($actionitem),
           $action,
           $actions->getFailureDescription($actionitem),
           $actions->getFailureAction($actionitem)
@@ -276,7 +297,9 @@ close($json_stream);
 
 
 print "$count lines sent to syslog\n";
-$ret = $ret + $f->sendtosyslog($handler);
+#$ret = $ret + $f->sendtosyslog($handler);
+
+$f->savecsv();
 
 exit $ret;
 
@@ -288,6 +311,8 @@ __DATA__
                  -syslog syslog_server 
                  [ -port syslog_port] 
                  [ -protocol tcp|udp] 
+                 [ -facility facility_name]
+                 [ -severity severity_name]
                  [ -help|? ] 
                  [ -debug ]
 
@@ -323,6 +348,18 @@ Port of syslog server - default 514
 
 =item B<-protocol tcp|udp>
 Protocol for syslog server communication - default TCP
+
+=item B<-facility facility_name>
+Setting a syslog facility. Default value user.
+Allowed names:
+kern, user, mail, daemon, auth, syslog, lpr,
+news, uucp, cron, authpriv, ftp, local0, local1, local2, local3, 
+local4, local5, local6, local7
+
+=item B<-severity severity_name>
+Setting a syslog severity. Default value info.
+Allowed names:
+emerg, alert, crit, err, warning, notice, info,debug
 
 =item B<-help>          
 Print this screen
