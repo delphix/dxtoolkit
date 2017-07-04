@@ -206,20 +206,20 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($profile)) {
       my $profile_data = $user->getProfile();
             
-      for my $item (sort (keys %{$profile_data->{'group'} } ) ) {
+      for my $item ( @{$profile_data->{'groups'} } ) {
           $output_profile->addLine(
             $user->getName(),
             'group',
-            $item,
-            $profile_data->{'group'}->{$item}
+            $item->{'name'},
+            $item->{'rolename'}
           );
       }
-      for my $item (sort ( keys %{$profile_data->{'databases'} } ) ) {
+      for my $item (  @{$profile_data->{'databases'} }  ) {
           $output_profile->addLine(
             $user->getName(),
             'databases',
-            $item,
-            $profile_data->{'databases'}->{$item}
+            $item->{'name'},
+            $item->{'rolename'}
           );
       }
     }
@@ -243,7 +243,7 @@ if (defined($save)) {
   close($FD);
 }
 
-if (defined($profile)) {
+if (defined($profile) && ($profile ne '')) {
   close($FDPROF);
 }
 
@@ -300,7 +300,8 @@ Specify a username to display user profile for
 Export users into file compatible with dx_ctl_users script
 
 =item B<-profile filename>
-Export users profile into file compatible with dx_ctl_users script
+Export users profile into file compatible with dx_ctl_users script.
+If filename is not specified profile will be displayed on the screen
 
 
 =back
