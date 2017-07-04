@@ -239,6 +239,33 @@ sub getUserName {
     return $user;
 }
 
+
+# Procedure getWorksource
+# parameters: 
+# - reference
+# Return action user type, allowed values : user , policy, unknown
+
+sub getWorksource {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Action_obj::getWorksource",1); 
+    my $type;
+    
+    if (defined($self->{_actions}->{$reference}->{workSource})) {
+      if ($self->{_actions}->{$reference}->{workSource} eq 'WEBSERVICE') {
+        $type = 'USER';
+      } elsif ($self->{_actions}->{$reference}->{workSource} eq 'POLICY') {
+        $type = 'POLICY';
+      } else {
+        $type = 'unknown';
+      }
+    } else {
+      $type = 'unknown';
+    } 
+    return $type;
+}
+
 # Procedure getUserRef
 # parameters: 
 # - reference
@@ -350,7 +377,7 @@ sub loadActionList
     logger($self->{_debug}, "Entering Action_obj::loadActionList",1);   
     
     my $offset = 0;
-    my $pageSize = 10;
+    my $pageSize = 100;
 
     my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset";
 
