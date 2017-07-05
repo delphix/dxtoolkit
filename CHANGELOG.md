@@ -1,5 +1,20 @@
 # Change Log
 
+## 2.3.3-rc1
+
+### Added
+
+* dx_syslog 
+* dx_ctl_users allow to set current role to None 
+
+### Changed
+
+* fix for users support 
+* fix for JS containers 
+* fix for timezones defined with offset
+* Various bug fixes 
+
+
 ## 2.3.2.1
 
 ### Changed
