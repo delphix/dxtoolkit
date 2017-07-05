@@ -37,7 +37,7 @@ use FindBin;
 
 my $abspath = $FindBin::Bin;
 
-my $version = '0.6';
+my $version = $Toolkit_helpers::version;
 
 my $port = 514;
 my $protocol = 'tcp';
