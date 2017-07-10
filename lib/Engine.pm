@@ -828,6 +828,7 @@ sub getJSONResult {
          }
          my $tempname = $operation;
          $tempname =~ s|resources/json/delphix/||;
+         $tempname =~ s|resources/json/service/||;
          my @filenames = split('/', $tempname);
          if (scalar(@filenames) > 1) {
             my @dirname;
@@ -996,6 +997,47 @@ sub postJSONData {
       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
       $retcode = 1;
+   }
+   
+   if (defined($self->{_debug}) && ( $self->{_debug} eq 3) ) {
+      my $enginename = $self->getEngineName();
+      my $debug_dir = "debug_" . $enginename;
+      if (! -e $debug_dir) {
+         mkdir $debug_dir or die("Can't create root directory for debug ");
+      }
+      my $tempname = $operation;
+      $tempname =~ s|resources/json/delphix/||;
+      $tempname =~ s|resources/json/service/||;
+      my @filenames = split('/', $tempname);
+      if (scalar(@filenames) > 1) {
+         my @dirname;
+         for (my $i=0; $i<scalar(@filenames)-1; $i++) {
+            @dirname = @filenames[0..$i];
+            my $md = $debug_dir . "/" . join('/',@dirname);
+            if (! -e $md) {
+               mkdir $md or die("Can't create directory for debug " . $md);
+            }
+         }
+         
+      }
+      my $filename = $tempname . ".json";
+      $filename =~ s|\?|_|;
+      $filename =~ s|\&|_|g;
+      $filename =~ s|\:|_|g;
+      #print Dumper $filename;
+      open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
+      print $fh to_json($result, {pretty=>1});
+      close $fh;
+      
+      $filename = $tempname . ".json.req";
+      $filename =~ s|\?|_|;
+      $filename =~ s|\&|_|g;
+      $filename =~ s|\:|_|g;
+      #print Dumper $filename;
+      open ($fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
+      print $fh $post_data;
+      close $fh;    
+      
    }
 
    return ($result,$result_fmt, $retcode);
