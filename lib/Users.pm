@@ -157,6 +157,7 @@ sub getUserList
       $databases = $self->{_databases};
     } else {
       $databases = new Databases($self->{_dlpxObject},$self->{_debug});
+      $self->{_databases} = $databases;
     }
 
     my $operation = "resources/json/delphix/user";
