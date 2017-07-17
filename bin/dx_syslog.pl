@@ -92,6 +92,7 @@ $engine_obj->load_config($config_file);
 my $handler = new Syslog_wrap ( $syslog, $port, $protocol, $debug );
 
 
+
 if (!defined($handler)) {
   print "Syslog connection error\n";
   exit(1);
@@ -112,8 +113,6 @@ if (defined($severity)) {
 }
 
 
-exit;
-
 my $count = 0;
 
 my $f = new Formater();
@@ -122,6 +121,7 @@ my $f = new Formater();
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
 my $ret = 0;
+
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
@@ -297,9 +297,9 @@ close($json_stream);
 
 
 print "$count lines sent to syslog\n";
-#$ret = $ret + $f->sendtosyslog($handler);
+$ret = $ret + $f->sendtosyslog($handler);
 
-$f->savecsv();
+#$f->savecsv();
 
 exit $ret;
 
