@@ -147,18 +147,20 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     } else {
 
-      my $schedule = ($replication->getLastJob($repitem))->{'Schedule'};
+      my $lastjob = $replication->getLastJob($repitem);
+
+      my $schedule = $lastjob->{'Schedule'};
 
       $output->addLine(
         $engine,
         $replication->getName($repitem),
         $replication->getTargetHost($repitem),
         $replication->getEnabled($repitem),
-        ($replication->getLastJob($repitem))->{'StartTime'},
-        ($replication->getLastJob($repitem))->{'State'},
+        $lastjob->{'StartTime'},
+        $lastjob->{'State'},
         defined($cron) ? $schedule : Toolkit_helpers::parse_cron($schedule),
-        ($replication->getLastJob($repitem))->{'Runtime'},
-        ($replication->getLastJob($repitem))->{'NextRun'},
+        $lastjob->{'Runtime'},
+        $lastjob->{'NextRun'},
         $replication->getObjectsName($repitem)
       );
     }
