@@ -1,5 +1,16 @@
 # Change Log
 
+## 2.3.3-rc2 
+
+### Added
+
+* adding error output for dx_get_jobs
+
+### Changed
+
+* fix for caching
+* Various bug fixes 
+
 ## 2.3.3-rc1
 
 ### Added
@@ -12,6 +23,7 @@
 * fix for users support 
 * fix for JS containers 
 * fix for timezones defined with offset
+* debug enhancements
 * Various bug fixes 
 
 

@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.3.3-rc1';
+our $version = '2.3.3-rc2';
 
 sub logger {
 	my $debug = shift;
@@ -45,6 +45,19 @@ sub logger {
 			printf "%s\n", $msg;				
 		}
 	}
+
+	if (defined($debug) && ( $debug eq 3) ) {
+		open (my $fh, ">>", 'debug.log') or die ("Can't open new debug file log.log for write");
+		if (defined($verbose)) {
+			if ($debug >= $verbose) {
+				printf $fh "%${verbose}s%s\n", '-', $msg;				
+			}
+		} else {
+			printf $fh "%s\n", $msg;				
+		}	
+		close $fh;
+	}
+	
 }
 
 
@@ -243,8 +256,8 @@ sub get_dblist_from_filter {
 	my @db_list;
 
 	logger($debug, "Entering Toolkit_helpers::get_dblist_from_filter",1);
-	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s" , defined($type) ? $type : 'N/A' , 
-		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A');
+	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s, dSource - %s" , defined($type) ? $type : 'N/A' , 
+		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A', defined($dsource) ? $dsource : 'N/A');
 	logger($debug, $msg ,1);
 	
 	# get all DB 
