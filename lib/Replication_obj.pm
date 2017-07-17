@@ -23,6 +23,7 @@ use Group_obj;
 use Databases;
 use DateTime::Event::Cron::Quartz;
 use DateTime::Format::DateParse;
+use Time::Seconds;
 
 # constructor
 # parameters 
@@ -58,6 +59,8 @@ sub new {
     
     return $self;
 }
+
+  
 
 # Procedure setGroups
 # parameters: 
@@ -226,19 +229,29 @@ sub getLastPoint {
       my $dt = new Date::Manip::Date;
       my ($date,$offset,$isdst,$abbrev);
       
-      my $timezone = $self->{_dlpxObject}->getTimezone();
-      
-      my $err = $dt->parse($last_point->{dataTimestamp});
-      my $dttemp = $dt->value();
+      if (defined($last_point->{dataTimestamp})) {
+        my $timezone = $self->{_dlpxObject}->getTimezone();
+        
+        my $err = $dt->parse($last_point->{dataTimestamp});
+        my $dttemp = $dt->value();
 
-      $dt->config("setdate","zone,GMT");
-      ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
-      my $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-      $ret{timestamp} = $ts;
-      $ret{throughput} = sprintf("%9.2f", $last_point->{averageThroughput}/1024/1024); #MB/s
-      $ret{size} = sprintf("%9.2f", $last_point->{bytesTransferred}/1024/1024); #MB
+        $dt->config("setdate","zone,GMT");
+        ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
+        my $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+        $ret{timestamp} = $ts;
+        $ret{throughput} = sprintf("%9.2f", $last_point->{averageThroughput}/1024/1024); #MB/s
+        $ret{size} = sprintf("%9.2f", $last_point->{bytesTransferred}/1024/1024); #MB
+      } else {
+        $ret{timestamp} = 'N/A';
+        $ret{throughput} = 'N/A';
+        $ret{size} = 'N/A';
+      }
       
-    } 
+    } else {
+      $ret{timestamp} = 'N/A';
+      $ret{throughput} = 'N/A';
+      $ret{size} = 'N/A';
+    }
     
     return \%ret;
 }
@@ -384,21 +397,30 @@ sub getLastJob {
     
     my $groups = $self->{_groups};
 
-    if ( ! defined($self->{_jobs})) {
-        #load jobs first
-        $jobs = new Jobs($self->{_dlpxObject}, Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(1*24*60),$self->{_dlpxObject}), undef, undef, undef, 'REPLICATION_SEND', undef, undef, $self->{_debug});
-        $self->{_jobs} = $jobs;
-    } else {
-        $jobs = $self->{_jobs};
-    } 
-
-
     my %job_data;
     my $job;
 
 
     if ($self->{_dlpxObject}->getApi() lt '1.5') {
         # find a job for particular DE based on title and message - this is for 4.1 only 
+        
+        if ( ! defined($self->{_jobs})) {
+            #load jobs first
+            $jobs = new Jobs($self->{_dlpxObject}, 
+                             Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(1*24*60),
+                             $self->{_dlpxObject}), 
+                             undef, 
+                             undef, 
+                             undef, 
+                             'REPLICATION_SEND', 
+                             undef, 
+                             undef,
+                             undef,
+                             $self->{_debug});
+            $self->{_jobs} = $jobs;
+        } else {
+            $jobs = $self->{_jobs};
+        } 
 
         my $targetHost = $self->getTargetHost($reference);
 
@@ -462,27 +484,44 @@ sub getLastJob {
         }
 
     # end of 4.1 workaround
-    } else {
+  } else {
+    
+        my @reparray = ( $reference );
+    
+
+        $jobs = new Jobs($self->{_dlpxObject}, 
+                             Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(1*24*60),
+                             $self->{_dlpxObject}), 
+                             undef, 
+                             undef, 
+                             undef, 
+                             undef, 
+                             undef, 
+                             \@reparray,
+                             undef,
+                             1,
+                             $self->{_debug});
+
 
         $job_data{'StartTime'} = 'N/A';
         $job_data{'State'} = 'N/A';
         $job_data{'Runtime'} = 'N/A';
 
         for my $jobitem (@{$jobs->getJobList('desc')}) {
-
+        
           $job = $jobs->getJob($jobitem);
-
+        
           my $jobtarget = $job->getJobTarget();
-
+        
           if ( $jobtarget eq $reference) {        
             $job_data{'StartTime'} = $job->getJobStartTimeWithTZ();
             $job_data{'State'} = $job->getJobState();
             $job_data{'Runtime'} = $job->getJobRuntime();
             last;
           }
-
-        }
-    }
+        
+        }        
+    } 
 
     my $schedule = $self->getSchedule($reference);
 

@@ -34,6 +34,8 @@ sub new {
     my $type = shift;
     my $jobref = shift;
     my $targetref = shift;
+    my $events = shift;
+    my $pageSize = shift;
     my $debug = shift;
 
     my %jobs;
@@ -48,7 +50,9 @@ sub new {
         _targetName => $targetname,
         _state => $state,
         _type =>$type,
-        _targetref =>$targetref
+        _targetref =>$targetref,
+        _events => $events,
+        _pageSize => $pageSize
     };
     
     bless($self,$classname);
@@ -62,6 +66,7 @@ sub new {
     }
     return $self;
 }
+
 
 
 # procedure getJobList
@@ -152,7 +157,11 @@ sub loadJobs_worker
     my $targetref = shift;
     my $pageSize = 5000;
 
-    logger($self->{_debug}, "Entering Jobs::loadJobs_worker",1);    
+    logger($self->{_debug}, "Entering Jobs::loadJobs_worker",1); 
+    
+    if (defined($self->{_pageSize})) {
+      $pageSize = $self->{_pageSize};
+    }   
 
     my $offset = 0;
 
@@ -173,6 +182,10 @@ sub loadJobs_worker
     if (defined($self->{_state})) {
         $operation = $operation . "jobState=" . uc $self->{_state} . "&";
     }
+    
+    if (defined($self->{_events})) {
+      $operation = $operation . "addEvents=true&";
+    }
 
     my $total = 1;
     
@@ -186,6 +199,11 @@ sub loadJobs_worker
 
         if (scalar(@res) < $pageSize) {
            $total = 0;
+        }
+        
+        if (defined($self->{_pageSize})) {
+        # if page size was set on class level, finish loop
+            $total = 0;
         }
         
         

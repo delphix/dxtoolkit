@@ -125,7 +125,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } 
   }
 
-  my $jobs = new Jobs($engine_obj, $st_timestamp, $et_timestamp, $state, undef, undef, $jobref, $debug);
+  my $jobs = new Jobs($engine_obj, $st_timestamp, $et_timestamp, $state, undef, undef, $jobref, undef, undef, undef, $debug);
 
   my @jobsarr;
   @jobsarr = @{$jobs->getJobList('asc')};
