@@ -113,38 +113,6 @@ sub setTimezone
     $self->{_timezone} = $timezone;
 }
 
-# # Procedure loadJobs
-# # parameters: - 
-# # - fromdate
-# # - todate
-# # - state
-# # - target
-# # Load job status from Delphix Engine
-
-# sub loadJobs 
-# {
-#     my $self = shift;
-#     my $fromdate = shift;
-#     my $todate = shift;
-#     my $state = shift;
-#     logger($self->{_debug}, "Entering Jobs_obj::loadJobs",1);    
-
-#     my $operation = "resources/json/delphix/job?";
-
-#     if (defined($fromdate)) {
-#         $operation = $operation . "fromDate=" . $fromdate . "&";
-#     }
-
-#     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-
-#     my @res = @{$result->{result}};
-#     my $jobs = $self->{_jobs};
-
-#     for my $jobitem (@res) {
-#         $jobs->{$jobitem->{reference}} = $jobitem;
-#     } 
-
-# }
 
 # Procedure getJobForAction
 # parameters: 
@@ -323,7 +291,6 @@ sub getLastMessage
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Jobs_obj::getLastMessage",1);   
-
     my $events =  $self->{_joboutput}->{events};
     my $last_event = @{$events}[-1];
     return $last_event->{messageDetails}

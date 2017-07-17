@@ -56,6 +56,7 @@ GetOptions(
   'type=s' => \(my $type), 
   'group=s' => \(my $group), 
   'host=s' => \(my $host),
+  'errDetails' => \(my $errDetails),
   'outdir=s' => \(my $outdir),
   'dsource=s' => \(my $dsource),
   'format=s' => \(my $format), 
@@ -96,18 +97,32 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
-
-$output->addHeader(
-    {'Appliance',   20},
-    {'Job ref  ',   15},   
-    {'Target name', 20},
-    {'Username',    20}, 
-    {'Start date',  30},
-    {'End date',    30},
-    {'Run time',    10},
-    {'State',       12},
-    {'Type',        20}
-);
+if (defined($errDetails)) {
+  $output->addHeader(
+      {'Appliance',   20},
+      {'Job ref  ',   15},   
+      {'Target name', 20},
+      {'Username',    20}, 
+      {'Start date',  30},
+      {'End date',    30},
+      {'Run time',    10},
+      {'State',       12},
+      {'Type',        20},
+      {'Error Details', 500}
+  );
+} else {
+  $output->addHeader(
+      {'Appliance',   20},
+      {'Job ref  ',   15},   
+      {'Target name', 20},
+      {'Username',    20}, 
+      {'Start date',  30},
+      {'End date',    30},
+      {'Run time',    10},
+      {'State',       12},
+      {'Type',        20}
+  );
+}
 
 my $ret = 0;
 
@@ -173,7 +188,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
-  my $jobs = new Jobs($engine_obj, $st_timestamp, $et_timestamp, $state, undef, undef, $jobref, $db_list,  $debug);  
+  my $jobs = new Jobs($engine_obj, $st_timestamp, $et_timestamp, $state, undef, undef, $jobref, $db_list, $errDetails, undef, $debug);  
   my $users = new Users($engine_obj, $databases, $debug);
 
   my @jobsarr;
@@ -201,21 +216,42 @@ for my $engine ( sort (@{$engine_list}) ) {
     
     if (defined($db_map{$target_ref})) {
       $target_name = $db_map{$target_ref};
-   } else {
+    } else {
       $target_name = $jobobj->getJobTargetName();
-   }
-
-    $output->addLine(
-      $engine,
-      $jobitem,
-      $target_name,
-      $username,
-      $jobobj->getJobStartTimeWithTZ(),
-      $jobobj->getJobUpdateTimeWithTZ(),
-      $jobobj->getJobRuntime(),
-      $jobobj->getJobState(),
-      $jobobj->getJobActionType()
-    )
+    }
+   
+    if (defined($errDetails)) {
+      my $errormsg;
+      if ($jobobj->getJobState() ne 'COMPLETED') {
+        $errormsg = $jobobj->getLastMessage();
+      } else {
+        $errormsg = "";
+      }
+      $output->addLine(
+        $engine,
+        $jobitem,
+        $target_name,
+        $username,
+        $jobobj->getJobStartTimeWithTZ(),
+        $jobobj->getJobUpdateTimeWithTZ(),
+        $jobobj->getJobRuntime(),
+        $jobobj->getJobState(),
+        $jobobj->getJobActionType(),
+        $errormsg
+      )
+    } else {
+      $output->addLine(
+        $engine,
+        $jobitem,
+        $target_name,
+        $username,
+        $jobobj->getJobStartTimeWithTZ(),
+        $jobobj->getJobUpdateTimeWithTZ(),
+        $jobobj->getJobRuntime(),
+        $jobobj->getJobState(),
+        $jobobj->getJobActionType()
+      )
+    }
 
   }
 }
