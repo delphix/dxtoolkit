@@ -278,6 +278,7 @@ __DATA__
                 [-type VDB|dSource]
                 [-dSource name]
                 [-state state] 
+                [-errDetails]
                 [-format csv|json ]  
                 [-outdir path]
                 [-help|? ] [ -debug ]
@@ -338,6 +339,9 @@ Type (dsource|vdb)
 
 =item B<-dsource name>
 Name of dSource
+
+=item B<-errDetails>
+Display an error details for a failed jobs
 
 =item B<-format>                                                                                                                                            
 Display output in csv or json format
