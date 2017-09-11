@@ -61,16 +61,14 @@ GetOptions(
   'interval|i=s' => \($resolution), 
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
-  'nohead' => \(my $nohead)
+  'nohead' => \(my $nohead),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 $opname = Toolkit_helpers::opname_options($opname, $read, $write);

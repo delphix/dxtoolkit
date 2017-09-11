@@ -46,7 +46,8 @@ GetOptions(
   'all' => \(my $all),
   'debug:i' => \(my $debug), 
   'version' => \(my $print_version),
-  'dever=s' => \(my $dever)
+  'dever=s' => \(my $dever),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -59,9 +60,6 @@ if (defined($all) && defined($dx_host)) {
 }
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)

@@ -54,7 +54,8 @@ GetOptions(
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
   'debug:n' => \(my $debug),
-  'nohead' => \(my $nohead)
+  'nohead' => \(my $nohead),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -63,9 +64,6 @@ die  "$version\n" if $print_version;
 Toolkit_helpers::check_format_opions($format);
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {

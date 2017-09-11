@@ -53,7 +53,8 @@ GetOptions(
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
-  'debug:n' => \(my $debug)
+  'debug:n' => \(my $debug),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -83,9 +84,6 @@ if (open ($json_stream, 'syslog.dat')) {
 }
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 
