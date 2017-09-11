@@ -59,7 +59,8 @@ GetOptions(
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
   'parallel=n' => \(my $parallel),
-  'force=s' => \($force)
+  'force=s' => \($force),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
@@ -72,9 +73,6 @@ die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 

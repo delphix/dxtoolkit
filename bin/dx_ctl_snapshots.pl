@@ -66,16 +66,14 @@ GetOptions(
   'skip' => (\my $skip),
   'all' => (\my $all),
   'version' => \(my $print_version),
-  'nohead' => \(my $nohead)
+  'nohead' => \(my $nohead),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 if ( (! defined($action) ) || ( ! ( ( lc $action eq 'update') || ( lc $action eq 'delete') ) ) ) {

@@ -54,7 +54,8 @@ GetOptions(
   'debug:n' => \(my $debug), 
   'dever=s' => \(my $dever),
   'all' => (\my $all),
-  'version' => \(my $print_version)
+  'version' => \(my $print_version),
+  'configfile|c=s' => \(my $config_file)
 );
 
 
@@ -64,9 +65,6 @@ die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 

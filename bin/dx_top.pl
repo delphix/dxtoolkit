@@ -57,16 +57,14 @@ GetOptions(
   'dever=s' => \(my $dever),
   'interval|i=s' => \($resolution), 
   'version' => \(my $print_version),
-  'nohead' => \(my $nohead)
+  'nohead' => \(my $nohead),
+  'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
 die  "$version\n" if $print_version;   
 
 my $engine_obj = new Engine ($dever, $debug);
-my $path = $FindBin::Bin;
-my $config_file = $path . '/dxtools.conf';
-
 $engine_obj->load_config($config_file);
 
 
@@ -118,7 +116,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
-    print "Wrong start time (st) format \n";
+    print "Wrong start time (st) format $st\n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (3);  
   }
@@ -127,7 +125,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $endtime;
 
   if (defined($et) && (! defined($et_timestamp = Toolkit_helpers::timestamp($et,$engine_obj)))) {
-    print "Wrong end time (et) format \n";
+    print "Wrong end time (et) format $et\n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (3);  
   }
@@ -281,7 +279,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_top -d <delphix identifier> [ -st "DD-MON-YYYY [HH24:MI:SS]" -et "DD-MON-YYYY [HH24:MI:SS]" ] [-loop no] [-i 1,60,3600]
+dx_top -d <delphix identifier> [ -st "YYYY-MM-DD [HH24:MI:SS]" -et "YYYY-MM-DD [HH24:MI:SS]" ] [-loop no] [-i 1,60,3600]
 
 =head1 DESCRIPTION
 
