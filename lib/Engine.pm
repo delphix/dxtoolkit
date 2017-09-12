@@ -20,10 +20,6 @@
 #
 # Updated      : 13 Apr 2015 (v2.0.0)
 #
-
-
-
-
 package Engine;
 
 BEGIN {
@@ -55,6 +51,7 @@ use Date::Manip;
 use FindBin;
 use File::Spec;
 use Try::Tiny;
+use Term::ReadKey;
 use dbutils;
 
 use LWP::Protocol::http; 
@@ -106,10 +103,21 @@ sub load_config {
 
    my $data;
    my %engines;
+   
+   my $config_file;
 
-   logger($self->{_debug}, "Loading engines from $fn",2);
+   if (defined($fn)) {
+     $config_file=$fn;
+   } elsif (defined($ENV{'DXTOOLKIT_CONF'})) {
+     $config_file=$ENV{'DXTOOLKIT_CONF'};
+   } else {
+     my $path = $FindBin::Bin;
+     $config_file = $path . '/dxtools.conf';
+   }
 
-   open (my $json_stream, $fn) or die ("Can't load config file $fn : $!");
+   logger($self->{_debug}, "Loading engines from $config_file");
+
+   open (my $json_stream, $config_file) or die ("Can't load config file $config_file : $!");
    local $/ = undef;
    my $json = JSON->new();
    try {
@@ -377,7 +385,7 @@ sub dlpx_connect {
    $self->{_port} = $engine_config->{port};   
    $self->{_protocol} = $engine_config->{protocol};
    $self->{_enginename} = $engine;
-
+   
    undef $self->{timezone};
 
    logger($self->{_debug},"connecting to: $engine ( IP/name : " . $self->{_host} . " )");
@@ -431,17 +439,20 @@ sub dlpx_connect {
             $rc = 1;
          }
          else {
-            if ( $self->login() ) {
+           
+           if ($self->{_password} eq '') {
+             # if no password provided and there is no open session 
+             $self->{_password} = $self->read_password();
+           }
+           if ( $self->login() ) {
                print "login to " . $self->{_host} . "  failed. \n";
                #logger($self->{_debug}, "login to " . $self->{_host} . "  failed.");
                $cookie_jar->clear();
                $rc = 1;
-            } 
-            else {
+           } else {
                logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
                $rc = 0;
-
-            }
+           }
          }
    } else {
       logger($self->{_debug}, "Session exists.");  
@@ -1044,6 +1055,14 @@ sub postJSONData {
 }
 
 
+sub read_password {
+    Term::ReadKey::ReadMode('noecho');
+    print "Password: ";
+    my $pass = Term::ReadKey::ReadLine(0);
+    Term::ReadKey::ReadMode('restore');
+    $pass =~ s/\R$//;
+    return $pass;
+}
 
 
 
