@@ -1,5 +1,18 @@
 # Change Log
 
+## 2.3.3-rc3
+
+### Added
+
+* v2p enhancements
+* read password from command line
+* location of config file can be set by parameter or environment variable
+
+### Changed
+
+* help fixes
+* Various bug fixes 
+
 ## 2.3.3-rc2 
 
 ### Added
