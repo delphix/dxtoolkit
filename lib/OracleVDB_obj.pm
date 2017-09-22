@@ -854,16 +854,98 @@ sub setMapFile {
 }  
 
 
+# Procedure setNoOpenResetLogs
+# parameters: 
+# Set no open database with reset logs after provision
+
+sub setNoOpenResetLogs {
+    my $self = shift; 
+    logger($self->{_debug}, "Entering OracleVDB_obj::setNoOpenResetLogs",1);
+    $self->{"NEWDB"}->{"openResetlogs"} = JSON::false;
+}  
+
+
 # Procedure setNoOpen
 # parameters: 
-# Set no open database after provision
+# Set no open database after v2p
 
 sub setNoOpen {
     my $self = shift; 
     logger($self->{_debug}, "Entering OracleVDB_obj::setNoOpen",1);
-    $self->{"NEWDB"}->{"openResetlogs"} = JSON::false;
+    $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
 }  
 
+# Procedure setDSP
+# parameters: 
+#  - numConnections: 1 (*)
+#  - compression: false (*)
+#  - encryption: false (*)
+#  - bandwidthLimit: 0 (*)
+# set DSP protocol settings for V2P
+
+sub setDSP 
+{
+    my $self = shift;
+    my $numConnections = shift;
+    my $compression = shift;
+    my $encryption = shift;
+    my $bandwidthLimit = shift;
+    
+    logger($self->{_debug}, "Entering VDB_obj::setDSP",1);
+    
+    if (!defined($numConnections)) {
+      $numConnections = 1;
+    }
+    
+    if (!defined($compression)) {
+      $compression = JSON::false;
+    } else {
+      $compression = JSON::true;
+    }
+    
+    if (!defined($encryption)) {
+      $encryption = JSON::false;
+    } else {
+      $encryption = JSON::true;
+    }
+    
+    if (!defined($bandwidthLimit)) {
+      $bandwidthLimit = 0;
+    }
+    
+    my %hash_dsp = (
+          "type" => "DSPOptions",
+          "bandwidthLimit" => $bandwidthLimit,
+          "compression" => $compression,
+          "encryption" => $encryption,
+          "numConnections" => $numConnections   
+    );
+    
+    
+    $self->{"NEWDB"}->{"dspOptions"} = \%hash_dsp;
+        
+}
+
+
+
+# Procedure setFileParallelism
+# parameters:
+# - number of concurrent files 
+# Set no open database after v2p
+
+sub setFileParallelism {
+    my $self = shift; 
+    my $numfiles = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setFileParallelism",1);
+    
+    if (!defined($numfiles)) {
+      print "Number of concurrent files is not defined";
+      return 1;
+    } else {
+      $self->{"NEWDB"}->{"fileParallelism"} = $numfiles;      
+      return 0;
+    }
+}  
 
 
 # Procedure refresh
@@ -1405,17 +1487,11 @@ sub createVDB {
         return undef;
     }
 
-    # if ( $self->setEnvironment($env) ) {
-    #     print "Environment $env not found. VDB won't be created\n";
-    #     return undef;
-    # }
 
     if ( $self->setHome($home) ) {
         print "Home $home in environment $env not found. VDB won't be created\n";
         return undef;
     }
-    
-
     
 
     if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {

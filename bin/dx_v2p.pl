@@ -64,6 +64,12 @@ GetOptions(
   'scriptDirectory=s' => \(my $scriptDirectory),
   'tempDirectory=s' => \(my $tempDirectory),
   'timestamp=s' => \($timestamp),
+  'noopen' => \(my $noopen),
+  'norecovery' => \(my $norecovery),
+  'dspconnections=n' => \(my $dspconnections),
+  'concurrentfiles=n' => \(my $concurrentfiles),
+  'dspusecompression' => \(my $dspusecompression),
+  'dspuseencryption' => \(my $dspuseencryption),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
@@ -93,7 +99,7 @@ if ( ! ( defined($type) && defined($sourcename) && defined($targetDirectory) && 
   exit (1);
 }
 
-if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') ) )  {
+if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') ) )  {
   print "Option -type has invalid parameter - $type \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
@@ -137,25 +143,41 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   my $source = ($databases->getDB($source_ref->[0]));
+  
+
+  # create a new DB object
+  if ( $type eq 'oracle' ) {
+    $db = new OracleVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'mssql') {
+      $db = new MSSQLVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'sybase') {
+    $db = new SybaseVDB_obj($engine_obj,$debug);
+  }
+
+
+  if ( $db->setSource($source) ) {
+    print "Problem with setting source. V2P won't be created.\n";
+    exit(1);
+  }
+
+  if ( $db->setTimestamp($timestamp) ) {
+    print "Problem with setting timestamp $timestamp. V2P process won't be started.\n";
+    exit(1);
+  }
+
+  $db->setName($dbname, $dbname);
+  if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+    print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
+    exit(1);
+  }
 
 
   if ( $type eq 'oracle' ) {
-    $db = new OracleVDB_obj($engine_obj,$debug);
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {
         print  "Template $template not found. V2P process won't be created\n";
         exit(1);
       }  
-    }
-
-    if ( $db->setSource($source) ) {
-      print "Problem with setting source. V2P won't be created.\n";
-      exit(1);
-    }
-
-    if ( $db->setTimestamp($timestamp) ) {
-      print "Problem with setting timestamp $timestamp. V2P process won't be started.\n";
-      exit(1);
     }
 
     if ( defined($map_file) ) {
@@ -170,31 +192,30 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     }
 
-    if ($db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory)) {
-      print "Problem with export file system layout. Is targetDiretory set ?\n";
-      exit(1);
-    }
+    if (defined($noopen)) {
+      $db->setNoOpen();
+    };
 
-    $db->setName($dbname,$dbname);
+    if (defined($concurrentfiles)) {
+      if ($db->setFileParallelism($concurrentfiles)) {
+        print "Problem with setting number of concurrent files\n";
+        exit(1);
+      }
+    };
+
+    $db->setDSP($dspconnections, $dspusecompression, $dspuseencryption);
     $jobno = $db->v2pSI($environment,$envinst);
-
-
 
   } 
   elsif ($type eq 'mssql') {
-    $db = new MSSQLVDB_obj($engine_obj,$debug);
-    $db->setName($dbname, $dbname);
-
-    if ( $db->setSource($source) )  {
-      print "Problem with setting source $sourcename. VDB won't be created.\n";
-      exit(1);
+    if (defined($norecovery)) {
+      $db->setNoRecovery();
     }
-
-
-    $db->setTimestamp($timestamp);
-    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
-      print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-      exit(1);
+    $jobno = $db->v2p($environment,$envinst);
+  } 
+  elsif ($type eq 'sybase') {
+    if (defined($norecovery)) {
+      $db->setNoRecovery();
     }
     $jobno = $db->v2p($environment,$envinst);
   } 
@@ -333,6 +354,5 @@ MS SQL V2P proces
 
 
 =cut
-
 
 
