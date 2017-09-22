@@ -190,6 +190,21 @@ sub setMaskingJob
     
 }
 
+# Procedure setNoRecovery
+# parameters: 
+
+
+
+sub setNoRecovery 
+{
+    my $self = shift;
+    my $maskingjob = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setNoRecovery",1);
+
+    $self->{"NEWDB"}->{recoverDatabase} = JSON::false;
+    
+}
+
 
 # Procedure setAutostart
 # parameters: 

@@ -465,7 +465,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if (defined($noopen)) {
-      $db->setNoOpen();
+      $db->setNoOpenResetLogs();
     }
 
     if ( defined($template) ) {

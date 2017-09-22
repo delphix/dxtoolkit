@@ -512,6 +512,8 @@ sub createVDB {
 
 
 
+
+
 # Procedure setLogTruncate
 # parameters: 
 # - logtruncate option - true / false
