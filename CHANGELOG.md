@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.3.3
+
+### Changed
+
+* Bug fix
+
 ## 2.3.3-rc3
 
 ### Added
