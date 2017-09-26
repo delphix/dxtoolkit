@@ -1715,7 +1715,7 @@ sub upgradeVDB {
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
         # check action status
         # get last hour of actions
-        my $st = Toolkit_helpers::timestamp($self->{_dlpxObject}->getTime(5), $self->{_dlpxObject});
+        my $st = Toolkit_helpers::timestamp("-5mins", $self->{_dlpxObject});
         my $action = new Action_obj ($self->{_dlpxObject}, $st, undef, undef);
         print "Waiting for all actions to complete. Parent action is " . $result->{action} . "\n";
         if ( $action->checkStateWithChild($result->{action}) eq 'COMPLETED' ) {
