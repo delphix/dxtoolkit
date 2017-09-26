@@ -161,7 +161,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         # check action status
         # get last hour of actions
-        my $st = Toolkit_helpers::timestamp($engine_obj->getTime(5), $engine_obj);
+        my $st = Toolkit_helpers::timestamp("-5mins", $engine_obj);
         my $action = new Action_obj ($engine_obj, $st, undef, undef);
         print "Waiting for all actions to complete. Parent action is " . $jobno . "\n";
         if ( $action->checkStateWithChild($jobno) eq 'COMPLETED' ) {
