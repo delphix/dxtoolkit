@@ -402,15 +402,7 @@ sub getSnapshotTimewithzone {
 
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
-    } else {
-        # my $dt = ParseDate($zulutime);
-        # my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
-        # if (scalar(@{$date}) > 0) {
-        #     $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-        # } else {
-        #     $ret = 'N/A';
-        # }
-        
+    } else {        
         $ret = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1);
     }
     return ($ret,$timezone);

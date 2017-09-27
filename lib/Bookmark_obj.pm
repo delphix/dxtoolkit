@@ -148,13 +148,7 @@ sub getBookmarkTimestamp
             if (defined($container_obj)) {
                 my $container_timezone = $container_obj->getTimezone();
                 $bookmark_timestamp =~ s/\....Z//;
-                
-
-                my $dt = ParseDate($bookmark_timestamp);
-                my $tz = new Date::Manip::TZ;
-                my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $container_timezone);
-
-                $timestamp{timestamp} = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+                $timestamp{timestamp} = Toolkit_helpers::convert_from_utc($bookmark_timestamp, $container_timezone,1);
                 $timestamp{object_name} = $container_obj->getName();
 
             } else {
