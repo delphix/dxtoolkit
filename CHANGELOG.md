@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.3.3.1
+
+### Changed
+
+* timezone bug fix
+
 ## 2.3.3
 
 ### Changed
