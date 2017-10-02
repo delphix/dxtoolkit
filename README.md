@@ -16,10 +16,17 @@ Please check a [change log](https://github.com/delphix/dxtoolkit/blob/master/CHA
 * OpenSSL 1.0 library is required for Solaris Sparc, Solaris x64, Red Hat 6 and Red Hat 7 
 * OpenSSL 0.98 library is required for Red Hat 5
 
+If you don't have required version of OpenSSL library download a version with -openssl- in name, where
+those libraries are embbeded.
+
 Download a compiled version of DxToolkit for required platform from a [releases  page](https://github.com/delphix/dxtoolkit/releases). 
 Create a configuration file *dxtools.conf* based on dxtools.conf.example or a Wiki page.
 
 Check a [documentation](https://github.com/delphix/dxtoolkit/wiki) for more details
+
+### Known issues
+
+There is no script dx_syslog on Windows and AIX due to lack of support of Log::Syslog::Fast Perl module
 
 ### Source version
 
@@ -38,7 +45,8 @@ Perl version 5.16 or higher
 - Net::SSLeay
 - IO::Socket::SSL
 - LWP::Protocol::https
-
+- Term::ReadKey
+- Log::Syslog::Fast
 
 ## Legalness
 ```
