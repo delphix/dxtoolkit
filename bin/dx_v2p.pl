@@ -75,7 +75,7 @@ GetOptions(
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
-);
+) or pod2usage(-verbose => 1, -input=>\*DATA);
 
 
 
@@ -93,8 +93,8 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if ( ! ( defined($type) && defined($sourcename) && defined($targetDirectory) && defined($dbname) && defined($environment) && defined($timestamp) && defined($envinst)  ) ) {
-  print "Options -type, -sourcename, -targetDirectory, -dbname, -environment, -timestamp and -envinst are required. \n";
+if ( ! ( defined($type) && defined($sourcename)  && defined($dbname) && defined($environment) && defined($timestamp) && defined($envinst)  ) ) {
+  print "Options -type, -sourcename, -dbname, -environment, -timestamp and -envinst are required. \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -103,6 +103,13 @@ if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') ) )
   print "Option -type has invalid parameter - $type \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
+}
+
+
+if ( ( ( $type eq 'oracle') || ( $type eq 'mssql') ) && (! defined($targetDirectory)) ) {
+  print "Option targetDirectory is required. \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);  
 }
 
 
@@ -166,13 +173,15 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   $db->setName($dbname, $dbname);
-  if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
-    print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-    exit(1);
-  }
 
 
   if ( $type eq 'oracle' ) {
+
+    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+      print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
+      exit(1);
+    }
+
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {
         print  "Template $template not found. V2P process won't be created\n";
@@ -208,6 +217,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   } 
   elsif ($type eq 'mssql') {
+
+    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+      print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
+      exit(1);
+    }
+    
     if (defined($norecovery)) {
       $db->setNoRecovery();
     }
@@ -235,18 +250,24 @@ exit $ret;
             -sourcename src_name  
             -dbname db_name 
             -environment environment_name 
-            -type oracle|mssql 
-            -envinst OracleHome/MSSQLinstance
-            -targetDirectory target_directory 
-          [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
-          [ -template template_name] 
-          [ -mapfile mapping_file]  
-          [ -instname SID] 
-          [ -uniqname db_unique_name] 
-          [ -archiveDirectory arch_directory] 
-          [ -dataDirectory data_dir]
-          [ -externalDirectory external_dir] 
-          [ -tempDirectory temp_dir]
+            -type oracle|mssql|sybase 
+            -envinst OracleHome/MSSQLinstance/SybaseInstance
+          [ -targetDirectory target_directory ] 
+          [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp ]
+          [ -template template_name ] 
+          [ -mapfile mapping_file ]  
+          [ -norecovery ]
+          [ -noopen ]
+          [ -instname SID ] 
+          [ -uniqname db_unique_name ] 
+          [ -archiveDirectory arch_directory ] 
+          [ -dataDirectory data_dir ]
+          [ -externalDirectory external_dir ] 
+          [ -tempDirectory temp_dir ]
+          [ -dspconnections=n ]
+          [ -dspusecompression ]
+          [ -dspuseencryption ]
+          [ -concurrentfiles=n ]
           [ -help] 
           [ -debug]
 
@@ -277,13 +298,13 @@ Display databases on all Delphix appliance
 Type (oracle|mssql)
 
 =item B<-sourcename>
-dSource/VDB Name
+dSource/VDB Name of database being move to physical
 
 =item B<-targetDirectory>
-Target directory 
+Target directory (mandatory for an Oracle and MS SQL)
 
 =item B<-dbname>
-Target database name
+Physical database name
 
 =item B<-timestamp>
 Time stamp for export format (YYYY-MM-DD HH24:MI:SS) or LATEST_POINT or LATEST_SNAPSHOT
@@ -319,6 +340,25 @@ External directory
 =item B<-temp>
 Temp directory
 
+=item B<-norecovery>
+Do not run recovery (for MS SQL and Sybase only)
+
+=item B<-noopen>
+Do not open a database after migration (for an Oracle only)
+
+=item B<-dspconnections=n>
+Set number of DSP connections (for an Oracle only)
+
+=item B<-dspusecompression>
+Enable DSP compression (for an Oracle only)
+
+=item B<-dspuseencryption>
+Enable DSP encryption (for an Oracle only)
+
+=item B<-concurrentfiles=n>
+Set number of concurrent files being copy (for an Oracle only)
+
+
 =back
 
 
@@ -344,7 +384,7 @@ Oracle V2P process
  Job JOB-231 finised with state: COMPLETED
  V2P job finished with COMPLETED status.
 
-MS SQL V2P proces
+MS SQL V2P process
 
  dx_v2p -d Landshark43 -sourcename autotest -environment WINDOWSTARGET -type mssql -envinst MSSQL2012 -dbname v2p -targetDirectory "c:\temp"
  Starting provisioning job - JOB-832
@@ -352,6 +392,13 @@ MS SQL V2P proces
  Job JOB-832 finised with state: COMPLETED
  V2P job finished with COMPLETED status.
 
+Sybase V2P process ( database SYBV2P has to be precreated with for load option )
+
+ dx_v2p -d Landshark51 -type sybase -timestamp LATEST_SNAPSHOT -sourcename testsys -dbname SYBV2P -environment LINUXTARGET -envinst LINUXTARGET
+ Starting provisioning job - JOB-5025
+ 0 - 8 - 9 - 30 - 60 - 90 - 92 - 100
+ Job JOB-5025 finished with state: COMPLETED
+ V2P finished..
 
 =cut
 
