@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2015,2016 by Delphix. All rights reserved.
+# Copyright (c) 2015,2017 by Delphix. All rights reserved.
 #
 # Program Name : Snapshot_obj.pm
 # Description  : Delphix Engine Snapshot object
@@ -363,6 +363,10 @@ sub getSnapshotTimeZone {
     my $ret = $temp[0];
     if ($ret eq 'Etc/Zulu') {
         $ret = 'Etc/GMT';
+    }
+    
+    if ($ret eq 'Greenwich') {
+        $ret = 'GMT+00:00';
     }
 
     my $tz = new Date::Manip::TZ;
