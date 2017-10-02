@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2015,2016 by Delphix. All rights reserved.
+# Copyright (c) 2015,2017 by Delphix. All rights reserved.
 #
 # Program Name : OracleVDB_obj.pm
 # Description  : Delphix Engine Database objects
@@ -511,6 +511,54 @@ sub createVDB {
 }
 
 
+# Procedure v2p
+# parameters: 
+# - env - new DB environment
+# - inst - new DB instance
+# Start job for v2p Sybase VBD 
+# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
+# Return job number if provisioning has been started, otherwise return undef 
+
+sub v2p {
+    my $self = shift; 
+
+    my $env = shift;
+    my $inst = shift;
+
+    logger($self->{_debug}, "Entering SybaseVDB_obj::v2p",1);
+
+
+    if ( $self->setEnvironment($env) ) {
+        print "Environment $env not found. VDB won't be created\n";
+        return undef;
+    }
+
+    if ( $self->setHome($inst) ) {
+        print "Instance $inst in environment $env not found. VDB won't be created\n";
+        return undef;
+    }
+
+    if ( $self->setHost() ) {
+        print "Host is not set. VDB won't be created\n";
+        return undef;
+    }
+
+    if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
+        print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
+        return undef;
+    }
+
+    $self->{"NEWDB"}->{"type"} = "ASEExportParameters";
+
+
+    delete $self->{"NEWDB"}->{"truncateLogOnCheckpoint"};
+    delete $self->{"NEWDB"}->{"container"};
+    delete $self->{"NEWDB"}->{"source"};
+    my $operation = 'resources/json/delphix/database/export';
+    my $json_data = $self->getJSON();
+    return $self->runJobOperation($operation,$json_data);
+
+}
 
 
 
