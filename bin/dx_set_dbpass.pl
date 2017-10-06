@@ -131,7 +131,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_set_dbpass [ -engine|d <delphix identifier> | -all ] [ -group group_name | -dbname db_name | -host host_name | -type dsource|vdb ] [-username <username>] -password <password> [ --help|? ] [ -debug ]
+ dx_set_dbpass [ -engine|d <delphix identifier> | -all ] [ -configfile file ][ -group group_name | -dbname db_name | -host host_name | -type dsource|vdb ] [-username <username>] -password <password> [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

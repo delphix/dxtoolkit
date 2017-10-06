@@ -141,7 +141,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_maskingjob  [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_maskingjob  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                     -name maskingjo_name 
                     -action assign|unassign
                     [ -group group_name | -dbname db_name | -host host_name | -type dsource|vdb ]  
@@ -163,6 +163,13 @@ Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
 Display databases on all Delphix appliance
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
 
 =item B<-name maskingjob_name>
 Name of masking job

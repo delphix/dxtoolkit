@@ -163,14 +163,40 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_nfs_latency -d <delphix identifier> [-w <warning millisec>] [-i time_interval] [-c <critical millisec>] [-opname operation] [-read | -write] [ -raw ] [-st \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] [ -debug ] [ -help|-? ]
+ dx_get_nfs_latency   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                      [ -w <warning millisec>] 
+                      [ -i time_interval] 
+                      [ -c <critical millisec>] 
+                      [ -opname operation] 
+                      [ -read | -write] 
+                      [ -raw ] 
+                      [ -st \"DD-MON-YYYY [HH24:MI:SS]\" ] 
+                      [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] 
+                      [ -debug ] 
+                      [ -help|-? ]
 
 =head1 ARGUMENTS
 
 =over 4
 
-=item B<-d>
-Delphix Identifier (hostname defined in dxtools.conf) 
+=item B<-engine|d>
+Specify Delphix Engine name from dxtools.conf file
+
+=item B<-all>
+Run script for all Delphix Engines from config file
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
+
+=back
+
+=head1 OPTIONS
+
+=over 4
 
 =item B<-st>
 StartTime (format: DD-MON-YYYY [HH24:MI:SS] or YYYY-MM-DD [HH24:MI:SS]). Default is SYSDATE-7.

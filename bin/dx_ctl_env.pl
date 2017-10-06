@@ -410,7 +410,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_env [ -engine|d <delphix identifier> | -all ] 
+ dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
             [ -name env_name | -reference reference ]  
             -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
             [-dbname dbname]
@@ -442,6 +442,13 @@ Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
 Display databases on all Delphix appliance
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
 
 =back
 

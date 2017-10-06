@@ -139,7 +139,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_source_info    [ -engine|d <delphix identifier> | -all ] 
+ dx_get_source_info    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                        [ -group group_name | -name db_name | -host host_name ] 
                        [ -format csv|json ]  
                        [ -help|? ] 
@@ -160,6 +160,13 @@ Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
 Display databases on all Delphix appliance
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
 
 =back
 
