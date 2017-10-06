@@ -48,7 +48,6 @@ my $stat = 't';
 GetOptions(
   'help|?' => \(my $help), 
   'd|engine=s' => \(my $dx_host), 
-  'all' => \(my $all),
   'debug:i' => \(my $debug), 
   'st=s' => \(my $st), 
   'et=s' => \(my $et), 
@@ -79,7 +78,7 @@ my %allowedres = (
         );
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list(undef, $dx_host, $engine_obj); 
 
 if (scalar(@{$engine_list}) > 1) {
   print "More than one engine is default. Use -d parameter\n";
@@ -279,7 +278,10 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_top -d <delphix identifier> [ -st "YYYY-MM-DD [HH24:MI:SS]" -et "YYYY-MM-DD [HH24:MI:SS]" ] [-loop no] [-i 1,60,3600]
+dx_top [ -engine|d <delphix identifier> ] [ -configfile file ] 
+       [ -st "YYYY-MM-DD [HH24:MI:SS]" -et "YYYY-MM-DD [HH24:MI:SS]" ] 
+       [-loop no] 
+       [-i 1,60,3600]
 
 =head1 DESCRIPTION
 
@@ -287,12 +289,19 @@ Get the information about engine in line format.
 
 =head1 ARGUMENTS
 
-Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
-
-=over 10
+=over 4
 
 =item B<-engine|d>
 Specify Delphix Engine name from dxtools.conf file
+
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
+
 
 =item B<-stat t|l>
 Statictics t - throughput (default), l - latency

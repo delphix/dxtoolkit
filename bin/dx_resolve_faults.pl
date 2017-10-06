@@ -206,7 +206,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_resolve_faults [ -engine|d <delphix identifier> | -all ] 
+ dx_resolve_faults [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                    [ -fault FAULTREF | all] 
                    [ -st timestamp] 
                    [ -et timestamp] 

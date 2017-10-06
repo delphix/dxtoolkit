@@ -133,7 +133,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_autostart [ -engine|d <delphix identifier> | -all ] 
+ dx_get_autostart [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                   [ -group group_name | -dbname db_name | -host host_name ]  
                   [ -help|? ] 
                   [ -debug ]

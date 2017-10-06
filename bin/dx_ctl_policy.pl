@@ -150,7 +150,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] -import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
+ dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]-import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
 
 =head1 DESCRIPTION
 
@@ -167,6 +167,13 @@ Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
 Display databases on all Delphix appliance
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
 
 =item B<-import>                                                                                                                                            
 Import policy from file or directory

@@ -189,7 +189,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_set_envpass  [ -engine|d <delphix identifier> | -all ] [ -envname env_name ] -username <username> -password <password> [ --help|? ] [ -debug ]
+ dx_set_envpass  [ -engine|d <delphix identifier> | -all ] [ -configfile file ][ -envname env_name ] -username <username> -password <password> [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

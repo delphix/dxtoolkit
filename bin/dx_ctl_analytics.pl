@@ -206,7 +206,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_analytics ( -d <delphix identifier> | -all ) 
+ dx_ctl_analytics      [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                        -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names> 
                        -action start|stop|restart|display|create|delete
                        [-format csv|json]
@@ -217,6 +217,25 @@ __DATA__
 Control analytics collector inside Delphix Engine
   
 =head1 ARGUMENTS
+
+Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
+
+=over 4
+
+=item B<-engine|d>
+Specify Delphix Engine name from dxtools.conf file
+
+=item B<-all>
+Run script for all Delphix Engines from config file
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
+
+
 
 =over 4
 

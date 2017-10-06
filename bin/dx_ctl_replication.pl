@@ -144,6 +144,13 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
+
 =item B<-profilename profile>
 Specify a profile name to run
 

@@ -157,7 +157,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_audit    [-engine|d <delphix identifier> | -all ] 
+ dx_get_audit    [ -engine|d <delphix identifier> | -all ] [ -configfile file ] 
                  [-st timestamp] 
                  [-et timestamp] 
                  [-state state] 
@@ -181,7 +181,14 @@ Delphix Engine selection - if not specified a default host(s) from dxtools.conf 
 Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
-Run on all engines configured in dxtools.conf 
+Run script for all Delphix Engines from config file
+
+=item B<-configfile file>
+Location of the configuration file.
+A config file search order is as follow:
+- configfile parameter
+- DXTOOLKIT_CONF variable
+- dxtools.conf from dxtoolkit location
 
 =back
 
