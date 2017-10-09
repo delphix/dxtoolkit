@@ -1,0 +1,33 @@
+{
+   "type" : "ListResult",
+   "overflow" : false,
+   "job" : null,
+   "result" : [
+      {
+         "namespace" : null,
+         "cancelable" : true,
+         "updateTime" : "2017-07-10T16:45:28.688Z",
+         "queued" : false,
+         "suspendable" : false,
+         "startTime" : "2017-07-10T16:45:00.018Z",
+         "actionType" : "REPLICATION_SEND",
+         "title" : "Send replication update to target \"delphix-rep\".",
+         "events" : null,
+         "targetName" : "delphix-rep",
+         "jobState" : "COMPLETED",
+         "name" : null,
+         "type" : "Job",
+         "emailAddresses" : null,
+         "percentComplete" : 0,
+         "reference" : "JOB-19521997",
+         "target" : "REPLICATION_SPEC-19372161",
+         "parentAction" : "ACTION-19537226",
+         "parentActionState" : "COMPLETED",
+         "targetObjectType" : "ReplicationSpec",
+         "user" : null
+      }
+   ],
+   "total" : 1,
+   "action" : null,
+   "status" : "OK"
+}

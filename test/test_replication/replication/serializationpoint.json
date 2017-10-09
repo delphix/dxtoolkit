@@ -1,0 +1,43 @@
+{
+   "job" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "status" : "OK",
+   "action" : null,
+   "total" : 3,
+   "result" : [
+      {
+         "elapsedTimeNanos" : 19699529073,
+         "type" : "SerializationPoint",
+         "name" : null,
+         "tag" : "a689d4a4-1f5b-45e1-a2aa-eec7fc052bc6",
+         "bytesTransferred" : 2009523056,
+         "averageThroughput" : 102008685,
+         "reference" : "SERIALIZATION_POINT-19509158",
+         "dataTimestamp" : "2017-07-10T16:40:00.634Z",
+         "namespace" : null
+      },
+      {
+         "tag" : "8cde2611-e1c1-4eee-aca7-c6ee95dfc2af",
+         "name" : null,
+         "type" : "SerializationPoint",
+         "elapsedTimeNanos" : 4069513205,
+         "namespace" : null,
+         "dataTimestamp" : "2017-07-10T16:45:00.606Z",
+         "averageThroughput" : 18228509,
+         "reference" : "SERIALIZATION_POINT-19509159",
+         "bytesTransferred" : 74181160
+      },
+      {
+         "dataTimestamp" : "2017-07-10T16:50:00.610Z",
+         "namespace" : null,
+         "bytesTransferred" : 40393824,
+         "averageThroughput" : 10915555,
+         "reference" : "SERIALIZATION_POINT-19509160",
+         "name" : null,
+         "tag" : "d304ede3-039c-4bec-986c-e9329a67a0bd",
+         "elapsedTimeNanos" : 3700574264,
+         "type" : "SerializationPoint"
+      }
+   ]
+}

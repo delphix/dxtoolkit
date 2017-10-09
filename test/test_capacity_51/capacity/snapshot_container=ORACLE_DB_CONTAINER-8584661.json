@@ -1,0 +1,108 @@
+{
+   "status" : "OK",
+   "total" : 11,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584657"
+         ],
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19386651",
+         "snapshotTimestamp" : "2017-03-26T19:19:58.369Z",
+         "policyRetention" : false,
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584658"
+         ],
+         "policyRetention" : false,
+         "snapshotTimestamp" : "2017-05-13T19:30:02.176Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19387624",
+         "type" : "SnapshotCapacityData"
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584659"
+         ],
+         "policyRetention" : false,
+         "snapshotTimestamp" : "2017-07-19T19:31:01.591Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19388969",
+         "type" : "SnapshotCapacityData"
+      },
+      {
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390101",
+         "policyRetention" : false,
+         "snapshotTimestamp" : "2017-09-13T19:27:30.738Z",
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584660"
+         ],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390482",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-02T19:33:59.902Z"
+      },
+      {
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390502",
+         "snapshotTimestamp" : "2017-10-03T19:26:25.098Z",
+         "policyRetention" : true,
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "snapshotTimestamp" : "2017-10-04T19:26:33.094Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390522",
+         "descendantVDBs" : []
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390542",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-05T19:52:02.240Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T19:27:56.524Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19390562",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390582",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-07T19:28:28.660Z",
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584657"
+         ],
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390602",
+         "snapshotTimestamp" : "2017-10-08T19:21:44.679Z",
+         "policyRetention" : true
+      }
+   ],
+   "overflow" : false,
+   "job" : null,
+   "action" : null
+}
