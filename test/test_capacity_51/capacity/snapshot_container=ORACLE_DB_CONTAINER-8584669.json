@@ -1,0 +1,66 @@
+{
+   "status" : "OK",
+   "total" : 7,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "manualRetention" : 0,
+         "snapshotTimestamp" : "2017-10-02T22:30:03.136Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390488",
+         "descendantVDBs" : []
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390509",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-03T22:30:02.900Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "snapshotTimestamp" : "2017-10-04T22:30:02.823Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390529",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390549",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-05T22:30:02.731Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "snapshot" : "ORACLE_SNAPSHOT-19390568",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T22:30:02.709Z",
+         "descendantVDBs" : []
+      },
+      {
+         "snapshotTimestamp" : "2017-10-07T22:30:03.922Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390589",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390609",
+         "snapshotTimestamp" : "2017-10-08T22:30:03.822Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      }
+   ],
+   "overflow" : false,
+   "job" : null,
+   "action" : null
+}

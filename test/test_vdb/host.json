@@ -1,0 +1,234 @@
+{
+   "result" : [
+      {
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "available" : true,
+            "type" : "HostRuntime"
+         },
+         "truststorePassword" : null,
+         "reference" : "UNIX_HOST-8",
+         "namespace" : null,
+         "toolkitPath" : "/home/oracle/toolkit",
+         "dateAdded" : "2016-12-15T14:39:56.174Z",
+         "name" : "172.16.180.61",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "operatingSystem" : {
+               "type" : "HostOS",
+               "kernel" : null,
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "release" : "2.6.39-400.245.1.el6uek.x86_64",
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)"
+            },
+            "lastRefreshed" : null,
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 3163316224
+            },
+            "discovered" : true,
+            "lastUpdated" : "2017-06-26T14:49:16.393Z"
+         },
+         "sshPort" : 22,
+         "address" : "172.16.180.61"
+      },
+      {
+         "address" : "target3",
+         "hostConfiguration" : {
+            "discovered" : true,
+            "machine" : {
+               "memorySize" : 4018696192,
+               "platform" : "x86_64",
+               "type" : "HostMachine"
+            },
+            "lastUpdated" : "2017-06-29T09:58:42.164Z",
+            "lastRefreshed" : "2017-06-29T09:58:42.136Z",
+            "operatingSystem" : {
+               "distribution" : "CentOS",
+               "kernel" : null,
+               "type" : "HostOS",
+               "timezone" : "Europe/Dublin,IST+0100",
+               "release" : "2.6.32-573.12.1.el6.x86_64",
+               "name" : "Linux",
+               "version" : "CentOS release 6.7 (Final)"
+            },
+            "type" : "HostConfiguration"
+         },
+         "sshPort" : 22,
+         "name" : "target3",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "type" : "UnixHost",
+         "toolkitPath" : "/u01/app/toolkit",
+         "dateAdded" : "2017-02-07T20:22:26.072Z",
+         "namespace" : null,
+         "reference" : "UNIX_HOST-15",
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "available" : false,
+            "type" : "HostRuntime"
+         },
+         "truststorePassword" : null
+      },
+      {
+         "hostConfiguration" : {
+            "lastUpdated" : "2017-06-26T14:49:16.404Z",
+            "discovered" : true,
+            "machine" : {
+               "memorySize" : 3163316224,
+               "type" : "HostMachine",
+               "platform" : "x86_64"
+            },
+            "type" : "HostConfiguration",
+            "operatingSystem" : {
+               "distribution" : "RedHat",
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "name" : "Linux",
+               "release" : "2.6.39-400.245.1.el6uek.x86_64",
+               "type" : "HostOS",
+               "kernel" : null,
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)"
+            },
+            "lastRefreshed" : null
+         },
+         "sshPort" : 22,
+         "address" : "172.16.180.62",
+         "toolkitPath" : "/home/oracle/toolkit",
+         "dateAdded" : "2016-12-15T14:40:40.643Z",
+         "name" : "172.16.180.62",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "type" : "UnixHost",
+         "reference" : "UNIX_HOST-9",
+         "namespace" : null,
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "traceRouteInfo" : null,
+            "available" : true
+         },
+         "truststorePassword" : null
+      },
+      {
+         "hostConfiguration" : {
+            "operatingSystem" : {
+               "name" : "Linux",
+               "timezone" : "US/Eastern,EDT-0400",
+               "release" : "2.6.32-573.12.1.el6.x86_64",
+               "type" : "HostOS",
+               "kernel" : null,
+               "distribution" : "CentOS",
+               "version" : "CentOS release 6.7 (Final)"
+            },
+            "lastRefreshed" : "2017-06-29T14:40:31.843Z",
+            "type" : "HostConfiguration",
+            "discovered" : true,
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "x86_64",
+               "memorySize" : 1964466176
+            },
+            "lastUpdated" : "2017-06-29T14:40:31.874Z"
+         },
+         "sshPort" : 22,
+         "address" : "linuxsource",
+         "toolkitPath" : "/u01/app/toolkit",
+         "dateAdded" : "2017-02-07T20:23:02.376Z",
+         "name" : "linuxsource",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "type" : "UnixHost",
+         "reference" : "UNIX_HOST-16",
+         "namespace" : null,
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "available" : false,
+            "type" : "HostRuntime"
+         },
+         "truststorePassword" : null
+      },
+      {
+         "privilegeElevationProfile" : null,
+         "type" : "WindowsHost",
+         "name" : "172.16.180.133",
+         "dateAdded" : "2017-02-08T10:31:17.488Z",
+         "toolkitPath" : null,
+         "address" : "172.16.180.133",
+         "sshPort" : 22,
+         "hostConfiguration" : {
+            "operatingSystem" : {
+               "distribution" : "Windows",
+               "name" : "Windows",
+               "timezone" : "America/Los_Angeles,PDT-0700",
+               "release" : "6.1",
+               "type" : "HostOS",
+               "kernel" : "7601.win7sp1_rtm.101119-1850",
+               "version" : "Windows Server 2008 R2 Standard"
+            },
+            "type" : "HostConfiguration",
+            "lastRefreshed" : null,
+            "machine" : {
+               "memorySize" : 2146947072,
+               "type" : "HostMachine",
+               "platform" : "AMD64"
+            },
+            "discovered" : false,
+            "lastUpdated" : "2017-06-26T14:51:51.604Z"
+         },
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "available" : false,
+            "type" : "HostRuntime"
+         },
+         "connectorPort" : 0,
+         "namespace" : null,
+         "reference" : "WINDOWS_HOST-19",
+         "connectorAuthenticationKey" : null
+      },
+      {
+         "connectorPort" : 9100,
+         "hostRuntime" : {
+            "available" : false,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         },
+         "reference" : "WINDOWS_HOST-18",
+         "connectorAuthenticationKey" : null,
+         "namespace" : null,
+         "dateAdded" : "2017-02-08T10:29:39.707Z",
+         "toolkitPath" : "C:\\Program Files\\Delphix\\DelphixConnector",
+         "type" : "WindowsHost",
+         "privilegeElevationProfile" : null,
+         "name" : "172.16.180.132",
+         "sshPort" : 22,
+         "hostConfiguration" : {
+            "discovered" : false,
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "AMD64",
+               "memorySize" : 2197213184
+            },
+            "lastUpdated" : "2017-06-26T14:49:16.286Z",
+            "lastRefreshed" : null,
+            "operatingSystem" : {
+               "version" : "Windows Server 2008 R2 Enterprise",
+               "type" : "HostOS",
+               "kernel" : "7601.win7sp1_rtm.101119-1850",
+               "timezone" : "Europe/London,BST+0100",
+               "release" : "6.1",
+               "name" : "Windows",
+               "distribution" : "Windows"
+            },
+            "type" : "HostConfiguration"
+         },
+         "address" : "172.16.180.132"
+      }
+   ],
+   "status" : "OK",
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "total" : 6,
+   "action" : null
+}

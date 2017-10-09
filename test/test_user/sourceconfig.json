@@ -1,0 +1,628 @@
+{
+   "job" : null,
+   "type" : "ListResult",
+   "total" : 27,
+   "overflow" : false,
+   "action" : null,
+   "result" : [
+      {
+         "user" : "delphixdb",
+         "name" : "si4rac",
+         "uniqueName" : "si4rac",
+         "instance" : {
+            "instanceName" : "si4rac",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         },
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : false,
+         "reference" : "ORACLE_SINGLE_CONFIG-81",
+         "environmentUser" : "HOST_USER-26",
+         "cdbType" : "NON_CDB",
+         "databaseName" : "si4rac",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@linuxtarget:1502/si4rac"
+            },
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@linuxtarget:2000/si4rac",
+               "discovered" : true
+            },
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@linuxtarget:2001/si4rac",
+               "type" : "OracleService"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-22",
+         "discovered" : true,
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null
+      },
+      {
+         "cdbType" : "NON_CDB",
+         "databaseName" : "vdbunic",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521/vdbunic"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-23",
+         "discovered" : true,
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "user" : "delphixdb",
+         "uniqueName" : "vdbunic",
+         "name" : "vdbunic",
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "vdbunic"
+         },
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-107",
+         "environmentUser" : "HOST_USER-27"
+      },
+      {
+         "discovered" : true,
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "cdbType" : "NON_CDB",
+         "databaseName" : "testdx",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.130:1521/testdx"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-22",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-104",
+         "environmentUser" : "HOST_USER-26",
+         "user" : "delphixdb",
+         "name" : "testdx",
+         "uniqueName" : "testdx",
+         "instance" : {
+            "instanceName" : "testdx",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         }
+      },
+      {
+         "environmentUser" : "HOST_USER-26",
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-87",
+         "nonSysCredentials" : null,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "siclone"
+         },
+         "user" : "delphixdb",
+         "name" : "siclone",
+         "uniqueName" : "siclone",
+         "nonSysUser" : null,
+         "type" : "OracleSIConfig",
+         "discovered" : true,
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-22",
+         "databaseName" : "siclone",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.130:1521/siclone",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "cdbType" : "NON_CDB"
+      },
+      {
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "discovered" : false,
+         "databaseName" : "targetco",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : false,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.130:1521:targetcon"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-22",
+         "cdbType" : "ROOT_CDB",
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-56",
+         "environmentUser" : "HOST_USER-26",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "nonSysCredentials" : null,
+         "instance" : {
+            "instanceName" : "targetcon",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         },
+         "user" : "c##delphixdb",
+         "name" : "targetcon",
+         "uniqueName" : "targetcon"
+      },
+      {
+         "reference" : "ORACLE_SINGLE_CONFIG-106",
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-27",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "nonSysCredentials" : null,
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "unic"
+         },
+         "uniqueName" : "unic",
+         "name" : "unic",
+         "user" : "delphixdb",
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "discovered" : true,
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521:unic",
+               "type" : "OracleService"
+            }
+         ],
+         "databaseName" : "unic",
+         "repository" : "ORACLE_INSTALL-23",
+         "namespace" : null,
+         "cdbType" : "NON_CDB"
+      },
+      {
+         "discovered" : true,
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "cdbType" : "NON_CDB",
+         "databaseName" : "test1",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.130:1521/test1",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-21",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-105",
+         "environmentUser" : "HOST_USER-26",
+         "user" : "delphixdb",
+         "uniqueName" : "test1",
+         "name" : "test1",
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceName" : "test1",
+            "instanceNumber" : 1
+         }
+      },
+      {
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-53",
+         "environmentUser" : "HOST_USER-27",
+         "user" : "c##delphixdb",
+         "uniqueName" : "singpdb",
+         "name" : "singpdb",
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "singpdb"
+         },
+         "discovered" : false,
+         "type" : "OracleSIConfig",
+         "nonSysUser" : null,
+         "cdbType" : "ROOT_CDB",
+         "databaseName" : "singpdb",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : false,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521:singpdb"
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-24"
+      },
+      {
+         "nonSysUser" : null,
+         "type" : "OracleSIConfig",
+         "discovered" : true,
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-23",
+         "databaseName" : "orcl",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521:orcl",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "cdbType" : "NON_CDB",
+         "environmentUser" : "HOST_USER-27",
+         "linkingEnabled" : true,
+         "reference" : "ORACLE_SINGLE_CONFIG-38",
+         "nonSysCredentials" : null,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "instance" : {
+            "instanceNumber" : 1,
+            "instanceName" : "orcl",
+            "type" : "OracleInstance"
+         },
+         "user" : "delphixdb",
+         "name" : "orcl",
+         "uniqueName" : "orcl"
+      },
+      {
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@collabn-cluster-scan.racattack:1521/racdba",
+               "type" : "OracleService"
+            }
+         ],
+         "databaseName" : "racdba",
+         "repository" : "ORACLE_INSTALL-6",
+         "instances" : [
+            {
+               "type" : "OracleRACInstance",
+               "node" : "ORACLE_CLUSTER_NODE-4",
+               "instanceName" : "racdba1",
+               "instanceNumber" : 1
+            },
+            {
+               "type" : "OracleRACInstance",
+               "instanceName" : "racdba2",
+               "node" : "ORACLE_CLUSTER_NODE-5",
+               "instanceNumber" : 2
+            }
+         ],
+         "namespace" : null,
+         "cdbType" : "NON_CDB",
+         "type" : "OracleRACConfig",
+         "nonSysUser" : null,
+         "discovered" : true,
+         "uniqueName" : "racdba",
+         "name" : "racdba",
+         "user" : "delphixdb",
+         "reference" : "ORACLE_RAC_CONFIG-10",
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-8",
+         "crsDatabaseName" : "racdba",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "nonSysCredentials" : null
+      },
+      {
+         "discovered" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "linkingEnabled" : false,
+         "type" : "OraclePDBConfig",
+         "reference" : "ORACLE_PDB_CONFIG-79",
+         "environmentUser" : "HOST_USER-26",
+         "user" : "delphixdb",
+         "name" : "vPDBtest",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-56",
+         "databaseName" : "vPDBtest",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.130:1521/vPDBtest",
+               "discovered" : true
+            }
+         ],
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-22"
+      },
+      {
+         "environmentUser" : "HOST_USER-27",
+         "reference" : "ORACLE_PDB_CONFIG-54",
+         "linkingEnabled" : true,
+         "type" : "OraclePDBConfig",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-24",
+         "namespace" : null,
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521/PDB"
+            }
+         ],
+         "databaseName" : "PDB",
+         "name" : "PDB",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-53",
+         "user" : "delphixdb"
+      },
+      {
+         "credentials" : null,
+         "discovered" : true,
+         "reference" : "ORACLE_PDB_CONFIG-55",
+         "linkingEnabled" : true,
+         "type" : "OraclePDBConfig",
+         "environmentUser" : "HOST_USER-27",
+         "name" : "PDB2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-53",
+         "user" : null,
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@172.16.180.129:1521/PDB2",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "databaseName" : "PDB2",
+         "repository" : "ORACLE_INSTALL-24",
+         "namespace" : null
+      },
+      {
+         "databaseName" : "564d870b-e091-7339-5d98-e7cc4bdbfbcc-staging-171",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "repository" : "MSSQL_INSTANCE-4",
+         "user" : null,
+         "name" : "564d870b-e091-7339-5d98-e7cc4bdbfbcc-staging-171",
+         "linkingEnabled" : false,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-32",
+         "environmentUser" : "HOST_USER-29",
+         "discovered" : true,
+         "credentials" : null
+      },
+      {
+         "discovered" : false,
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-34",
+         "environmentUser" : "HOST_USER-29",
+         "user" : null,
+         "name" : "mstest_time",
+         "databaseName" : "mstest_time",
+         "recoveryModel" : "SIMPLE",
+         "namespace" : null,
+         "repository" : "MSSQL_INSTANCE-4"
+      },
+      {
+         "credentials" : null,
+         "discovered" : true,
+         "environmentUser" : "HOST_USER-29",
+         "reference" : "MSSQL_SINGLE_CONFIG-22",
+         "linkingEnabled" : true,
+         "type" : "MSSqlSIConfig",
+         "name" : "adWork",
+         "user" : null,
+         "repository" : "MSSQL_INSTANCE-4",
+         "recoveryModel" : "SIMPLE",
+         "namespace" : null,
+         "databaseName" : "adWork"
+      },
+      {
+         "name" : "test_simple",
+         "user" : null,
+         "databaseName" : "test_simple",
+         "repository" : "MSSQL_INSTANCE-5",
+         "namespace" : null,
+         "recoveryModel" : "SIMPLE",
+         "credentials" : null,
+         "discovered" : true,
+         "reference" : "MSSQL_SINGLE_CONFIG-24",
+         "type" : "MSSqlSIConfig",
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-30"
+      },
+      {
+         "credentials" : null,
+         "discovered" : true,
+         "environmentUser" : "HOST_USER-30",
+         "reference" : "MSSQL_SINGLE_CONFIG-25",
+         "linkingEnabled" : true,
+         "type" : "MSSqlSIConfig",
+         "name" : "test_src",
+         "user" : null,
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "SIMPLE",
+         "namespace" : null,
+         "databaseName" : "test_src"
+      },
+      {
+         "credentials" : null,
+         "discovered" : false,
+         "reference" : "MSSQL_SINGLE_CONFIG-36",
+         "linkingEnabled" : true,
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-29",
+         "name" : "mstest_lsn",
+         "user" : null,
+         "databaseName" : "mstest_lsn",
+         "repository" : "MSSQL_INSTANCE-4",
+         "recoveryModel" : "SIMPLE",
+         "namespace" : null
+      },
+      {
+         "repository" : "MSSQL_INSTANCE-5",
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "databaseName" : "AdventureWorksLT2008R2",
+         "name" : "AdventureWorksLT2008R2",
+         "user" : "aw",
+         "environmentUser" : "HOST_USER-30",
+         "reference" : "MSSQL_SINGLE_CONFIG-23",
+         "linkingEnabled" : true,
+         "type" : "MSSqlSIConfig",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "discovered" : true
+      },
+      {
+         "namespace" : null,
+         "repository" : "MYSQL_INSTALL-8",
+         "user" : "cBL4Qd75BoFWN17h",
+         "name" : "/u01/app/toolkit/564d870b-e091-7339-5d98-e7cc4bdbfbcc-staging-246/datafile",
+         "port" : 3310,
+         "type" : "MySQLServerConfig",
+         "linkingEnabled" : false,
+         "dataDirectory" : "/u01/app/toolkit/564d870b-e091-7339-5d98-e7cc4bdbfbcc-staging-246/datafile",
+         "reference" : "MYSQL_SERVER_CONFIG-9",
+         "environmentUser" : "HOST_USER-26",
+         "discovered" : true,
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         }
+      },
+      {
+         "repository" : "MYSQL_INSTALL-9",
+         "namespace" : null,
+         "port" : 3306,
+         "name" : "/u02/app/mysql/data",
+         "user" : "delphixdb",
+         "environmentUser" : "HOST_USER-27",
+         "dataDirectory" : "/u02/app/mysql/data",
+         "reference" : "MYSQL_SERVER_CONFIG-8",
+         "type" : "MySQLServerConfig",
+         "linkingEnabled" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "discovered" : true
+      },
+      {
+         "environmentUser" : "HOST_USER-26",
+         "linkingEnabled" : true,
+         "type" : "AppDataDirectSourceConfig",
+         "reference" : "APPDATA_SOURCE_CONFIG-16",
+         "path" : "/home/delphix/swingbench",
+         "discovered" : false,
+         "namespace" : null,
+         "repository" : "APPDATA_REPOSITORY-57",
+         "parameters" : {},
+         "restoration" : false,
+         "name" : "TESTEBI"
+      },
+      {
+         "reference" : "APPDATA_SOURCE_CONFIG-19",
+         "type" : "AppDataDirectSourceConfig",
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-26",
+         "discovered" : false,
+         "path" : "/mnt/provision/home/delphix",
+         "restoration" : false,
+         "parameters" : {},
+         "repository" : "APPDATA_REPOSITORY-57",
+         "namespace" : null,
+         "name" : "/mnt/provision/home/delphix"
+      },
+      {
+         "databaseName" : "dx397l9vX98vvd6a9nWwn9_pubs3",
+         "instance" : null,
+         "repository" : "ASE_INSTANCE-8",
+         "namespace" : null,
+         "name" : "dx397l9vX98vvd6a9nWwn9_pubs3",
+         "user" : null,
+         "reference" : "ASE_SI_CONFIG-109",
+         "type" : "ASESIConfig",
+         "linkingEnabled" : false,
+         "environmentUser" : "HOST_USER-26",
+         "credentials" : null,
+         "discovered" : true
+      },
+      {
+         "reference" : "ASE_SI_CONFIG-64",
+         "type" : "ASESIConfig",
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-27",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "discovered" : true,
+         "databaseName" : "pubs3",
+         "instance" : null,
+         "repository" : "ASE_INSTANCE-9",
+         "namespace" : null,
+         "name" : "pubs3",
+         "user" : "sa"
+      },
+      {
+         "namespace" : null,
+         "repository" : "ASE_INSTANCE-8",
+         "instance" : {
+            "type" : "ASEInstanceConfig",
+            "host" : "UNIX_HOST-15"
+         },
+         "databaseName" : "autotest",
+         "user" : null,
+         "name" : "autotest",
+         "environmentUser" : "HOST_USER-26",
+         "type" : "ASESIConfig",
+         "linkingEnabled" : true,
+         "reference" : "ASE_SI_CONFIG-110",
+         "discovered" : false,
+         "credentials" : null
+      }
+   ],
+   "status" : "OK"
+}

@@ -1,0 +1,42 @@
+{
+   "job" : null,
+   "overflow" : false,
+   "action" : null,
+   "type" : "ListResult",
+   "status" : "OK",
+   "total" : 1,
+   "result" : [
+      {
+         "consistency" : "CRASH_CONSISTENT",
+         "creationTime" : "2017-09-28T16:33:15.268Z",
+         "temporary" : false,
+         "timeflow" : "ASE_TIMEFLOW-597",
+         "version" : "15.7 SP101",
+         "type" : "ASESnapshot",
+         "name" : "@2017-09-28T17:33:15.203",
+         "firstChangePoint" : {
+            "timestamp" : "2017-09-28T16:33:15.203Z",
+            "timeflow" : "ASE_TIMEFLOW-597",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "timezone" : "Europe/Dublin,IST+0100",
+         "reference" : "ASE_SNAPSHOT-1083",
+         "namespace" : null,
+         "container" : "ASE_DB_CONTAINER-320",
+         "missingNonLoggedData" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2017-09-28T16:33:15.203Z",
+            "timeflow" : "ASE_TIMEFLOW-597",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "retention" : 0,
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "internalVersion" : "15.7 SP101"
+      }
+   ]
+}

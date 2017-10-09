@@ -1,0 +1,33 @@
+{
+   "overflow" : false,
+   "type" : "ListResult",
+   "job" : null,
+   "result" : [
+      {
+         "percentComplete" : 0,
+         "reference" : "JOB-19521996",
+         "target" : "REPLICATION_SPEC-19372163",
+         "parentAction" : "ACTION-19537225",
+         "targetObjectType" : "ReplicationSpec",
+         "parentActionState" : "COMPLETED",
+         "user" : null,
+         "namespace" : null,
+         "cancelable" : true,
+         "updateTime" : "2017-07-10T16:42:28.374Z",
+         "queued" : false,
+         "suspendable" : false,
+         "startTime" : "2017-07-10T16:40:00.030Z",
+         "actionType" : "REPLICATION_SEND",
+         "title" : "Send replication update to target \"delphix-rep\".",
+         "events" : null,
+         "targetName" : "G5G6-delphix-rep",
+         "jobState" : "COMPLETED",
+         "name" : null,
+         "type" : "Job",
+         "emailAddresses" : null
+      }
+   ],
+   "total" : 1,
+   "action" : null,
+   "status" : "OK"
+}

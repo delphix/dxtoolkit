@@ -1,0 +1,37 @@
+{
+   "status" : "OK",
+   "action" : null,
+   "total" : 3,
+   "result" : [
+      {
+         "spec" : "REPLICATION_SPEC-19372163",
+         "activePoint" : null,
+         "reference" : "REPLICATION_STATE-19372162",
+         "type" : "ReplicationSourceState",
+         "name" : null,
+         "lastPoint" : "SERIALIZATION_POINT-19509158",
+         "namespace" : null
+      },
+      {
+         "spec" : "REPLICATION_SPEC-19372161",
+         "reference" : "REPLICATION_STATE-19372161",
+         "activePoint" : null,
+         "type" : "ReplicationSourceState",
+         "name" : null,
+         "lastPoint" : "SERIALIZATION_POINT-19509159",
+         "namespace" : null
+      },
+      {
+         "reference" : "REPLICATION_STATE-19372163",
+         "activePoint" : null,
+         "type" : "ReplicationSourceState",
+         "spec" : "REPLICATION_SPEC-19372162",
+         "lastPoint" : "SERIALIZATION_POINT-19509160",
+         "namespace" : null,
+         "name" : null
+      }
+   ],
+   "job" : null,
+   "type" : "ListResult",
+   "overflow" : false
+}

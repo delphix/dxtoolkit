@@ -1,0 +1,66 @@
+{
+   "action" : null,
+   "result" : [
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-02T22:30:04.790Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19390492",
+         "type" : "SnapshotCapacityData"
+      },
+      {
+         "snapshotTimestamp" : "2017-10-03T22:30:04.999Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390511",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390532",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-04T22:30:05.555Z",
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-05T22:30:04.044Z",
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390551",
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T22:30:04.280Z",
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390571",
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "snapshotTimestamp" : "2017-10-07T22:30:04.953Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390590",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-08T22:30:04.409Z",
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390612",
+         "descendantVDBs" : []
+      }
+   ],
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "status" : "OK",
+   "total" : 7
+}

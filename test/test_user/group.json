@@ -1,0 +1,34 @@
+{
+   "status" : "OK",
+   "action" : null,
+   "result" : [
+      {
+         "name" : "Sources",
+         "description" : null,
+         "reference" : "GROUP-34",
+         "type" : "Group",
+         "dataNode" : "DATA_NODE-1",
+         "namespace" : null
+      },
+      {
+         "name" : "Analytics",
+         "description" : null,
+         "namespace" : null,
+         "dataNode" : "DATA_NODE-1",
+         "reference" : "GROUP-35",
+         "type" : "Group"
+      },
+      {
+         "namespace" : null,
+         "dataNode" : "DATA_NODE-1",
+         "type" : "Group",
+         "reference" : "GROUP-36",
+         "description" : "",
+         "name" : "Tests"
+      }
+   ],
+   "overflow" : false,
+   "total" : 3,
+   "type" : "ListResult",
+   "job" : null
+}
