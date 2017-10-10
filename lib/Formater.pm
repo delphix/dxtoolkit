@@ -57,13 +57,13 @@ sub new {
 sub sortbynumcolumn {
 	my $self = shift;
 	my $columnno = shift;
+  my $order = shift;
+  
+  logger($self->{_debug}, "Entering Formater::sortbynumcolumn",1);	
+  my $oldlines = $self->{_lines};
+  my @sortedlines = sort { Toolkit_helpers::sortcol_by_number($a, $b, $columnno, $order) } @{$oldlines};
 
-    logger($self->{_debug}, "Entering Engine::sortbycolumn",1);	
-
-    my $oldlines = $self->{_lines};
-    my @sortedlines = sort { Toolkit_helpers::sortcol_by_number($a, $b, $columnno) } @{$oldlines};
-
-    $self->{_lines} = \@sortedlines;
+  $self->{_lines} = \@sortedlines;
 
 }
 
@@ -78,7 +78,7 @@ sub sortbytextcolumn {
 	my $columnno2 = shift;
 	my $columnno3 = shift;
 
-    logger($self->{_debug}, "Entering Engine::sortbytextcolumn",1);	
+    logger($self->{_debug}, "Entering Formater::sortbytextcolumn",1);	
 
     my $oldlines = $self->{_lines};
     my @sortedlines;
@@ -108,7 +108,7 @@ sub print {
 	my $self = shift;
 	my $nohead = shift;
 	my $file = shift;
-    logger($self->{_debug}, "Entering Engine::print",1);
+    logger($self->{_debug}, "Entering Formater::print",1);
     logger($self->{_debug}, "Format " .  $self->{_format},2);
     my $FD;
 
@@ -139,7 +139,7 @@ sub print {
 sub savejson {
 	my $self = shift;
 	my $file = shift;
-    logger($self->{_debug}, "Entering Engine::savejson",1);
+    logger($self->{_debug}, "Entering Formater::savejson",1);
     logger($self->{_debug}, "Format " .  $self->{_format},2);
     my $FD;
 
@@ -176,7 +176,7 @@ sub savecsv {
 	my $self = shift;
 	my $nohead = shift;
 	my $file = shift;
-    logger($self->{_debug}, "Entering Engine::savecsv",1);
+    logger($self->{_debug}, "Entering Formater::savecsv",1);
     logger($self->{_debug}, "Format " .  $self->{_format},2);
     my $FD;
 
@@ -207,7 +207,7 @@ sub savecsv {
 sub sendtosyslog {
 	my $self = shift;
 	my $handler = shift;
-  logger($self->{_debug}, "Entering Engine::sendtosyslog",1);
+  logger($self->{_debug}, "Entering Formater::sendtosyslog",1);
   logger($self->{_debug}, "Format " .  $self->{_format},2);
   my $ret = 0;
   
@@ -247,7 +247,7 @@ sub sendtosyslog {
 sub addLine {
 	my $self = shift;
 	my @columns = @_;
-    logger($self->{_debug}, "Entering Engine::addLine",1);	
+    logger($self->{_debug}, "Entering Formater::addLine",1);	
 
 	push(@{$self->{_lines}}, \@columns);
 }
@@ -260,7 +260,7 @@ sub addLine {
 sub addHeader {
 	my $self = shift;
 	my @columns = @_;
-    logger($self->{_debug}, "Entering Engine::addHeader",1);		
+    logger($self->{_debug}, "Entering Formater::addHeader",1);		
 	my $format = '';
 	my $sepline = '';
 	my @header;

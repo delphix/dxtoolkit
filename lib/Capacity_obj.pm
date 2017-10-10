@@ -30,6 +30,7 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 
+
 # constructor
 # parameters 
 # - dlpxObject - connection to DE
@@ -54,8 +55,29 @@ sub new {
     
     bless($self,$classname);
     
-    $self->LoadDatabases();
     return $self;
+}
+
+
+# Procedure LoadSnapshots
+# parameters: 
+# - db reference
+# Return snapshot space information
+
+
+sub LoadSnapshots {
+  my $self = shift;
+  my $db_ref = shift;
+  my $all_snaps;
+  logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);    
+  if ($self->{_dlpxObject}->getApi() lt '1.9') {
+    $all_snaps = $self->LoadSnapshots_18($db_ref);
+  } else {
+    $all_snaps = $self->LoadSnapshots_19($db_ref);
+  }
+  
+  return $all_snaps;
+
 }
 
 
@@ -87,10 +109,9 @@ sub getDetailedDBUsage {
 
         if (defined($details) && (lc $details eq 'all')) {
             my $all_snaps = $self->LoadSnapshots($db_ref);
-
-
+            
             for my $snapitem ( @{$all_snaps} ) {
-                $snapsum = $snapsum + $snapitem->{snapshot_usedspace};
+                $snapsum = $snapsum + $snapitem->{space};
             }
 
 
@@ -135,16 +156,16 @@ sub getDatabaseUsage {
 }
 
 
-# Procedure LoadSnapshots
+# Procedure LoadSnapshots_18
 # parameters: 
 # - reference db
-# Return usage of database in GB
+# Return snapshot information for API < 1.9
 
 
-sub LoadSnapshots {
+sub LoadSnapshots_18 {
     my $self = shift; 
     my $reference = shift;
-    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);    
+    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_18",1);    
 
     my @snapshots_ret;
 
@@ -193,15 +214,51 @@ sub LoadSnapshots {
         }
 
 
-        $snapshots{$snapitem}{"snapshot_usedspace"} = $space/1024/1024/1024;
+        $snapshots{$snapitem}{"space"} = $space/1024/1024/1024;
         push (@snapshots_ret, $snapshots{$snapitem});
 
 
     }
 
+
     return \@snapshots_ret;
 
 }
+
+
+# Procedure LoadSnapshots_19
+# parameters: 
+# - reference db
+# Return snapshot information for API >= 1.9
+
+
+sub LoadSnapshots_19 {
+    my $self = shift; 
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_19",1);    
+
+    my @snapshots_ret;
+
+    my $operation = "resources/json/delphix/capacity/snapshot?container=" . $reference;
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    my %snapshots;
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+
+        for my $snapitem (@res) {
+            $snapitem->{"space"} = $snapitem->{"space"}/1024/1024/1024;
+            push (@snapshots_ret, $snapitem);
+        } 
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+
+    return \@snapshots_ret;
+
+}
+
 
 # Procedure LoadDatabases
 # parameters: none

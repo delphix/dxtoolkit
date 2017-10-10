@@ -598,7 +598,6 @@ sub sort_by_dbname {
 	my $dbname_a = lc ($groups->getName($dbobj_a->getGroup()) . $dbobj_a->getName());
 	my $dbname_b = lc ($groups->getName($dbobj_b->getGroup()) . $dbobj_b->getName());
 
-	logger($debug, "Finishing Toolkit_helpers::sort_by_dbname",1);
 	return $dbname_a cmp $dbname_b;
 
 }
@@ -609,10 +608,16 @@ sub sortcol_by_number {
 	my $a = shift;
 	my $b = shift;
 	my $col = shift;
+  my $order = shift;
 
-    my ( $anum ) = $a->[$col] =~ /(\d+)/;
-    my ( $bnum ) = $b->[$col] =~ /(\d+)/;
-    ( $anum || 0 ) <=> ( $bnum || 0 );
+  my ( $anum ) = $a->[$col] =~ /(\d+[.]?\d+)/;
+  my ( $bnum ) = $b->[$col] =~ /(\d+[.]?\d+)/;
+    
+  if (!defined($order) || (lc $order eq 'asc')) {
+    return ( $anum || 0 ) <=> ( $bnum || 0 );
+  } else {
+    return ( $bnum || 0 ) <=> ( $anum || 0 );
+  }
 }
 
 # procedure sort_by_number
@@ -621,9 +626,9 @@ sub sort_by_number {
 	my $a = shift;
 	my $b = shift;
 
-    my ( $anum ) = $a =~ /(\d+)/;
-    my ( $bnum ) = $b =~ /(\d+)/;
-    ( $anum || 0 ) <=> ( $bnum || 0 );
+  my ( $anum ) = $a =~ /(\d+[.]?\d+)/;
+  my ( $bnum ) = $b =~ /(\d+[.]?\d+)/;
+  return ( $anum || 0 ) <=> ( $bnum || 0 );
 }
 
 
