@@ -1031,7 +1031,18 @@ sub postJSONData {
          }
          
       }
-      my $filename = $tempname . ".json";
+      
+      if (defined($self->{_debugfiles}) && defined($self->{_debugfiles}->{$tempname})) {
+        $self->{_debugfiles}->{$tempname} = $self->{_debugfiles}->{$tempname} + 1;
+      } else {
+        my %debug_hash;
+        $self->{_debugfiles} = \%debug_hash;
+        $self->{_debugfiles}->{$tempname} = 1;
+      }
+      
+      #print Dumper $tempname . " " . $self->{_debugfiles}->{$tempname};
+      
+      my $filename = $tempname . ".json." . $self->{_debugfiles}->{$tempname};
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
       $filename =~ s|\:|_|g;
@@ -1040,7 +1051,7 @@ sub postJSONData {
       print $fh to_json($result, {pretty=>1});
       close $fh;
       
-      $filename = $tempname . ".json.req";
+      $filename = $tempname . ".json.req." . $self->{_debugfiles}->{$tempname};
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
       $filename =~ s|\:|_|g;
