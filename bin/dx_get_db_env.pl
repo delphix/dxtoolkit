@@ -224,6 +224,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
     } 
     $capacity = new Capacity_obj($engine_obj, $debug); 
+    $capacity->LoadDatabases();
     $timeflows = new Timeflow_obj($engine_obj, $debug);  
   }
 

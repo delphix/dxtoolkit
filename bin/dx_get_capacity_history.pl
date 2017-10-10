@@ -149,6 +149,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   
   # load objects for current engine
   my $capacity = new Capacity_obj($engine_obj, $debug);
+  #$capacity->LoadDatabases();
   $capacity->LoadSystemHistory($st_timestamp, $et_timestamp, $reshash{$resolution});
   $capacity->processSystemHistory($output,$details);
 

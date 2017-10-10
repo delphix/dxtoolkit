@@ -59,6 +59,7 @@ GetOptions(
   'startDate=s' => \(my $startDate),
   'endDate=s' => \(my $endDate),
   'snapshotname=s' => \(my $snapshotname),
+  'size:s'    => \(my $size),
   'debug:i' => \(my $debug), 
   'details' => \(my $details),
   'dever=s' => \(my $dever),
@@ -106,48 +107,70 @@ if ( ! ( ( lc $timeloc eq 't') || ( lc $timeloc eq 'l') ) )  {
   exit (1);
 }
 
+if (defined($size) && ( ! ( (lc $size eq 'asc') || (lc $size eq 'desc') || (lc $size eq '') ) ) ) {
+  print "Option -size has invalid parameter - $size \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 if (lc $timeloc eq 't') {
   $header = 'time';
 } else {
   $header = 'loc';
 }
 
-if (defined($details)) {
+if (defined($size)) {
 
   $output->addHeader(
-      {'Engine',         20},
+      {'Engine',         30},
       {'Group',          20},
-      {'Database',       20},
-      {'Snapshot name',  30},   
-      {'Start ' . $header,      30},
-      {'End ' . $header,        30},
-      {'Creation time ',        30},
-      {'Timeflow',   10},
-      {'Retention',   8},
-      {'Version',     4}
-  );  
+      {'Database',       30},
+      {'Snapshot name',  30},
+      {'Creation time ', 30},   
+      {'Size',           30},
+      {'Depended objects', 60}
+  ); 
+  
+} else  {
 
-} else {
+  if (defined($details)) {
 
-  if ( lc $timeflow eq 'c') {
     $output->addHeader(
-        {'Engine',         30},
+        {'Engine',         20},
         {'Group',          20},
-        {'Database',       30},
-        {'Snapshot name',  30},   
-        {'Start ' . $header,      30},
-        {'End ' . $header,        30}
-    );  
-  } else {
-    $output->addHeader(
-        {'Engine',         30},
-        {'Group',          20},
-        {'Database',       30},
+        {'Database',       20},
         {'Snapshot name',  30},   
         {'Start ' . $header,      30},
         {'End ' . $header,        30},
-        {'Timeflow',   10}
-    );   
+        {'Creation time ',        30},
+        {'Timeflow',   10},
+        {'Retention',   8},
+        {'Version',     4}
+    );  
+
+  } else {
+
+    if ( lc $timeflow eq 'c') {
+      $output->addHeader(
+          {'Engine',         30},
+          {'Group',          20},
+          {'Database',       30},
+          {'Snapshot name',  30},   
+          {'Start ' . $header,      30},
+          {'End ' . $header,        30}
+      );  
+    } else {
+      $output->addHeader(
+          {'Engine',         30},
+          {'Group',          20},
+          {'Database',       30},
+          {'Snapshot name',  30},   
+          {'Start ' . $header,      30},
+          {'End ' . $header,        30},
+          {'Timeflow',   10}
+      );   
+    }
+
   }
 
 }
@@ -162,8 +185,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-
   my $groups = new Group_obj($engine_obj, $debug);  
+  my $snapshots;
+  my $timeflows;
+    
+  if (defined($size)) {
+    $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
+    $timeflows = Timeflow_obj->new($engine_obj, $debug);    
+  }
 
   # filter implementation 
   my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
@@ -183,93 +212,15 @@ for my $engine ( sort (@{$engine_list}) ) {
       $allsnapshots = '1';
     }
 
-
-    my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
-
-    my $snaplist = $snapshots->getSnapshots($snapshotname);
     
-    if ( (!defined($snaplist)) || (scalar(@{$snaplist}) < 1) ) {
-      if (defined($dbname) || defined($group) || defined($type) || defined($host) ) {
-        print "There is no snapshots selected for database " . $dbobj->getName() ." on $engine . Please check filter definitions. \n";
+    if (defined($size)) {
+      if (snapshot_size($output, $groups, $databases, $dbobj, $engine, $engine_obj, $dbitem, $timeflows, $snapshots, $debug)) {
+        $ret = $ret + 1;
+      }      
+    } else {
+      if (snapshot_list($output, $groups, $dbobj, $engine, $engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate)) {
         $ret = $ret + 1;
       }
-      next;
-    }
-
-    for my $snapitem ( @{$snaplist}) {
-
-      my $snapstart;
-      my $snapstop;
-
-      if ($snapshots->isProvisionable($snapitem)) {
-        if ($timeloc eq 't') {
-          $snapstart = $snapshots->getStartPointwithzone($snapitem),
-          $snapstop = $snapshots->getEndPointwithzone($snapitem),
-        } else {
-          $snapstart = $snapshots->getStartPointLocation($snapitem);
-          $snapstop = $snapshots->getEndPointLocation($snapitem);
-        }
-      } else {
-        $snapstart = 'not provisionable';
-        $snapstop = 'not provisionable';     
-      }
-
-      if (defined($details)) {
-
-          my $snaptimeflow ;
-
-          if ($snapshots->getSnapshotTimeflow($snapitem) eq $dbobj->getCurrentTimeflow() ) {
-            $snaptimeflow = 'current';
-          } else {
-            $snaptimeflow = 'old';
-          }
-
-
-          $output->addLine(
-            $engine,
-            $groups->getName($dbobj->getGroup()),
-            $dbobj->getName(),
-            $snapshots->getSnapshotName($snapitem),
-            $snapstart,
-            $snapstop,
-            $snapshots->getSnapshotCreationTimeWithTimezone($snapitem),
-            $snaptimeflow,
-            $snapshots->getSnapshotRetention($snapitem),
-            $snapshots->getSnapshotVersion($snapitem),
-          );  
-
-      } else {
-        if (lc $timeflow eq 'c' ) {
-          $output->addLine(
-            $engine,
-            $groups->getName($dbobj->getGroup()),
-            $dbobj->getName(),
-            $snapshots->getSnapshotName($snapitem),
-            $snapstart,
-            $snapstop
-          ); 
-        } else {
-          my $snaptimeflow ;
-
-          if ($snapshots->getSnapshotTimeflow($snapitem) eq $dbobj->getCurrentTimeflow() ) {
-            $snaptimeflow = 'current';
-          } else {
-            $snaptimeflow = 'old';
-          }
-
-
-          $output->addLine(
-            $engine,
-            $groups->getName($dbobj->getGroup()),
-            $dbobj->getName(),
-            $snapshots->getSnapshotName($snapitem),
-            $snapstart,
-            $snapstop,
-            $snaptimeflow
-          );  
-        }
-      }
-
     }
 
 
@@ -278,9 +229,199 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
+if (defined($size) && ($size ne '')) {
+  $output->sortbynumcolumn(5, $size);
+}
+
 Toolkit_helpers::print_output($output, $format, $nohead);
 
 exit $ret;
+
+
+# Procedure snapshot_list
+# parameters: 
+#  output - output object
+#  groups - groups object 
+#  dbobj  - db object
+#  engine - engine name
+#  engine_obj - engine object
+#  dbitem - db reference
+#  allsnapshots - timeflow switch
+#  debug - debug flag
+#  startDate - start date for snapshots
+#  endDate - end date for snapshots
+# Load snapshot objects from Delphix Engine
+
+sub snapshot_list {
+  my $output = shift;
+  my $groups = shift;
+  my $dbobj = shift;
+  my $engine = shift;
+  my $engine_obj = shift;
+  my $dbitem = shift;
+  my $allsnapshots = shift;
+  my $debug = shift;
+  my $startDate = shift;
+  my $endDate = shift;
+  
+
+  my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
+  my $snaplist = $snapshots->getSnapshots($snapshotname);
+  
+  if ( (!defined($snaplist)) || (scalar(@{$snaplist}) < 1) ) {
+    if (defined($dbname) || defined($group) || defined($type) || defined($host) ) {
+      print "There is no snapshots selected for database " . $dbobj->getName() ." on $engine . Please check filter definitions. \n";
+      return 1;
+    }
+    return 0;
+  }
+
+  for my $snapitem ( @{$snaplist}) {
+
+    my $snapstart;
+    my $snapstop;
+
+    if ($snapshots->isProvisionable($snapitem)) {
+      if ($timeloc eq 't') {
+        $snapstart = $snapshots->getStartPointwithzone($snapitem),
+        $snapstop = $snapshots->getEndPointwithzone($snapitem),
+      } else {
+        $snapstart = $snapshots->getStartPointLocation($snapitem);
+        $snapstop = $snapshots->getEndPointLocation($snapitem);
+      }
+    } else {
+      $snapstart = 'not provisionable';
+      $snapstop = 'not provisionable';     
+    }
+
+    if (defined($details)) {
+
+        my $snaptimeflow ;
+
+        if ($snapshots->getSnapshotTimeflow($snapitem) eq $dbobj->getCurrentTimeflow() ) {
+          $snaptimeflow = 'current';
+        } else {
+          $snaptimeflow = 'old';
+        }
+
+
+        $output->addLine(
+          $engine,
+          $groups->getName($dbobj->getGroup()),
+          $dbobj->getName(),
+          $snapshots->getSnapshotName($snapitem),
+          $snapstart,
+          $snapstop,
+          $snapshots->getSnapshotCreationTimeWithTimezone($snapitem),
+          $snaptimeflow,
+          $snapshots->getSnapshotRetention($snapitem),
+          $snapshots->getSnapshotVersion($snapitem),
+        );  
+
+    } else {
+      if (lc $timeflow eq 'c' ) {
+        $output->addLine(
+          $engine,
+          $groups->getName($dbobj->getGroup()),
+          $dbobj->getName(),
+          $snapshots->getSnapshotName($snapitem),
+          $snapstart,
+          $snapstop
+        ); 
+      } else {
+        my $snaptimeflow ;
+
+        if ($snapshots->getSnapshotTimeflow($snapitem) eq $dbobj->getCurrentTimeflow() ) {
+          $snaptimeflow = 'current';
+        } else {
+          $snaptimeflow = 'old';
+        }
+
+
+        $output->addLine(
+          $engine,
+          $groups->getName($dbobj->getGroup()),
+          $dbobj->getName(),
+          $snapshots->getSnapshotName($snapitem),
+          $snapstart,
+          $snapstop,
+          $snaptimeflow
+        );  
+      }
+    }
+
+  }
+  
+}
+
+
+# Procedure snapshot_size
+# parameters: 
+#  output - output object
+#  groups - groups object 
+#  databases - databases object
+#  dbobj  - db object
+#  engine - engine name
+#  engine_obj - engine object
+#  dbitem - db reference
+#  debug - debug flag
+
+# Load snapshot sizes from Delphix Engine
+
+sub snapshot_size {
+  my $output = shift;
+  my $groups = shift;
+  my $databases = shift;
+  my $dbobj = shift;
+  my $engine = shift;
+  my $engine_obj = shift;
+  my $dbitem = shift;
+  my $timeflows = shift;
+  my $snapshots = shift;
+  my $debug = shift;
+  
+  my $capacity = new Capacity_obj($engine_obj, $debug);
+  my $all_snaps = $capacity->LoadSnapshots($dbitem);
+
+
+
+  for my $snap (@{$all_snaps}) {
+
+
+    my $snap_ref = $snap->{snapshot};
+    my @ddb_array;
+        
+    for my $ddb (@{$snap->{descendantVDBs}}) {
+      my $ddb_name = $databases->getDB($ddb)->getName();
+      my $ddb_group = $groups->getName($databases->getDB($ddb)->getGroup());
+      my $timeflow = $databases->getDB($ddb)->getCurrentTimeflow();
+      
+      my $current;
+      
+      if ($timeflows->getParentSnapshot($timeflow) eq $snap_ref) {
+        $current = 'current tf';
+      } else {
+        $current = 'previous tf'
+      }
+      
+      push(@ddb_array, $ddb_group . '/' . $ddb_name . '/' . $current );
+    } 
+    
+    my $depend_string = join(';', @ddb_array);
+    
+    $output->addLine(
+      $engine,
+      $groups->getName($dbobj->getGroup()),
+      $dbobj->getName(),
+      $snapshots->getSnapshotName($snap_ref),
+      $snapshots->getSnapshotCreationTimeWithTimezone($snap_ref),
+      sprintf("%10.5f",$snap->{space}),
+      $depend_string
+    ); 
+
+  }
+    
+}
 
 __DATA__
 
@@ -288,12 +429,18 @@ __DATA__
 
  dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                      [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
-                     [-timeloc t|l] 
-                     [-startDate startDate]
-                     [-endDate endDate]
-                     [-snapshotname snapshotname]
-                     [-format csv|json ]  
-                     [-help|? ] [ -debug ]
+                     [ -timeloc t|l] 
+                     [ -startDate startDate]
+                     [ -endDate endDate]
+                     [ -snapshotname snapshotname]
+                     [ -format csv|json ]  
+                     [ -help|? ] [ -debug ]
+                     
+ dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                     -size [ asc | desc ]
+                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
+                     [ -format csv|json ]  
+                     [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 

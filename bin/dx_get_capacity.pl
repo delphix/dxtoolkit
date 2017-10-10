@@ -53,6 +53,7 @@ GetOptions(
   'dsource=s' => \(my $dsource),
   'host=s' => \(my $host),
   'sortby=s' => \(my $sortby),
+  'forcerefesh' => \(my $forcerefesh),
   'debug:i' => \(my $debug), 
   'details:s' => \(my $details),
   'dever=s' => \(my $dever),
@@ -147,6 +148,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $databases = new Databases( $engine_obj, $debug);
   my $capacity = new Capacity_obj($engine_obj, $debug);
   my $groups = new Group_obj($engine_obj, $debug);  
+  
+  $capacity->LoadDatabases();
 
   # filter implementation 
 
@@ -277,7 +280,7 @@ for my $engine ( sort (@{$engine_list}) ) {
             '',
             '',
             'Snapshot ' . $snapitem->{snapshotTimestamp},
-            sprintf("%10.2f", $snapitem->{snapshot_usedspace})
+            sprintf("%10.2f", $snapitem->{space})
           );
         }
     } else {
