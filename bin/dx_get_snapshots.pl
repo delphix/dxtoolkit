@@ -504,6 +504,13 @@ Display snapshot with particular snapshot name
 
 =over 3
 
+=item B<-size [asc | desc]>
+Display snapshot size with depended objects list.
+To sort by size add asc or desc to -size option.
+Depended objects are displayed in the following format
+groupname/vdbname/timeflow status
+
+
 =item B<-timeloc t|l>
 Display snapshot range using a time stamps or location (ex. SCN)
 
@@ -583,6 +590,33 @@ List all snapshots for database VDBR from all timeflows with details
  de01loca             DB                   VDBR                 @2016-11-30T06:42:17.547Z      2016-11-30 01:42:17 EST   2016-11-30 03:30:02 EST   2016-11-30 01:42:17 EST   current    13       11.2
  de01loca             DB                   VDBR                 @2016-11-30T08:30:01.636Z      2016-11-30 03:30:02 EST   2016-11-30 08:42:24 EST   2016-11-30 03:30:01 EST   current    Policy   11.2
  de01loca             DB                   VDBR                 @2016-11-30T13:42:23.915Z      2016-11-30 08:42:24 EST   2016-11-30 11:14:55 EST   2016-11-30 08:42:23 EST   current    Policy   12.1
+
+
+List size of all snapshots in descending order 
+
+ dx_get_snapshots -d dc -size desc
+
+ Engine                         Group                Database                       Snapshot name                  Creation time                  Size                           Depended objects
+ ------------------------------ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------------------------------------
+ dc                             group1               vcdb2                          @2017-10-10T14:01:41.692Z      2017-10-10 07:01:41 PDT           0.00203
+ dc                             Sources              marina                         @2017-10-10T11:06:21.139Z      2017-10-10 04:06:21 PDT           0.00125                     group1/test/previous tf
+ dc                             Sources              marina                         @2017-10-10T11:34:35.638Z      2017-10-10 04:34:35 PDT           0.00112                     group1/testdx/current tf;group1/test/previous tf
+ dc                             group1               testdx                         @2017-10-10T11:40:08.525Z      2017-10-10 04:40:08 PDT           0.00094
+ dc                             group1               test                           @2017-10-10T12:12:07.084Z      2017-10-10 05:12:07 PDT           0.00089
+ dc                             group1               vcdb                           @2017-10-10T13:52:56.670Z      2017-10-10 06:52:56 PDT           0.00084
+ dc                             group1               test                           @2017-10-10T11:40:15.163Z      2017-10-10 04:40:15 PDT           0.00071
+ dc                             group1               vcdb                           @2017-10-10T13:56:20.207Z      2017-10-10 06:56:20 PDT           0.00068
+ dc                             group1               vcdb                           @2017-10-10T13:54:56.527Z      2017-10-10 06:54:56 PDT           0.00044                     group1/vcdb2/current tf
+ dc                             group1               vdb2                           @2017-10-10T14:01:50.865Z      2017-10-10 07:01:50 PDT           0.00016
+ dc                             group1               test                           @2017-10-10T12:07:59.135Z      2017-10-10 05:07:59 PDT           0.00010
+ dc                             group1               vpdb                           @2017-10-10T13:56:27.391Z      2017-10-10 06:56:27 PDT           0.00009
+ dc                             group1               vpdb                           @2017-10-10T13:55:03.953Z      2017-10-10 06:55:03 PDT           0.00009                     group1/vdb2/current tf
+ dc                             group1               vpdb                           @2017-10-10T13:53:06.026Z      2017-10-10 06:53:06 PDT           0.00009
+ dc                             Sources              cdbkate                        @2017-10-10T13:46:32.118Z      2017-10-10 06:46:32 PDT           0.00000                     group1/vcdb/current tf
+ dc                             Sources              marina                         @2017-10-10T12:05:21.936Z      2017-10-10 05:05:21 PDT           0.00000                     group1/test/current tf
+ dc                             Sources              PDBKATE                        @2017-10-10T13:47:21.166Z      2017-10-10 06:47:21 PDT           0.00000                     group1/vpdb/current tf
+ 
+
 
 =cut
 
