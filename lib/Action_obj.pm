@@ -46,6 +46,7 @@ sub new {
     my $startTime = shift;
     my $endTime = shift;
     my $state = shift;
+    my $parentAction = shift;
     my $debug = shift;
     logger($debug, "Entering Action_obj::constructor",1);
 
@@ -56,13 +57,14 @@ sub new {
         _startTime => $startTime,
         _endTime => $endTime,
         _state => $state,
+        _parentAction => $parentAction,
         _debug => $debug
     };
     
     bless($self,$classname);
     my $detz = $dlpxObject->getTimezone();
     $self->{_timezone} = $detz;
-    $self->loadActionList();
+    #$self->loadActionList();
     return $self;
 }
 
@@ -138,7 +140,7 @@ sub waitForAction {
     logger($self->{_debug}, "Entering Action_obj::waitForAction",1);    
     while( ($self->getState($reference) eq 'WAITING' ) ) {
         sleep 10;
-        $self->loadActionList();
+        $self->loadActionListbyID({ $reference => 1 });
     }
 }
 
@@ -156,16 +158,27 @@ sub checkStateWithChild {
     $self->waitForAction($reference);
     my $ret = $self->getState($reference);
 
-    if (defined($self->{_parent_action}->{$reference})) {
-        $ret = $self->checkStateWithChild($self->{_parent_action}->{$reference});
-    } 
-
     # if Action failed - check if there was a job and print last message for job
-    if ( $self->getState($reference) eq 'FAILED' ) {
+    if ( $ret eq 'FAILED' ) {
         my $job = new Jobs_obj($self->{_dlpxObject}, undef, 'false', $self->{_debug}); 
         $job->getJobForAction($reference);
         print $job->getLastMessage() . "\n";
+    } else {
+
+      my $childs = Action_obj->new($self->{_dlpxObject}, undef, undef, undef, $reference, $self->{_debug});
+      $childs->loadActionList();
+
+      for my $child_action (@{$childs->getActionList()}) {
+        $childs->waitForAction($child_action);
+      }
+
+
+      
     }
+
+
+
+
 
     return $ret;
 }
@@ -379,7 +392,13 @@ sub loadActionList
     my $offset = 0;
     my $pageSize = 100;
 
-    my $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset";
+    my $operation;
+
+    if ($self->{_parentAction}) {
+        $operation = "resources/json/delphix/action?parentAction=" . $self->{_parentAction};
+    } else {
+        $operation = "resources/json/delphix/action?pageSize=$pageSize&pageOffset=$offset";
+    }
 
     if ($self->{_startTime}) {
         $operation = $operation . "&fromDate=" . $self->{_startTime};
@@ -392,6 +411,7 @@ sub loadActionList
     if ($self->{_state}) {
         $operation = $operation . "&state=" . $self->{_state};
     }
+
 
 
     my $total = 1;

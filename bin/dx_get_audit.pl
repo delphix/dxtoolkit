@@ -129,7 +129,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     $state = uc $state;
   }
 
-  my $actions = new Action_obj($engine_obj, $st_timestamp, $et_timestamp, $state);
+  my $actions = new Action_obj($engine_obj, $st_timestamp, $et_timestamp, $state, undef, $debug);
+  $actions->loadActionList();
 
   for my $actionitem ( @{$actions->getActionList('asc', $type, $username)} ) {
 

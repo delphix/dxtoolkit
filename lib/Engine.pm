@@ -887,6 +887,13 @@ sub generateSupportBundle {
    logger($self->{_debug}, "Entering Engine::generateSupportBundle",1);
    my $timeout =    $self->{_ua}->timeout();
    $self->{_ua}->timeout(60*60*24);
+   
+  #  === POST /resources/json/delphix/service/support/bundle/upload ===
+  #  {
+  #      "type": "SupportBundleUploadParameters",
+  #      "includeAnalyticsData": true,
+  #      "caseNumber": 666666
+  #  }
       
 
    my $operation = "resources/json/delphix/service/support/bundle/generate";
