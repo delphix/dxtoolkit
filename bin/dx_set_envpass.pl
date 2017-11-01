@@ -156,26 +156,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $jobno = $environments->changePassword($env_user, $password);
     }
 
-
-    if (defined($jobno)) {
-
-        # check action status
-        # get last hour of actions
-        my $st = Toolkit_helpers::timestamp("-5mins", $engine_obj);
-        my $action = new Action_obj ($engine_obj, $st, undef, undef);
-        print "Waiting for all actions to complete. Parent action is " . $jobno . "\n";
-        if ( $action->checkStateWithChild($jobno) eq 'COMPLETED' ) {
-            print "Password change actions is completed with success for environment $envname.\n";
-            $ret = 0;
-        } else {
-            print "There were problems with changing password.\n";
-            $ret = 1;
-        }
-
-    } else {
-        print "There were problems with changing password.\n";
-        $ret = 1;
-    }
+    $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Password change actions is completed with success for environment $envname.", "There were problems with changing password.");
 
   }
 

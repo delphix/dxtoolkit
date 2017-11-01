@@ -220,8 +220,9 @@ sub waitForAction {
       # check action status
       # get last hour of actions
       my $st = Toolkit_helpers::timestamp("-5mins", $engine_obj);
-      my $action = new Action_obj ($engine_obj, $st, undef, undef);
-      
+      my $action = new Action_obj ($engine_obj, $st, undef, undef, undef, $engine_obj->{_debug});
+      $action->loadActionListbyID({ $jobno => 1 });
+        
       print "Waiting for all actions to complete. Parent action is " . $jobno . "\n";
       if ( $action->checkStateWithChild($jobno) eq 'COMPLETED' ) {
           print $success . "\n";
