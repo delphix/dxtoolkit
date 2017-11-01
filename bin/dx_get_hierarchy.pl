@@ -426,7 +426,7 @@ When replication between engines is configured, specify a parent engine to the e
 Display a hierarchy of databases (from VDB to dSource) or (from dSource to VDB)
 c2p represents "child to parent". 
 p2c represents "parent to child"
-If no value is provided this "child to parent" is used.
+If no value is provided this "child to parent" (c2p) is used.
 
 =item B<-format>
 Display output in csv or json format
