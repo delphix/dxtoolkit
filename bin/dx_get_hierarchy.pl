@@ -45,8 +45,7 @@ use Replication_obj;
 
 my $version = $Toolkit_helpers::version;
 
-my $parentlast = 'p';
-my $hostenv = 'h';
+
 
 GetOptions(
   'help|?' => \(my $help),
@@ -62,7 +61,7 @@ GetOptions(
   'instance=n' => \(my $instance),
   'instancename=s' => \(my $instancename),
   'parent_engine=s' => \(my $parent_engine),
-  'printhierarchy' => \(my $printhierarchy),
+  'printhierarchy:s' => \(my $printhierarchy),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -83,6 +82,12 @@ if (defined($all) && defined($dx_host)) {
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
+
+if (defined($printhierarchy) && (! ( (lc $printhierarchy eq 'p2c') || (lc $printhierarchy eq 'c2p') || (lc $printhierarchy eq '') )  ) ) {
+  print "Option printhierarchy has a wrong argument - $printhierarchy \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+} 
 
 
 Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, $envname);
@@ -189,15 +194,15 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $hier = $timeflows->generateHierarchy($object_map, $timeflows_parent, $databases);
   
   my $hierc = $databases->generateHierarchy($object_map, $databases_parent);
-
+  
 
   my $parentname;
-
+  
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
     my $groupname = $groups->getName($dbobj->getGroup());
-    
+
     my $snaptime;
     my $timezone;
     my $childname;
@@ -208,14 +213,23 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($printhierarchy)) {
       my $arr = $databases->returnHierarchy($dbitem, $hierc);
             
-      my @printarr;      
+      my @printarr;
       
       for my $hi (@{$arr}) {
         my $db = $dbs{$hi->{source}}->getDB($hi->{ref})->getName();
         push(@printarr, $db);
       }
-      
-      print $engine . " : " . join(' --> ', @printarr) . "\n";
+       
+      my @revarray; 
+       
+      if (lc $printhierarchy eq 'p2c') {
+        my @revarray = reverse @printarr;
+        print $engine . " : " . join(' --> ', @revarray) . "\n";
+      } 
+      elsif ((lc $printhierarchy eq 'c2p') || ($printhierarchy eq '')) {
+        print $engine . " : " . join(' --> ', @printarr) . "\n";
+      }
+
 
     } else {
           
@@ -260,23 +274,6 @@ for my $engine ( sort (@{$engine_list}) ) {
             if (defined($timestamp)) {
               $timezone = ($snps{$hier->{$child}->{source}})->getSnapshotTimeZone($dsource_snapforchild);
               if ($timezone ne 'N/A') {
-                # my $tz = new Date::Manip::TZ;
-                # my $dt = new Date::Manip::Date;
-                # my ($err,$date,$offset,$isdst,$abbrev);
-                # 
-                # #$dt->config("tz","GMT");
-                # $dt->config("setdate","zone,GMT");
-                # $err = $dt->parse($timestamp);
-                # my $dttemp = $dt->value();
-                # 
-                # 
-                # ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
-                # 
-                # if (scalar(@{$date}) > 0) {
-                #     $snaptime = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-                # } else {
-                #     $snaptime = 'N/A';
-                # }
                 
                 $snaptime = Toolkit_helpers::convert_from_utc($timestamp, $timezone, 1);
                 
@@ -334,11 +331,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 }
 
 
-#   
-# 
-# 
-# 
-
 if (!defined($printhierarchy)) {
   Toolkit_helpers::print_output($output, $format, $nohead);  
 }
@@ -354,7 +346,7 @@ __DATA__
  dx_get_hierarchy [-engine|d <delphix identifier> | -all ] 
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
                   [-parent_engine <delphix identifier>]
-                  [-printhierarchy]
+                  [-printhierarchy [c2p|p2c]]
                   [-format csv|json ] 
                   [-help|? ] [ -debug ]
 
@@ -431,7 +423,10 @@ Instance number
 When replication between engines is configured, specify a parent engine to the engine from -d parameter.
 
 =item B<-printhierarchy>
-Display a hierarchy of databases (from VDB to dSource)
+Display a hierarchy of databases (from VDB to dSource) or (from dSource to VDB)
+c2p represents "child to parent". 
+p2c represents "parent to child"
+If no value is provided this "child to parent" is used.
 
 =item B<-format>
 Display output in csv or json format
@@ -497,9 +492,9 @@ dx_get_hierarchy -d Delphix33 -parent_engine Delphix32
  Delphix33  maskclone                      Untitled        VDB      parent deleted                 N/A                                 N/A                            N/A
  Delphix33  Vracdb_70C                     Untitled        VDB      racdb@delphix32-2              2016-09-28 14:57:16 GMT             racdb                          Vracdb_70C
 
-Print database hierarchy chain starting with VDB up to dSource
+Print database hierarchy chain starting with VDB up to dSource (c2p)
 
- dx_get_hierarchy -d Delphix33 -parent_engine Delphix32 -printhierarchy
+ dx_get_hierarchy -d Delphix33 -parent_engine Delphix32 -printhierarchy c2p
  Delphix33 : racdb@delphix32-2
  Delphix33 : mask1@delphix32-4 --> mask1 --> man --> test1
  Delphix33 : maskedms@delphix32-4 --> maskedms --> tpcc
@@ -507,6 +502,16 @@ Print database hierarchy chain starting with VDB up to dSource
  Delphix33 : mask1clone --> mask1@delphix32-4
  Delphix33 : maskclone
  Delphix33 : Vracdb_70C --> racdb@delphix32-2
+ 
+ Print database hierarchy chain starting with dSource up to VDB (p2c)
 
+ dx_get_hierarchy -d Delphix33 -parent_engine Delphix32 -printhierarchy p2c
+ Delphix33 : racdb@delphix32-2
+ Delphix33 : test1 --> man --> mask1 --> mask1@delphix32-4
+ Delphix33 : tpcc --> maskedms --> maskedms@delphix32-4
+ Delphix33 : tpcc --> maskedms --> maskedms@delphix32-4 --> cloneMSmas
+ Delphix33 : mask1@delphix32-4 --> mask1clone
+ Delphix33 : maskclone
+ Delphix33 : racdb@delphix32-2 --> Vracdb_70C
 
 =cut
