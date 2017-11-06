@@ -53,7 +53,8 @@ GetOptions(
   'dsource=s' => \(my $dsource),
   'host=s' => \(my $host),
   'sortby=s' => \(my $sortby),
-  'forcerefesh' => \(my $forcerefesh),
+  'forcerefresh' => \(my $forcerefresh),
+  'dbdetails'   => \(my $dbdetails),
   'debug:i' => \(my $debug), 
   'details:s' => \(my $details),
   'dever=s' => \(my $dever),
@@ -77,6 +78,13 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
+
+if (defined($details) && defined($dbdetails)) {
+  print "Options -details and -dbdetails are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 if (defined($sortby) && ( ! ( (uc $sortby eq 'SIZE') ) ) ) {
   print "Option sortby can have only size \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -90,50 +98,33 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
+my @header_array = (
+  {'Engine',         30},
+  {'Group',          20},
+  {'Database',       35},
+  {'Replica',         3},
+  {'Size [GB]',      10}
+);
+
 if (defined($details)) {
+  push (@header_array, {'Type',20});
+  push (@header_array, {'Size [GB]',10});
   if (lc $details eq 'all') {
-    $output->addHeader(
-      {'Engine',         30},
-      {'Group',          20},
-      {'Database',       30},
-      {'Replica',         3},
-      {'Size [GB]',      10},
-      {'Type',           20},
-      {'Size [GB]',      10},
-      {'Snapshots',      35}, 
-      {'Size [GB]',      10}  
-    );
-  } else {
-    $output->addHeader(
-      {'Engine',         30},
-      {'Group',          20},
-      {'Database',       30},
-      {'Replica',         3},
-      {'Size [GB]',      10},
-      {'Type',           20},
-      {'Size [GB]',      10}
-    );  
-  }
+    push (@header_array, {'Snapshots',35});
+    push (@header_array, {'Size [GB]',10});
+  } 
 } else {
   if (defined($unvirt)) {
-    $output->addHeader(
-      {'Engine',         30},
-      {'Group',          20},
-      {'Database',       30},
-      {'Replica',         3},
-      {'Size [GB]',      10},
-      {'Unvirt [GB]',    11}
-    );
-  } else {
-     $output->addHeader(
-      {'Engine',         30},
-      {'Group',          20},
-      {'Database',       30},
-      {'Replica',         3},
-      {'Size [GB]',      10}
-    );   
+    push (@header_array, {'Unvirt [GB]',11});
+  } 
+    
+  if (defined($dbdetails)) {
+    push (@header_array, {'Environment name', 30});
+    push (@header_array, {'Parent', 30});
   }
 }
+
+$output->addHeader(@header_array);
 
 my $ret = 0;
 
@@ -144,9 +135,17 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
+  my $capacity = new Capacity_obj($engine_obj, $debug);
+
+  if (defined($forcerefresh)) {
+    if ($capacity->forcerefesh()) {
+      print "Problem with forcerefesh. Skipping results for engine $engine\n";
+      next;
+    }
+  }
+
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $capacity = new Capacity_obj($engine_obj, $debug);
   my $groups = new Group_obj($engine_obj, $debug);  
   
   $capacity->LoadDatabases();
@@ -160,13 +159,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   }
 
-#  my @db_sorted = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups) } ;
-
-
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
     my $capacity_hash = $capacity->getDetailedDBUsage($dbitem, $details);
+    
+    
 
     if (defined($details) && ($details eq '')) {
       $output->addLine(
@@ -284,27 +282,58 @@ for my $engine ( sort (@{$engine_list}) ) {
           );
         }
     } else {
+      my @linearray = (
+        $engine,
+        $groups->getName($dbobj->getGroup()),
+        $dbobj->getName(),
+        $dbobj->isReplica(),
+        sprintf("%10.2f", $capacity_hash->{totalsize})
+      );
       if (defined($unvirt)) {
-        $output->addLine(
-          $engine,
-          $groups->getName($dbobj->getGroup()),
-          $dbobj->getName(),
-          $dbobj->isReplica(),
-          sprintf("%10.2f", $capacity_hash->{totalsize}),
-          sprintf("%10.2f", $capacity_hash->{unvirtualized})
-        );   
-      } else {
-        $output->addLine(
-          $engine,
-          $groups->getName($dbobj->getGroup()),
-          $dbobj->getName(),
-          $dbobj->isReplica(),
-          sprintf("%10.2f", $capacity_hash->{totalsize})
-        );           
-      }
+        push(@linearray, sprintf("%10.2f", $capacity_hash->{unvirtualized}));
+      } 
+        
+      if (defined($dbdetails)) {
+          my $parentName;
+          if ($dbobj->getType() eq 'VDB') {
+            $parentName = $dbobj->getParentName();
+            if ($parentName eq '') {
+              $parentName = "N/A - deleted";
+            }
+          } else {
+            $parentName = 'N/A - dSource';
+          }
+          push(@linearray, $dbobj->getEnvironmentName());
+          push(@linearray, $parentName);             
+      } 
+      $output->addLine(@linearray);
+      
     }
 
   }
+
+ my $held_hash = $capacity->getDetailedDBUsage("Heldspace", undef);
+ 
+ if ($held_hash->{totalsize} ne 0) {
+   
+   my @printarray = (
+     $engine,
+     $held_hash->{group_name},
+     "Held space - " . $held_hash->{storageContainer},
+     "N/A",
+     sprintf("%10.2f", $held_hash->{totalsize})
+   );
+   
+   # make sure all columns for detail view are filled with ''
+   if (($output->getHeaderSize() - scalar(@printarray)) gt 0) {
+     push @printarray, ('') x ($output->getHeaderSize() - scalar(@printarray)) ;
+   }
+   
+   $output->addLine(
+    @printarray
+   );   
+ }
+  
 
 
 }
