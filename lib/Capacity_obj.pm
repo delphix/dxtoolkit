@@ -104,6 +104,11 @@ sub getDetailedDBUsage {
         $dbutil_hash{snapshots_total} = $self->{_databases}->{$db_ref}->{breakdown}->{syncSpace}/1024/1024/1024; #all snaps
         $dbutil_hash{unvirtualized} = $self->{_databases}->{$db_ref}->{breakdown}->{unvirtualizedSpace}/1024/1024/1024; # non delphix
 
+        $dbutil_hash{group_name} = $self->{_databases}->{$db_ref}->{groupName};
+        $dbutil_hash{storageContainer} = $self->{_databases}->{$db_ref}->{storageContainer};
+        $dbutil_hash{timestamp} = $self->{_databases}->{$db_ref}->{timestamp};
+        $dbutil_hash{parent} = $self->{_databases}->{$db_ref}->{parent};
+
         my $snapsum = 0;
 
 
@@ -155,6 +160,38 @@ sub getDatabaseUsage {
     return $size;
 }
 
+
+# Procedure forcerefesh
+# Force refresh for API > 1.9
+
+
+sub forcerefesh {
+    my $self = shift; 
+    logger($self->{_debug}, "Entering Capacity_obj::forcerefesh",1);    
+
+    my $ret;
+
+    if ($self->{_dlpxObject}->getApi() lt '1.9') {
+      print "Refresh not supported for engine version < 5.2.0\n";
+      return 0;
+    } else {
+      my $operation = "resources/json/delphix/capacity/refresh";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+      my $jobno;
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $jobno = $result->{job};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }    
+      
+      if (defined($jobno)) {
+        $ret = Toolkit_helpers::waitForJob($self->{_dlpxObject}, $jobno, "Capacity data refreshed.");
+      } else {
+        $ret = 1;
+      }
+    }
+    return $ret;
+}
 
 # Procedure LoadSnapshots_18
 # parameters: 
@@ -281,7 +318,12 @@ sub LoadDatabases
     
 
         for my $dbitem (@res) {
-                $databases->{$dbitem->{container}} = $dbitem;
+          my $dbref = $dbitem->{container};
+          if (defined($dbref)) {
+            $databases->{$dbref} = $dbitem;
+          } else {
+            $databases->{"Heldspace"} = $dbitem;
+          }
         } 
 
     } else {
