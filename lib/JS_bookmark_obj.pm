@@ -366,8 +366,12 @@ sub loadJSBoomkarkList
 
 # Procedure createBookmark
 # parameters: 
-# - reference
-# Return array of datasource times for specific datasource reference and time
+# - name
+# - branch
+# - datalayout
+# - time
+# - zulu - is this time in zulu timezone
+# - expireat - zulu time when bookmark should expired
 
 sub createBookmark {
     my $self = shift;
@@ -376,6 +380,7 @@ sub createBookmark {
     my $datalayout = shift;
     my $time = shift;
     my $zulu = shift;
+    my $expireat = shift;
     
     logger($self->{_debug}, "Entering JS_bookmark_obj::createBookmark",1);   
 
@@ -459,7 +464,11 @@ sub createBookmark {
         
     }
 
-
+    if ($self->{_dlpxObject}->getApi() gt "1.6") {
+      if (defined($expireat)) {
+        $createbookmark_hash{"bookmark"}{expiration} = $expireat;
+      }
+    }
 
     if ( $self->existBookmarkNameForBranch($name, $branch) ) {
         print "Bookmark for name $name and branch already exist. \n";

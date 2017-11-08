@@ -224,11 +224,20 @@ sub checkTime {
 
     logger($self->{_debug}, "Entering JS_datasource_obj::checkTime",1);
 
-    my %checktime_hash = (
-        "type" => "JSSourceDataTimestampParameters",
-        "dataLayout" => $reference,
-        "time" => $time
-    );
+    my %checktime_hash;
+    if ($self->{_dlpxObject}->getApi() lt "1.8") { 
+      %checktime_hash = (
+          "type" => "JSSourceDataTimestampParameters",
+          "dataLayout" => $reference,
+          "time" => $time
+        );
+    } else {
+      %checktime_hash = (
+          "type" => "JSSourceDataTimestampParameters",
+          "branch" => $reference,
+          "time" => $time
+        );
+    }
 
     my $json_data = to_json(\%checktime_hash, {pretty=>1});
 
