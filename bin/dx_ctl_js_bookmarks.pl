@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016,2017 by Delphix. All rights reserved.
 #
 # Program Name : dx_ctl_js_bookmarks.pl
 # Description  : Get Delphix Engine timeflow bookmarks
@@ -61,6 +61,7 @@ GetOptions(
   'container_only' => \(my $container_only),
   'snapshots=s' => \(my $snapshots),
   'source=s' => \(my $source),
+  'expireat=s' => \(my $expireat),
   'diff=i' => \($diff),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -203,7 +204,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     if ( defined($snapshots) ) {
       
 
-
       my $ds_ref = $datasources->getJSDataSourceByName($source);
 
       if (!defined($ds_ref)) {
@@ -221,7 +221,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         # find a first snapshot which can be used for bookmark ( has been taken after template was created )
         for my $snapitem ( @{ $snapshot->getSnapshots() }) {
           my $time = $snapshot->getSnapshotCreationTime($snapitem);
-          my $goodtime = $datasources->checkTime($datalayout_ref, $time);
+          my $goodtime;
+          if ($engine_obj->getApi() lt "1.8") { 
+            $goodtime = $datasources->checkTime($datalayout_ref, $time);
+          } else {
+            $goodtime = $datasources->checkTime($active_branch, $time);
+          }
           if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
             my $timename = $time;
             $timename =~ s/T/ /;
@@ -236,7 +241,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $last_time = (@{ $snapshot->getSnapshots() })[-1];
 
         my $time = $snapshot->getSnapshotCreationTime($last_time);
-        my $goodtime = $datasources->checkTime($datalayout_ref, $time);
+        my $goodtime;
+        if ($engine_obj->getApi() lt "1.8") { 
+          $goodtime = $datasources->checkTime($datalayout_ref, $time);
+        } else {
+          $goodtime = $datasources->checkTime($active_branch, $time);
+        }
 
         if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
           my $timename = $time;
@@ -249,8 +259,12 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (lc $snapshots eq 'all') {
         for my $snapitem ( @{ $snapshot->getSnapshots() }) {
           my $time = $snapshot->getSnapshotCreationTime($snapitem);
-          my $goodtime = $datasources->checkTime($datalayout_ref, $time);
-
+          my $goodtime;
+          if ($engine_obj->getApi() lt "1.8") { 
+            $goodtime = $datasources->checkTime($datalayout_ref, $time);
+          } else {
+            $goodtime = $datasources->checkTime($active_branch, $time);
+          }
           if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
             my $timename = $time;
             $timename =~ s/T/ /;
@@ -259,8 +273,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           }
         }
       }
-
-
+      
 
       for my $bookname_item (sort (keys %bookmark_times_hash)) {
 
@@ -269,7 +282,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           print "Delta between bookmark time and real time of source is bigger than $diff sec.\n"
         }
 
-        create($bookmarks, $engine_obj, $debug, $bookname_item, $active_branch, $datalayout_ref, $bookmark_times_hash{$bookname_item}, 1);
+        create($bookmarks, $engine_obj, $debug, $bookname_item, $active_branch, $datalayout_ref, $bookmark_times_hash{$bookname_item}, 1, $expireat);
 
       }
 
@@ -300,9 +313,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Delta between bookmark time and real time of source is bigger than $diff sec.\n"
       }
 
-
-
-      create($bookmarks, $engine_obj, $debug, $bookmark_name, $active_branch, $datalayout_ref, $bookmark_time, $zulu);
+      create($bookmarks, $engine_obj, $debug, $bookmark_name, $active_branch, $datalayout_ref, $bookmark_time, $zulu, $expireat);
     }
   } else {
     my $bookmarks;
@@ -374,8 +385,14 @@ sub create {
   my $datalayout_ref = shift;
   my $bookmark_time = shift;
   my $zulu = shift;
+  my $expireat = shift;
+  
+  if (defined($expireat)) {
+    my $tz = $engine_obj->getTimezone();
+    $expireat = Toolkit_helpers::convert_to_utc($expireat, $tz, undef, 1);
+  }
 
-  my $jobno = $bookmarks->createBookmark($bookmark_name, $active_branch, $datalayout_ref, $bookmark_time, $zulu);
+  my $jobno = $bookmarks->createBookmark($bookmark_name, $active_branch, $datalayout_ref, $bookmark_time, $zulu, $expireat);
 
   if (defined ($jobno) ) {
     print "Starting job $jobno for bookmark $bookmark_name.\n";
@@ -406,6 +423,7 @@ __DATA__
                         [-snapshots first | last | both | all]
                         [-source source_name]
                         [-container_name container_name]  
+                        [-expireat timestamp ]
                         [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -477,6 +495,10 @@ Use snapshot from source to create bookmarks. Allowed values:
 =item B<-last>  - create bookmark for a last snapshot of source after template was created
 
 =back
+
+=item B<-expireat timestamp>
+Set a bookmark expiration time using format "YYYY-MM-DD"
+or "YYYY-MM-DD HH24:MI:SS"
 
 =back
 
