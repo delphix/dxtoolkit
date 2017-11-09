@@ -281,5 +281,16 @@ sub addHeader {
 
 }
 
+# Procedure getHeaderSize
+# parameters: 
+# Return a number of Header columns
+
+sub getHeaderSize {
+ my $self = shift;
+ logger($self->{_debug}, "Entering Formater::getHeaderSize",1);		
+ return scalar(@{$self->{_header}});
+}
+
+
 # End of module;
 1;
