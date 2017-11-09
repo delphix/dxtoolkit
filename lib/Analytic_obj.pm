@@ -1592,12 +1592,26 @@ sub processData {
           {'vdb_read', 20}
         );
     } else {
-        $output->addHeader(
-          {'timestamp', 20},
-          {'inBytes',   20},
-          {'outBytes',  20},
-        );     
+      my @headerlist;
+      
+      push(@headerlist, {'timestamp', 20});
+      push(@headerlist, {'inBytes',   20});
+      push(@headerlist, {'outBytes',  20});
+      push(@headerlist, {'inPackets',   20});
+      push(@headerlist, {'outPackets',  20});
+      
+      for my $nic ( sort (keys %{$resultset->{$timestamps[0]}} )) {
+        push(@headerlist, {$nic . "_inBytes", 20});
+        push(@headerlist, {$nic . "_outBytes", 20});
+        push(@headerlist, {$nic . "_inPackets", 20});
+        push(@headerlist, {$nic . "_outPackets", 20});
+      }
+
+      $output->addHeader(
+        @headerlist
+      );     
     }
+    
   
     if ($self->{_overflow}) {
       print "Please reduce a range. API is not able to provide all data.\n";
@@ -1609,11 +1623,33 @@ sub processData {
         
         my $inBytes  = 0;
         my $outBytes  = 0;
+        my $inPackets = 0;
+        my $outPackets = 0;
         
-        for my $nic ( keys %{$resultset->{$ts}} ) {
+        my @printarray;
+        
+        push(@printarray, $ts);
+        
+        
+        my @nicarray;
+        for my $nic ( sort (keys %{$resultset->{$ts}} )) {
             $inBytes = $inBytes + $resultset->{$ts}->{$nic}->{inBytes} ;
             $outBytes = $outBytes + $resultset->{$ts}->{$nic}->{outBytes};
+            $inPackets = $inPackets + $resultset->{$ts}->{$nic}->{inPackets};
+            $outPackets = $outPackets + $resultset->{$ts}->{$nic}->{outPackets};
+            push(@nicarray, sprintf("%d",$resultset->{$ts}->{$nic}->{inBytes}));
+            push(@nicarray, sprintf("%d",$resultset->{$ts}->{$nic}->{outBytes}));
+            push(@nicarray, sprintf("%d",$resultset->{$ts}->{$nic}->{inPackets}));
+            push(@nicarray, sprintf("%d",$resultset->{$ts}->{$nic}->{outPackets}));
+            
         }
+
+        push(@printarray, sprintf("%d",$inBytes));
+        push(@printarray, sprintf("%d",$outBytes));
+        push(@printarray, sprintf("%d",$inPackets));
+        push(@printarray, sprintf("%d",$outPackets));
+        
+        push(@printarray, @nicarray);
 
 
         $self->aggregation($ts, $aggregation, 'none', 'inBytes', $inBytes);
@@ -1627,7 +1663,8 @@ sub processData {
             );
         } else {
             $output->addLine(
-                $ts , sprintf("%d",$inBytes) , sprintf("%d",$outBytes) 
+                #$ts , sprintf("%d",$inBytes) , sprintf("%d",$outBytes) 
+                @printarray
             );   
         }    
         
@@ -1648,6 +1685,10 @@ sub doAggregation {
     $self->doAggregation_worker('inBytes,outBytes');
       
 }
+
+
+
+
 
 
 
