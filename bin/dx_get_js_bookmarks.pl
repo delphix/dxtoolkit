@@ -198,7 +198,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       );
 
       my $t = $bookmarks->getJSBookmarkTime($bookmarkitem, 1);
-      my $realtime = $datasources->checkTime($obj_ref, $t);
+      my $realtime;
+      
+      if ($engine_obj->getApi() lt "1.8") { 
+        $realtime = $datasources->checkTime($obj_ref, $t);
+      } else {
+        $realtime = $datasources->checkTime($bookmarks->getJSBookmarkBranch($bookmarkitem), $t);
+      }
 
       for my $t ( @{$realtime} ) {
         $output->addLine (
