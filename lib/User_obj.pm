@@ -671,5 +671,62 @@ sub getReference {
 }
 
 
+# Procedure getStatus
+# parameters: 
+# Return user status
+
+sub getStatus {
+    my $self = shift;
+    
+    logger($self->{_debug}, "Entering User_obj::getStatus",1);   
+    my $ret;
+    
+    if (defined($self->{_user}->{enabled})) {
+      if ($self->{_user}->{enabled}) {
+        $ret = "enabled";
+      } else {
+        $ret = "disabled";
+      }
+    } else {
+      $ret = 'N/A';
+    }
+    
+    return $ret;
+}
+
+
+# Procedure getLastLogin
+# parameters: 
+# Return user last sucessful login
+
+sub getLastLogin {
+    my $self = shift;
+    
+    logger($self->{_debug}, "Entering User_obj::getLastLogin",1);   
+    my $ret;
+    
+    my $operation = "resources/json/delphix/action?fromDate=2000-01-01T00%3A00%3A00.000Z&pageSize=1&searchText=Log%20in%20as%20user&sortBy=reference&user=" . $self->{_user}->{reference};
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        if (scalar(@res)>1) {
+          print "Too many entries. Last login returned more than 1 row\n";
+          $ret = "Error";
+        } else {
+          if (defined($res[0]->{startTime})) {
+            $ret = Toolkit_helpers::convert_from_utc($res[0]->{startTime},$self->{_dlpxObject}->getTimezone(),1);
+          } else {
+            $ret = "N/A";
+          }
+        }
+
+
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+    
+    return $ret;
+}
 
 1;
