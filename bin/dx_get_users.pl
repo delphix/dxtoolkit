@@ -47,6 +47,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host), 
   'format=s' => \(my $format),
   'save=s' => \(my $save),
+  'audit' => \(my $audit),
   'export=s' => \(my $export),
   'username=s' => \(my $username),
   'profile:s' => \(my $profile),
@@ -95,20 +96,32 @@ if (defined($export)) {
   $save = $export;
   $format = 'csv';
 } else {
-  $output->addHeader(
-    {'Username',    20},
-    {'First Name',  20},
-    {'Last Name',   20},
-    {'Email',       30},
-    {'work phone',   12},
-    {'home phone',   12},
-    {'mobile phone', 12},
-    {'Authtype',    8},
-    {'principal', 30},
-    {'password', 8},
-    {'admin_priv', 8},
-    {'js_user', 8}
-  );
+  if (defined($audit)) {
+    $output->addHeader(
+      {'Username',    20},
+      {'Status',      12},
+      {'Last login',  25},
+      {'Authtype',     8},
+      {'principal',   30},
+      {'admin_priv',   8},
+      {'js_user',      8}
+    );    
+  } else {
+    $output->addHeader(
+      {'Username',    20},
+      {'First Name',  20},
+      {'Last Name',   20},
+      {'Email',       30},
+      {'work phone',   12},
+      {'home phone',   12},
+      {'mobile phone', 12},
+      {'Authtype',    8},
+      {'principal', 30},
+      {'password', 8},
+      {'admin_priv', 8},
+      {'js_user', 8}
+    );
+  }
 }
 
 
@@ -186,20 +199,36 @@ for my $engine ( sort (@{$engine_list}) ) {
         $user->isJS() ? 'Y' : 'N'
       );
     } else {
-      $output->addLine(
-        $user->getName(),
-        $first_name,
-        $last_name,
-        $email_address, 
-        $work_phone, 
-        $home_phone, 
-        $cell_phone,
-        $type,
-        $principal,
-        $password,
-        $user->isAdmin() ? 'Y' : 'N',
-        $user->isJS() ? 'Y' : 'N'
-      );
+      if (defined($audit)) {
+        
+        my $status = $user->getStatus();
+        my $lastlogin = $user->getLastLogin();
+        
+        $output->addLine(
+          $user->getName(),
+          $status,
+          $lastlogin,
+          $type,
+          $principal,
+          $user->isAdmin() ? 'Y' : 'N',
+          $user->isJS() ? 'Y' : 'N'
+        );         
+      } else {
+        $output->addLine(
+          $user->getName(),
+          $first_name,
+          $last_name,
+          $email_address, 
+          $work_phone, 
+          $home_phone, 
+          $cell_phone,
+          $type,
+          $principal,
+          $password,
+          $user->isAdmin() ? 'Y' : 'N',
+          $user->isJS() ? 'Y' : 'N'
+        );        
+      }
     }
     if (defined($profile)) {
       my $profile_data = $user->getProfile();
