@@ -292,7 +292,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } elsif (defined($backup)) {
       
       #backup($engine, $dbobj, $output, $dsource_output, $groups, $parentname, $hostenv_line, $parentgroup, $templates);
-      $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates);
+      $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
 
     } else {
 
