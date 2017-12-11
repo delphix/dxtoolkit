@@ -94,6 +94,12 @@ GetOptions(
   'retentionpolicy=s' => \(my $retentionpolicy),
   'maskingjob=s' => \(my $maskingjob),
   'noopen' => \(my $noopen),
+  'vcdbname=s' => \(my $vcdbname),
+  'vcdbgroup=s' => \(my $vcdbgroup),
+  'vcdbdbname=s' => \(my $vcdbdbname),
+  'vcdbuniqname=s' => \(my $vcdbuniqname),
+  'vcdbinstname=s' => \(my $vcdbinstname),
+  'vcdbtemplate=s' => \(my $vcdbtemplate),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug), 
   'all' => (\my $all),
@@ -157,6 +163,12 @@ if (defined($timestamp) && defined($changenum)) {
 
 if (! defined($timestamp) && (! defined ($changenum) ) ) {
   $timestamp = 'LATEST_SNAPSHOT';
+}
+
+if (defined($vcdbname) && (!( defined($vcdbdbname) ) ) ) {
+  print "For vCDB you need to specify at least vcdbname\n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
 }
 
 
@@ -491,6 +503,10 @@ for my $engine ( sort (@{$engine_list}) ) {
         next; 
       }
     }
+    
+    if (defined($vcdbname)) {
+      $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate);
+    }
         
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance, $cdb);
         
@@ -603,6 +619,12 @@ __DATA__
                   [-envUser username]
                   [-maskingjob jobname]
                   [-autostart yes]
+                  [-vcdbname name]
+                  [-vcdbgroup groupname]
+                  [-vcdbdbname vcdb_name]
+                  [-vcdbuniqname vcdb_unique_name]
+                  [-vcdbinstname vcdb_instance_name]
+                  [-vcdbtemplate vcdb_template_name]
                   [-help] [-debug]
 
 
@@ -698,7 +720,27 @@ Target VDB db_unique_name (for Oracle)
 Set a mount point for VDB (for Oracle)
 
 =item B<-cdb container_name>
-Set a target container for vPDB
+Set a target container database for vPDB
+
+=item B<-vcdbname name>
+Set a virtual CDB name for vPDB
+
+=item B<-vcdbdbname name>
+Set a virtual CDB database name for vPDB
+
+=item B<-vcdbuniqname vcdb_unique_name>
+Set a virtual CDB unique database name for vPDB
+If not set, it will be equal to vcdbdbname
+
+=item B<-vcdbinstname vcdb_instance_name>
+Set a virtual CDB instance name for vPDB
+If not set, it will be equal to vcdbdbname
+
+=item B<-vcdbgroup groupname>
+Set a virtual CDB groupname
+
+=item B<-vcdbtemplate vcdb_template_name>
+Set a virtual CDB template
 
 =item B<-noopen>
 Don't open database after provision (for Oracle)
@@ -792,6 +834,16 @@ Provision an Oracle VDB using latest snapshot
  Starting provisioning job - JOB-232
  0 - 7 - 11 - 13 - 18 - 40 - 48 - 52 - 56 - 58 - 59 - 60 - 62 - 63 - 75 - 100
  Job JOB-232 finised with state: COMPLETED VDB created.
+ 
+ 
+Provision an Oracle vPDB using a virtual vCDB
+
+ dx_provision_vdb -d Landshark -type oracle -group "test" -creategroup -sourcename "PDBX1"  -srcgroup "Sources" -targetname "vPDBtest"  -dbname "vPDBtest" -environment "marcintgt"  -envinst "/u01/app/ora12102/product/12.1.0/dbhome_1"  -envUser "ora12102"  \
+ -vcdbtemplate slon -vcdbname ala -vcdbdbname slon -vcdbgroup test -mntpoint "/mnt/provision" 
+ Starting provisioning job - JOB-203
+ 0 - 11 - 15 - 75 - 100
+ Job JOB-203 finished with state: COMPLETED
+ VDB created..
 
 Provision a Sybase VDB using a latest snapshot
 

@@ -603,13 +603,14 @@ sub getBackup
     my $parentname = shift;
     my $parentgroup = shift;
     my $templates = shift;
+    my $groups = shift;
     logger($self->{_debug}, "Entering VDB_obj::getBackup",1);
     
     my $hooks = new Hook_obj (  $self->{_dlpxObject}, 1, $self->{_debug} );
     $self->{_hooks} = $hooks;
     
     if ($self->getType() eq 'VDB') {
-      $self->getVDBBackup($engine, $output, $backup, $groupname, $parentname, $parentgroup, $templates);
+      $self->getVDBBackup($engine, $output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
     } elsif (($self->getType() eq 'dSource') || ($self->getType() eq 'detached')) {
       $self->getdSourceBackup($engine, $dsource_output, $backup, $groupname );
     }
@@ -636,6 +637,7 @@ sub getVDBBackup
     my $parentname = shift;
     my $parentgroup = shift;
     my $templates = shift;
+    my $groups = shift;
     logger($self->{_debug}, "Entering VDB_obj::getVDBBackup",1);
 
     my $suffix = '';
@@ -664,7 +666,7 @@ sub getVDBBackup
     $restore_args = $restore_args . " -envUser \"" . $self->getEnvironmentUserName() . "\" ";
     $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
-    $restore_args = $restore_args . $self->getConfig($templates, 1);
+    $restore_args = $restore_args . $self->getConfig($templates, 1, $groups);
         
     $output->addLine(
       $restore_args
@@ -1383,7 +1385,9 @@ sub setGroup {
     logger($self->{_debug}, "Entering VDB_obj::setGroup",1);
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    my $groups = new Group_obj($dlpxObject);    
+    my $groups = new Group_obj($dlpxObject, $debug);    
+    $self->{_groups} = $groups;
+
 
     if (defined ($groups->getGroupByName($name))) {
         $self->{"NEWDB"}->{"container"}->{"group"} = $groups->getGroupByName($name)->{'reference'};
