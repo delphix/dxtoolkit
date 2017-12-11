@@ -165,6 +165,8 @@ sub LoadDBList
         logger($self->{_debug},"source ref $dbitem->{reference} ",2);           
         $db->{"source"}  = $self->{_source}->getSource($dbitem->{reference});
         
+        $db->{_source} = $self->{_source};
+        
         # load sourceConfig object
         my $configname = $self->{_source}->getSourceConfig($dbitem->{reference}); # Source Config name is inside source object
         my $stagingname = $self->{_source}->getStaging($dbitem->{reference}); # Staging Source is other object
@@ -274,7 +276,9 @@ sub LoadDBList
         }
                  
         
-        # add database to hash of DB objects  
+        # add database to hash of DB objects 
+        
+        $db->{_databases} = $self; 
 
         $dbs->{$dbitem->{reference}} = $db;
     

@@ -138,6 +138,7 @@ sub getConfig
     my $self = shift;
     my $templates = shift;
     my $backup = shift;
+    my $groups = shift;
     
     logger($self->{_debug}, "Entering OracleVDB_obj::getConfig",1);
     
@@ -162,11 +163,45 @@ sub getConfig
         
 
       
-      my $cdbname = $self->getCDBContainer();
+      my $cdbref = $self->getCDBContainerRef();
       
-      if (defined($cdbname)) {
+      if (defined($cdbref)) {
         #vPDB
-        $config = join($joinsep,($config, "-cdb $cdbname"));
+        
+        #check if vCDB
+        
+        my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
+        
+        if ($sourceobj->{type} eq 'OracleVirtualSource') {
+            # this is a vCDB
+            
+            if (defined($sourceobj->{configTemplate})) {
+              my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
+              $config = join($joinsep,($config, "-vcdbtemplate $vcdbtempname"));
+            }
+            
+            
+            
+            my $dbobj = $self->{_databases}->getDB($sourceobj->{container});
+            
+            if (defined($dbobj)) {
+              my $vcdbdbname = $dbobj->getDatabaseName();
+              my $vcdbuniqname = $dbobj->getUniqueName();
+              my $instances = $dbobj->getInstances();
+              my $vcdbinstname = $instances->[-1]->{instanceName};
+              my $vcdbname = $dbobj->getName();
+              my $vcdbgroupname = $groups->getName($dbobj->getGroup());
+              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup $vcdbgroupname"));
+            } else {
+              print "Something went wrong. No vCDB found.\n";
+              $config = join($joinsep,($config, "vCDB parameters not found"));
+            }
+                        
+        } else {
+            # this is a CDB
+            my $cdbname = $self->{_sourceconfig}->getName($cdbref); 
+            $config = join($joinsep,($config, "-cdb $cdbname"));
+        }
       } else {
         #non vPDB
         if ($redogroups ne 'N/A') {
@@ -355,20 +390,20 @@ sub getInstanceStatus
     return $ret;
 }
 
-# Procedure getCDBContainer
+# Procedure getCDBContainerRef
 # parameters: 
-# Return CDB name or undef if not vPDB
+# Return CDB ref or undef if not vPDB
 
-sub getCDBContainer 
+sub getCDBContainerRef
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering OracleVDB_obj::getCDBContainer",1);
+    logger($self->{_debug}, "Entering OracleVDB_obj::getCDBContainerRef",1);
 
     my $ret;
 
     if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
       my $cdbref = $self->{sourceConfig}->{cdbConfig};      
-      $ret = $self->{_sourceconfig}->getName($cdbref); 
+      $ret = $cdbref;
     };
     
     return $ret;
@@ -690,6 +725,36 @@ sub getTemplateRef {
     return $ret;
 }
 
+# Procedure getTemplate
+# parameters: 
+# - name - template name
+# Return template ref
+
+sub getTemplate {
+  my $self = shift; 
+  my $name = shift;
+
+  logger($self->{_debug}, "Entering OracleVDB_obj::getTemplate",1);
+  
+  my $dlpxObject = $self->{_dlpxObject};
+  my $debug = $self->{_debug};
+  my $templates;
+  
+  
+  if (defined($self->{_templates})) {
+    $templates = $self->{_templates};
+  } else {
+    $templates = new Template_obj($dlpxObject, $debug);
+    $self->{_templates} = $templates;
+  }
+  
+  my $templateitem = $templates->getTemplateByName($name);
+  
+  return $templateitem;
+  
+}
+
+
 # Procedure setTemplate
 # parameters: 
 # - name - template name
@@ -702,11 +767,7 @@ sub setTemplate {
 
     logger($self->{_debug}, "Entering OracleVDB_obj::setTemplate",1);
 
-    my $dlpxObject = $self->{_dlpxObject};
-    my $debug = $self->{_debug};
-    my $templates = new Template_obj($dlpxObject, $debug);
-
-    my $templateitem = $templates->getTemplateByName($name);
+    my $templateitem = $self->getTemplate($name);
 
     if (defined ($templateitem)) {
         $self->{"NEWDB"}->{"source"}->{"configTemplate"}  = $templateitem;
@@ -1457,7 +1518,37 @@ sub findCDBonEnvironment {
     
 }
 
+# Procedure createVDB
+# parameters: 
+# - vcdbname
+# - vcdbgroup
+# - vcdbdbname
+# - vcdbinstname
+# - vcdbuniqname
+# - vcdbtemplate
+# Setup a virtual CDB
 
+
+sub setupVCDB {
+
+    my $self = shift; 
+    my $vcdbname = shift; 
+    my $vcdbgroup = shift; 
+    my $vcdbdbname = shift; 
+    my $vcdbinstname = shift; 
+    my $vcdbuniqname = shift; 
+    my $vcdbtemplate = shift; 
+    logger($self->{_debug}, "Entering OracleVDB_obj::setupVCDB",1);
+    
+    $self->{_vcdbname} = $vcdbname;
+    $self->{_vcdbgroup} = $vcdbgroup;
+    $self->{_vcdbdbname} = $vcdbdbname;
+    $self->{_vcdbinstname} = $vcdbinstname;
+    $self->{_vcdbuniqname} = $vcdbuniqname;
+    $self->{_vcdbtemplate} = $vcdbtemplate;
+
+}
+    
 
 # Procedure createVDB
 # parameters: 
@@ -1508,8 +1599,17 @@ sub createVDB {
             return undef;
         }
     } else {
+      
       my $configtype = $self->{_source}->getSourceConfigType();
+
+      #print Dumper $configtype;
+      #print Dumper $self->{'_newenvtype'};
+      
       if ($configtype eq 'OracleRACConfig') {
+        # source was RAC but target enviroment is not RAC
+        $configtype = "OracleSIConfig";
+      } elsif ($configtype eq 'N/A') {
+        # detached - set OracleSI
         $configtype = "OracleSIConfig";
       }
       $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
@@ -1519,21 +1619,104 @@ sub createVDB {
     logger($self->{_debug}, "Target sourceConfig type " . Dumper $self->{"NEWDB"}->{"sourceConfig"}->{"type"}, 2 );
 
     if ( $self->{"NEWDB"}->{"sourceConfig"}->{"type"} eq 'OraclePDBConfig') {
-      if (!defined($cdbname)) {
-        print "Container name (-cdb) for vPDB provisioning has to be set. VDB won't be created\n";
+      if (!(defined($cdbname) || defined($self->{_vcdbname}) ) ) {
+        print "Container name (-cdb) or virtual CDB settings has to be set for vPDB provisioning. VDB won't be created\n";
         return undef;
       }
+      
+      if ($self->{_dlpxObject}->getApi() ge '1.9.0') {
+        $self->{"NEWDB"}->{"type"} = "OracleMultitenantProvisionParameters";
+        $self->{"NEWDB"}->{"source"}->{"type"} = "OracleVirtualPdbSource";
+      }
 
-      my $cdbconf = $self->findCDBonEnvironment($cdbname);  
-      if (!defined($cdbconf)) {
-        print "Container name $cdbname not found. VDB won't be created\n";
-        return undef;
-      }   
-      $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
+      
+      if (defined($cdbname)) {
+        # provision to existing CDB
+        my $cdbconf = $self->findCDBonEnvironment($cdbname);  
+        if (!(defined($cdbconf))) {
+          print "Container name $cdbname not found. VDB won't be created\n";
+          return undef;
+        }   
+        $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
+      } else {
+        # creating a vCDB 
+        
+        if ($self->{_dlpxObject}->getApi() lt '1.9.0') {
+          print "Virtual CDB is supported in Delphix Engine 5.2 or higher\n";
+          return undef;
+        }
+        
+        my $vcdbgroupref;
+        if (defined($self->{_vcdbgroup})) {          
+          if (defined($self->{_groups}->getGroupByName($self->{_vcdbgroup}))) {
+            $vcdbgroupref = $self->{_groups}->getGroupByName($self->{_vcdbgroup})->{reference};
+          } else {
+            print "Group for vcdb - " . $self->{_vcdbgroup} . " not found. VDB won't be created\n";
+            return undef;            
+          }
+        } else {
+          $vcdbgroupref = $self->{"NEWDB"}->{"container"}->{"group"};
+        }
+        
+        my $vcdbinstname;
+        my $vcdbuniqname;
+        
+        if (defined($self->{_vcdbuniqname})) {
+          $vcdbuniqname = $self->{_vcdbuniqname};
+        } else {
+          $vcdbuniqname = $self->{_vcdbdbname};
+        }
+
+        if (defined($self->{_vcdbinstname})) {
+          $vcdbinstname = $self->{_vcdbinstname};
+        } else {
+          $vcdbinstname = $self->{_vcdbdbname};
+        }
+        
+
+        my %virtcdbhash = (
+          "type" => "OracleVirtualCdbProvisionParameters",
+          "container" => {
+              "type" => "OracleDatabaseContainer",
+              "name" => $self->{_vcdbname},
+              "group" => $vcdbgroupref
+          },
+          "source" => {
+              "type" => "OracleVirtualCdbSource",
+              "mountBase" => $self->{"NEWDB"}->{"source"}->{"mountBase"},
+              "allowAutoVDBRestartOnHostReboot" => $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"}
+          },
+          "sourceConfig" => {
+              "type" => "OracleSIConfig",
+              "repository" => $self->{"NEWDB"}->{"sourceConfig"}->{"repository"},
+              "databaseName" => $self->{_vcdbdbname},
+              "uniqueName" => $vcdbuniqname,
+              "instance" => {
+                  "type" => "OracleInstance",
+                  "instanceNumber" => 1,
+                  "instanceName" => $vcdbinstname
+              }
+          }          
+        );
+                
+        if (defined($self->{_vcdbtemplate})) {
+          my $vcdbtemplateref = $self->getTemplate($self->{_vcdbtemplate});
+          if (!defined($vcdbtemplateref)) {
+            print "Template for vCDB template name " . $self->{_vcdbtemplate} . " not found. VDB won't be created\n";
+            return undef;
+          }
+          $virtcdbhash{"source"}{"configTemplate"} = $vcdbtemplateref;
+        }
+      
+        $self->{"NEWDB"}->{"virtualCdb"} = \%virtcdbhash;        
+        
+      }
     }
+    
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
+        
     return $self->runJobOperation($operation,$json_data);
 
 }

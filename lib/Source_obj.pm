@@ -108,6 +108,29 @@ sub getSourceByName {
 }
 
 
+# Procedure getSourceByConfig
+# parameters: 
+# - config ref
+# Return source ref for specific sourceconfig ref
+
+sub getSourceByConfig {
+    my $self = shift;
+    my $config = shift;
+    my $ret;
+    
+    logger($self->{_debug}, "Entering Source_obj::getSourceByConfig",1);  
+
+    for my $sourceitem ( sort ( keys %{$self->{_sources}} ) ) {
+
+        if ( $self->getSourceConfig($sourceitem) eq $config) {
+            $ret = $self->getSource($sourceitem); 
+        }
+    }
+
+    return $ret;
+}
+
+
 # Procedure getSourceConfig
 # parameters: 
 # - container 
