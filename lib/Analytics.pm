@@ -30,6 +30,10 @@ use Toolkit_helpers qw (logger);
 
 use lib '../lib';
 use Analytic_obj;
+use Analytic_io_obj;
+use Analytic_cpu_obj;
+use Analytic_tcp_obj;
+use Analytic_network_obj;
 
 # constructor
 # parameters 
@@ -181,9 +185,18 @@ sub get_perf {
         my $fn = "$outdir/" . $self->{_dlpxObject}->getEngineName() . "-analytics-" . $n . "-raw" . $suffix;
 
         print "Gathering data for " . $analytic->getName() . "\n";
-        if ($analytic->getData($arguments, $resolution)) {
-            print "Error gathering a data for " . $analytic->getName() . "\n";
-
+        my $ret = $analytic->getData($arguments, $resolution);
+        if ($ret) {
+            if ($ret eq 1) {
+              print "Timeout during gathering data for " . $analytic->getName() . "\n";
+              return 1;
+            } elsif ($ret eq 2) {
+              print "No data returned for analytics " . $analytic->getName() . ". Consider restarting collector\n";
+              return 2;              
+            } else {
+              print "Unknown error gathering a data for " . $analytic->getName() . "\n";
+              return 3;
+            } 
         } else {
             print "Generating " . $analytic->getName() . " raw report file $fn\n";
 
