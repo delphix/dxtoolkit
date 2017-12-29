@@ -1,6 +1,6 @@
 use strict;
 use Data::Dumper;
-use Test::More tests => 6;
+use Test::More tests => 8;
 use Test::Script;
 use LWP::UserAgent;
 use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
@@ -38,6 +38,16 @@ Job JOB-4064 finished with state: COMPLETED
 EOF
 
 script_stdout_is $expected_stdout, "rewind on timestamp results compare";
+
+script_runs(['../../bin/dx_rewind_db.pl', '-d', 'local', '-name','autofs', '-timestamp', '2017-11-22 14:01:21'] ,  "rewind on timestamp - appdata");
+
+my $expected_stdout = <<EOF;
+Starting job JOB-4064 for database autofs.
+100
+Job JOB-4064 finished with state: COMPLETED
+EOF
+
+script_stdout_is $expected_stdout, "rewind on timestamp results compare - appdata";
 
 #stop server
 my $ua = LWP::UserAgent->new;
