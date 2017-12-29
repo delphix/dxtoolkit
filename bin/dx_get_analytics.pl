@@ -112,6 +112,8 @@ if (! defined( $allowedres{$resolution} ) ) {
   exit(1);
 }
 
+my $ret = 0;
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
@@ -149,9 +151,11 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $arguments = "&resolution=$resolution&startTime=$st_timestamp";
   my $endTime = $et_timestamp ? "&endTime=$et_timestamp" : "";
   $arguments = $arguments . $endTime;
-  $analytic_list->get_perf($type, $outdir, $arguments, $allowedres{$resolution}, $format );
+  $ret = $ret + $analytic_list->get_perf($type, $outdir, $arguments, $allowedres{$resolution}, $format );
 
 }
+
+exit $ret;
 
 
 
