@@ -1480,12 +1480,18 @@ sub setTimestamp {
 
         my $sttz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 
+        logger($self->{_debug}, "timeflow - " . $tf->{timeflow} . " -  requested timestamp - " . $sttz ,2);
+        
+        if ($sttz lt $tf->{full_startpoint}) {
+          # if real subseconds are bigger than 000 we need to use real subseconds. This is an issue for AppData
+          $sttz = $tf->{full_startpoint};
+        }
+
+        logger($self->{_debug}, "timestamp after check - " . $sttz ,2);
 
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"type"} = "TimeflowPointTimestamp";
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timeflow"} = $tf->{timeflow};
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timestamp"} = $sttz;
-
-        logger($self->{_debug}, "timeflow - " . $tf->{timeflow} . " -  timestamp - " . $sttz ,2);
 
     } 
     elsif ( ( ($year,$mon,$day,$hh,$mi) = $timestamp =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d\d)$/ ) ) {

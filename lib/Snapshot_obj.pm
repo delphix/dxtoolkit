@@ -456,6 +456,7 @@ sub findTimeflowforTimestamp {
 
         my $snap_startpoint = $self->getStartPoint($snapitem);
         my $snap_endpoint = $self->getEndPoint($snapitem);
+        my $full_snap_startpoint = $snap_startpoint;
 
         $snap_startpoint =~ s/T/ /;
         $snap_startpoint =~ s/\....Z//;
@@ -467,6 +468,7 @@ sub findTimeflowforTimestamp {
             $match = $match + 1;
             $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
             $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
+            $ret{full_startpoint} = $full_snap_startpoint;
         }
         if ($match gt 1) {
             print "Timestamp in more than one snapshot. Exiting\n";
