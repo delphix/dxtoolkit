@@ -125,7 +125,7 @@ __DATA__
 
  dx_upgrade_db  [ -engine|d <delphix identifier> | -all ] [ -configfile file ] 
                 < -envinst OracleHome/MSSQLinstance >
-                < -group group_name | -name db_name | -host host_name | -type dsource|vdb >
+                < -group group_name | -name db_name | -host host_name | -type dsource|vdb | -envname name >
                 [ -help] 
                 [ -debug]
 
@@ -160,17 +160,20 @@ Filter databases using one of the following filters
 
 =over 4
 
-=item B<-group>
+=item B<-group name>
 Group Name
 
-=item B<-name>
+=item B<-name name>
 Database Name
 
-=item B<-host>
+=item B<-host name>
 Host Name
 
-=item B<-type>
+=item B<-type type>
 Type (dsource|vdb)
+
+=item B<-envname name>
+Environment name
 
 =back
 
