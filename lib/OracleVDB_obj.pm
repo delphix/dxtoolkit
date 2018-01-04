@@ -555,7 +555,7 @@ sub setSource {
 
     my $dlpxObject = $self->{_dlpxObject};
       
-    $self->{_source} = $source;
+    $self->{_sourcedb} = $source;
 
     if (defined ($source)) {
         
@@ -1600,10 +1600,7 @@ sub createVDB {
         }
     } else {
       
-      my $configtype = $self->{_source}->getSourceConfigType();
-
-      #print Dumper $configtype;
-      #print Dumper $self->{'_newenvtype'};
+      my $configtype = $self->{_sourcedb}->getSourceConfigType();
       
       if ($configtype eq 'OracleRACConfig') {
         # source was RAC but target enviroment is not RAC
