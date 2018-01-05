@@ -1,3 +1,22 @@
+## 2.3.4
+
+### Added
+
+* verification with new Version 5.2
+* support for SI vCDB for provisoning and metadata backup
+* snapshot size and object dependency added to dx_get_snapshot
+* dx_get_capacity is displaying held objects (only in version >=5.2)
+
+### Changed
+
+* help fixes
+* Various bug fixes 
+* dx_get_capacity is able to use new cached values (only in version >=5.2)
+* reversed order added to printhierarchy
+* multi NIC output in Analytics
+* dx_get_user can display last loggin time and account status
+
+
 # Change Log
 
 ## 2.3.3.1
