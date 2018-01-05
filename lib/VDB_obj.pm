@@ -1723,18 +1723,22 @@ sub upgradeVDB {
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-        # check action status
-        # get last hour of actions
-        my $st = Toolkit_helpers::timestamp("-5mins", $self->{_dlpxObject});
-        my $action = new Action_obj ($self->{_dlpxObject}, $st, undef, undef);
-        print "Waiting for all actions to complete. Parent action is " . $result->{action} . "\n";
-        if ( $action->checkStateWithChild($result->{action}) eq 'COMPLETED' ) {
-            print "Upgrade completed with success.\n";
-            $ret = 0;
-        } else {
-            print "There were problems with upgrade.\n";
-            $ret = 1;
-        }
+        # # check action status
+        # # get last hour of actions
+        # my $st = Toolkit_helpers::timestamp("-5mins", $self->{_dlpxObject});
+        # my $action = new Action_obj ($self->{_dlpxObject}, $st, undef, undef);
+        # print "Waiting for all actions to complete. Parent action is " . $result->{action} . "\n";
+        # if ( $action->checkStateWithChild($result->{action}) eq 'COMPLETED' ) {
+        #     print "Upgrade completed with success.\n";
+        #     $ret = 0;
+        # } else {
+        #     print "There were problems with upgrade.\n";
+        #     $ret = 1;
+        # }
+        # 
+        
+        $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Upgrade completed with success", "There were problems with upgrade.");
+        
     } else {
         print "There were problems with upgrade.\n";
         if (defined($result->{error})) {
