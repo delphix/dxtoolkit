@@ -6,6 +6,7 @@
 * support for SI vCDB for provisoning and metadata backup
 * snapshot size and object dependency added to dx_get_snapshot
 * dx_get_capacity is displaying held objects (only in version >=5.2)
+* expiration date can be set for new bookmarks using dx_ctl_js_bookmarks
 
 ### Changed
 
