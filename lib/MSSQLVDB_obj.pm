@@ -531,10 +531,33 @@ sub addSource {
             }
           );
           
-          if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
-            $dsource_params{"linkData"}{"delphixManaged"} = JSON::true;
-            delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
+          if (defined($backup_dir) && ($backup_dir eq '')) {
+            # autobackup dir set
+            delete $dsource_params{"linkData"}{sharedBackupLocation};
           }
+          
+          if ($self->{_dlpxObject}->getApi() lt "1.9") {
+            if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+              $dsource_params{"linkData"}{"delphixManaged"} = JSON::true;
+              delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
+            }           
+          } else {
+            delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
+            
+            if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+              $dsource_params{"linkData"}{"delphixManagedStatus"} = 'DELPHIX_MANAGED_UNCOMPRESSED';
+              $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNewCopyOnlyFullBackupSyncParameters";
+              $dsource_params{"linkData"}{"syncParameters"}{"compressionEnabled"} = JSON::false;
+            } else {
+              $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlExistingMostRecentBackupSyncParameters";
+            }
+          }
+          
+          if (defined($dumppwd)) {
+            $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
+          }
+          
+
     }    
     
 
@@ -768,8 +791,20 @@ sub getDelphixManaged {
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getDelphixManaged",1);
     my $ret;
-    if (defined($self->{container}->{delphixManaged})) {
-      $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+      if (defined($self->{container}->{delphixManaged})) {
+        $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
+      }
+    } else {
+            
+      if (defined($self->{container}->{delphixManagedStatus})) {
+        if ($self->{container}->{delphixManagedStatus} eq 'NOT_DELPHIX_MANAGED') {
+          $ret = 'no';
+        } else {
+          $ret = 'yes';
+        }
+      }
     }
     return $ret;
 
