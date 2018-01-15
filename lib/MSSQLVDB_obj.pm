@@ -248,17 +248,44 @@ sub snapshot
     }
 
     my %snapshot_type;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") { 
 
-    if ($self->getType() eq 'VDB') {
-        %snapshot_type = (
-            "type" => "MSSqlSyncParameters"
-        );
-    }
-    else {
-        %snapshot_type = (
-            "type" => "MSSqlSyncParameters",
-            "loadFromBackup" => $frombackup_json
-        );
+      if ($self->getType() eq 'VDB') {
+          %snapshot_type = (
+              "type" => "MSSqlSyncParameters"
+          );
+      }
+      else {
+          %snapshot_type = (
+              "type" => "MSSqlSyncParameters",
+              "loadFromBackup" => $frombackup_json
+          );
+      }
+    
+    } else {
+
+      if ($self->getType() eq 'VDB') {
+          # it doesn't matter - but it has to be a valid option
+          # taken from GUI
+          %snapshot_type = (
+              "type" => "MSSqlNewCopyOnlyFullBackupSyncParameters",
+              "compressionEnabled" => JSON::false
+          );
+      }
+      else {
+          if ( $frombackup eq "yes" ) {
+            %snapshot_type = (
+                "type" => "MSSqlExistingMostRecentBackupSyncParameters"
+            );
+          } else {
+            %snapshot_type = (
+                "type" => "MSSqlNewCopyOnlyFullBackupSyncParameters",
+                "compressionEnabled" => JSON::false
+            );
+          }
+      }  
+      
     }
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
