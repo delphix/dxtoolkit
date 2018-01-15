@@ -1,3 +1,9 @@
+## 2.3.4.1
+
+### Changed
+
+* fix for MS SQL snapshot in 5.2
+
 ## 2.3.4
 
 ### Added
