@@ -165,26 +165,26 @@ sub loadJobs_worker
 
     my $offset = 0;
 
-    my $operation = "resources/json/delphix/job?pageSize=$pageSize&pageOffset=$offset&";
+    my $operation = "resources/json/delphix/job?pageSize=$pageSize&pageOffset=$offset";
     
     if (defined($targetref)) {
-      $operation = $operation . "target=" . $targetref . "&";
-   }
+      $operation = $operation . "&target=" . $targetref ;
+    }
 
     if (defined($self->{_fromdate})) {
-        $operation = $operation . "fromDate=" . $self->{_fromdate} . "&";
+        $operation = $operation . "&fromDate=" . $self->{_fromdate} ;
     }
 
     if (defined($self->{_todate})) {
-        $operation = $operation . "toDate=" . $self->{_todate} . "&";
+        $operation = $operation . "&toDate=" . $self->{_todate} ;
     }
 
     if (defined($self->{_state})) {
-        $operation = $operation . "jobState=" . uc $self->{_state} . "&";
+        $operation = $operation . "&jobState=" . uc $self->{_state} ;
     }
     
     if (defined($self->{_events})) {
-      $operation = $operation . "addEvents=true&";
+      $operation = $operation . "&addEvents=true";
     }
 
     my $total = 1;

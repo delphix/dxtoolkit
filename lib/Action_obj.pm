@@ -97,10 +97,8 @@ sub getStartTimeWithTZ {
     my $tz = new Date::Manip::TZ;
     my $action = $self->{_actions}->{$reference};
     my $ts = $action->{startTime};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    
+    return Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
 }
 
 # Procedure getEndTimeWithTZ
@@ -117,11 +115,8 @@ sub getEndTimeWithTZ {
     my $action = $self->{_actions}->{$reference};
     my $ts = $action->{endTime};
     
-    if (defined($ts)) {
-      $ts =~ s/\....Z//;
-      my $dt = ParseDate($ts);
-      my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-      return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    if (defined($ts)) {      
+      return Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
     } else {
       return "N/A";
     }
