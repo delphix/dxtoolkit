@@ -331,18 +331,13 @@ sub getStartTime
     my $ret;
     if (defined($storage_tests->{$reference})) {
         my $zulustart = $storage_tests->{$reference}->{startTime};
-        my $tz = new Date::Manip::TZ;
-        my $dt = new Date::Manip::Date;
         my $timezone = $self->{_dlpxObject}->getTimezone();
-        $dt->config("setdate","zone,GMT");
-        $zulustart =~ s/T/ /;
-        $zulustart =~ s/\.000Z//;
-        if ($dt->parse($zulustart)) {
-          $ret = 'N/A';
+        my $time = Toolkit_helpers::convert_from_utc($zulustart, $timezone, 1);
+        
+        if (defined($time)) {
+          $ret = $time;
         } else {
-          my $dttemp = $dt->value();
-          my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
-          $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+          $ret = 'N/A';
         }
     }
     

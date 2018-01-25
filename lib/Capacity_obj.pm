@@ -391,20 +391,16 @@ sub processSystemHistory
     my $enginename = $self->{_dlpxObject}->getEngineName();
     my $enginezone = $self->{_dlpxObject}->getTimezone();
     
-    my $tz = new Date::Manip::TZ;
-    my $dt = new Date::Manip::Date;
-    my ($err,$date,$offset,$isdst,$abbrev);
     my $histtime;
     my $usage;
 
-    $dt->config("setdate","zone,GMT");
     
     for my $histitem (@{$self->{_systemHistory}}) {
-      $err = $dt->parse($histitem->{timestamp});
-      my $dttemp = $dt->value();
-      ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $enginezone);
-      if (scalar(@{$date}) > 0) {
-          $histtime = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+
+      my $time = Toolkit_helpers::convert_from_utc($histitem->{timestamp}, $enginezone, 1);
+      
+      if (defined($time)) {
+          $histtime = $time;
       } else {
           $histtime = 'N/A';
       }
