@@ -1435,10 +1435,6 @@ sub setTimestamp {
     
     logger($self->{_debug}, "Entering VDB_obj::setTimestamp",1);
 
-    #print Dumper $timestamp;
-    #print Dumper $timezone;
-
-
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
 
@@ -1474,11 +1470,7 @@ sub setTimestamp {
             return 1;
         }
 
-        my $dt = ParseDate($fixformat_timestamp);
-
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $tf->{timezone});
-
-        my $sttz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+        my $sttz = Toolkit_helpers::convert_to_utc($fixformat_timestamp, $tf->{timezone}, undef, 1);
 
         logger($self->{_debug}, "timeflow - " . $tf->{timeflow} . " -  requested timestamp - " . $sttz ,2);
         
@@ -1508,12 +1500,7 @@ sub setTimestamp {
             return 1;
         }
 
-        my $dt = ParseDate($fixformat_timestamp);
-
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $tf->{timezone});
-
-        my $sttz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
-
+        my $sttz = Toolkit_helpers::convert_to_utc($fixformat_timestamp, $tf->{timezone}, undef, 1);
 
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"type"} = "TimeflowPointTimestamp";
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timeflow"} = $tf->{timeflow};

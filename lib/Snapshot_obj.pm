@@ -441,34 +441,60 @@ sub findTimeflowforTimestamp {
     logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforTimestamp",1);  
 
     my %ret;
-    my $tz = new Date::Manip::TZ;
-    my $dt = ParseDate($timestamp);
+    #my $tz = new Date::Manip::TZ;
+    #my $dt = ParseDate($timestamp);
 
 
     my $match = 0;
     for my $snapitem ( @{$self->getSnapshots()} ) {
 
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
+        #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
+        
+        #print Dumper $self->getSnapshotTimeZone($snapitem);
+        #print Dumper $dt;
+        #print Dumper $timestamp;
+        #print Dumper $date;
+        
+        
 
-        my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+        #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+        my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
 
-
+        print Dumper $sttz;
 
         my $snap_startpoint = $self->getStartPoint($snapitem);
         my $snap_endpoint = $self->getEndPoint($snapitem);
         my $full_snap_startpoint = $snap_startpoint;
 
+        print Dumper $snap_startpoint;
+        print Dumper $snap_endpoint;
+
         $snap_startpoint =~ s/T/ /;
         $snap_startpoint =~ s/\....Z//;
         $snap_endpoint =~ s/T/ /;
         $snap_endpoint =~ s/\....Z//;
-
-
-        if  ( ($snap_startpoint le $sttz) && ($snap_endpoint ge $sttz ) ) {
-            $match = $match + 1;
-            $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
-            $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
-            $ret{full_startpoint} = $full_snap_startpoint;
+        
+        # change from "ge" $sttz to "gt" for snapshots
+        # as end snapshot can = start snapshot and we should use
+        # newer one
+        # "ge" was for same start and end snapshot and now 
+        # a new if is added
+        
+        if ($snap_startpoint eq $snap_endpoint) {
+          if  ( $snap_startpoint eq $sttz ) {
+              $match = $match + 1;
+              $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
+              $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
+              $ret{full_startpoint} = $full_snap_startpoint;
+          }          
+        } else {
+          
+          if  ( ($snap_startpoint le $sttz) && ($snap_endpoint gt $sttz ) ) {
+              $match = $match + 1;
+              $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
+              $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
+              $ret{full_startpoint} = $full_snap_startpoint;
+          }
         }
         if ($match gt 1) {
             print "Timestamp in more than one snapshot. Exiting\n";
@@ -525,16 +551,18 @@ sub findSnapshotforTimestamp {
     logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);  
 
     my %ret;
-    my $tz = new Date::Manip::TZ;
-    my $dt = ParseDate($timestamp);
+    #my $tz = new Date::Manip::TZ;
+    #my $dt = ParseDate($timestamp);
 
 
     my $match = 0;
     for my $snapitem ( @{$self->getSnapshots()} ) {
 
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
+        #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
-        my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
+        #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
+        my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+        $sttz =~ s/\:\d\d$//;
 
         my $snap_startpoint = $self->getStartPoint($snapitem);
         my $final_ts = $snap_startpoint;
