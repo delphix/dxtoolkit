@@ -221,17 +221,13 @@ sub getJobStartTimeWithTZ {
     my $retoffset = shift;
     
     logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);    
-    my $tz = new Date::Manip::TZ;
     my $ts = $self->{_joboutput}->{startTime};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
     my $ret;
 
     if (defined($retoffset)) {
-        $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %d:%2.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $offset->[0], $offset->[1]);
+        $ret = Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1, 1);
     } else {
-        $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+        $ret = Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
     }
     return $ret;
 }
@@ -245,12 +241,9 @@ sub getJobUpdateTimeWithTZ {
     my $self = shift;
     
     logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);    
-    my $tz = new Date::Manip::TZ;
-    my $ts = $self->{_joboutput}->{updateTime};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    my $ts = $self->{_joboutput}->{updateTime};    
+    return Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
+    
 }
 
 # Procedure getJobRuntime

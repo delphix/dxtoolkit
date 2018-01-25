@@ -228,21 +228,9 @@ sub getLastPoint {
 
     my $last_point = $self->{_replication_points}->{$last_replication_point_ref};
 
-    my $tz = new Date::Manip::TZ;
-    my $dt = new Date::Manip::Date;
-    my ( $date, $offset, $isdst, $abbrev );
-
     if ( defined( $last_point->{dataTimestamp} ) ) {
       my $timezone = $self->{_dlpxObject}->getTimezone();
-
-      my $err    = $dt->parse( $last_point->{dataTimestamp} );
-      my $dttemp = $dt->value();
-
-      $dt->config( "setdate", "zone,GMT" );
-      ( $err, $date, $offset, $isdst, $abbrev ) = $tz->convert_from_gmt( $dttemp, $timezone );
-      my $ts = sprintf( "%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",
-        $date->[0], $date->[1], $date->[2], $date->[3], $date->[4], $date->[5], $abbrev );
-      $ret{timestamp}  = $ts;
+      $ret{timestamp}  = Toolkit_helpers::convert_from_utc($last_point->{dataTimestamp}, $timezone, 1);
       $ret{throughput} = sprintf( "%9.2f", $last_point->{averageThroughput} / 1024 / 1024 );    #MB/s
       $ret{size}       = sprintf( "%9.2f", $last_point->{bytesTransferred} / 1024 / 1024 );     #MB
     }
