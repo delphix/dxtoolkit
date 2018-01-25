@@ -71,8 +71,6 @@ sub getJSContainerByName {
     logger($self->{_debug}, "Entering JS_container_obj::getJSContainerByName",1);    
     my $ret;
 
-    #print Dumper $$config;
-
     for my $containeritem ( sort ( keys %{$self->{_jscontainer}} ) ) {
 
         if ( $self->getName($containeritem) eq $name) {
@@ -242,42 +240,30 @@ sub restoreContainer {
 
     my $detz = $self->{_dlpxObject}->getTimezone();
       
-    my %recover_hash;
+    my %timelineHash;
 
     my $zulutime;
 
     if ( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d?\d):(\d\d)/ ) {
 
-        my $tz = new Date::Manip::TZ;
-        my $dt = new Date::Manip::Date;
-
-        #$dt->config("tz","GMT");
-        $dt->config("setdate","zone,GMT");
 
         chomp($timestamp); 
         $timestamp =~ s/T/ /;
         $timestamp =~ s/\.000Z//;    
-        
-
-        #$dt = ParseDate($zulutime );
-        my $errparse = $dt->parse($timestamp);
-        my $dttemp = $dt->value();
 
         my $ret;
+        $zulutime = Toolkit_helpers::convert_to_utc($timestamp, $detz, undef, 1);
 
-        my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dttemp, $detz);
-
-        if (! $errparse ) {
-            $zulutime = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+        if (defined($zulutime)) {
 
             if ($self->{_dlpxObject}->getApi() lt "1.8") {
-              %recover_hash = (
+              %timelineHash = (
                   "type" => "JSTimelinePointTimeInput",
                   "sourceDataLayout" => $dataobj_ref,
                   "time" => $zulutime
               );
             } else {
-              %recover_hash = (
+              %timelineHash = (
                   "type" => "JSTimelinePointTimeInput",
                   "branch" => $branchref,
                   "time" => $zulutime
@@ -293,7 +279,7 @@ sub restoreContainer {
         my $bookmark_ref = $bookmarks->getJSBookmarkByName($timestamp);
 
         if (defined($bookmark_ref)) {
-            %recover_hash = (
+            %timelineHash = (
                 "type" => "JSTimelinePointBookmarkInput",
                 "bookmark" => $bookmark_ref
             );
@@ -304,10 +290,19 @@ sub restoreContainer {
 
     }
 
+    my %recoveryHash;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+      %recoveryHash = %timelineHash;
+    } else {
+      %recoveryHash =  (
+        "type" => "JSDataContainerRestoreParameters",
+        "forceOption" => JSON::false,
+        "timelinePointParameters" => \%timelineHash
+      );
+    }
 
-    #print Dumper \%recover_hash;
-
-    my $json_data = to_json(\%recover_hash);
+    my $json_data = to_json(\%recoveryHash);
 
     my $operation = "resources/json/delphix/jetstream/container/" . $reference . "/restore";
 
@@ -327,10 +322,22 @@ sub refreshContainer {
     my $reference = shift;
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::refreshContainer",1);
+    
+    my %refreshHash;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+      %refreshHash = ();
+    } else {
+      %refreshHash =  (
+        "type" => "JSDataContainerRefreshParameters",
+        "forceOption" => JSON::false
+      );
+    }
 
     my $operation = "resources/json/delphix/jetstream/container/" . $reference . "/refresh";
+    my $json_data = to_json(\%refreshHash);
 
-    return $self->runJobOperation($operation, '{}');
+    return $self->runJobOperation($operation, $json_data);
 
 }
 
@@ -348,9 +355,21 @@ sub resetContainer {
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::resetContainer",1);
 
-    my $operation = "resources/json/delphix/jetstream/container/" . $reference . "/reset";
+    my %resetHash;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+      %resetHash = ();
+    } else {
+      %resetHash =  (
+        "type" => "JSDataContainerResetParameters",
+        "forceOption" => JSON::false
+      );
+    }
 
-    return $self->runJobOperation($operation, '{}');
+    my $operation = "resources/json/delphix/jetstream/container/" . $reference . "/reset";
+    my $json_data = to_json(\%resetHash);
+
+    return $self->runJobOperation($operation, $json_data);
 
 }
 
