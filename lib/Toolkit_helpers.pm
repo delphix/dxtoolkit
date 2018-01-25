@@ -754,6 +754,7 @@ sub convert_using_offset {
 	my $dst = shift;
 	my $printtz = shift;
 	my $makeiso = shift;
+  my $printoff = shift;
 
 	my $tz = new Date::Manip::TZ;
 	my $dt = new Date::Manip::Date;
@@ -795,7 +796,12 @@ sub convert_using_offset {
 	} else {
 		$ts = $nd->printf("%Y-%m-%d %T");		
 		if (defined($printtz)) {
-			$ts = $ts . ' ' . $off;
+      if (defined($printoff)) {
+        $off =~ s/GMT//;
+        $ts = $ts . ' ' . $off;
+      } else {
+			  $ts = $ts . ' ' . $off;
+      }
 		}	
 	}
 	
@@ -809,6 +815,7 @@ sub convert_timezone {
 	my $dst = shift;
 	my $printtz = shift;
 	my $makeiso = shift;
+  my $printoff = shift;
 	
 	my $tz = new Date::Manip::TZ;
 	my $dt = new Date::Manip::Date;
@@ -839,8 +846,12 @@ sub convert_timezone {
 		$ts = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 	} else {
 		if (defined($printtz)) {
-			$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-		} else {
+      if (defined($printoff)) {
+         $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %d:%2.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $offset->[0], $offset->[1]);
+      } else {
+			   $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+		  }
+    } else {
 			$ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 		}
 	}
@@ -857,10 +868,11 @@ sub convert_from_utc {
 	my $timestamp = shift;
 	my $timezone = shift;
 	my $printtz = shift;
+  my $printoff = shift;
   if ( $timezone =~ /GMT([+|-]\d\d)\:(\d\d)/ ) {
-		return convert_using_offset($timestamp, 'UTC', $timezone, $printtz);
+		return convert_using_offset($timestamp, 'UTC', $timezone, $printtz, undef, $printoff);
 	} else {
-    return convert_timezone($timestamp, 'UTC', $timezone, $printtz);
+    return convert_timezone($timestamp, 'UTC', $timezone, $printtz, undef, $printoff);
 	}
 }
 
