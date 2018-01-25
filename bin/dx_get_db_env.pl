@@ -154,7 +154,7 @@ if (defined($backup)) {
 } elsif (defined($config)) {
   $hostenv = 'e';
   $output->addHeader(
-    {'Appliance', 10},
+    {'Appliance', 20},
     {'Env. name', 20},
     {'Database',   30},
     {'Group',      15},
@@ -168,7 +168,7 @@ if (defined($backup)) {
 } else {
   if (defined($masking)) {
     $output->addHeader(
-      {'Appliance',   10},
+      {'Appliance',   20},
       {$hostenv_head, 20},
       {'Database',    30},
       {'Group',       15},
@@ -179,7 +179,7 @@ if (defined($backup)) {
     );  
   } else {
     $output->addHeader(
-      {'Appliance'      ,10},
+      {'Appliance'      ,20},
       {$hostenv_head    ,20},
       {'Database'       ,30},
       {'Group'          ,15},
