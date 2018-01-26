@@ -436,13 +436,7 @@ sub processSystemHistory
           sprintf("%12.2f" ,$usage)
         );
       }
-      
-
-      
-
-      
-
-      
+            
     }
 }
 

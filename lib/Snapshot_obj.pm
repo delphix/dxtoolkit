@@ -311,9 +311,7 @@ sub getSnapshotTime {
     my $ts = $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
     
     # if $ts is null - I need to reconsider which one to use - latest change of snapshot process seems OK  
-    #print Dumper $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
-    #print Dumper $self->{_snapshots}->{$reference}->{creationTime};
-    #print Dumper $self->{_snapshots}->{$reference}->{name};
+
     chomp($ts); 
     $ts =~ s/T/ /;
     $ts =~ s/\....Z//;
@@ -441,33 +439,15 @@ sub findTimeflowforTimestamp {
     logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforTimestamp",1);  
 
     my %ret;
-    #my $tz = new Date::Manip::TZ;
-    #my $dt = ParseDate($timestamp);
-
 
     my $match = 0;
     for my $snapitem ( @{$self->getSnapshots()} ) {
 
-        #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
-        
-        #print Dumper $self->getSnapshotTimeZone($snapitem);
-        #print Dumper $dt;
-        #print Dumper $timestamp;
-        #print Dumper $date;
-        
-        
-
-        #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
         my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
-
-        print Dumper $sttz;
 
         my $snap_startpoint = $self->getStartPoint($snapitem);
         my $snap_endpoint = $self->getEndPoint($snapitem);
         my $full_snap_startpoint = $snap_startpoint;
-
-        print Dumper $snap_startpoint;
-        print Dumper $snap_endpoint;
 
         $snap_startpoint =~ s/T/ /;
         $snap_startpoint =~ s/\....Z//;

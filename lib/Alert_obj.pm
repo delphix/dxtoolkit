@@ -209,13 +209,9 @@ sub getTimeStampWithTZ {
     my $reference = shift;
     
     logger($self->{_debug}, "Entering Alert_obj::getTimeStampWithTZ",1);    
-    my $tz = new Date::Manip::TZ;
     my $alerts = $self->{_alerts}->{$reference};
     my $ts = $alerts->{timestamp};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    return Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
 }
 
 # Procedure getAlertList
@@ -257,7 +253,7 @@ sub loadAlertList
     logger($self->{_debug}, "Entering Alert_obj::loadActionList",1);   
     my $pageSize = 5000;
     my $offset = 0;
-    my $operation = "resources/json/delphix/alert?pageSize=$pageSize&pageOffset=$offset&";
+    my $operation = "resources/json/delphix/alert?pageSize=$pageSize&pageOffset=$offset";
 
     if ($self->{_startTime}) {
         $operation = $operation . "&fromDate=" . $self->{_startTime};

@@ -83,13 +83,10 @@ sub getTimeWithTZ {
     my $reference = shift;
     
     logger($self->{_debug}, "Entering Faults_obj::getFaultTimeWithTZ",1);    
-    my $tz = new Date::Manip::TZ;
+
     my $fault = $self->{_faults}->{$reference};
     my $ts = $fault->{dateDiagnosed};
-    $ts =~ s/\....Z//;
-    my $dt = ParseDate($ts);
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $self->{_timezone});
-    return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
+    return Toolkit_helpers::convert_from_utc($ts,$self->{_timezone},1);
 }
 
 
