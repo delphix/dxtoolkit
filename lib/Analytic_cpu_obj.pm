@@ -107,23 +107,8 @@ sub getData {
     
         for my $dp ( @{$ds->{datapoints}} ) {
             
-            # my $ts = $dp->{timestamp};
-            # chomp($ts); 
-            # $ts =~ s/T/ /;
-            # $ts =~ s/\.000Z//;
-
             my $zulutime = $dp->{timestamp} ;
-            chomp($zulutime); 
-            $zulutime =~ s/T/ /;
-            $zulutime =~ s/\.000Z//;          
-            #$dt = ParseDate($zulutime);
-            my $err = $dt->parse($zulutime);
-            my $dttemp = $dt->value();
-
-            ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dttemp, $timezone);
-            my $ts = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
-
-
+            my $ts = Toolkit_helpers::convert_from_utc($zulutime, $timezone);
             
             # translate ts to resolution size
             
