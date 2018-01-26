@@ -1,3 +1,10 @@
+## 2.3.5-rc1
+
+### Changed
+
+* fix JS container operations with 5.2
+* timestamp with timezone support moved into Toolkit_helpers to have a consistent support for timezones defined with offset only
+
 ## 2.3.4.1
 
 ### Changed
