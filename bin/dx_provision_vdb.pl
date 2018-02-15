@@ -78,6 +78,10 @@ GetOptions(
   'postrewind=s' =>\(my $postrewind), 
   'presnapshot=s' =>\(my $presnapshot), 
   'postsnapshot=s' =>\(my $postsnapshot),
+  'prestart=s' =>\(my $prestart), 
+  'poststart=s' =>\(my $poststart),
+  'prestop=s' =>\(my $prestop), 
+  'poststop=s' =>\(my $poststop),
   'hooks=s' => \(my $hooks),
   'prescript=s' => \(my $prescript),
   'postscript=s' => \(my $postscript),  
@@ -286,8 +290,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       next; 
   }
   
+  my $hooks = new Hook_obj ( $engine_obj, undef, $debug);
+  
   if ( defined($postrefresh) ) {
-    my $oneline = Toolkit_helpers::readHook('postrefresh', $postrefresh);
+    my $oneline = Toolkit_helpers::readHook('postrefresh', $postrefresh, $hooks);
     if (defined($oneline)) {
       $db->setPostRefreshHook($oneline);
     } else {
@@ -295,9 +301,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       last;
     }    
   } 
-
+  
   if ( defined($configureclone) ) {
-    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone);
+    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone, $hooks);
     if (defined($oneline)) {
       $db->setconfigureCloneHook($oneline);
     } else {
@@ -307,7 +313,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
 
   if ( defined($prerefresh) ) {
-    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh);
+    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh, $hooks);
     if (defined($oneline)) {
       $db->setPreRefreshHook($oneline);
     } else {
@@ -317,7 +323,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($prerewind) ) {
-    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind);
+    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind, $hooks);
     if (defined($oneline)) {
       $db->setPreRewindHook($oneline);
     } else {
@@ -327,7 +333,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
 
   if ( defined($postrewind) ) {
-    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind);
+    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind, $hooks);
     if (defined($oneline)) {
       $db->setPostRewindHook($oneline);
     } else {
@@ -337,7 +343,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($presnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot);
+    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot, $hooks);
     if (defined($oneline)) {
       $db->setPreSnapshotHook($oneline);
     } else {
@@ -347,7 +353,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($postsnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot);
+    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot, $hooks);
     if (defined($oneline)) {
       $db->setPostSnapshotHook($oneline);
     } else {
@@ -355,6 +361,46 @@ for my $engine ( sort (@{$engine_list}) ) {
       last;
     }   
   } 
+  
+  if ( defined($prestart) ) {
+    my $oneline = Toolkit_helpers::readHook('prestart', $prestart, $hooks);
+    if (defined($oneline)) {
+      $db->setPreSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($poststart) ) {
+    my $oneline = Toolkit_helpers::readHook('poststart', $poststart, $hooks);
+    if (defined($oneline)) {
+      $db->setPostSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($prestop) ) {
+    my $oneline = Toolkit_helpers::readHook('prestop', $prestop, $hooks);
+    if (defined($oneline)) {
+      $db->setPreSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  } 
+  
+  if ( defined($poststop) ) {
+    my $oneline = Toolkit_helpers::readHook('poststop', $poststop, $hooks);
+    if (defined($oneline)) {
+      $db->setPostSnapshotHook($oneline);
+    } else {
+      $ret = $ret + 1;
+      last;
+    }   
+  }   
   
   if (defined($hooks)) {
     my $FD;
@@ -602,9 +648,17 @@ __DATA__
                   [-noopen]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
-                  [-postrefresh pathtoscript ]
-                  [-configureclone pathtoscript ]
-                  [-prerefresh  pathtoscript ]  
+                  [-configureclone pathtoscript | operation_template_name ]
+                  [-prerefresh  pathtoscript | operation_template_name ]  
+                  [-postrefresh pathtoscript | operation_template_name ]
+                  [-prerewind pathtoscript | operation_template_name ]
+                  [-postrewind pathtoscript | operation_template_name ]
+                  [-presnapshot pathtoscript | operation_template_name ]
+                  [-postsnapshot pathtoscript | operation_template_name ]
+                  [-prestart pathtoscript | operation_template_name ]
+                  [-poststart pathtoscript | operation_template_name ]
+                  [-prestop pathtoscript | operation_template_name ]
+                  [-poststop pathtoscript | operation_template_name ]
                   [-prescript pathtoscript ]
                   [-postscript pathtoscript ]
                   [-recoveryModel model ]
@@ -751,14 +805,38 @@ Create VDB in archivelog (yes - default) or noarchielog (no) (for Oracle)
 =item B<-truncateLogOnCheckpoint>
 Truncate a log on checkpoint. Set this parameter to enable truncate operation (for Sybase)
 
-=item B<-postrefresh pathtoscript>
-Post refresh hook
-
-=item B<-configureclone pathtoscript>
+=item B<-configureclone pathtoscript | operation_template_name>
 Configure Clone hook
 
-=item B<-prerefresh pathtoscript>
-Prerefresh hook
+=item B<-prerefresh pathtoscript | operation_template_name>
+Pre refresh hook
+
+=item B<-postrefresh pathtoscript | operation_template_name>
+Post refresh hook
+
+=item B<-prerewind pathtoscript | operation_template_name>
+Pre rewind hook
+
+=item B<-postrewind pathtoscript | operation_template_name>
+Post rewind hook
+
+=item B<-presnapshot pathtoscript | operation_template_name>
+Pre snapshot hook
+
+=item B<-postsnapshot pathtoscript | operation_template_name>
+Post snapshot hook
+
+=item B<-prestart pathtoscript | operation_template_name>
+Pre start hook
+
+=item B<-poststart pathtoscript | operation_template_name>
+Post start hook
+
+=item B<-prestop pathtoscript | operation_template_name>
+Pre stop hook
+
+=item B<-poststop pathtoscript | operation_template_name>
+Post stop hook
 
 =item B<-prescript  pathtoscript>
 Path to prescript on Windows target
