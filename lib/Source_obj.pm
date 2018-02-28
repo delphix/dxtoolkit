@@ -197,6 +197,11 @@ sub getSourceList
         for my $source ( keys %localsources ) {
             if ( $localsources{$source}{type} =~ /StagingSource/ ) {
                 $sources->{$localsources{$source}{reference}} = $localsources{$source};
+                logger($self->{_debug}, "Staging: $localsources{$source}{reference} $localsources{$source}{name} $localsources{$source}{type}",2);
+            } elsif ( $localsources{$source}{type} =~ /OracleLiveSource/ ) {
+                # add Live Source here
+                $sources->{$localsources{$source}{reference}} = $localsources{$source};
+                logger($self->{_debug}, "Staging: $localsources{$source}{reference} $localsources{$source}{name} $localsources{$source}{type}",2);
             } else {
                 $sources->{$localsources{$source}{container}} = $localsources{$source};
             }
@@ -205,6 +210,31 @@ sub getSourceList
         print "No data returned for $operation. Try to increase timeout \n";
     }
     
+}
+
+# refreshSource
+# -reference - source ref
+# read source again from Delphix Engine
+
+sub refreshSource {
+  my $self = shift;
+  my $reference = shift;
+
+  logger($self->{_debug}, "Entering Source_obj::getSourceList",1); 
+
+  my $operation = "resources/json/delphix/source/" . $reference;
+  my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+  my $ret;
+
+  if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+      $ret = $result->{result};
+
+
+  } else {
+      print "No data returned for $operation. Try to increase timeout \n";
+  }
+  
+  return $ret;
 }
 
 1;
