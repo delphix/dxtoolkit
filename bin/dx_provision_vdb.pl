@@ -69,7 +69,7 @@ GetOptions(
   'template=s' => \(my $template),
   'mapfile=s' =>\(my $map_file),
   'port=n' =>\(my $port),
-  'postrefresh=s' =>\(my $postrefresh),
+  'postrefresh=s@' =>\(my $postrefresh),
   'rac_instance=s@' => \(my $rac_instance),
   'additionalMount=s@' => \(my $additionalMount),
   'configureclone=s' => \(my $configureclone),
@@ -290,20 +290,23 @@ for my $engine ( sort (@{$engine_list}) ) {
       next; 
   }
   
-  my $hooks = new Hook_obj ( $engine_obj, undef, $debug);
-  
+  my $oneline;
+  my $op_templates;
+
   if ( defined($postrefresh) ) {
-    my $oneline = Toolkit_helpers::readHook('postrefresh', $postrefresh, $hooks);
-    if (defined($oneline)) {
-      $db->setPostRefreshHook($oneline);
-    } else {
+    
+    if ($db->setPostRefreshHook($postrefresh)) {
       $ret = $ret + 1;
       last;
     }    
   } 
   
+  print Dumper $db->{"NEWDB"}->{"source"}->{"operations"};
+  
+  exit;
+  
   if ( defined($configureclone) ) {
-    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone, $hooks);
+    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone, $op_templates);
     if (defined($oneline)) {
       $db->setconfigureCloneHook($oneline);
     } else {
@@ -311,9 +314,11 @@ for my $engine ( sort (@{$engine_list}) ) {
       last;
     }   
   } 
+  
+
 
   if ( defined($prerefresh) ) {
-    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh, $hooks);
+    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh, $op_templates);
     if (defined($oneline)) {
       $db->setPreRefreshHook($oneline);
     } else {
@@ -323,7 +328,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($prerewind) ) {
-    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind, $hooks);
+    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind, $op_templates);
     if (defined($oneline)) {
       $db->setPreRewindHook($oneline);
     } else {
@@ -333,7 +338,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
 
   if ( defined($postrewind) ) {
-    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind, $hooks);
+    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind, $op_templates);
     if (defined($oneline)) {
       $db->setPostRewindHook($oneline);
     } else {
@@ -343,7 +348,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($presnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot, $hooks);
+    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot, $op_templates);
     if (defined($oneline)) {
       $db->setPreSnapshotHook($oneline);
     } else {
@@ -353,7 +358,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($postsnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot, $hooks);
+    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot, $op_templates);
     if (defined($oneline)) {
       $db->setPostSnapshotHook($oneline);
     } else {
@@ -363,9 +368,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($prestart) ) {
-    my $oneline = Toolkit_helpers::readHook('prestart', $prestart, $hooks);
+    my $oneline = Toolkit_helpers::readHook('prestart', $prestart, $op_templates);
     if (defined($oneline)) {
-      $db->setPreSnapshotHook($oneline);
+      $db->setPreStartHook($oneline);
     } else {
       $ret = $ret + 1;
       last;
@@ -373,9 +378,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($poststart) ) {
-    my $oneline = Toolkit_helpers::readHook('poststart', $poststart, $hooks);
+    my $oneline = Toolkit_helpers::readHook('poststart', $poststart, $op_templates);
     if (defined($oneline)) {
-      $db->setPostSnapshotHook($oneline);
+      $db->setPostStartHook($oneline);
     } else {
       $ret = $ret + 1;
       last;
@@ -383,9 +388,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($prestop) ) {
-    my $oneline = Toolkit_helpers::readHook('prestop', $prestop, $hooks);
+    my $oneline = Toolkit_helpers::readHook('prestop', $prestop, $op_templates);
     if (defined($oneline)) {
-      $db->setPreSnapshotHook($oneline);
+      $db->setPreStopHook($oneline);
     } else {
       $ret = $ret + 1;
       last;
@@ -393,15 +398,16 @@ for my $engine ( sort (@{$engine_list}) ) {
   } 
   
   if ( defined($poststop) ) {
-    my $oneline = Toolkit_helpers::readHook('poststop', $poststop, $hooks);
+    my $oneline = Toolkit_helpers::readHook('poststop', $poststop, $op_templates);
     if (defined($oneline)) {
-      $db->setPostSnapshotHook($oneline);
+      $db->setPostStopHook($oneline);
     } else {
       $ret = $ret + 1;
       last;
     }   
   }   
   
+
   if (defined($hooks)) {
     my $FD;
     if (!open ($FD, '<', "$hooks")) {
@@ -424,7 +430,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     close $FD;
     
     if ($loadedHooks->{type} ne 'VirtualSourceOperations') {
-      print '$hooks is not a export file from dx_get_hooks\n' ;
+      print '$hooks is not a export file from dx_get_dbhooks\n' ;
       $ret = $ret + 1;
       last;
     }

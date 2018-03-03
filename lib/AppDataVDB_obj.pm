@@ -117,7 +117,7 @@ sub getdSourceBackup
       $suffix = '.exe';
     }
 
-    $self->{_hooks}->exportDBHooks($self, $backup);
+    $self->exportDBHooks($backup);
 
     my $dbtype = $self->getType();
     my $dbn = $self->getName();
@@ -179,7 +179,7 @@ sub getVDBBackup
     my $vendor = $self->{_dbtype};
     my $rephome = $self->getHome();
 
-    $self->{_hooks}->exportDBHooks($self, $backup);
+    $self->exportDBHooks($backup);
 
     my $restore_args;
   

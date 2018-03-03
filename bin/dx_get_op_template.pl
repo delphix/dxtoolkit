@@ -11,9 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016,2018 by Delphix. All rights reserved.
 #
-# Program Name : dx_get_hooks.pl
+# Program Name : dx_get_op_template.pl
 # Description  : Export hooks or hooks templates
 # Author       : Marcin Przepiorowski
 # Created      : 02 June 2016 (v2.1.0)
@@ -33,7 +33,7 @@ use lib '../lib';
 use Engine;
 use Formater;
 use Databases;
-use Hook_obj;
+use Op_template_obj;
 use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
@@ -42,14 +42,9 @@ GetOptions(
   'help|?' => \(my $help), 
   'd|engine=s' => \(my $dx_host), 
   'name|n=s' => \(my $name), 
-  'dbname=s'  => \(my $dbname),
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
-  'host=s' => \(my $host),
   'outdir=s' => \(my $outdir),
   'exportHook' => \(my $exportHook),
   'exportHookScript=s' => \(my $exportHookScript),
-  'exportDBHooks' => \(my $exportDBHooks),
   'debug:i' => \(my $debug), 
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -71,7 +66,7 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if ( (defined($exportHook) || defined($exportDBHooks) ) && ( ! defined($outdir) ) ) {
+if ( defined($exportHook)  && ( ! defined($outdir) ) ) {
   print "Option export require option outdir to be specified \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
@@ -83,8 +78,6 @@ if ( defined($exportHookScript) && (!defined($name))) {
   exit (1);  
 }
 
-
-Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, undef);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
@@ -110,73 +103,50 @@ for my $engine ( sort (@{$engine_list}) ) {
   # load objects for current engine
 
 
-  my $hooks;
+  my $op_templates;
   
-  if (defined($exportDBHooks)) {
-    $hooks = new Hook_obj (  $engine_obj, 1, $debug );
-  } else {
-    $hooks = new Hook_obj (  $engine_obj, undef, $debug );
-  }
 
-  if (defined($exportDBHooks)) {
-    my $databases = new Databases ( $engine_obj );
-    my $groups = new Group_obj($engine_obj, $debug);  
+  $op_templates = new Op_template_obj (  $engine_obj, undef, $debug );
 
-    # filter implementation 
 
-    my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, $debug);
-    if (! defined($db_list)) {
-      print "There is no DB selected to process on $engine . Please check filter definitions. \n";
+
+
+  my @hooks_list;
+
+  if (defined($name)) {
+    my $hook = $op_templates->getHookByName($name);
+    if (!defined($hook)) {
+      print "Can't find operation template - $name\n";
       $ret = $ret + 1;
-      next;
     }
-
-    for my $dbitem (@{$db_list}) {
-      my $dbobj = $databases->getDB($dbitem);
-      #print Dumper $dbobj->getName();
-      #print Dumper $outdir;
-      $hooks->exportDBHooks($dbobj, $outdir);
-    }
-
-
+    push (@hooks_list, $hook);
   } else {
-
-    my @hooks_list;
-
-    if (defined($name)) {
-      my $hook = $hooks->getHookByName($name);
-      if (!defined($hook)) {
-        print "Can't find operation template - $name\n";
-        $ret = $ret + 1;
-      }
-      push (@hooks_list, $hook);
-    } else {
-      @hooks_list = $hooks->getHookList();
-    }
-
-    # for filtered databases on current engine - display status
-    for my $hookitem (@hooks_list) {
-
-      if (defined($exportHook)) {
-        $hooks->exportHookTemplate($hookitem,$outdir);
-      } elsif (defined($exportHookScript)) {
-        $hooks->exportHookScript($hookitem,$exportHookScript);
-      } else {
-        
-        $output->addLine(
-          $hooks->getName($hookitem),
-          $hooks->getType($hookitem),
-          $hooks->getCommand($hookitem)
-        );
-      }
-    }
-
+    @hooks_list = $op_templates->getHookList();
   }
+
+  # for filtered databases on current engine - display status
+  for my $hookitem (@hooks_list) {
+
+    if (defined($exportHook)) {
+      $op_templates->exportHookTemplate($hookitem,$outdir);
+    } elsif (defined($exportHookScript)) {
+      $op_templates->exportHookScript($hookitem,$exportHookScript);
+    } else {
+      
+      $output->addLine(
+        $op_templates->getName($hookitem),
+        $op_templates->getType($hookitem),
+        $op_templates->getCommand($hookitem)
+      );
+    }
+  }
+
+
 
 
 }
 
-if (! (defined($exportDBHooks) || defined($exportHook) || defined($exportHookScript) ) ) {
+if (! ( defined($exportHook) || defined($exportHookScript) ) ) {
   Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
@@ -187,16 +157,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_hooks    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                 [ -name hook_name ] 
-                 [ -dbname dbname | -group group | -host host | -type type ]
-                 [ -outdir dir]
-                 [ -exportHook ]
-                 [ -exportHookScript filename]
-                 [ -exportDBHooks ]
-                 [ -format csv|json ]  
-                 [ -help|? ] 
-                 [ -debug ] 
+ dx_get_op_template    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                       [ -name hook_name ] 
+                       [ -outdir dir]
+                       [ -exportHook ]
+                       [ -exportHookScript filename]
+                       [ -format csv|json ]  
+                       [ -help|? ] 
+                       [ -debug ] 
 
 =head1 DESCRIPTION
 
@@ -252,8 +220,6 @@ Type (dsource|vdb)
 =item B<-exportHook>                                                                                                                                            
 Export operation template into JSON file in outdir directory
 
-=item B<-exportDBHooks>                                                                                                                                            
-Export database (specified by database filters) hooks into a outdir directory
 
 =item B<-exportHookScript filename>                                                                                                                                            
 Export operation template script into a specified filename
@@ -277,22 +243,14 @@ Turn on debugging
 
 Export all operation templates from Delphix Engine
 
- dx_get_hooks -d Landshark5 -exportHook -outdir /tmp/a/
+ dx_get_op_template -d Landshark5 -exportHook -outdir /tmp/a/
  Exporting operation template los into /tmp/a/after_refresh.opertemp
  Exporting operation template test1 into /tmp/a/test1.opertemp
 
-Export database hooks from all databases from group Analytics
-
- dx_get_hooks -d Landshark5 -exportDBHooks -outdir /tmp/a -group Analytics
- Exporting database demo hooks into  /tmp/a/demo.dbhooks
- Exporting database test1 hooks into  /tmp/a/test1.dbhooks
- Exporting database testdx hooks into  /tmp/a/testdx.dbhooks
- Exporting database testjs hooks into  /tmp/a/testjs.dbhooks
- Exporting database tftest hooks into  /tmp/a/tftest.dbhooks
 
 Export operation template script 
 
- dx_get_hooks -d Landshark5 -name test1 -exportHookScript /tmp/test1.sh
+ dx_get_op_template -d Landshark5 -name test1 -exportHookScript /tmp/test1.sh
  Exporting template into file /tmp/test1.sh
 
 

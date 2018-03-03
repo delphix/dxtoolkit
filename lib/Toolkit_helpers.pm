@@ -727,38 +727,7 @@ sub extractErrorFromHash {
 }
 
 sub readHook {
-	my $hookname = shift;
-	my $filename = shift;
-  my $hooks = shift;
-	my $FD;
-
-  my $hookref = $hooks->getHookByName($filename);
-  
-  # hook name match operation template and file name 
-  # return errors
-  
-  if (defined($hookref) && (-e $filename)) {
-    print "Hook filename match also operation template name\n";
-    print "Please rename a file or operation template to have unique match\n";
-    return undef;
-  }  
-  
-  my $oneline;
-  
-  if (defined($hookref)) {
-    $oneline = $hooks->getHook($hookref)->{operation}->{command};
-  } else {
-    if (! open ($FD, $filename)) {
-      print "Can't open a file with $hookname script: $filename\n";
-      return undef;
-    } 
-    my @script = <$FD>;
-    close($FD);  
-    $oneline = join('', @script);
-  }
-  
-
-	return $oneline;
+  print "Dupa";
 }
 
 
