@@ -160,8 +160,6 @@ sub getConfig
       my $listnames = $self->getListenersNames();
       my $redogroups = $self->getRedoGroupNumber();
 
-        
-
       
       my $cdbref = $self->getCDBContainerRef();
       
@@ -589,10 +587,19 @@ sub getListenersNames
         $envref = $self->{environment}->{reference};
     } 
     
+    my $listloc;
+    
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+      $listloc = 'nodeListenerList';
+    } else {
+      $listloc = 'nodeListeners'; 
+    }
+    
+    
     if (defined($self->{_environment})) {
-      if (defined($self->{source}->{nodeListenerList})) {
+      if (defined($self->{source}->{$listloc})) {
         my @listarr;
-        for my $listref (@{$self->{source}->{nodeListenerList}}) {
+        for my $listref (@{$self->{source}->{$listloc}}) {
           push(@listarr, $self->{_environment}->getListenerName($envref, $listref));
         }
         $ret = join(',', @listarr);
