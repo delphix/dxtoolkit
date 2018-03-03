@@ -48,7 +48,7 @@ use SourceConfig_obj;
 use Environment_obj;
 use Repository_obj;
 use Toolkit_helpers qw (logger);
-use Hook_obj;
+use Op_template_obj;
 
 # constructor
 # parameters 
@@ -487,7 +487,7 @@ sub getEnvironmentName
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getEnvironmentName",1);
 
-    my $ret;
+    my $ret = 'NA';
 
     if (defined($self->{environment})) {
         $ret = $self->{environment}->{name};
@@ -606,8 +606,8 @@ sub getBackup
     my $groups = shift;
     logger($self->{_debug}, "Entering VDB_obj::getBackup",1);
     
-    my $hooks = new Hook_obj (  $self->{_dlpxObject}, 1, $self->{_debug} );
-    $self->{_hooks} = $hooks;
+    #my $hooks = new Hook_obj (  $self->{_dlpxObject}, 1, $self->{_debug} );
+    #$self->{_hooks} = $hooks;
     
     if ($self->getType() eq 'VDB') {
       $self->getVDBBackup($engine, $output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
@@ -626,6 +626,7 @@ sub getBackup
 # -parentgroup
 # -templates - handler to template object
 # Return a definition of backup metadata
+
 
 sub getVDBBackup 
 {
@@ -651,7 +652,7 @@ sub getVDBBackup
     my $vendor = $self->{_dbtype};
     my $rephome = $self->getHome();
 
-    $self->{_hooks}->exportDBHooks($self, $backup);
+    $self->exportDBHooks($backup);
 
     my $restore_args;
   
@@ -701,7 +702,7 @@ sub getdSourceBackup
       $suffix = '.exe';
     }
     
-    $self->{_hooks}->exportDBHooks($self, $backup);
+    $self->exportDBHooks($backup);
 
     my $dbtype = $self->getType();
     my $dbn = $self->getName();
@@ -716,7 +717,7 @@ sub getdSourceBackup
     }
     
     my $osuser = $self->getOSUser();
-            
+                
     my $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
     $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" ";
     $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
@@ -1751,6 +1752,97 @@ sub getBCT
     return 'N/A';
 }
 
+# Procedure getHook
+# parameters: 
+# - hooktype - type of hook
+# Return Hook body array
+
+sub getHook {
+    my $self = shift; 
+    my $hooktype = shift;
+    my $save = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getHook",1);
+
+    my $hook_hash = $self->{"source"}->{"operations"};
+
+    my @retarray;
+
+    if (defined($hook_hash->{$hooktype})) {
+      
+      my $count = 0;
+      
+      for my $i (@{$hook_hash->{$hooktype}}) {
+        my %ret_hash;
+        $ret_hash{hooktype} = $hooktype;
+        $ret_hash{hookOSType} = $self->getHookOSType($i->{type});
+        if (defined($save)) {
+          $ret_hash{command} = $i->{command};
+        } else {
+          $ret_hash{command} = $self->getCommand($i->{command}, $i->{type});
+        }
+        $ret_hash{name} = $i->{name};
+        $ret_hash{number} = $count;
+        if (!defined($i->{name})) {
+          $ret_hash{name}  = $count;
+        }
+        $count++;
+        push(@retarray, \%ret_hash);
+      }
+      
+
+    }
+    
+    return \@retarray;
+
+} 
+
+
+# Procedure getHookOSType
+# parameters: 
+# - val
+# Return human hook type for specific hook internal type
+
+sub getHookOSType {
+    my $self = shift;
+    my $val = shift;
+    
+    my $ret;
+
+    if ($val eq 'RunBashOnSourceOperation') {
+        $ret = 'BASH';
+    } elsif ($val eq 'RunPowerShellOnSourceOperation') {
+        $ret = 'PS';
+    } elsif ($val eq 'RunExpectOnSourceOperation') {
+        $ret = 'EXPECT';
+    } elsif ($val eq 'RunCommandOnSourceOperation') {
+        $ret = 'SHELL';
+    } else {
+        $ret = $val;
+    }
+
+    return $ret;
+}
+
+# Procedure getCommand
+# parameters: 
+# - val
+# - type
+# Return hook command for specific hook with <cr>
+
+sub getCommand {
+    my $self = shift;
+    my $ret = shift;
+    my $type = shift;
+    
+
+    if ($type eq 'RunPowerShellOnSourceOperation') {
+      $ret =~ s/\r\n/<cr>/g;
+    } else {
+      $ret =~ s/\n/<cr>/g;
+    }
+    return $ret;
+}
+
 
 # Procedure setHooksfromJSON
 # parameters: 
@@ -1765,6 +1857,175 @@ sub setHooksfromJSON {
     $self->{"NEWDB"}->{"source"}->{"operations"} = $hook;
 } 
 
+# Procedure deleteHook
+# parameters: 
+# - hooktype - type of hook
+# - hookname 
+# delete from existing hooks list
+
+sub deleteHook {
+    my $self = shift; 
+    my $hooktype = shift;
+    my $hookname = shift;
+    logger($self->{_debug}, "Entering VDB_obj::deleteHook",1);
+
+    $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
+
+    my @hook_array = @{$self->{"source"}->{"operations"}->{$hooktype}};
+    
+    if (scalar(@hook_array) eq 0) {
+      #hook not found
+      return 2;
+    }
+    
+    my %hook_update_hash = (
+      "type" => $self->{"source"}->{type},
+      "operations" => {
+        "type" => $self->{"source"}->{operations}->{type}
+      }
+    );
+
+    if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
+      # there is no name for hook so hook will be a number
+      
+      if ($hookname > scalar(@hook_array)) {
+        # hook not found 
+        return 2;
+      }
+          
+      splice @hook_array, $hookname, 1;
+      
+      
+    } else {
+      if (grep { $_->{name} eq $hookname } @hook_array) {
+        @hook_array = grep { $_->{name} ne $hookname } @hook_array;
+      } else {
+        #hook not found
+        return 2;
+      }
+
+    }
+
+    $hook_update_hash{"operations"}{$hooktype} = \@hook_array;
+
+    my $json_data = to_json(\%hook_update_hash);
+
+    my $operation = 'resources/json/delphix/source/' . $self->{"source"}->{"reference"};
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        
+        $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Hook deleted", "There were problems with hook deletion.");
+        
+    } else {
+        print "There were problem with hook deletion action.\n";
+        if (defined($result->{error})) {
+            print $result->{error}->{action} . "\n";
+        }
+        $ret = 1;
+    }
+
+    #refresh source
+
+    $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
+
+    return $ret;
+  
+}
+
+# Procedure updateHook
+# parameters: 
+# - hooktype - type of hook
+# - hookname 
+# - hook 
+# - hook - shell command (line sepatated by /r)
+# update existing hooks list
+
+sub readHook {
+    my $self = shift; 
+  	my $hooktype = shift;
+  	my $hooklist = shift;
+    my $op_templates = shift;
+  	my $FD;
+    
+    my $ret = 0;
+    
+    for my $hookitem (@{$hooklist}) {
+      my @linesplit = split(',',$hookitem);
+      my $hookname;
+      my $hookfilename;
+      my $hookOStype;
+
+      my $hookbody;
+      
+      
+      if (scalar(@linesplit) > 1) {      
+        if (defined($linesplit[0])) {
+          $hookname = $linesplit[0];
+        }
+        if (defined($linesplit[1])) {
+          $hookfilename = $linesplit[1];
+        }
+        if (defined($linesplit[2])) {
+          $hookOStype = $linesplit[2];
+        } else {
+          $hookOStype = "bash"; #default
+        }
+      } else {
+        my @tf = File::Basename::fileparse($hookitem, ('.BASH','.SHELL','.EXPECT','.PS'));
+        $hookname = $tf[0];
+        $hookOStype = "bash";
+        $hookfilename = $hookitem;
+      }
+      
+      # if (scalar(@linesplit) > 2) {
+      #   #hook in file with type
+      #   $hookOStype = $linesplit[0];
+      #   $hookname = $linesplit[1];
+      #   if (! open ($FD, $linesplit[2])) {
+      #     print "Can't open a file with $hookname script: $linesplit[2]\n";
+      #     return undef;
+      #   } 
+      #   my @script = <$FD>;
+      #   close($FD);  
+      #   $hookbody = join('', @script);
+      # } else {
+        #hook in file or op template
+        my $hookref = $op_templates->getHookByName($hookfilename);
+
+        if (defined($hookref) && (-e $hookfilename)) {
+          print "Hook filename match also operation template name\n";
+          print "Please rename a file or operation template to have unique match\n";
+          return undef;
+        }          
+        
+        if (defined($hookref)) {
+          $hookbody = $op_templates->getHook($hookref)->{operation}->{command};
+          $hookOStype = $op_templates->getType($hookref);
+        } else {
+        
+          if (! open ($FD, $hookfilename)) {
+            print "Can't open a file with $hookname script: $hookitem\n";
+            return undef;
+          } 
+          my @script = <$FD>;
+          close($FD);  
+          $hookbody = join('', @script);
+          
+        }
+      #}
+      
+      $ret = $ret + $self->setHook($hooktype, $hookOStype, $hookname, $hookbody);
+    }
+
+    return $ret;
+
+}
+
+
 # Procedure setHook
 # parameters: 
 # - hooktype - type of hook
@@ -1774,10 +2035,13 @@ sub setHooksfromJSON {
 sub setHook {
     my $self = shift; 
     my $hooktype = shift;
+    my $ostype = shift;
+    my $hookname = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setHook",1);
 
     my %hook_hash;
+    my $ret;
 
     if ($self->{_dlpxObject}->getApi() lt "1.5") {
         %hook_hash = (
@@ -1785,13 +2049,115 @@ sub setHook {
             "command" => $hook
         );
     } else {
+        my $hookOStype;
+                           
+        if (lc $ostype eq 'bash') {
+          $hookOStype = 'RunBashOnSourceOperation';
+        } elsif (lc $ostype eq 'shell') {
+          $hookOStype = 'RunCommandOnSourceOperation';
+        } elsif (lc $ostype eq 'expect') {
+          $hookOStype = 'RunExpectOnSourceOperation';
+        } elsif (lc $ostype eq 'ps') {
+          $hookOStype = 'RunPowerShellOnSourceOperation';
+        } else {
+          $hookOStype = 'RunBashOnSourceOperation';
+        }
+      
         %hook_hash = (
-            "type" => "RunCommandOnSourceOperation", # this is API > 1.4
+            "type" => $hookOStype, # this is API > 1.4
             "command" => $hook
         );
     }
-    my @hook_array = ( \%hook_hash );
-    $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype} = \@hook_array;
+    
+    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+      $hook_hash{"name"} = $hookname;
+    }
+    
+    my @hook_array;
+    
+
+    
+    
+    if (defined($self->{"source"}->{"reference"})) {
+      my %hook_update_hash = (
+        "type" => $self->{"source"}->{type},
+        "operations" => {
+          "type" => $self->{"source"}->{operations}->{type}
+        }
+      );
+      
+      #refresh source to make sure we have a latest state
+      
+      $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
+      
+      if (defined($self->{"source"}->{"operations"}->{$hooktype})) {
+        @hook_array = @{$self->{"source"}->{"operations"}->{$hooktype}};
+        # todo
+        # add replace hook with same name or number
+        
+        if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
+          # there is no name for hook so hook will be a number
+          
+          if ($hookname =~ /\D/) {
+            $hookname = 1000;
+          }
+              
+          if (scalar(@hook_array)<$hookname) {
+            $hookname = scalar(@hook_array);
+          }    
+              
+          $hook_array[$hookname] = \%hook_hash;
+          
+        } else {
+          if (grep { $_->{name} eq $hookname } @hook_array) {
+            @hook_array = grep { $_->{name} ne $hookname } @hook_array;
+          }
+          push(@hook_array, \%hook_hash);
+        
+        }
+        
+        
+        
+      } else {
+        @hook_array = ( \%hook_hash ); 
+      }
+      
+      $hook_update_hash{"operations"}{$hooktype} = \@hook_array;
+      
+      my $json_data = to_json(\%hook_update_hash);
+
+      my $operation = 'resources/json/delphix/source/' . $self->{"source"}->{"reference"};
+
+      my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+      if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+          
+          $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Hook added", "There were problems with adding hook.");
+          
+      } else {
+          print "There were problem with adding hook action.\n";
+          if (defined($result->{error})) {
+              print $result->{error}->{action} . "\n";
+          }
+          $ret = 1;
+      }
+      
+      #refresh source
+      
+      $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
+
+    } else {
+      if (defined($self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype})) {
+        @hook_array = @{$self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}};
+        push(@hook_array, \%hook_hash);
+      } else {
+        @hook_array = ( \%hook_hash ); 
+      }
+      $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype} = \@hook_array;
+    }
+
+    return $ret;
+
 } 
 
 
@@ -1800,12 +2166,36 @@ sub setHook {
 # - hook - shell command (line sepatated by /r)
 # Set Post Refresh Hook
 
+sub setAnyHook {
+    my $self = shift; 
+    my $type = shift;
+    my $hooks = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::setAnyHook",1);
+    
+    my $op_templates;
+    
+    if (defined($self->{_op_templates})) {
+      $op_templates  = $self->{_op_templates};
+    } else {
+      $op_templates = new Op_template_obj ( $self->{_dlpxObject}, undef, $self->{_debug});
+    }
+  
+    my $ret = $self->readHook($type, $hooks, $op_templates);
+    return $ret;
+}  
+
+# Procedure setPostRefreshHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Pre Refresh Hook
+
 sub setPostRefreshHook {
     my $self = shift; 
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostRefreshHook",1);
 
-    $self->setHook('postRefresh', $hook);
+    $self->setAnyHook('postRefresh', $hook);
 }  
 
 # Procedure setPreRefreshHook
@@ -1818,7 +2208,7 @@ sub setPreRefreshHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreRefreshHook",1);
 
-    $self->setHook('preRefresh', $hook);
+    $self->setAnyHook('preRefresh', $hook);
 }  
 
 # Procedure setconfigureCloneHook
@@ -1831,7 +2221,7 @@ sub setconfigureCloneHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setconfigureClonehHook",1);
 
-    $self->setHook('configureClone', $hook);
+    $self->setAnyHook('configureClone', $hook);
 }  
 
 # Procedure setpreRollbackHook
@@ -1844,7 +2234,7 @@ sub setPreRewindHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setpreRollbackHook",1);
 
-    $self->setHook('preRollback', $hook);
+    $self->setAnyHook('preRollback', $hook);
 } 
 
 # Procedure setpostRollbackHook
@@ -1857,7 +2247,7 @@ sub setPostRewindHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setpostRollbackHook",1);
 
-    $self->setHook('postRollback', $hook);
+    $self->setAnyHook('postRollback', $hook);
 } 
 
 # Procedure setPreSnapshotHook
@@ -1870,7 +2260,7 @@ sub setPreSnapshotHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreSnapshotHook",1);
 
-    $self->setHook('preSnapshot', $hook);
+    $self->setAnyHook('preSnapshot', $hook);
 }
 
 # Procedure setPostSnapshotHook
@@ -1883,8 +2273,165 @@ sub setPostSnapshotHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostSnapshotHook",1);
 
-    $self->setHook('postSnapshot', $hook);
+    $self->setAnyHook('postSnapshot', $hook);
 }
+
+# Procedure setPreStartHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Pre Start Hook
+
+sub setPreStartHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreStartHook",1);
+
+    $self->setAnyHook('preStart', $hook);
+}
+
+# Procedure setPostStartHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Post Start Hook
+
+sub setPostStartHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPostStartHook",1);
+
+    $self->setAnyHook('postStart', $hook);
+}
+
+# Procedure setPreStopHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Pre stop Hook
+
+sub setPreStopHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreStopHook",1);
+
+    $self->setAnyHook('preStop', $hook);
+}
+
+# Procedure setPostStopHook
+# parameters: 
+# - hook - shell command (line sepatated by /r)
+# Set Post Stop Hook
+
+sub setPostStopHook {
+    my $self = shift; 
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPostStopHook",1);
+
+    $self->setAnyHook('postStart', $hook);
+}
+
+# Procedure exportDBHooks
+# parameters: 
+# - location - directory
+# Return 0 if no errors
+
+sub exportDBHooks {
+    my $self = shift;
+    my $location = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::exportDBHooks",1);   
+
+    my $hooks = $self->{source}->{operations};
+    
+    if (defined($hooks)) {
+      my $dbname = $self->getName();
+      my $filename =  $location . "/" . $dbname . ".dbhooks";
+      print "Exporting database $dbname hooks into  $filename \n";
+      $self->exportJSONHook($hooks, $filename);
+    }
+
+    return 0;
+}
+
+
+sub exportJSONHook {
+    my $self = shift;
+    my $hook = shift;
+    my $location = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::exportJSONHook",1);   
+
+    open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
+
+    print $FD to_json($hook, {pretty => 1});
+
+    close $FD;
+
+}
+
+sub exportHook {
+    my $self = shift;
+    my $body = shift;
+    my $location = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::exportHook",1);   
+
+    open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
+    print $FD $body;
+    close $FD;
+
+}
+
+
+# Procedure importDBHooks
+# parameters: 
+# - database object
+# - filename - filename
+# Return 0 if no errors
+
+sub importDBHooks {
+    my $self = shift;
+    my $dbobj = shift;
+    my $filename = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::importDBHooks",1);   
+
+    my $hooks = $dbobj->{source}->{operations};
+    my $source = $dbobj->{source}->{reference};
+    my $type = $dbobj->{source}->{type};
+    my $dbname = $dbobj->getName();
+
+    my $loadedHook;
+
+    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
+
+    local $/ = undef;
+    my $json = JSON->new();
+    $loadedHook = $json->decode(<$FD>);
+    
+    close $FD;
+    
+    print "Importing hooks from $filename into database $dbname \n";
+
+    my $operation = 'resources/json/delphix/source/' . $source;
+
+    my %hooks_hash = (
+        type => $type,
+        operations => $loadedHook
+    );
+
+    my $json_data = to_json(\%hooks_hash);
+
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+
+    if ($result->{status} eq 'OK') {
+        print "Import completed\n";
+        return 0;
+    } else {
+        return 1;
+    }
+
+    return 0;
+}
+
 
 #######################
 # end of VDB_obj class
@@ -1994,6 +2541,8 @@ sub createVDB {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
+    
+    print Dumper $self->{"NEWDB"}->{"source"};
 
     delete $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"};
 

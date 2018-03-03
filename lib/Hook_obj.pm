@@ -11,14 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2015,2016 by Delphix. All rights reserved.
+# Copyright (c) 2015,2018 by Delphix. All rights reserved.
 #
 # Program Name : Hook_obj.pm
-# Description  : Delphix Engine Capacity object
-# It's include the following classes:
-# - Hook_obj - class which map a Delphix Engine operation API object
+# Description  : Delphix Engine Hooks
 # Author       : Marcin Przepiorowski
-# Created      : 13 Apr 2015 (v2.0.0)
+# Created      : 16 Feb 2018 (v2.3.X)
 #
 
 
@@ -44,7 +42,6 @@ sub new {
 
     my %hooks_templates;
     my $self = {
-        _hooks_templates => \%hooks_templates,
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
@@ -58,72 +55,6 @@ sub new {
 }
 
 
-# Procedure getHookByName
-# parameters: 
-# - name 
-# Return template reference for particular name
-
-sub getHookByName {
-    my $self = shift;
-    my $name = shift;
-    logger($self->{_debug}, "Entering Hook_obj::getHookByName",1);    
-    my $ret;
-
-
-
-    for my $hookitem ( sort ( keys %{$self->{_hooks_templates}} ) ) {
-
-        if ( $self->getName($hookitem) eq $name) {
-            $ret = $hookitem; 
-        }
-    }
-
-    return $ret;
-}
-
-# Procedure getHook
-# parameters: 
-# - reference
-# Return hook template hash for specific hook template reference
-
-sub getHook {
-    my $self = shift;
-    my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Hook_obj::getHook",1);    
-
-    my $hooks = $self->{_hooks_templates};
-    return defined ($hooks->{$reference}) ? $hooks->{$reference} : undef;
-}
-
-
-# Procedure getHookList
-# parameters: 
-# Return hook template list
-
-sub getHookList {
-    my $self = shift;
-    my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Hook_obj::getHookList",1);    
-    return keys %{$self->{_hooks_templates}};
-}
-
-
-# Procedure getName
-# parameters: 
-# - reference
-# Return hook template name for specific hook template reference
-
-sub getName {
-    my $self = shift;
-    my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Hook_obj::getName",1);   
-
-    my $hooks = $self->{_hooks_templates};
-    return $hooks->{$reference}->{name};
-}
 
 
 # Procedure getType
@@ -178,43 +109,6 @@ sub getCommand {
     return $ret;
 }
 
-
-# Procedure exportHookTemplate
-# parameters: 
-# - reference
-# - location - directory
-# Return 0 if no errors
-
-sub exportHookTemplate {
-    my $self = shift;
-    my $reference = shift;
-    my $location = shift;
-
-    logger($self->{_debug}, "Entering Hook_obj::exportHookTemplate",1);   
-
-    my $hooks = $self->{_hooks_templates};
-
-
-    if (!defined($hooks->{$reference})) {
-        print "Can't find hook to export \n";
-        return 1;
-    }
-
-    my $hookname = $self->getName($reference);
-
-    if (!defined($hookname)) {
-        print "Can't export operation template $hookname \n";
-        return 1;
-    }
-
-    my $filename =  $location . "/" . $hookname . ".opertemp";
-
-    print "Exporting operation template $hookname into $filename \n";
-
-    $self->exportHook($hooks->{$reference}, $filename);
-
-    return 0;
-}
 
 
 # Procedure exportDBHooks
@@ -271,7 +165,7 @@ sub importDBHooks {
     $loadedHook = $json->decode(<$FD>);
     
     close $FD;
-
+    
     print "Importing hooks from $filename into database $dbname \n";
 
     my $operation = 'resources/json/delphix/source/' . $source;
@@ -355,196 +249,5 @@ sub exportHookScript {
     return 0;
 }
 
-
-
-
-
-# Procedure importHookTemplate
-# parameters: 
-# - location - file name
-# Return 0 if no errors
-
-sub importHookTemplate {
-    my $self = shift;
-    my $location = shift;
-
-    logger($self->{_debug}, "Entering Hook_obj::importHookTemplate",1);   
-
-    my $filename =  $location;
-
-    my $loadedHook;
-
-    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-
-    local $/ = undef;
-    my $json = JSON->new();
-    $loadedHook = $json->decode(<$FD>);
-    
-    close $FD;
-
-
-
-    delete $loadedHook->{reference};
-    delete $loadedHook->{namespace};
-    delete $loadedHook->{lastUpdated};
-
-    $self->loadHooksList();
-
-    if (defined($self->getHookByName($loadedHook->{name}))) {
-        print "Operation template " . $loadedHook->{name} . " from file $filename already exist.\n";
-        return 0;
-    }
-
-    print "Importing operation template from file $filename.";
-
-    my $json_data = to_json($loadedHook);
-
-    my $operation = 'resources/json/delphix/source/operationTemplate';
-
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
-
-    if ($result->{status} eq 'OK') {
-        print " Import completed\n";
-        return 0;
-    } else {
-        return 1;
-    }
-
-}
-
-
-# Procedure updateHook
-# parameters: 
-# - location - file name
-# Return 0 if no errors
-
-sub updateHookTemplate {
-    my $self = shift;
-    my $location = shift;
-
-    logger($self->{_debug}, "Entering Hook_obj::updateHookTemplate",1);   
-
-    my $filename =  $location;
-
-    my $loadedHook;
-
-    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-
-    local $/ = undef;
-    my $json = JSON->new();
-    $loadedHook = $json->decode(<$FD>);
-    
-    close $FD;
-
-    delete $loadedHook->{reference};
-    delete $loadedHook->{namespace};
-    delete $loadedHook->{lastUpdated};
-
-    $self->loadHooksList();
-
-    if (! defined($self->getHookByName($loadedHook->{name}))) {
-        print "Operation template " . $loadedHook->{name} . " doesn't exist. Can't update\n";
-        return 1;
-    }
-
-    my $reference = $self->getHookByName($loadedHook->{name});
-
-    print "Updating operation template " . $loadedHook->{name} . " from file $filename.";
-
-    my $json_data = to_json($loadedHook);
-
-    my $operation = 'resources/json/delphix/source/operationTemplate/' . $reference;
-
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
-
-    if ($result->{status} eq 'OK') {
-        print " Update completed\n";
-        return 0;
-    } else {
-        return 1;
-    }
-
-}
-
-
-# Procedure updateHookScript
-# parameters: 
-# - hook ref
-# - location - file name
-# Return 0 if no errors
-
-sub updateHookScript {
-    my $self = shift;
-    my $reference = shift;
-    my $location = shift;
-
-    logger($self->{_debug}, "Entering Hook_obj::updateHookScript",1);   
-
-    my $filename =  $location;
-
-
-    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-    my @script = <$FD>;
-    close($FD);  
-    my $oneline = join('', @script);
-
-    $self->loadHooksList();
-
-    my $loadedHook = $self->getHook($reference);
-
-    if (!defined($loadedHook)) {
-        print "Can't find hook to update \n";
-        return 1;
-    }
-
-    delete $loadedHook->{reference};
-    delete $loadedHook->{namespace};
-    delete $loadedHook->{lastUpdated};
-
-    $loadedHook->{operation}->{command} = $oneline;
-
-    print "Updating operation template " . $loadedHook->{name} . " command from file $filename.";
-
-    my $json_data = to_json($loadedHook);
-
-    my $operation = 'resources/json/delphix/source/operationTemplate/' . $reference;
-
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
-
-    if ($result->{status} eq 'OK') {
-        print " Update completed\n";
-        return 0;
-    } else {
-        return 1;
-    }
-
-}
-
-# Procedure loadHooksList
-# parameters: none
-# Load a list of hooks objects from Delphix Engine
-
-sub loadHooksList 
-{
-    my $self = shift;
-    logger($self->{_debug}, "Entering Hook_obj::loadHooksList",1);   
-
-    my $operation = "resources/json/delphix/source/operationTemplate";
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-
-
-    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-        my @res = @{$result->{result}};
-
-        my $hooks = $self->{_hooks_templates};
-
-        for my $hookitem (@res) {
-            $hooks->{$hookitem->{reference}} = $hookitem;
-        } 
-    } else {
-        print "No data returned for $operation. Try to increase timeout \n";
-    }
-
-}
 
 1;
