@@ -1540,6 +1540,28 @@ sub setTimestamp {
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timestamp"} = $snapshot_time;
 
         logger($self->{_debug}, "timeflow - " . $snapshot_timeflow . " -  timestamp - " . $snapshot_time ,2);
+    } 
+    elsif ( $timestamp eq 'LATEST_PROVISIONABLE_SNAPSHOT' )  {
+        delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
+        delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"};
+        my $tz = new Date::Manip::TZ;
+
+        my $snapref = $snapshot->getLastProvisionableSnapshot();
+        
+        if (!defined($snapref)) {
+          print "There is no provisionable snapshot found.\n";
+          return 1;
+        }
+        
+        my $snapshot_time = $snapshot->getStartPoint($snapref);
+        my $snapshot_timeflow = $snapshot->getSnapshotTimeflow($snapref);
+
+
+        $self->{"NEWDB"}->{"timeflowPointParameters"}->{"type"} = "TimeflowPointTimestamp";
+        $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timeflow"} = $snapshot_timeflow;
+        $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timestamp"} = $snapshot_time;
+
+        logger($self->{_debug}, "timeflow - " . $snapshot_timeflow . " -  timestamp - " . $snapshot_time ,2);
     }
     else {
         my $bookmarks = new Bookmark_obj ($self->{_dlpxObject}, undef, $self->{_debug});

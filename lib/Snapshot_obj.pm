@@ -583,6 +583,30 @@ sub getLatestTime {
 }
 
 
+# Procedure getLastProvisionableSnapshot
+# parameters: 
+# Return ref of last provisionable snapshot
+
+sub getLastProvisionableSnapshot {
+    my $self = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getLastProvisionableSnapshot",1);  
+        
+    my $ret;
+    
+    my @reversed_snapshots = reverse @{$self->{_snapshot_list}};
+    
+    for my $s ( @reversed_snapshots ) {
+      if ($self->isProvisionable($s)) {
+        print "First provisionable snapshot found - " . $self->getSnapshotName($s) . "\n";
+        $ret = $s;
+        last;
+      }
+    }
+    
+    return $ret;
+}
+
+
 # Procedure getEndPointwithzone
 # parameters: 
 # - reference
