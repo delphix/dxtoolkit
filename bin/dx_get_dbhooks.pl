@@ -197,8 +197,9 @@ for my $engine ( sort (@{$engine_list}) ) {
               }
             }
           }
-          if (!$hookfound) {
+          if (!$hookfound && (!defined($save))) {
             print "Hook $hookitem with name $hookname not found in database $dbname\n";
+            $ret = $ret + 1;
           }
         }
       }
