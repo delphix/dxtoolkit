@@ -1,3 +1,15 @@
+## 2.3.5-rc2
+
+### Added
+- support for operation template in provision script
+- dx_get_dbhooks add dx_ctl_dbhooks
+- use LATEST_PROVISIONABLE_SNAPSHOT added for timestamp definition
+
+### Changed
+- old dx_ctl_hooks renamed into dx_ctl_op_template
+- old dx_get_hooks renamed into dx_get_op_template
+- Database level hooks operations moved from dx_xxx_hooks into dx_xxx_dbhooks
+
 ## 2.3.5-rc1
 
 ### Changed
