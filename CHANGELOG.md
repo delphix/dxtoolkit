@@ -1,3 +1,8 @@
+## 2.3.5
+
+### Changed
+- bugs fixes
+
 ## 2.3.5-rc2
 
 ### Added
