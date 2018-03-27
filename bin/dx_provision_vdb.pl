@@ -301,9 +301,6 @@ for my $engine ( sort (@{$engine_list}) ) {
     }    
   } 
   
-  print Dumper $db->{"NEWDB"}->{"source"}->{"operations"};
-  
-  exit;
   
   if ( defined($configureclone) ) {
     my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone, $op_templates);
