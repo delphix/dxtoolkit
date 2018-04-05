@@ -1,3 +1,10 @@
+## 2.3.5.1
+
+### Changed
+- dx_provision_vdb hook fix
+- dx_get_hierarchy and dx_get_db_env fix for detached dSources 
+
+
 ## 2.3.5
 
 ### Changed

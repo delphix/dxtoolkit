@@ -308,10 +308,17 @@ sub getSnapshotTime {
     my $self = shift;
     my $reference = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTime",1); 
-    my $ts = $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
+    my $ts;
+    
+    if (defined($self->{_snapshots}->{$reference})) {
+      $ts = $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
+    } else {
+      # non existing snapshot - JS case 
+      return 'N/A';
+    }
     
     # if $ts is null - I need to reconsider which one to use - latest change of snapshot process seems OK  
-
+    
     chomp($ts); 
     $ts =~ s/T/ /;
     $ts =~ s/\....Z//;
@@ -400,6 +407,11 @@ sub getSnapshotTimewithzone {
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimewithzone",1); 
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getSnapshotTime($reference) ;
+    
+    if ($zulutime eq 'N/A') {
+      return ('N/A','N/A');
+    }
+    
     my $timezone = $self->getSnapshotTimeZone($reference);
 
     if ($timezone eq 'N/A') {

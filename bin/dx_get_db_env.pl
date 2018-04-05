@@ -302,7 +302,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
           $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
-          if ($parenttime eq 'N/A') {
+          if (defined($parenttime) && ($parenttime eq 'N/A')) {
             my $loc = $timeflows->getParentPointLocation($dbobj->getCurrentTimeflow());
             my $lastsnaploc = $snapshots->getlatestChangePoint($parentsnap);
             if ( $loc != $lastsnaploc) {
@@ -310,6 +310,8 @@ for my $engine ( sort (@{$engine_list}) ) {
             } else {
               $parenttime = $snaptime;
             }
+          } else {
+            $parenttime = 'N/A';          
           }
           
         } else {

@@ -249,7 +249,11 @@ for my $engine ( sort (@{$engine_list}) ) {
             $physicaldb = 'N/A';
           } else {           
             $parentname = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getName();
-            $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getSourceConfigName();
+            if (($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getType() ne 'detached' ) {
+              $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getSourceConfigName();
+            } else {
+              $physicaldb = 'detached';
+            }
           }
         } else {
           print "no dSource found - error ?\n";
@@ -258,7 +262,8 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
         
         #check time 
-        if (defined($child)) {        
+        if (defined($child)) { 
+                 
           my $childdb = ($tfs{$hier->{$topds}->{source}})->getContainer($child);
           my $cobj = ($dbs{$hier->{$child}->{source}})->getDB($childdb);
           $childname = $cobj->getName();
@@ -309,8 +314,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         $dsource_snapforchild = '';
         $snaptime = 'N/A';
         $childname = 'N/A';
-        $parentname = '';    
-        $physicaldb = $dbobj->getSourceConfigName();
+        $parentname = ''; 
+        if ($dbobj->getType() ne 'detached' ) {
+          $physicaldb = $dbobj->getSourceConfigName();
+        } else {
+          $physicaldb = 'detached';
+        }   
       }
       
       $output->addLine(
