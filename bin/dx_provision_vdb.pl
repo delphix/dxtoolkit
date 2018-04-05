@@ -303,105 +303,76 @@ for my $engine ( sort (@{$engine_list}) ) {
   
   
   if ( defined($configureclone) ) {
-    my $oneline = Toolkit_helpers::readHook('configureclone', $configureclone, $op_templates);
-    if (defined($oneline)) {
-      $db->setconfigureCloneHook($oneline);
-    } else {
+      
+    if ($db->setconfigureCloneHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }       
   } 
   
 
 
   if ( defined($prerefresh) ) {
-    my $oneline = Toolkit_helpers::readHook('prerefresh', $prerefresh, $op_templates);
-    if (defined($oneline)) {
-      $db->setPreRefreshHook($oneline);
-    } else {
+    if ($db->setPreRefreshHook($postrefresh)) {
       $ret = $ret + 1;
       last;
     }   
   } 
   
   if ( defined($prerewind) ) {
-    my $oneline = Toolkit_helpers::readHook('prerewind', $prerewind, $op_templates);
-    if (defined($oneline)) {
-      $db->setPreRewindHook($oneline);
-    } else {
+    if ($db->setPreRewindHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }  
   } 
 
   if ( defined($postrewind) ) {
-    my $oneline = Toolkit_helpers::readHook('postrewind', $postrewind, $op_templates);
-    if (defined($oneline)) {
-      $db->setPostRewindHook($oneline);
-    } else {
+    if ($db->setPostRewindHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }  
   } 
   
   if ( defined($presnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('presnapshot', $presnapshot, $op_templates);
-    if (defined($oneline)) {
-      $db->setPreSnapshotHook($oneline);
-    } else {
+    if ($db->setPreSnapshotHook($postrefresh)) {
       $ret = $ret + 1;
       last;
     }   
   } 
   
   if ( defined($postsnapshot) ) {
-    my $oneline = Toolkit_helpers::readHook('postsnapshot', $postsnapshot, $op_templates);
-    if (defined($oneline)) {
-      $db->setPostSnapshotHook($oneline);
-    } else {
+    if ($db->setPostSnapshotHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }    
   } 
   
   if ( defined($prestart) ) {
-    my $oneline = Toolkit_helpers::readHook('prestart', $prestart, $op_templates);
-    if (defined($oneline)) {
-      $db->setPreStartHook($oneline);
-    } else {
+    if ($db->setPreStartHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }     
   } 
   
   if ( defined($poststart) ) {
-    my $oneline = Toolkit_helpers::readHook('poststart', $poststart, $op_templates);
-    if (defined($oneline)) {
-      $db->setPostStartHook($oneline);
-    } else {
+    if ($db->setPostStartHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }     
   } 
   
   if ( defined($prestop) ) {
-    my $oneline = Toolkit_helpers::readHook('prestop', $prestop, $op_templates);
-    if (defined($oneline)) {
-      $db->setPreStopHook($oneline);
-    } else {
+    if ($db->setPreStopHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }  
   } 
   
   if ( defined($poststop) ) {
-    my $oneline = Toolkit_helpers::readHook('poststop', $poststop, $op_templates);
-    if (defined($oneline)) {
-      $db->setPostStopHook($oneline);
-    } else {
+    if ($db->setPostStopHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }   
+    }  
   }   
   
 

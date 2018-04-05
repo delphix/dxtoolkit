@@ -464,6 +464,11 @@ sub finddSource
     do {
       $parent = $hier->{$local_ref}->{parent};
       
+      if (!defined($parent)) {
+        # for JS issue 
+        $parent = 'deleted';
+      }
+      
       logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
       
       if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {

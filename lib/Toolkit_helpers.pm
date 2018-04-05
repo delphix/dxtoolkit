@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.3.5';
+our $version = '2.3.5.1';
 
 sub logger {
 	my $debug = shift;
@@ -724,10 +724,6 @@ sub extractErrorFromHash {
 	
 	return $ret;	
 			
-}
-
-sub readHook {
-  print "Dupa";
 }
 
 
