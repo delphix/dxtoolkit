@@ -2063,7 +2063,7 @@ sub setHook {
     logger($self->{_debug}, "Entering VDB_obj::setHook",1);
 
     my %hook_hash;
-    my $ret;
+    my $ret = 0;
 
     if ($self->{_dlpxObject}->getApi() lt "1.5") {
         %hook_hash = (

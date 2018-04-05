@@ -304,7 +304,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   
   if ( defined($configureclone) ) {
       
-    if ($db->setconfigureCloneHook($postrefresh)) {
+    if ($db->setconfigureCloneHook($configureclone)) {
       $ret = $ret + 1;
       last;
     }       
@@ -313,63 +313,63 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if ( defined($prerefresh) ) {
-    if ($db->setPreRefreshHook($postrefresh)) {
+    if ($db->setPreRefreshHook($prerefresh)) {
       $ret = $ret + 1;
       last;
     }   
   } 
   
   if ( defined($prerewind) ) {
-    if ($db->setPreRewindHook($postrefresh)) {
+    if ($db->setPreRewindHook($prerewind)) {
       $ret = $ret + 1;
       last;
     }  
   } 
 
   if ( defined($postrewind) ) {
-    if ($db->setPostRewindHook($postrefresh)) {
+    if ($db->setPostRewindHook($postrewind)) {
       $ret = $ret + 1;
       last;
     }  
   } 
   
   if ( defined($presnapshot) ) {
-    if ($db->setPreSnapshotHook($postrefresh)) {
+    if ($db->setPreSnapshotHook($presnapshot)) {
       $ret = $ret + 1;
       last;
     }   
   } 
   
   if ( defined($postsnapshot) ) {
-    if ($db->setPostSnapshotHook($postrefresh)) {
+    if ($db->setPostSnapshotHook($postsnapshot)) {
       $ret = $ret + 1;
       last;
     }    
   } 
   
   if ( defined($prestart) ) {
-    if ($db->setPreStartHook($postrefresh)) {
+    if ($db->setPreStartHook($prestart)) {
       $ret = $ret + 1;
       last;
     }     
   } 
   
   if ( defined($poststart) ) {
-    if ($db->setPostStartHook($postrefresh)) {
+    if ($db->setPostStartHook($poststart)) {
       $ret = $ret + 1;
       last;
     }     
   } 
   
   if ( defined($prestop) ) {
-    if ($db->setPreStopHook($postrefresh)) {
+    if ($db->setPreStopHook($prestop)) {
       $ret = $ret + 1;
       last;
     }  
   } 
   
   if ( defined($poststop) ) {
-    if ($db->setPostStopHook($postrefresh)) {
+    if ($db->setPostStopHook($poststop)) {
       $ret = $ret + 1;
       last;
     }  
