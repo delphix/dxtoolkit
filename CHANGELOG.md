@@ -1,4 +1,4 @@
-## 2.3.5.1
+## 2.3.5.2
 
 ### Changed
 - dx_provision_vdb hook fix
