@@ -2347,7 +2347,7 @@ sub setPostStopHook {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostStopHook",1);
 
-    $self->setAnyHook('postStart', $hook);
+    $self->setAnyHook('postStop', $hook);
 }
 
 # Procedure exportDBHooks
