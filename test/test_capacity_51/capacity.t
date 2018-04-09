@@ -4,6 +4,7 @@ use Test::More tests => 5;
 use Test::Script;
 use LWP::UserAgent;
 use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
+use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/test/';
 use lib '.';
 use server;
 

@@ -16,10 +16,10 @@ $server->background();
 
  
 script_compiles('../../bin/dx_get_snapshots.pl');
-
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-name','Oracle dsource'] ,  "dSource Snapshot test");
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-name','Oracle dsource'] ,  "dSource snapshot test");
 
 my $expected_stdout = <<EOF;
+#Engine,Group,Database,Snapshot name,Start time,End time
 local,Sources,Oracle dsource,\@2017-05-09T18:14:12.639Z,2017-05-09 14:14:08 EDT,2017-05-09 14:14:08 EDT
 local,Sources,Oracle dsource,\@2017-06-06T12:00:04.096Z,2017-06-06 07:59:59 EDT,2017-06-06 08:18:29 EDT
 local,Sources,Oracle dsource,\@2017-06-06T12:18:28.754Z,2017-06-06 08:18:29 EDT,2017-06-06 08:54:00 EDT

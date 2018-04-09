@@ -32,7 +32,7 @@ sub handle_request {
   my $endfile;
   
   $log->error($path);
-  if ($path eq 'session') {
+  if ($path eq 'login') {
     if (defined($self->{_postreq})) {
       undef $self->{_postreq};
     }
@@ -57,7 +57,7 @@ sub handle_request {
   my $filename = $path . $endfile;
   $filename =~ s|\?|_|;
   $filename =~ s|\&|_|g;
-  $filename =~ s|\:|_|g;
+  $filename =~ s|\:|%3A|g;
         
   if ($filename && $cgi->request_method eq 'GET') { 	
     $self->readfile($cgi, $filename);
@@ -89,15 +89,17 @@ sub checkpost {
   if ( defined($self->{_postreq}) && (defined($self->{_postreq}->{$jsonname}))) {
     $self->{_postreq}->{$jsonname} = $self->{_postreq}->{$jsonname} + 1;
   } else {
-    my %postreq;
-    $self->{_postreq} = \%postreq;
+    if (!defined($self->{_postreq})) {
+      my %postreq;
+      $self->{_postreq} = \%postreq;  
+    }
     $self->{_postreq}->{$jsonname} = 1;
   }
   
   
   my $log = Log::Log4perl->get_logger();
-  $log->error($jsonname);
-  $log->error($self->{_postreq}->{$jsonname});
+  $log->error("Plik " . $jsonname);
+  $log->error("Numerek " . $self->{_postreq}->{$jsonname});
   
   open(my $fd, $jsonname . "." . $self->{_postreq}->{$jsonname}) or die("POST Can't open file - $jsonname");
   my @content = <$fd>;
