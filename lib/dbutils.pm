@@ -22,7 +22,7 @@ package dbutils;
 use warnings;
 use strict;
 
-our $delkey = ""put your encryption key here"";
+our $delkey = "put your encryption key here";
 
 1;
 
