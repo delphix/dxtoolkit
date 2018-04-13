@@ -44,6 +44,8 @@ GetOptions(
   'name|n=s' => \(my $name), 
   'outdir=s' => \(my $outdir),
   'export' => \(my $export),
+  'parameters' => \(my $parameters),
+  'compare=s' => \(my $compare),
   'debug:i' => \(my $debug), 
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -71,16 +73,46 @@ if (defined($export) && ( ! defined($outdir) ) ) {
   exit (1);
 }
 
+if (defined($parameters) && defined($compare)) {
+  print "Option parameters and compare are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($compare) && (!defined($name))) {
+  print "Option compare require a template name to be specify \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
 
 my $output = new Formater();
 
-$output->addHeader(
-  {'Appliance',     20},
-  {'Template name', 30}
-);
 
+if (defined($parameters)) {
+  $output->addHeader(
+    {'Appliance',     20},
+    {'Template name', 30},
+    {'Parameter name',30},
+    {'value',         30}
+  );
+} elsif (defined($compare)) {
+  $output->addHeader(
+    {'Appliance',     20},
+    {'Parameter',     30},
+    {'value in template', 30},
+    {'value in init ',30}
+  );
+} else {
+  $output->addHeader(
+    {'Appliance',     20},
+    {'Template name', 30}
+  );
+}
+
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
@@ -109,10 +141,75 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # for filtered databases on current engine - display status
   for my $tempitem ( @template_list ) {
-    $output->addLine(
-      $engine,
-      $templates->getName($tempitem)  
-    );
+    
+    if (defined($parameters)) {
+      my $paramhash = $templates->getTemplateParameters($tempitem);
+      for my $par (sort (keys %{$paramhash})) {
+        $output->addLine(
+          $engine,
+          $templates->getName($tempitem),
+          $par,
+          $paramhash->{$par}
+        );
+      }
+    } elsif (defined($compare)) {
+
+      my $spfile;
+      open($spfile,'<',$compare) or die ('Can\'t open a file: $compare');
+      chomp(my @initarray = <$spfile>);
+      close $spfile;
+      
+      my %init;
+      
+      for my $line (@initarray) {
+        $line =~ s/^[^.]*\.(.*)/$1/;
+        my ($par, $value) = split('=',$line);
+        if ($par =~ /^#/ ) {
+          next;
+        } else {
+          $init{$par} = $value;
+        }
+      }
+      
+      my ($notininit, $notintemplate, $differnent ) = $templates->compare($tempitem, \%init);
+      
+      for my $par (sort ( keys %{$differnent})) {
+        $ret = $ret + 1;
+        $output->addLine(
+          $engine,
+          $par,
+          $differnent->{$par}->{template},
+          $differnent->{$par}->{init}
+        )
+      }
+      
+      for my $par (sort ( keys %{$notininit})) {
+        $ret = $ret + 1;
+        $output->addLine(
+          $engine,
+          $par,
+          $notininit->{$par},
+          'NA'
+        )
+      }    
+
+      for my $par (sort ( keys %{$notintemplate})) {
+        $ret = $ret + 1;
+        $output->addLine(
+          $engine,
+          $par,
+          'NA',
+          $notintemplate->{$par}
+        )
+      }   
+
+      
+    } else {
+      $output->addLine(
+        $engine,
+        $templates->getName($tempitem)  
+      );
+    }
 
     if (defined($export)) {
       $templates->exportTemplate($tempitem,$outdir);
@@ -127,13 +224,21 @@ if (!defined($export)) {
   Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
-
+exit $ret;
 
 __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_template  [ -engine|d <delphix identifier> | -all ] [ -configfile file ][ -name template_name ] [  -format csv|json ]  [ -help|? ] [ -debug ] [-export -outdir dir]
+ dx_get_template    [ -engine|d <delphix identifier> | -all ] 
+                    [ -configfile file ]
+                    [ -name template_name ] 
+                    [ -parameter | -compare file]
+                    [ -export -outdir dir]
+                    [ -format csv|json ]  
+                    [ -help|? ] 
+                    [ -debug ] 
+                    
 
 =head1 DESCRIPTION
 
@@ -172,6 +277,13 @@ Template name
 =head1 OPTIONS
 
 =over 3
+
+=item B<-parameter>
+Display parameters from template
+
+=item B<-compare file>
+Compare template with init<SID>.ora file ignoring restritcted parameters
+Exit code will be 0 if no difference found.
 
 =item B<-export>                                                                                                                                            
 Export template into JSON file in outdir directory
@@ -213,6 +325,18 @@ Export all VDB templates into /tmp/test directory
  Exporting template into file /tmp/test//GC Template.template
  Exporting template into file /tmp/test//QA Template.template
 
+Compare templare with initSID.ora file
+
+ dx_get_template -d Landshark51  -name test123 -compare initTEST.ora
+
+ Appliance            Parameter                      value in template              value in init
+ -------------------- ------------------------------ ------------------------------ ------------------------------
+ Landshark51          compatible                     11.2.0.4.0                     12.2.0.1
+ Landshark51          sga_target                     522M                           400M
+ Landshark51          open_cursors                   300                            NA
+ Landshark51          pga_aggregate_target           200M                           NA
+ Landshark51          processes                      700                            NA
+ Landshark51          remote_login_passwordfile      'EXCLUSIVE'                    NA
 
 
 =cut

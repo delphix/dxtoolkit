@@ -95,6 +95,200 @@ sub getTemplate {
 }
 
 
+# Procedure getTemplateParameters
+# parameters: 
+# - reference
+# Return template parmeters for specific template reference
+
+sub getTemplateParameters {
+    my $self = shift;
+    my $reference = shift;
+    
+    logger($self->{_debug}, "Entering Template_obj::getTemplateParameters",1);    
+
+    my $templates = $self->{_templates};
+    return $templates->{$reference}->{parameters};
+}
+
+# Procedure compare
+# parameters: 
+# - reference
+# - hash with init.ora
+# Return three sets - array existing in template but not in VDB and 
+# array existing in VDB but not in template, hash differences
+
+sub compare {
+    my $self = shift;
+    my $reference = shift;
+    my $init = shift;
+    
+    logger($self->{_debug}, "Entering Template_obj::compare",1);    
+
+    my %restricted = (
+      active_instance_count => 1,
+      cluster_database => 1,
+      cluster_database_instances => 1,
+      cluster_interconnects => 1,
+      control_files => 1,
+      db_block_size => 1,
+      db_create_file_dest => 1,
+      db_create_online_log_dest_1 => 1,
+      db_create_online_log_dest_2 => 1,
+      db_create_online_log_dest_3 => 1,
+      db_create_online_log_dest_4 => 1,
+      db_create_online_log_dest_5 => 1,
+      db_file_name_convert => 1,
+      db_name => 1,
+      db_recovery_file_dest => 1,
+      db_recovery_file_dest_size => 1,
+      db_unique_name => 1,
+      dg_broker_config_file1 => 1,
+      dg_broker_config_file2 => 1,
+      dg_broker_start => 1,
+      fal_client => 1,
+      fal_server => 1,
+      instance_name => 1,
+      instance_number => 1,
+      local_listener => 1,
+      log_archive_config => 1,
+      log_archive_dest => 1,
+      log_archive_duplex_dest => 1,
+      log_file_name_convert => 1,
+      spfile => 1,
+      standby_archive_dest => 1,
+      standby_file_management => 1,
+      thread => 1,
+      undo_tablespace => 1,
+      __db_cache_size => 1,
+      __java_pool_size => 1,
+      __large_pool_size => 1,
+      __oracle_base => 1,
+      __pga_aggregate => 1,
+      __pga_aggregate_target => 1,
+      __data_transfer_cache_size => 1,
+      __sga_target => 1,
+      __shared_io_pool_size => 1,
+      __shared_pool_size => 1,
+      __streams_pool_size => 1,
+      _omf => 1
+    );
+    
+    my %settodefault = (
+      filesystemio_options => 1,
+      audit_file_dest => 1,
+      audit_sys_operations => 1,
+      audit_trail => 1,
+      background_dump_dest => 1,
+      core_dump_dest => 1,
+      db_domain => 1,
+      diagnostic_dest => 1,
+      dispatchers => 1,
+      fast_start_mttr_target => 1,
+      log_archive_dest_1 => 1,
+      log_archive_dest_2 => 1,
+      log_archive_dest_3 => 1,
+      log_archive_dest_4 => 1,
+      log_archive_dest_5 => 1,
+      log_archive_dest_6 => 1,
+      log_archive_dest_7 => 1,
+      log_archive_dest_8 => 1,
+      log_archive_dest_9 => 1, 
+      log_archive_dest_10 => 1,
+      log_archive_dest_11 => 1,
+      log_archive_dest_12 => 1,
+      log_archive_dest_13 => 1,
+      log_archive_dest_14 => 1,
+      log_archive_dest_15 => 1,
+      log_archive_dest_16 => 1,
+      log_archive_dest_17 => 1,
+      log_archive_dest_18 => 1,
+      log_archive_dest_19 => 1,
+      log_archive_dest_20 => 1,
+      log_archive_dest_21 => 1,
+      log_archive_dest_22 => 1,
+      log_archive_dest_23 => 1,
+      log_archive_dest_24 => 1,
+      log_archive_dest_25 => 1,
+      log_archive_dest_26 => 1,
+      log_archive_dest_27 => 1,
+      log_archive_dest_28 => 1,
+      log_archive_dest_29 => 1,
+      log_archive_dest_30 => 1,
+      log_archive_dest_31 => 1,
+      log_archive_dest_state_1 => 1,
+      log_archive_dest_state_2 => 1,
+      log_archive_dest_state_3 => 1,
+      log_archive_dest_state_4 => 1,
+      log_archive_dest_state_5 => 1,
+      log_archive_dest_state_6 => 1,
+      log_archive_dest_state_7 => 1,
+      log_archive_dest_state_8 => 1,
+      log_archive_dest_state_9 => 1,
+      log_archive_dest_state_10 => 1,
+      log_archive_dest_state_11 => 1,
+      log_archive_dest_state_12 => 1,
+      log_archive_dest_state_13 => 1,
+      log_archive_dest_state_14 => 1,
+      log_archive_dest_state_15 => 1,
+      log_archive_dest_state_16 => 1,
+      log_archive_dest_state_17 => 1,
+      log_archive_dest_state_18 => 1,
+      log_archive_dest_state_19 => 1,
+      log_archive_dest_state_20 => 1,
+      log_archive_dest_state_21 => 1,
+      log_archive_dest_state_22 => 1,
+      log_archive_dest_state_23 => 1,
+      log_archive_dest_state_24 => 1,
+      log_archive_dest_state_25 => 1,
+      log_archive_dest_state_26 => 1,
+      log_archive_dest_state_27 => 1,
+      log_archive_dest_state_28 => 1,
+      log_archive_dest_state_29 => 1,
+      log_archive_dest_state_30 => 1,
+      log_archive_dest_state_31 => 1,
+      remote_listener => 1,
+      user_dump_dest => 1,
+    );
+    
+    my %notintemplate;
+    my %notininit;
+    my %different;
+    
+    my $templatepar = $self->getTemplateParameters($reference);
+    
+    for my $par (sort keys %{$templatepar}) {
+      if (defined($init->{$par})) {
+        $init->{$par} =~ s/['|"]//g;
+        $templatepar->{$par} =~ s/['|"]//g;
+        if ($init->{$par} ne $templatepar->{$par}) {
+          $different{$par} = {
+            'init' => $init->{$par},
+            'template' => $templatepar->{$par}
+          };
+        }
+      } else {
+        $notininit{$par} = $templatepar->{$par};
+      }
+      
+    }
+    
+    for my $par (sort keys %{$init}) {
+      if (!defined($restricted{$par})) {
+        if (!defined($templatepar->{$par})) {
+          if (!defined($settodefault{$par})) {
+            $notintemplate{$par} = $init->{$par};
+          }
+        }
+      }
+      
+    }
+    
+    return (\%notininit, \%notintemplate, \%different);
+    
+    
+  }
+
+
 # Procedure getTemplateList
 # parameters: 
 # Return template list
