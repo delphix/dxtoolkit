@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - container - database reference
 # - debug - debug flag (debug on if defined)
@@ -49,7 +49,7 @@ sub new {
     my $endDate = shift;
     my $timezone = shift;
     logger($debug, "Entering Snapshot_obj::constructor",1);
-    
+
 
     my %snapshots;
     my $self = {
@@ -62,9 +62,9 @@ sub new {
         _endDate => $endDate,
         _timezone => $timezone
     };
-    
+
     bless($self,$classname);
-    
+
     $self->getSnapshotList($debug);
     return $self;
 }
@@ -76,7 +76,7 @@ sub new {
 sub getContainer {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getContainer",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getContainer",1);
 
     return $self->{_container};
 }
@@ -89,7 +89,7 @@ sub getContainer {
 sub getSnapshotType {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotType",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotType",1);
 
     return $self->{_snapshots}->{$reference}->{type};
 }
@@ -101,7 +101,7 @@ sub getSnapshotType {
 sub getFirstPoint {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);
 
     return defined($self->{_snapshots}->{$reference}->{firstChangePoint}->{timestamp}) ? $self->{_snapshots}->{$reference}->{firstChangePoint}->{timestamp} : 'N/A';
 }
@@ -109,12 +109,12 @@ sub getFirstPoint {
 # # Procedure getContainer
 # # parameters: refrerence
 # # Return cointainer for reference
-# 
+#
 # sub getLatestPoint {
 #     my $self = shift;
 #     my $reference = shift;
-#     logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);   
-# 
+#     logger($self->{_debug}, "Entering Snapshot_obj::getFirstPoint",1);
+#
 #     return defined($self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp}) ? $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp} : 'N/A';
 # }
 
@@ -126,7 +126,7 @@ sub getFirstPoint {
 sub getlatestChangePoint {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getlatestChangePoint",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getlatestChangePoint",1);
 
     return defined($self->{_snapshots}->{$reference}->{latestChangePoint}->{location}) ? $self->{_snapshots}->{$reference}->{latestChangePoint}->{location} : 'N/A';
 }
@@ -139,13 +139,13 @@ sub getlatestChangePoint {
 sub isProvisionable {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::isProvisionable",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::isProvisionable",1);
 
     return $self->{_snapshots}->{$reference}->{runtime}->{provisionable};
 }
 
 # Procedure getSnapshots
-# parameters: 
+# parameters:
 # - snapshot name
 # Return list of snapshot reference
 
@@ -153,7 +153,7 @@ sub getSnapshots {
     my $self = shift;
     my $snapshotname = shift;
     my $ret;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshots",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshots",1);
     if (defined($snapshotname)) {
         my @retarr = grep { $self->getSnapshotName($_) eq $snapshotname } @{$self->{_snapshot_list}} ;
         $ret = \@retarr;
@@ -166,38 +166,38 @@ sub getSnapshots {
 
 
 # Procedure getSnapshotName
-# parameters: 
+# parameters:
 # Return list of snapshot reference
 
 sub getSnapshotName {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotName",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotName",1);
     return $self->{_snapshots}->{$reference}->{name};
 }
 
 
 # Procedure getSnapshotCreationTime
-# parameters: 
-# refrence 
+# parameters:
+# refrence
 # Return snapshot creation time
 
 sub getSnapshotCreationTime {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotCreationTime",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotCreationTime",1);
     return $self->{_snapshots}->{$reference}->{creationTime};
 }
 
 # Procedure getSnapshotCreationTimeWithTimezone
-# parameters: 
-# refrence 
+# parameters:
+# refrence
 # Return snapshot creation time with timezone
 
 sub getSnapshotCreationTimeWithTimezone {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotCreationTimeWithTimezone",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotCreationTimeWithTimezone",1);
 
     my $timezone = $self->getSnapshotTimeZone($reference);
     my $zulutime = $self->getSnapshotCreationTime($reference);
@@ -206,7 +206,7 @@ sub getSnapshotCreationTimeWithTimezone {
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
     } else {
-      
+
         my $creationDate = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1);
 
         if (defined($creationDate)) {
@@ -221,14 +221,14 @@ sub getSnapshotCreationTimeWithTimezone {
 
 
 # Procedure getSnapshotByName
-# parameters: 
+# parameters:
 # - name
 # Return snapshot reference for name
 
 sub getSnapshotByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotByName",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotByName",1);
     my @ret;
 
     @ret = grep { $self->getSnapshotName($_) eq $name } @{$self->{_snapshot_list}};
@@ -238,24 +238,24 @@ sub getSnapshotByName {
 
 
 # Procedure getSnapshotVersion
-# parameters: 
+# parameters:
 # Return list of snapshot reference
 
 sub getSnapshotVersion {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotVersion",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotVersion",1);
     return defined($self->{_snapshots}->{$reference}->{version}) ? $self->{_snapshots}->{$reference}->{version} : 'N/A' ;
 }
 
 # Procedure getSnapshotVersion
-# parameters: 
+# parameters:
 # Return list of snapshot reference
 
 sub getSnapshotRetention {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotRetention",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotRetention",1);
     my $ret;
     if ($self->{_snapshots}->{$reference}->{retention} lt 0 ) {
         $ret = 'forever';
@@ -269,72 +269,72 @@ sub getSnapshotRetention {
 
 
 # Procedure getSnapshotTimeflow
-# parameters: 
+# parameters:
 # Return list of snapshot reference
 
 sub getSnapshotTimeflow {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimeflow",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimeflow",1);
     return $self->{_snapshots}->{$reference}->{timeflow};
 }
 
 # Procedure getSnapshots
-# parameters: 
+# parameters:
 # Return list of snapshot reference
 
 sub getSnapshotsByTimeflow {
     my $self = shift;
     my $timeflow = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotsByTimeflow",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotsByTimeflow",1);
     my @snaplist;
 
     for my $snapitem (@{$self->{_snapshot_list}}) {
         if ($self->getSnapshotTimeflow($snapitem) eq $timeflow) {
             push(@snaplist, $snapitem);
         }
-        
+
     }
 
     return \@snaplist;
 }
 
 # Procedure getSnapshotTime
-# parameters: 
+# parameters:
 # - reference
 # Return timestamp for snapshot
 
 sub getSnapshotTime {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTime",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTime",1);
     my $ts;
-    
+
     if (defined($self->{_snapshots}->{$reference})) {
       $ts = $self->{_snapshots}->{$reference}->{latestChangePoint}->{timestamp};
     } else {
-      # non existing snapshot - JS case 
+      # non existing snapshot - JS case
       return 'N/A';
     }
-    
-    # if $ts is null - I need to reconsider which one to use - latest change of snapshot process seems OK  
-    
-    chomp($ts); 
+
+    # if $ts is null - I need to reconsider which one to use - latest change of snapshot process seems OK
+
+    chomp($ts);
     $ts =~ s/T/ /;
     $ts =~ s/\....Z//;
     return $ts;
 }
 
-# Procedure checkTZ 
+# Procedure checkTZ
 # if timezone defined as GMT+/-offset return undef
-# parameters: 
+# parameters:
 # - timezone
 # Return 0 if OK
 
 sub checkTZ {
     my $self = shift;
     my $timezone = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::checkTZ",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::checkTZ",1);
 
 
     my $checktime = time();
@@ -342,7 +342,7 @@ sub checkTZ {
     my $tz = new Date::Manip::TZ;
     my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
 
-    if (defined($abbrev)) { 
+    if (defined($abbrev)) {
         logger($self->{_debug}, "checkTZ abbrev-" . $abbrev ,1);
     } else {
         logger($self->{_debug}, "checkTZ abbrev-undefined" ,1);
@@ -353,23 +353,23 @@ sub checkTZ {
 }
 
 # Procedure getSnapshotTimeZone
-# parameters: 
+# parameters:
 # - reference
 # Return timestamp for snapshot
 
 sub getSnapshotTimeZone {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimeZone",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimeZone",1);
     my $ts = $self->{_snapshots}->{$reference}->{timezone} ;
-    logger($self->{_debug}, "Snapshot timezone returned by DE $ts",1); 
-    chomp($ts); 
+    logger($self->{_debug}, "Snapshot timezone returned by DE $ts",1);
+    chomp($ts);
     my @temp = split(',',$ts);
     my $ret = $temp[0];
     if ($ret eq 'Etc/Zulu') {
         $ret = 'Etc/GMT';
     }
-    
+
     if ($ret eq 'Greenwich') {
         $ret = 'GMT+00:00';
     }
@@ -382,10 +382,10 @@ sub getSnapshotTimeZone {
     logger($self->{debug}, "Setting GMT timezone err-" . $err );
 
     @zone = ('Asia/Singapore');
-    ($err,$val) = $tz->define_offset('+0800', @zone);    
+    ($err,$val) = $tz->define_offset('+0800', @zone);
 
     logger($self->{debug}, "Setting SGT timezone err-" . $err );
-    
+
     if (! ($ret =~ /[a-zA-Z]{3}.\d\d:\d\d/ )) {
       if ($self->checkTZ($ret)) {
         $ret = 'N/A';
@@ -396,7 +396,7 @@ sub getSnapshotTimeZone {
 }
 
 # Procedure getSnapshotTimewithzone
-# parameters: 
+# parameters:
 # - reference
 # Return timestamp for snapshot with abv timezone and timezone
 
@@ -404,32 +404,32 @@ sub getSnapshotTimewithzone {
     my $self = shift;
     my $reference = shift;
     my $ret;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimewithzone",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimewithzone",1);
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getSnapshotTime($reference) ;
-    
+
     if ($zulutime eq 'N/A') {
       return ('N/A','N/A');
     }
-    
+
     my $timezone = $self->getSnapshotTimeZone($reference);
 
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
-    } else {        
+    } else {
         $ret = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1);
     }
     return ($ret,$timezone);
 }
 
 # Procedure getLatestSnapshotTime
-# parameters: 
+# parameters:
 # Return time of last snapshot with abv timezone and timezone
 
 sub getLatestSnapshotTime {
     my $self = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getLatestSnapshotTime",1);  
-    my $reference = $self->{_snapshot_list}[-1]; 
+    logger($self->{_debug}, "Entering Snapshot_obj::getLatestSnapshotTime",1);
+    my $reference = $self->{_snapshot_list}[-1];
     my $ret;
     my $timezone;
     if (defined($reference)) {
@@ -441,14 +441,14 @@ sub getLatestSnapshotTime {
 }
 
 # Procedure findTimeflowforTimestamp
-# parameters: 
+# parameters:
 # - timestamp
 # Return timeflow for timestamp
 
 sub findTimeflowforTimestamp {
     my $self = shift;
     my $timestamp = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforTimestamp",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforTimestamp",1);
 
     my %ret;
 
@@ -465,22 +465,22 @@ sub findTimeflowforTimestamp {
         $snap_startpoint =~ s/\....Z//;
         $snap_endpoint =~ s/T/ /;
         $snap_endpoint =~ s/\....Z//;
-        
+
         # change from "ge" $sttz to "gt" for snapshots
         # as end snapshot can = start snapshot and we should use
         # newer one
-        # "ge" was for same start and end snapshot and now 
+        # "ge" was for same start and end snapshot and now
         # a new if is added
-        
+
         if ($snap_startpoint eq $snap_endpoint) {
           if  ( $snap_startpoint eq $sttz ) {
               $match = $match + 1;
               $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
               $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
               $ret{full_startpoint} = $full_snap_startpoint;
-          }          
+          }
         } else {
-          
+
           if  ( ($snap_startpoint le $sttz) && ($snap_endpoint gt $sttz ) ) {
               $match = $match + 1;
               $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
@@ -499,14 +499,14 @@ sub findTimeflowforTimestamp {
 
 
 # Procedure findTimeflowforLocation
-# parameters: 
+# parameters:
 # - timestamp
 # Return timeflow for timestamp
 
 sub findTimeflowforLocation {
     my $self = shift;
     my $location = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforLocation",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::findTimeflowforLocation",1);
 
     my %ret;
 
@@ -533,14 +533,14 @@ sub findTimeflowforLocation {
 }
 
 # Procedure findSnapshotforTimestamp
-# parameters: 
+# parameters:
 # - timestamp
 # Return timeflow for timestamp
 
 sub findSnapshotforTimestamp {
     my $self = shift;
     my $timestamp = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);
 
     my %ret;
     #my $tz = new Date::Manip::TZ;
@@ -584,29 +584,29 @@ sub findSnapshotforTimestamp {
 }
 
 # Procedure getLatestTime
-# parameters: 
+# parameters:
 # Return time of last snapshot
 
 sub getLatestTime {
     my $self = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getLatestTime",1);  
-    my $reference = $self->{_snapshot_list}[-1]; 
+    logger($self->{_debug}, "Entering Snapshot_obj::getLatestTime",1);
+    my $reference = $self->{_snapshot_list}[-1];
     return $self->getStartPoint($reference);
 }
 
 
 # Procedure getLastProvisionableSnapshot
-# parameters: 
+# parameters:
 # Return ref of last provisionable snapshot
 
 sub getLastProvisionableSnapshot {
     my $self = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getLastProvisionableSnapshot",1);  
-        
+    logger($self->{_debug}, "Entering Snapshot_obj::getLastProvisionableSnapshot",1);
+
     my $ret;
-    
+
     my @reversed_snapshots = reverse @{$self->{_snapshot_list}};
-    
+
     for my $s ( @reversed_snapshots ) {
       if ($self->isProvisionable($s)) {
         print "First provisionable snapshot found - " . $self->getSnapshotName($s) . "\n";
@@ -614,42 +614,52 @@ sub getLastProvisionableSnapshot {
         last;
       }
     }
-    
+
     return $ret;
 }
 
 
 # Procedure getEndPointwithzone
-# parameters: 
+# parameters:
 # - reference
 # Return time of last time in snapshot with timezone
 
 sub getEndPointwithzone {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getEndPointwithzone",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getEndPointwithzone",1);
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getEndPoint($reference) ;
-    my $timezone = $self->getSnapshotTimeZone($reference);
-    return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
+    if (defined($zulutime)) {
+      my $timezone = $self->getSnapshotTimeZone($reference);
+      return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
+    } else {
+      return 'Error getting time';
+    }
 }
 
 # Procedure getEndPoint
-# parameters: 
+# parameters:
 # Return time of last time in snapshot
 
 sub getEndPoint {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getEndPoint",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getEndPoint",1);
 
     my $res;
 
     if (defined($self->{_snapshots}->{$reference}->{timeflowRange}) ) {
         $res = $self->{_snapshots}->{$reference}->{timeflowRange};
     } else {
-        $self->getTimeflowRange($reference);
+        if ($self->getTimeflowRange($reference) eq 'N/A') {
+          return undef;
+        }
         $res = $self->{_snapshots}->{$reference}->{timeflowRange};
+    }
+
+    if ($res eq 'N/A') {
+      return undef;
     }
 
     my $ts = defined($res->{endPoint}) ? $res->{endPoint}->{timestamp} : undef;
@@ -657,35 +667,42 @@ sub getEndPoint {
 }
 
 # Procedure getStartPointwithzone
-# parameters: 
+# parameters:
 # - reference
 # Return time of first point in snapshot in snapshot with timezone
 
 sub getStartPointwithzone {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getStartPointwithzone",1); 
+    logger($self->{_debug}, "Entering Snapshot_obj::getStartPointwithzone",1);
     my $tz = new Date::Manip::TZ;
     my $zulutime = $self->getStartPoint($reference) ;
-    my $timezone = $self->getSnapshotTimeZone($reference);
-    return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
+
+    if (defined($zulutime)) {
+      my $timezone = $self->getSnapshotTimeZone($reference);
+      return Toolkit_helpers::convert_from_utc($zulutime,$timezone,1);
+    } else {
+      return 'Error getting time';
+    }
 }
 
 # Procedure getStartPoint
-# parameters: 
+# parameters:
 # Return time of first point in snapshot
 
 sub getStartPoint {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getStartPoint",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getStartPoint",1);
 
     my $res;
 
     if (defined($self->{_snapshots}->{$reference}->{timeflowRange}) ) {
         $res = $self->{_snapshots}->{$reference}->{timeflowRange};
     } else {
-        $self->getTimeflowRange($reference);
+        if ($self->getTimeflowRange($reference) eq 'N/A') {
+          return undef;
+        }
         $res = $self->{_snapshots}->{$reference}->{timeflowRange};
     }
     my $ts = defined($res->{startPoint}) ? $res->{startPoint}->{timestamp} : undef;
@@ -693,13 +710,13 @@ sub getStartPoint {
 }
 
 # Procedure getStartPointLocation
-# parameters: 
+# parameters:
 # Return location of first point in snapshot
 
 sub getStartPointLocation {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getStartPointLocation",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getStartPointLocation",1);
 
     my $res;
     if (defined($self->{_snapshots}->{$reference}->{timeflowRange}) ) {
@@ -714,13 +731,13 @@ sub getStartPointLocation {
 
 
 # Procedure getEndPointLocation
-# parameters: 
+# parameters:
 # Return location of last point in snapshot
 
 sub getEndPointLocation {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getEndPointLocation",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getEndPointLocation",1);
 
     my $res;
     #my $operation = "resources/json/delphix/snapshot/" . $reference . "/timeflowRange" ;
@@ -738,34 +755,37 @@ sub getEndPointLocation {
 
 
 # Procedure getTimeflowRange
-# parameters: 
+# parameters:
 # Return location of last point in snapshot
 
 sub getTimeflowRange {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getTimeflowRange",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::getTimeflowRange",1);
 
 
     #my $operation = "resources/json/delphix/snapshot/" . $reference . "/timeflowRange" ;
 
     my $operation;
     if (defined($self->{_traverseTimeflows})) {
-        $operation = "resources/json/delphix/snapshot/" . $reference . "/timeflowRange?traverseTimeflows=true";      
+        $operation = "resources/json/delphix/snapshot/" . $reference . "/timeflowRange?traverseTimeflows=true";
     } else {
         $operation = "resources/json/delphix/snapshot/" . $reference  . "/timeflowRange"
-    }  
+    }
 
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
-    if (defined($result->{result})) {
-        $self->{_snapshots}->{$reference}->{timeflowRange} = $result->{result}
+    if (defined($result->{status}) && ($result->{status} eq 'OK') && defined($result->{result})) {
+        $self->{_snapshots}->{$reference}->{timeflowRange} = $result->{result};
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+        $self->{_snapshots}->{$reference}->{timeflowRange} = 'N/A';
     }
 
 }
 
 # Procedure setRetention
-# parameters: 
+# parameters:
 # - referantion - snapshot ref
 # - retation time in days -1 forever
 # Return 0 if OK
@@ -774,7 +794,7 @@ sub setRetention {
     my $self = shift;
     my $reference = shift;
     my $retention = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::setRetention",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::setRetention",1);
 
     my %setsnap = (
         "type" => $self->getSnapshotType($reference),
@@ -785,7 +805,7 @@ sub setRetention {
 
     my $operation = 'resources/json/delphix/snapshot/' . $reference;
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print "Snapshot " . $self->getSnapshotName($reference)  . " updated\n";
@@ -798,7 +818,7 @@ sub setRetention {
 
 
 # Procedure deleteSnapshot
-# parameters: 
+# parameters:
 # - referantion - snapshot ref
 # Return 0 if OK
 
@@ -806,18 +826,18 @@ sub deleteSnapshot {
     my $self = shift;
     my $reference = shift;
     my $retention = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::deleteSnapshot",1);  
+    logger($self->{_debug}, "Entering Snapshot_obj::deleteSnapshot",1);
 
 
     my $operation = 'resources/json/delphix/snapshot/' . $reference . "/delete";
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, '{}');  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, '{}');
 
     if ($result->{status} eq 'OK') {
         print "Snapshot " . $self->getSnapshotName($reference)  . " deleted\n";
         return 0;
     } else {
-        print "Snapshot not deleted due to error: " . $result->{error}->{details} . "\n" ; 
+        print "Snapshot not deleted due to error: " . $result->{error}->{details} . "\n" ;
         return 1;
     }
 
@@ -828,21 +848,21 @@ sub deleteSnapshot {
 # parameters: - none
 # Load snapshot objects from Delphix Engine
 
-sub getSnapshotList 
+sub getSnapshotList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList",1);   
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList",1);
     my $operation = "resources/json/delphix/snapshot";
 
 
 
     if (defined($self->{_container})) {
         if (defined($self->{_traverseTimeflows})) {
-            $operation = $operation . "?database=" . $self->{_container} . "&traverseTimeflows=true";      
+            $operation = $operation . "?database=" . $self->{_container} . "&traverseTimeflows=true";
         } else {
-            $operation = $operation . "?database=" . $self->{_container} ;   
-        }  
-    
+            $operation = $operation . "?database=" . $self->{_container} ;
+        }
+
         if (defined($self->{_startDate}) || defined($self->{_endDate})  ) {
             # timezone check
             my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
@@ -850,7 +870,7 @@ sub getSnapshotList
             if (defined($result->{status}) && ($result->{status} eq 'OK')) {
                 my @res = @{$result->{result}};
                 if (scalar(@res) > 0) {
-                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];    
+                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
                     $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
                     delete $self->{_snapshots}->{$res[-1]->{reference}};
                 }
@@ -861,7 +881,7 @@ sub getSnapshotList
         }
 
         if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
-            
+
             my $startDate = Toolkit_helpers::convert_to_utc($self->{_startDate}, $self->{_timezone},0,1);
 
             if (defined($startDate)) {
@@ -870,11 +890,11 @@ sub getSnapshotList
                 print "Can't parse or convert start date to GMT\n";
                 exit 1;
             }
-            
+
         }
 
         if (defined($self->{_endDate}) && defined($self->{_timezone}) ) {
-          
+
             my $endDate = Toolkit_helpers::convert_to_utc($self->{_endDate}, $self->{_timezone},0,1);
             if (defined($endDate)) {
                 $operation = $operation . "&toDate=" . $endDate
@@ -882,7 +902,7 @@ sub getSnapshotList
                 print "Can't convert end date to GMT\n";
                 exit 1;
             }
-            
+
         }
     }
 
@@ -901,7 +921,7 @@ sub getSnapshotList
             for my $snapitem (@res) {
                 $snapshots->{$snapitem->{reference}} = $snapitem;
                 push(@snapshot_order, $snapitem->{reference});
-            } 
+            }
 
             $self->{_snapshot_list} = \@snapshot_order;
         }
