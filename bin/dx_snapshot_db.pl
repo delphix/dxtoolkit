@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_snapshot_db.pl
 # Description  : Control VDB and dsource databases
 # Author       : Marcin Przepiorowski
@@ -42,17 +42,20 @@ my $version = $Toolkit_helpers::version;
 my $usebackup = 'no';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname),  
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'usebackup=s' => \($usebackup),
+  'backupuuid=s' => \(my $backupuuid),
+  'fullbackup' => \(my $fullbackup),
+  'doublesync' => \(my $doublesync),
   'backupfileslist=s' => \(my $backupfileslist),
-  'backupfilesfile=s' => \(my $backupfilesfile), 
-  'debug:n' => \(my $debug), 
+  'backupfilesfile=s' => \(my $backupfilesfile),
+  'debug:n' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -62,7 +65,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -87,7 +90,7 @@ if (defined($all) && defined($dx_host)) {
 Toolkit_helpers::check_filer_options (1,$type, $group, $host, $dbname, undef, $dsource);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -99,7 +102,7 @@ if (defined($backupfileslist)) {
   if ( ! open($FD, $backupfilesfile) ) {
     print "Can't open a file file backupset definictions\n";
     exit(1);
-  } 
+  }
   chomp(@files_array = <$FD>);
   close $FD;
 }
@@ -113,9 +116,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation  
+  # filter implementation
 
   my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
   if (! defined($db_list)) {
@@ -133,7 +136,15 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbname = $dbobj->getName();
     my $jobno;
 
-    $jobno = $dbobj->snapshot($usebackup, \@files_array);
+    if ( $dbobj->getDBType() eq 'sybase') {
+      $jobno = $dbobj->snapshot($usebackup, \@files_array);
+    } elsif ( $dbobj->getDBType() eq 'mssql') {
+      $jobno = $dbobj->snapshot($usebackup, $backupuuid);
+    } elsif ( $dbobj->getDBType() eq 'oracle') {
+      $jobno = $dbobj->snapshot($fullbackup, $doublesync);
+    } else {
+      $jobno = $dbobj->snapshot($usebackup);
+    }
 
     if (defined ($jobno) ) {
       print "Starting job $jobno for database $dbname.\n";
@@ -157,12 +168,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
   }
-  
+
   if (defined($parallel) && (scalar(@jobs) > 0)) {
     while (scalar(@jobs) > 0) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
-      $ret = $ret + $pret; 
-    }   
+      $ret = $ret + $pret;
+    }
   }
 
 
@@ -177,13 +188,16 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_snapshot_db    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                   < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
-                   [-usebackup yes|no ] 
-                   [-backupfileslist backupfile1,backupfile2,...]
-                   [-backupfilesfile /path/to/file_with_backup]
-                   [ -help|? ] 
-                   [ -debug ] 
-                   [-parallel p]
+                   < -group group_name | -name db_name | -host host_name | -type dsource|vdb >
+                   [ -usebackup yes|no ]
+                   [ -backupfileslist backupfile1,backupfile2,...]
+                   [ -backupfilesfile /path/to/file_with_backup ]
+                   [ -backupuuid uuid ]
+                   [ -fullbackup ]
+                   [ -doublesync ]
+                   [ -help|? ]
+                   [ -debug ]
+                   [ -parallel p ]
 
 =head1 DESCRIPTION
 
@@ -230,7 +244,7 @@ Type (dsource|vdb)
 Name of dSource
 
 
-=back 
+=back
 
 =head1 OPTIONS
 
@@ -246,7 +260,16 @@ For Sybase dSource only - specify a list of backup files as a list of comma sepa
 =item B<-backupfilesfile /path/to/file_with_backup>
 For Sybase dSource only - specify a file contains a list of backup files. One file per line
 
-=item B<-help>          
+=item B<-backupuuid uuid>
+For MS SQL only - UUID of backup to ingest
+
+=item B<-fullbackup>
+For Oracle only - Force full an Oracle backup
+
+=item B<-doublesync>
+For Oracle only - Enable double sync
+
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -265,7 +288,7 @@ Take snapshot of database "autoprov"
  Starting job JOB-251 for database autoprov.
  0 - 95 - 100
  Job JOB-251 finised with state: COMPLETED
- 
+
 Take snapshot of all databases provisioned from dSource "Sybase dsource"
 
  dx_snapshot_db -d Landshark51 -dsource "Sybase dsource"
@@ -276,8 +299,11 @@ Take snapshot of all databases provisioned from dSource "Sybase dsource"
  0 - 100
  Job JOB-192 finished with state: COMPLETED
 
+Take full backup snapshot of dSource "test121"
+
+ dx_snapshot_db -d Landshark5 -name test121 -fullbackup
+ Starting job JOB-7554 for database test121.
+ 0 - 3 - 8 - 15 - 17 - 22 - 29 - 33 - 39 - 45 - 50 - 54 - 58 - 62 - 65 - 70 - 75 - 78 - 100
+ Job JOB-7554 finished with state: COMPLETED
 
 =cut
-
-
-

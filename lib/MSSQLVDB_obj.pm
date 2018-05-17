@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,26 +27,26 @@ package MSSQLVDB_obj;
 use Data::Dumper;
 use strict;
 use warnings;
-use JSON;    
+use JSON;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug, "Entering MSSQLVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
 
 
 
-    # MS SQL specific properties 
+    # MS SQL specific properties
     my %prov = (
             "type" => "MSSqlProvisionParameters",
             "recoveryModel" => "SIMPLE",
@@ -91,7 +91,7 @@ sub new {
 # parameters: none
 # Return database config
 
-sub getConfig 
+sub getConfig
 {
     my $self = shift;
     my $templates = shift;
@@ -100,25 +100,25 @@ sub getConfig
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getConfig",1);
     my $config = '';
     my $joinsep;
-    
+
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
       $joinsep = ',';
     }
-    
+
     if ($self->getType() eq 'VDB') {
-      my $recoveryModel = $self->getRecoveryModel();       
+      my $recoveryModel = $self->getRecoveryModel();
       $config = join($joinsep,($config, "-recoveryModel $recoveryModel"));
     } elsif ($self->getType() eq 'dSource')  {
       my $staging_user = $self->getStagingUser();
       my $staging_env = $self->getStagingEnvironment();
       my $staging_inst = $self->getStagingInst();
-                
+
       $config = join($joinsep,($config, "-stageinst \"$staging_inst\""));
       $config = join($joinsep,($config, "-stageenv \"$staging_env\""));
       $config = join($joinsep,($config, "-stage_os_user \"$staging_user\""));
-    
+
       my $backup_path = $self->getBackupPath();
       if (!defined($backup_path)) {
         #autobackup path
@@ -135,7 +135,7 @@ sub getConfig
       } else {
         $config = join($joinsep,($config, "-validatedsync $vsm -backup_dir \"$backup_path\""));
       }
-      
+
     } else {
       $config = '';
     }
@@ -145,7 +145,7 @@ sub getConfig
     }
 
     return $config;
-    
+
 }
 
 
@@ -153,20 +153,20 @@ sub getConfig
 
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - name - source name
-# Set dsource reference by name for new db. 
+# Set dsource reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setSource {
-    my $self = shift; 
+    my $self = shift;
     #my $name = shift;
     my $sourceitem = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    
+
 
     #my $sources = new Source_obj($dlpxObject, $debug);
     #my $sourceitem = $sources->getSourceByName($name);
@@ -183,34 +183,34 @@ sub setSource {
         }
     } else {
         return 1;
-    }       
+    }
 
 }
 
 # Procedure setName
-# parameters: 
+# parameters:
 # - contname - container name
 # - dbname - database name
-# Set name for new db. 
+# Set name for new db.
 
 sub setName {
     my $self = shift;
-    my $contname = shift;    
+    my $contname = shift;
     my $dbname = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setName",1);
-    
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
-    
+
 }
 
 # Procedure setHost
-# parameters: 
+# parameters:
 # Set host reference for new db. Host reference is set by setEnvironment method
 # Return 0 if success, 1 if not found
 
 sub setHost {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setHost",1);
 
     if (defined ($self->{'_hosts'})) {
@@ -218,21 +218,22 @@ sub setHost {
         return 0;
     } else {
         return 1;
-    }     
+    }
 
 }
 
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # - frombackup - yes/no
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
+    my $uuid = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::snapshot",1);
 
     if (! defined ($frombackup) ) {
@@ -248,8 +249,8 @@ sub snapshot
     }
 
     my %snapshot_type;
-    
-    if ($self->{_dlpxObject}->getApi() lt "1.9") { 
+
+    if ($self->{_dlpxObject}->getApi() lt "1.9") {
 
       if ($self->getType() eq 'VDB') {
           %snapshot_type = (
@@ -257,12 +258,14 @@ sub snapshot
           );
       }
       else {
+
+          # backupUUID: (unset)
           %snapshot_type = (
               "type" => "MSSqlSyncParameters",
               "loadFromBackup" => $frombackup_json
           );
       }
-    
+
     } else {
 
       if ($self->getType() eq 'VDB') {
@@ -274,6 +277,11 @@ sub snapshot
           );
       }
       else {
+
+
+          # type: MSSqlExistingSpecificBackupSyncParameters (*)
+          # backupUUID: (required)
+
           if ( $frombackup eq "yes" ) {
             %snapshot_type = (
                 "type" => "MSSqlExistingMostRecentBackupSyncParameters"
@@ -284,19 +292,19 @@ sub snapshot
                 "compressionEnabled" => JSON::false
             );
           }
-      }  
-      
+      }
+
     }
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
 # Procedure setFileSystemLayout
-# parameters: 
+# parameters:
 # - map_file - hash of map file
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setFileSystemLayout {
-    my $self = shift; 
+    my $self = shift;
     my $targetDirectory = shift;
     my $archiveDirectory = shift;
     my $dataDirectory = shift;
@@ -317,14 +325,14 @@ sub setFileSystemLayout {
     if (defined($dataDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
     } else {
-        $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = "data";    
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = "data";
     }
 
 
     if ( defined($archiveDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"archiveDirectory"} = $archiveDirectory;
     } else {
-         $self->{"NEWDB"}->{"filesystemLayout"}->{"archiveDirectory"} = "logs";       
+         $self->{"NEWDB"}->{"filesystemLayout"}->{"archiveDirectory"} = "logs";
     }
 
     if ( defined($tempDirectory)) {
@@ -334,34 +342,34 @@ sub setFileSystemLayout {
     if ( defined($scriptDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"scriptDirectory"} = $scriptDirectory;
     } else {
-        $self->{"NEWDB"}->{"filesystemLayout"}->{"scriptDirectory"} = "scripts";     
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"scriptDirectory"} = "scripts";
     }
 
     if ( defined($externalDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"externalDirectory"} = $externalDirectory;
     }
 
-}  
+}
 
 
 # Procedure addSource
-# parameters: 
+# parameters:
 # - source - name of source DB
 # - source_osuser - name of source OS user
 # - dbuser - DB user name
 # - password - DB user password
 # - dsource_name - name of dsource in environment
 # - group - dsource  group
-# - logsync 
+# - logsync
 # - env - staging environment
 # - inst - staging instance
 # - stageuser - staging OS user
-# Start job to add Sybase dSource 
+# Start job to add Sybase dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub addSource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -380,7 +388,7 @@ sub addSource {
     my $delphixmanaged = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::addSource",1);
-    
+
     my $config = $self->setConfig($source, $source_inst, $source_env);
 
     if (! defined($config)) {
@@ -438,27 +446,27 @@ sub addSource {
     }
 
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
-    
+
     my $vsm;
-    
+
     if (!defined($validatedSyncMode)) {
       $vsm = "NONE";
     } else {
-      if ( (uc $validatedSyncMode eq 'NONE' ) || (uc $validatedSyncMode eq 'FULL_OR_DIFFERENTIAL' ) || (uc $validatedSyncMode eq 'FULL' ) || (uc $validatedSyncMode eq 'TRANSACTION_LOG' ) ) 
+      if ( (uc $validatedSyncMode eq 'NONE' ) || (uc $validatedSyncMode eq 'FULL_OR_DIFFERENTIAL' ) || (uc $validatedSyncMode eq 'FULL' ) || (uc $validatedSyncMode eq 'TRANSACTION_LOG' ) )
       {
         $vsm = $validatedSyncMode;
       } else {
         print "Invalid validatedSyncMode option - $validatedSyncMode \n";
         return undef;
       }
-                                  
+
     }
 
 
 
     my %dsource_params;
-    
-    
+
+
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
 
 
@@ -483,9 +491,9 @@ sub addSource {
               "pptRepository" => $stagingrepo
           );
       } else {
-        
+
         #print Dumper $backup_dir;
-              
+
         %dsource_params = (
             "type" => "MSSqlLinkParameters",
             "container" => {
@@ -518,19 +526,19 @@ sub addSource {
             "dbUser" => $dbuser,
             "pptRepository"=> $stagingrepo
         );
-        
+
         if ($backup_dir eq '') {
           # autobackup dir set
           delete $dsource_params{source}{sharedBackupLocation};
         }
-        
+
       }
 
       if (defined($dumppwd)) {
         $dsource_params{source}{encryptionKey} = $dumppwd;
       }
 
-      
+
     } else {
         %dsource_params = (
           "type" => "LinkParameters",
@@ -557,20 +565,20 @@ sub addSource {
               "pptRepository"=> $stagingrepo
             }
           );
-          
+
           if (defined($backup_dir) && ($backup_dir eq '')) {
             # autobackup dir set
             delete $dsource_params{"linkData"}{sharedBackupLocation};
           }
-          
+
           if ($self->{_dlpxObject}->getApi() lt "1.9") {
             if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
               $dsource_params{"linkData"}{"delphixManaged"} = JSON::true;
               delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
-            }           
+            }
           } else {
             delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
-            
+
             if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
               $dsource_params{"linkData"}{"delphixManagedStatus"} = 'DELPHIX_MANAGED_UNCOMPRESSED';
               $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNewCopyOnlyFullBackupSyncParameters";
@@ -579,14 +587,14 @@ sub addSource {
               $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlExistingMostRecentBackupSyncParameters";
             }
           }
-          
+
           if (defined($dumppwd)) {
             $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
           }
-          
 
-    }    
-    
+
+    }
+
 
     my $operation = 'resources/json/delphix/database/link';
     my $json_data =to_json(\%dsource_params, {pretty=>1});
@@ -600,17 +608,17 @@ sub addSource {
 
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - source - dsource name
 # - group - new DB group
 # - env - new DB environment
 # - inst - new DB instance
 # Start job to create MS SQL VBD (by default is using recoveryModel - SIMPLE)
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub createVDB {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -649,15 +657,15 @@ sub createVDB {
 
 
 # Procedure v2pSI
-# parameters: 
+# parameters:
 # - env - new DB environment
 # - home - new DB home
 # Start job to create Single Instance Oracle V2P
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub v2p {
-    my $self = shift; 
+    my $self = shift;
 
     my $env = shift;
     my $home = shift;
@@ -692,7 +700,7 @@ sub v2p {
 
     $self->{"NEWDB"}->{"type"} = "MSSqlExportParameters";
     $self->{"NEWDB"}->{"recoverDatabase"} = JSON::true;
-    
+
 
     # this two sections are not used in V2P
     delete $self->{"NEWDB"}->{"container"};
@@ -707,12 +715,12 @@ sub v2p {
 }
 
 # Procedure preScript
-# parameters: 
+# parameters:
 # - script - path
 # Add pre script for provisioning
 
 sub setPreScript {
-    my $self = shift; 
+    my $self = shift;
     my $path = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setPreScript",1);
     $self->{"NEWDB"}->{"source"}->{"preScript"} = $path;
@@ -721,12 +729,12 @@ sub setPreScript {
 
 
 # Procedure postScript
-# parameters: 
+# parameters:
 # - script - path
 # Add pre script for provisioning
 
 sub setPostScript {
-    my $self = shift; 
+    my $self = shift;
     my $path = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setPostScript",1);
     $self->{"NEWDB"}->{"source"}->{"postScript"} = $path;
@@ -734,13 +742,13 @@ sub setPostScript {
 }
 
 # Procedure upgradeVDB
-# parameters: 
+# parameters:
 # - home - new DB home
 # Upgrade VDB
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub upgradeVDB {
-    my $self = shift; 
+    my $self = shift;
     my $home = shift;
     my $ret;
 
@@ -751,11 +759,11 @@ sub upgradeVDB {
 }
 
 # Procedure getBackupPath
-# parameters: 
+# parameters:
 # Return backup path
 
 sub getBackupPath {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getBackupPath",1);
     return $self->{source}->{sharedBackupLocation};
@@ -763,11 +771,11 @@ sub getBackupPath {
 }
 
 # Procedure setRecoveryModel
-# parameters: 
+# parameters:
 # Return recovery mode
 
 sub setRecoveryModel {
-    my $self = shift; 
+    my $self = shift;
     my $recoveryModel = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setRecoveryModel",1);
@@ -780,11 +788,11 @@ sub setRecoveryModel {
 }
 
 # Procedure getRecoveryMode
-# parameters: 
+# parameters:
 # Return recovery mode
 
 sub getRecoveryModel {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getRecoveryModel",1);
     return $self->{sourceConfig}->{recoveryModel};
@@ -792,11 +800,11 @@ sub getRecoveryModel {
 }
 
 # Procedure getValidatedMode
-# parameters: 
+# parameters:
 # Return validated mode
 
 sub getValidatedMode {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedMode",1);
     my $ret;
@@ -810,21 +818,21 @@ sub getValidatedMode {
 }
 
 # Procedure getDelphixManaged
-# parameters: 
+# parameters:
 # Return validated mode
 
 sub getDelphixManaged {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getDelphixManaged",1);
     my $ret;
-    
+
     if ($self->{_dlpxObject}->getApi() lt "1.9") {
       if (defined($self->{container}->{delphixManaged})) {
         $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
       }
     } else {
-            
+
       if (defined($self->{container}->{delphixManagedStatus})) {
         if ($self->{container}->{delphixManagedStatus} eq 'NOT_DELPHIX_MANAGED') {
           $ret = 'no';
@@ -838,18 +846,18 @@ sub getDelphixManaged {
 }
 
 # Procedure attach_dsource
-# parameters: 
-# - dbuser 
-# - dbpassword 
-# - envuser 
+# parameters:
+# - dbuser
+# - dbpassword
+# - envuser
 # - envsrc
-# - srcdb 
+# - srcdb
 # attach dsource
 # Return job number if job started or undef otherwise
 
-sub attach_dsource 
+sub attach_dsource
 {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -912,11 +920,11 @@ sub attach_dsource
         "preSync" => \@preSync,
         "postSync" => \@postSync
     );
-    
+
     if (!defined($vsm)) {
       $vsm='NONE';
     }
-    
+
     my %attach_data;
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
       %attach_data = (
@@ -963,17 +971,17 @@ sub attach_dsource
 
     #print Dumper $json_data;
 
-    return $self->runJobOperation($operation,$json_data, 'ACTION');    
+    return $self->runJobOperation($operation,$json_data, 'ACTION');
 }
 
 # Procedure setEncryption
-# parameters: 
+# parameters:
 # - password - encryption key
 # set backup password
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub setEncryption {
-    my $self = shift; 
+    my $self = shift;
     my $password = shift;
     my $ret;
 
@@ -983,7 +991,7 @@ sub setEncryption {
     my $source = $self->{source}->{reference};
 
     my %encryption_hash = (
-        type => "MSSqlLinkedSource",  
+        type => "MSSqlLinkedSource",
         encryptionKey=>$password
     );
 

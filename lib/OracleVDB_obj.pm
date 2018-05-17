@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,18 +48,18 @@ use Repository_obj;
 # use Hook_obj;
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug,"Entering OracleVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
-    
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
+
     # Oracle specific properties - set to default for new DB
     my @services ;
     my @nodeListenerList ;
@@ -133,55 +133,55 @@ sub new {
 # parameters: none
 # Return database config
 
-sub getConfig 
+sub getConfig
 {
     my $self = shift;
     my $templates = shift;
     my $backup = shift;
     my $groups = shift;
-    
+
     logger($self->{_debug}, "Entering OracleVDB_obj::getConfig",1);
-    
+
     my $config = '';
     my $joinsep;
-    
+
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
       $joinsep = ',';
     }
 
-    
+
     if ($self->getType() eq 'VDB') {
-    
+
       my $mntpoint = $self->getMountPoint();
       my $archlog = $self->getArchivelog();
       my $tempref = $self->getTemplateRef();
       my $listnames = $self->getListenersNames();
       my $redogroups = $self->getRedoGroupNumber();
 
-      
+
       my $cdbref = $self->getCDBContainerRef();
-      
+
       if (defined($cdbref)) {
         #vPDB
-        
+
         #check if vCDB
-        
+
         my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
-        
+
         if ($sourceobj->{type} eq 'OracleVirtualSource') {
             # this is a vCDB
-            
+
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
               $config = join($joinsep,($config, "-vcdbtemplate $vcdbtempname"));
             }
-            
-            
-            
+
+
+
             my $dbobj = $self->{_databases}->getDB($sourceobj->{container});
-            
+
             if (defined($dbobj)) {
               my $vcdbdbname = $dbobj->getDatabaseName();
               my $vcdbuniqname = $dbobj->getUniqueName();
@@ -194,42 +194,42 @@ sub getConfig
               print "Something went wrong. No vCDB found.\n";
               $config = join($joinsep,($config, "vCDB parameters not found"));
             }
-                        
+
         } else {
             # this is a CDB
-            my $cdbname = $self->{_sourceconfig}->getName($cdbref); 
+            my $cdbname = $self->{_sourceconfig}->getName($cdbref);
             $config = join($joinsep,($config, "-cdb $cdbname"));
         }
       } else {
         #non vPDB
         if ($redogroups ne 'N/A') {
-          $config = join($joinsep,($config, "-redoGroup $redogroups")); 
+          $config = join($joinsep,($config, "-redoGroup $redogroups"));
           my $redosize = $self->getRedoGroupSize();
           if (($redosize ne 'N/A') && ($redosize ne 0)) {
             $config = join($joinsep,($config, "-redoSize $redosize"));
           }
         }
-        $config = join($joinsep,($config, "-$archlog")) ;   
+        $config = join($joinsep,($config, "-$archlog")) ;
         if (defined($listnames) && ($listnames ne '')) {
           $config = join($joinsep,($config, "-listeners $listnames"));
-        }     
+        }
       }
 
-                  
+
       if (defined($tempref)) {
         my $tempname = $templates->getTemplate($tempref)->{name};
         $config = join($joinsep,($config, "-template $tempname"));
       }
       $config = join($joinsep,($config, "-mntpoint \"$mntpoint\""));
-        
+
       #if one instance use -instanceName
       my $instances = $self->getInstances();
-                          
+
       if ($self->isRAC()) {
-        #rac 
+        #rac
         my $rac = '';
         for my $inst (@{$instances}) {
-          $rac = $rac . "-rac_instance " . $self->getInstanceNode($inst->{instanceNumber}) . "," . $inst->{instanceName} . "," . $inst->{instanceNumber} . " "; 
+          $rac = $rac . "-rac_instance " . $self->getInstanceNode($inst->{instanceNumber}) . "," . $inst->{instanceName} . "," . $inst->{instanceNumber} . " ";
         }
         $config = join($joinsep,($config, $rac));
       } else {
@@ -237,20 +237,20 @@ sub getConfig
           $config = join($joinsep,($config, "-instname " . $instances->[-1]->{instanceName}));
         }
       }
-        
+
       my $unique = $self->getUniqueName();
       if ($unique ne 'N/A') {
         $config = join($joinsep,($config, "-uniqname $unique"));
       }
-    
+
     }
-    
+
     if ( (my $rest) = $config =~ m/^,(.*)/ ) {
       $config = $rest;
     }
-  
+
     return $config;
-    
+
 }
 
 
@@ -258,7 +258,7 @@ sub getConfig
 # parameters: none
 # Return database instance information
 
-sub getInstances 
+sub getInstances
 {
     my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getInstances",1);
@@ -283,18 +283,18 @@ sub getInstances
 }
 
 # Procedure getInstanceNumber
-# parameters: 
+# parameters:
 # - instance name
 # Return instance number or undef if not found
 
-sub getInstanceNumber 
+sub getInstanceNumber
 {
     my $self = shift;
     my $instancename = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getInstanceNumber",1);
 
     my $ret;
-    
+
     my $inst = $self->{instances};
 
     my @num = grep { $inst->{$_}->{name} eq $instancename } keys %{$inst};
@@ -311,11 +311,11 @@ sub getInstanceNumber
 
 
 # Procedure getInstanceNode
-# parameters: 
+# parameters:
 # - instanceNumber
 # Return instance host
 
-sub getInstanceNode 
+sub getInstanceNode
 {
     my $self = shift;
     my $instanceNumber = shift;
@@ -334,11 +334,11 @@ sub getInstanceNode
 
 
 # Procedure getInstanceHost
-# parameters: 
+# parameters:
 # - instanceNumber
 # Return instance host
 
-sub getInstanceHost 
+sub getInstanceHost
 {
     my $self = shift;
     my $instanceNumber = shift;
@@ -356,11 +356,11 @@ sub getInstanceHost
 }
 
 # Procedure getInstanceStatus
-# parameters: 
+# parameters:
 # - instanceNumber
 # Return instance host
 
-sub getInstanceStatus 
+sub getInstanceStatus
 {
     my $self = shift;
     my $instanceNumber = shift;
@@ -389,7 +389,7 @@ sub getInstanceStatus
 }
 
 # Procedure getCDBContainerRef
-# parameters: 
+# parameters:
 # Return CDB ref or undef if not vPDB
 
 sub getCDBContainerRef
@@ -400,20 +400,20 @@ sub getCDBContainerRef
     my $ret;
 
     if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
-      my $cdbref = $self->{sourceConfig}->{cdbConfig};      
+      my $cdbref = $self->{sourceConfig}->{cdbConfig};
       $ret = $cdbref;
     };
-    
+
     return $ret;
 }
 
 # Procedure start
 # parameters: none
 # Start VDB
-# - instance 
+# - instance
 # Return job number if job started or undef otherwise
 
-sub start 
+sub start
 {
     my $self = shift;
     my $instance = shift;
@@ -437,10 +437,10 @@ sub start
 # Procedure stop
 # parameters: none
 # Stop VDB
-# - instance 
+# - instance
 # Return job number if job started or undef otherwise
 
-sub stop 
+sub stop
 {
     my $self = shift;
     my $instance = shift;
@@ -465,7 +465,7 @@ sub stop
 # parameters: none
 # Return database bct information
 
-sub getBCT 
+sub getBCT
 {
     my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getBCT",1);
@@ -480,12 +480,12 @@ sub getBCT
 }
 
 # Procedure setDefaultParams
-# parameters: 
+# parameters:
 # Get defaults for provisioning
 # Return 0 if success, 1 if not found
 
 sub setDefaultParams {
-    my $self = shift; 
+    my $self = shift;
     my $version = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setDefaultParams",1);
     my $operation = "resources/json/delphix/database/provision/defaults";
@@ -522,13 +522,13 @@ sub setDefaultParams {
 
 
 # Procedure setVersion
-# parameters: 
+# parameters:
 # - version - source version
 # Set compatible parameter to first 4 digit of source
 # Return 0 if success, 1 if not found
 
 sub setVersion {
-    my $self = shift; 
+    my $self = shift;
     my $version = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setVersion",1);
 
@@ -536,27 +536,27 @@ sub setVersion {
     my @ver = split ('\.',$version);
     splice (@ver, 4);
     my $ora_ver = join ('.', @ver);
- 
+
     $self->{"NEWDB"}->{"source"}->{"configParams"}->{"compatible"} = $ora_ver;
 }
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - source - source hash
 # Set dsource reference by name for new db
 # Return 0 if success, 1 if not found
 
 sub setSource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
-      
+
     $self->{_sourcedb} = $source;
 
     if (defined ($source)) {
-        
+
         my $sourcetype = $source->{container}->{'type'};
         if (($sourcetype eq 'OracleDatabaseContainer') || ($sourcetype eq 'OracleVirtualSource')) {
             $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"}  = $source->{container}->{reference};
@@ -566,7 +566,7 @@ sub setSource {
         }
     } else {
         return 1;
-    }       
+    }
 
 }
 
@@ -580,22 +580,22 @@ sub getListenersNames
     logger($self->{_debug}, "Entering OracleVDB_obj::getListenersNames",1);
 
     my $ret = '';
-    
+
     my $envref;
-    
+
     if (defined($self->{environment})) {
         $envref = $self->{environment}->{reference};
-    } 
-    
+    }
+
     my $listloc;
-    
+
     if ($self->{_dlpxObject}->getApi() lt "1.9") {
       $listloc = 'nodeListenerList';
     } else {
-      $listloc = 'nodeListeners'; 
+      $listloc = 'nodeListeners';
     }
-    
-    
+
+
     if (defined($self->{_environment})) {
       if (defined($self->{source}->{$listloc})) {
         my @listarr;
@@ -613,13 +613,13 @@ sub getListenersNames
 
 
 # Procedure setListener
-# parameters: 
+# parameters:
 # - name - list of listeners names separated by commas
 # Set listeners for new db
 # Return 0 if success, 1 if not found
 
 sub setListener {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setListener",1);
 
@@ -637,7 +637,7 @@ sub setListener {
     }
 
     my @listrefarray;
-    
+
     for my $listname (split(',', $name)) {
       my $listref = $environments->getListenerByName($self->{'_newenv'}, $listname);
       if (defined($listref)) {
@@ -647,13 +647,13 @@ sub setListener {
         return 1;
       }
     }
-        
+
     $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
     return 0;
   }
 
   # Procedure isRAC
-  # parameters: 
+  # parameters:
   # Return 1 if RAC database
 
   sub isRAC {
@@ -663,19 +663,19 @@ sub setListener {
         if ($self->{sourceConfig}->{type} eq 'OracleRACConfig') {
           $ret = 1
         }
-      } 
+      }
       return $ret;
   }
 
 
 # Procedure getUniqueName
-# parameters: 
+# parameters:
 # Get unique name of Oracle database
 
 sub getUniqueName {
     my $self = shift;
     my $ret;
-    
+
     if (defined($self->{sourceConfig}) && ($self->{sourceConfig} ne 'NA') && defined($self->{sourceConfig}->{uniqueName}) ) {
       $ret = $self->{sourceConfig}->{uniqueName};
     } else {
@@ -686,12 +686,12 @@ sub getUniqueName {
 
 
 # Procedure setName
-# parameters: 
+# parameters:
 # - contname - container name
 # - dbname - database name
 # - unique_name - database unique name - if not defined set to dbname
 # - instance_name - instance name - if not defined set to dbname
-# Set name for new db. 
+# Set name for new db.
 
 sub setName {
     my $self = shift;
@@ -699,7 +699,7 @@ sub setName {
     my $dbname = shift;
     my $unique_name = shift;
     my $instance_name = shift;
-    
+
     logger($self->{_debug}, "Entering OracleVDB_obj::setName",1);
 
     if (! defined ($unique_name) ) {
@@ -708,68 +708,68 @@ sub setName {
 
     if (! defined ($instance_name) ) {
         $instance_name = $dbname;
-    }        
-    
+    }
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"} = $unique_name;
-    $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"} = $instance_name;    
-    
+    $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"} = $instance_name;
+
 }
 
 # Procedure getTemplateRef
-# parameters: 
+# parameters:
 # Return template reference
 
 sub getTemplateRef {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getTemplateRef",1);
 
     my $ret;
     if (defined($self->{source}->{configTemplate})) {
       $ret = $self->{source}->{configTemplate};
-    } 
+    }
     return $ret;
 }
 
 # Procedure getTemplate
-# parameters: 
+# parameters:
 # - name - template name
 # Return template ref
 
 sub getTemplate {
-  my $self = shift; 
+  my $self = shift;
   my $name = shift;
 
   logger($self->{_debug}, "Entering OracleVDB_obj::getTemplate",1);
-  
+
   my $dlpxObject = $self->{_dlpxObject};
   my $debug = $self->{_debug};
   my $templates;
-  
-  
+
+
   if (defined($self->{_templates})) {
     $templates = $self->{_templates};
   } else {
     $templates = new Template_obj($dlpxObject, $debug);
     $self->{_templates} = $templates;
   }
-  
+
   my $templateitem = $templates->getTemplateByName($name);
-  
+
   return $templateitem;
-  
+
 }
 
 
 # Procedure setTemplate
-# parameters: 
+# parameters:
 # - name - template name
-# Set template reference by name for new db. 
+# Set template reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setTemplate {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
 
     logger($self->{_debug}, "Entering OracleVDB_obj::setTemplate",1);
@@ -782,52 +782,52 @@ sub setTemplate {
         return 0;
     } else {
         return 1;
-    }       
+    }
 
 }
 
 # Procedure getMountPoint
-# parameters: 
-# Get mountpoint of DB. 
+# parameters:
+# Get mountpoint of DB.
 
 sub getMountPoint {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getMountPoint",1);
     return $self->{"source"}->{"mountBase"};
-} 
+}
 
 # Procedure setMountPoint
-# parameters: 
+# parameters:
 # - mountpoint - mount point
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setMountPoint {
-    my $self = shift; 
+    my $self = shift;
     my $mountpoint = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setMountPoint",1);
     $self->{"NEWDB"}->{"source"}->{"mountBase"} = $mountpoint;
-}   
+}
 
 # Procedure setArchivelog
-# parameters: 
+# parameters:
 # - archivelog - type
 # Set archivelog or noarchivelog
 
 sub setArchivelog {
-    my $self = shift; 
+    my $self = shift;
     my $archlog = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setArchivelog",1);
 
     my $archlog_param = $archlog eq 'yes' ? JSON::true : JSON::false;
 
     $self->{"NEWDB"}->{"source"}->{"archivelogMode"} = $archlog_param;
-}   
+}
 
 # Procedure getArchivelog
 # Get archivelog or noarchivelog
 
 sub getArchivelog {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getArchivelog",1);
 
     my $archlog_param;
@@ -854,175 +854,175 @@ sub getArchivelog {
     }
 
     return $archlog_param;
-}   
+}
 
 
 # Procedure getRedoGroupNumber
 # Get redo groups number of VDB
 
 sub getRedoGroupNumber {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getRedoGroupNumber",1);
 
     my $redogroups = defined($self->{source}->{redoLogGroups}) ? $self->{source}->{redoLogGroups} : 'N/A';
 
     return $redogroups;
-} 
+}
 
 # Procedure setRedoGroupNumber
 # Set redo groups number of VDB
 
 sub setRedoGroupNumber {
-    my $self = shift; 
+    my $self = shift;
     my $redogroups = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupNumber",1);
 
     if ($self->{_dlpxObject}->getApi() ge "1.5") {
       $self->{NEWDB}->{source}->{redoLogGroups} = 0 + $redogroups;
     }
-    
-} 
+
+}
 
 # Procedure getRedoGroupSize
 # Get redo groups size in MB of VDB
 
 sub getRedoGroupSize {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getRedoGroupSize",1);
 
     my $redogroups = defined($self->{source}->{redoLogSizeInMB}) ? $self->{source}->{redoLogSizeInMB} : 'N/A';
 
     return $redogroups;
-} 
+}
 
 # Procedure setRedoGroupNumber
 # Set redo groups size in MB of VDB
 
 sub setRedoGroupSize {
-    my $self = shift; 
+    my $self = shift;
     my $redosize = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupSize",1);
 
     if ($self->{_dlpxObject}->getApi() ge "1.5") {
       $self->{NEWDB}->{source}->{redoLogSizeInMB} = 0+ $redosize;
     }
-    
-} 
+
+}
 
 # Procedure setMapFile
-# parameters: 
+# parameters:
 # - map_file - hash of map file
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setMapFile {
-    my $self = shift; 
+    my $self = shift;
     my $map_file = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setMapFile",1);
     $self->{"NEWDB"}->{"source"}->{"fileMappingRules"} = $map_file;
-}  
+}
 
 
 # Procedure setNoOpenResetLogs
-# parameters: 
+# parameters:
 # Set no open database with reset logs after provision
 
 sub setNoOpenResetLogs {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setNoOpenResetLogs",1);
     $self->{"NEWDB"}->{"openResetlogs"} = JSON::false;
-}  
+}
 
 
 # Procedure setNoOpen
-# parameters: 
+# parameters:
 # Set no open database after v2p
 
 sub setNoOpen {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setNoOpen",1);
     $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
-}  
+}
 
 # Procedure setDSP
-# parameters: 
+# parameters:
 #  - numConnections: 1 (*)
 #  - compression: false (*)
 #  - encryption: false (*)
 #  - bandwidthLimit: 0 (*)
 # set DSP protocol settings for V2P
 
-sub setDSP 
+sub setDSP
 {
     my $self = shift;
     my $numConnections = shift;
     my $compression = shift;
     my $encryption = shift;
     my $bandwidthLimit = shift;
-    
+
     logger($self->{_debug}, "Entering VDB_obj::setDSP",1);
-    
+
     if (!defined($numConnections)) {
       $numConnections = 1;
     }
-    
+
     if (!defined($compression)) {
       $compression = JSON::false;
     } else {
       $compression = JSON::true;
     }
-    
+
     if (!defined($encryption)) {
       $encryption = JSON::false;
     } else {
       $encryption = JSON::true;
     }
-    
+
     if (!defined($bandwidthLimit)) {
       $bandwidthLimit = 0;
     }
-    
+
     my %hash_dsp = (
           "type" => "DSPOptions",
           "bandwidthLimit" => $bandwidthLimit,
           "compression" => $compression,
           "encryption" => $encryption,
-          "numConnections" => $numConnections   
+          "numConnections" => $numConnections
     );
-    
-    
+
+
     $self->{"NEWDB"}->{"dspOptions"} = \%hash_dsp;
-        
+
 }
 
 
 
 # Procedure setFileParallelism
 # parameters:
-# - number of concurrent files 
+# - number of concurrent files
 # Set no open database after v2p
 
 sub setFileParallelism {
-    my $self = shift; 
+    my $self = shift;
     my $numfiles = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setFileParallelism",1);
-    
+
     if (!defined($numfiles)) {
       print "Number of concurrent files is not defined";
       return 1;
     } else {
-      $self->{"NEWDB"}->{"fileParallelism"} = $numfiles;      
+      $self->{"NEWDB"}->{"fileParallelism"} = $numfiles;
       return 0;
     }
-}  
+}
 
 
 # Procedure refresh
-# parameters: 
+# parameters:
 # - timestamp - timestamp / LATEST_POINT / LATEST_SNAPSHOT
 # refresh VDB
 # Return job number if job started or undef otherwise
 
-sub refresh 
+sub refresh
 {
     my $self = shift;
     my $timestamp = shift;
@@ -1032,12 +1032,12 @@ sub refresh
 }
 
 # Procedure disable
-# parameters: 
+# parameters:
 # - force
 # Disable database
 # Return job number if job started or undef otherwise
 
-sub disable 
+sub disable
 {
     my $self = shift;
     my $force = shift;
@@ -1046,12 +1046,12 @@ sub disable
 }
 
 # Procedure delete
-# parameters: 
+# parameters:
 # - force
 # Delete database
 # Return job number if job started or undef otherwise
 
-sub delete 
+sub delete
 {
     my $self = shift;
     my $force = shift;
@@ -1061,12 +1061,12 @@ sub delete
 
 
 # Procedure rewind
-# parameters: 
+# parameters:
 # - timestamp - timestamp / LATEST_POINT / LATEST_SNAPSHOT
 # rewind VDB
 # Return job number if job started or undef otherwise
 
-sub rewind 
+sub rewind
 {
     my $self = shift;
     my $timestamp = shift;
@@ -1076,34 +1076,44 @@ sub rewind
 }
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
-    my $timestamp = shift;
+    my $full = shift;
+    my $double = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::snapshot",1);
     my %snapshot_type = (
         "type" => "OracleSyncParameters"
     );
+
+    if (defined($full)) {
+      $snapshot_type{"forceFullBackup"} = JSON::true;
+    }
+
+    if (defined($double)) {
+      $snapshot_type{"doubleSync"} = JSON::true;
+    }
+
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
 # Procedure attach_dsource
-# parameters: 
-# - dbuser 
-# - dbpassword 
-# - envuser 
+# parameters:
+# - dbuser
+# - dbpassword
+# - envuser
 # - envsrc
-# - srcdb 
+# - srcdb
 # attach dsource
 # Return job number if job started or undef otherwise
 
-sub attach_dsource 
+sub attach_dsource
 {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -1172,22 +1182,22 @@ sub attach_dsource
                 "dbUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
-      );    
+      );
     }
 
     my $operation = 'resources/json/delphix/database/'. $self->{container}->{reference} .'/attachSource' ;
     my $json_data = encode_json(\%attach_data);
-    return $self->runJobOperation($operation,$json_data, 'ACTION');    
+    return $self->runJobOperation($operation,$json_data, 'ACTION');
 }
 
 
 # Procedure setRacProvisioning
-# parameters: 
+# parameters:
 # - instances - array of hashes ( instance no - instance name - node )
 
 
 sub setRacProvisioning {
-    my $self = shift; 
+    my $self = shift;
 
     my $instances = shift;
 
@@ -1203,7 +1213,7 @@ sub setRacProvisioning {
     my $instance_number = 1;
 
     if (defined ($instances) ) {
-        # provision for a list 
+        # provision for a list
         my %node_names = map { $_->{name} => $_->{reference} } @{$env_nodes};
 
         my %instance_numbers;
@@ -1216,7 +1226,7 @@ sub setRacProvisioning {
 
                 if (defined ($instance_numbers{$inst_no})) {
                     print "Instance number " . $inst_no . " has to be unique.\n";
-                    return 1;   
+                    return 1;
                 }
 
                 $instance_numbers{$inst_no} = 1;
@@ -1227,7 +1237,7 @@ sub setRacProvisioning {
                     "instanceName" =>  (split(',',$inst))[1],
                     "node" => $node_names{$nodename}
                 );
-                push (@instanceArray, \%inst);    
+                push (@instanceArray, \%inst);
             } else {
                 print "Node name " . $nodename . " not found.\n";
                 return 1;
@@ -1247,7 +1257,7 @@ sub setRacProvisioning {
             push (@instanceArray, \%inst);
         }
 
-    }   
+    }
 
 
 
@@ -1262,7 +1272,7 @@ sub setRacProvisioning {
 }
 
 # Procedure discoverPDB
-# parameters: 
+# parameters:
 # - cdb - name of source CDB
 # - source_inst - name of source inst
 # - source_env - name of source env
@@ -1273,7 +1283,7 @@ sub setRacProvisioning {
 # Discover PDB in a specified CDB
 
 sub discoverPDB {
-    my $self = shift; 
+    my $self = shift;
     my $source_inst = shift;
     my $source_env = shift;
     my $cdbname = shift;
@@ -1288,7 +1298,7 @@ sub discoverPDB {
         print "Source container database $cdbname not found\n";
         return undef;
     }
-    
+
     if ($cdb->{'cdbType'} ne 'ROOT_CDB') {
       my %updatecdb = (
         "type" => "OracleSIConfig",
@@ -1298,7 +1308,7 @@ sub discoverPDB {
           "password" => $cdbpass
         }
       );
-      
+
       my $json_data = encode_json(\%updatecdb);
 
       logger($self->{_debug}, $json_data, 2);
@@ -1315,14 +1325,14 @@ sub discoverPDB {
       } else {
           print "There was a problem with setting a credentials for CDB $cdbname \n";
           return 1;
-      }  
-      
+      }
+
       $self->{_sourceconfig}->refresh();
       if ($self->{_sourceconfig}->getSourceConfig($cdb->{reference})->{'cdbType'} eq 'ROOT_CDB') {
         return 0;
       } else {
         print "Database $cdbname is not a CDB \n";
-        return 1;    
+        return 1;
       }
     } else {
       return 0;
@@ -1331,7 +1341,7 @@ sub discoverPDB {
 }
 
 # Procedure addSource
-# parameters: 
+# parameters:
 # - source - name of source DB
 # - source_inst - name of source inst
 # - source_env - name of source env
@@ -1341,12 +1351,12 @@ sub discoverPDB {
 # - dsource_name - name of dsource in environment
 # - group - dsource  group
 
-# Start job to add Oracle dSource 
+# Start job to add Oracle dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub addSource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -1371,13 +1381,13 @@ sub addSource {
         print "Username or password is invalid or database is down.\n";
         return undef;
     }
-    
+
     if ( $self->setGroup($group) ) {
         print "Group $group not found. dSource won't be created\n";
         return undef;
     }
 
-    if (!defined($self->{_repository})) { 
+    if (!defined($self->{_repository})) {
         $self->{_repository} = new Repository_obj($self->{_dlpxObject}, $self->{_debug});
     }
 
@@ -1398,7 +1408,7 @@ sub addSource {
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
 
     my %dsource_params;
-    
+
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
       %dsource_params = (
             "environmentUser" => $source_os_ref,
@@ -1433,11 +1443,11 @@ sub addSource {
             "linkNow" => JSON::true,
             "dbUser" => $dbuser
       );
-      
+
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"type"} = 'OraclePDBLinkParameters';
-      } 
-      
+      }
+
     } else {
         %dsource_params = (
           "type" => "LinkParameters",
@@ -1460,18 +1470,18 @@ sub addSource {
               "compressedLinkingEnabled" => JSON::true
           }
       );
-      
+
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkData";
-      } 
-      
+      }
+
     }
 
 
     my $operation = 'resources/json/delphix/database/link';
     my $json_data = to_json(\%dsource_params, {pretty=>1});
     #my $json_data = encode_json(\%dsource_params, pretty=>1);
-    
+
     logger($self->{_debug}, $json_data, 1);
 
     return $self->runJobOperation($operation,$json_data, 'ACTION');
@@ -1479,7 +1489,7 @@ sub addSource {
 }
 
 # Procedure findCDBonEnvironment
-# parameters: 
+# parameters:
 # - group - new DB group
 # - env - new DB environment
 # - home - new DB home
@@ -1487,20 +1497,20 @@ sub addSource {
 # - instance array
 # Start job to create Single Instance Oracle VDB
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub findCDBonEnvironment {
-    my $self = shift; 
+    my $self = shift;
     my $cdbname = shift;
 
     my $sourceconfig = new SourceConfig_obj($self->{_dlpxObject}, $self->{_debug});
-    
+
     my $cdbconf;
-    
+
     if (defined($cdbname)) {
       my $cdbobj = $sourceconfig->getSourceConfigByName($cdbname);
       if (defined($cdbobj)) {
-        $cdbconf = $cdbobj->{reference};   
+        $cdbconf = $cdbobj->{reference};
       } else {
         print "CDB named $cdbname not found in Oracle Home and envitonment\n";
       }
@@ -1514,19 +1524,19 @@ sub findCDBonEnvironment {
       } elsif (scalar(@cdbList) < 1) {
         print "There is non CDB in found in Oracle Home and environment. Please check it\n";
         return undef;
-      } 
-      
+      }
+
       $cdbconf = $cdbList[-1];
-      
+
     }
 
-    
+
     return $cdbconf;
-    
+
 }
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - vcdbname
 # - vcdbgroup
 # - vcdbdbname
@@ -1538,15 +1548,15 @@ sub findCDBonEnvironment {
 
 sub setupVCDB {
 
-    my $self = shift; 
-    my $vcdbname = shift; 
-    my $vcdbgroup = shift; 
-    my $vcdbdbname = shift; 
-    my $vcdbinstname = shift; 
-    my $vcdbuniqname = shift; 
-    my $vcdbtemplate = shift; 
+    my $self = shift;
+    my $vcdbname = shift;
+    my $vcdbgroup = shift;
+    my $vcdbdbname = shift;
+    my $vcdbinstname = shift;
+    my $vcdbuniqname = shift;
+    my $vcdbtemplate = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setupVCDB",1);
-    
+
     $self->{_vcdbname} = $vcdbname;
     $self->{_vcdbgroup} = $vcdbgroup;
     $self->{_vcdbdbname} = $vcdbdbname;
@@ -1555,10 +1565,10 @@ sub setupVCDB {
     $self->{_vcdbtemplate} = $vcdbtemplate;
 
 }
-    
+
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - group - new DB group
 # - env - new DB environment
 # - home - new DB home
@@ -1566,10 +1576,10 @@ sub setupVCDB {
 # - instance array
 # Start job to create Single Instance Oracle VDB
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub createVDB {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -1590,25 +1600,25 @@ sub createVDB {
         print "Home $home in environment $env not found. VDB won't be created\n";
         return undef;
     }
-    
+
 
     if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
-  
-  
+
+
     logger($self->{_debug}, "Target environment type " . Dumper $self->{_newenvtype}, 2 );
-    
+
     if ($self->{'_newenvtype'} eq 'OracleCluster') {
         if ( $self->setRacProvisioning($instances) ) {
             print "Problem with node names or instance numbers. Please double check.";
             return undef;
         }
     } else {
-      
+
       my $configtype = $self->{_sourcedb}->getSourceConfigType();
-      
+
       if ($configtype eq 'OracleRACConfig') {
         # source was RAC but target enviroment is not RAC
         $configtype = "OracleSIConfig";
@@ -1617,7 +1627,7 @@ sub createVDB {
         $configtype = "OracleSIConfig";
       }
       $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
-         
+
     }
 
     logger($self->{_debug}, "Target sourceConfig type " . Dumper $self->{"NEWDB"}->{"sourceConfig"}->{"type"}, 2 );
@@ -1627,44 +1637,44 @@ sub createVDB {
         print "Container name (-cdb) or virtual CDB settings has to be set for vPDB provisioning. VDB won't be created\n";
         return undef;
       }
-      
+
       if ($self->{_dlpxObject}->getApi() ge '1.9.0') {
         $self->{"NEWDB"}->{"type"} = "OracleMultitenantProvisionParameters";
         $self->{"NEWDB"}->{"source"}->{"type"} = "OracleVirtualPdbSource";
       }
 
-      
+
       if (defined($cdbname)) {
         # provision to existing CDB
-        my $cdbconf = $self->findCDBonEnvironment($cdbname);  
+        my $cdbconf = $self->findCDBonEnvironment($cdbname);
         if (!(defined($cdbconf))) {
           print "Container name $cdbname not found. VDB won't be created\n";
           return undef;
-        }   
+        }
         $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
       } else {
-        # creating a vCDB 
-        
+        # creating a vCDB
+
         if ($self->{_dlpxObject}->getApi() lt '1.9.0') {
           print "Virtual CDB is supported in Delphix Engine 5.2 or higher\n";
           return undef;
         }
-        
+
         my $vcdbgroupref;
-        if (defined($self->{_vcdbgroup})) {          
+        if (defined($self->{_vcdbgroup})) {
           if (defined($self->{_groups}->getGroupByName($self->{_vcdbgroup}))) {
             $vcdbgroupref = $self->{_groups}->getGroupByName($self->{_vcdbgroup})->{reference};
           } else {
             print "Group for vcdb - " . $self->{_vcdbgroup} . " not found. VDB won't be created\n";
-            return undef;            
+            return undef;
           }
         } else {
           $vcdbgroupref = $self->{"NEWDB"}->{"container"}->{"group"};
         }
-        
+
         my $vcdbinstname;
         my $vcdbuniqname;
-        
+
         if (defined($self->{_vcdbuniqname})) {
           $vcdbuniqname = $self->{_vcdbuniqname};
         } else {
@@ -1676,7 +1686,7 @@ sub createVDB {
         } else {
           $vcdbinstname = $self->{_vcdbdbname};
         }
-        
+
 
         my %virtcdbhash = (
           "type" => "OracleVirtualCdbProvisionParameters",
@@ -1700,9 +1710,9 @@ sub createVDB {
                   "instanceNumber" => 1,
                   "instanceName" => $vcdbinstname
               }
-          }          
+          }
         );
-                
+
         if (defined($self->{_vcdbtemplate})) {
           my $vcdbtemplateref = $self->getTemplate($self->{_vcdbtemplate});
           if (!defined($vcdbtemplateref)) {
@@ -1711,31 +1721,31 @@ sub createVDB {
           }
           $virtcdbhash{"source"}{"configTemplate"} = $vcdbtemplateref;
         }
-      
-        $self->{"NEWDB"}->{"virtualCdb"} = \%virtcdbhash;        
-        
+
+        $self->{"NEWDB"}->{"virtualCdb"} = \%virtcdbhash;
+
       }
     }
-    
+
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
-        
+
     return $self->runJobOperation($operation,$json_data);
 
 }
 
 
 # Procedure v2pSI
-# parameters: 
+# parameters:
 # - env - new DB environment
 # - home - new DB home
 # Start job to create Single Instance Oracle V2P
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub v2pSI {
-    my $self = shift; 
+    my $self = shift;
 
     my $env = shift;
     my $home = shift;
@@ -1777,13 +1787,13 @@ sub v2pSI {
 
 
 # Procedure upgradeVDB
-# parameters: 
+# parameters:
 # - home - new DB home
 # Upgrade VDB
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub upgradeVDB {
-    my $self = shift; 
+    my $self = shift;
     my $home = shift;
     my $ret;
 
