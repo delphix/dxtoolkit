@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 # Author       : Marcin Przepiorowski
 # Created      : 22 Sep 2016 (v2.0.0)
 #
-  
+
 
 use strict;
 use warnings;
@@ -41,11 +41,11 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'st=s' => \(my $st), 
-  'et=s' => \(my $et), 
-  'format=s' => \(my $format), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'st=s' => \(my $st),
+  'et=s' => \(my $et),
+  'format=s' => \(my $format),
   'outdir=s' => \(my $outdir),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
@@ -56,7 +56,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -70,7 +70,7 @@ if (defined($all) && defined($dx_host)) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -80,9 +80,9 @@ $output->addHeader(
     {'Alert',                 20},
     {'Action',                20},
     {'Response',              20},
-    {'Target name',           25}, 
+    {'Target name',           25},
     {'Timestamp',             35},
-    {'Serverity',             15},
+    {'Severity',              15},
     {'Title',                 20},
     {'Description',           50}
 );
@@ -95,13 +95,13 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
-  
+
   my $st_timestamp;
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);  
+    exit (1);
   }
 
   my $et_timestamp;
@@ -111,8 +111,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj))) {
       print "Wrong end time (et) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);  
-    } 
+      exit (1);
+    }
   }
 
   my $alerts = new Alert_obj($engine_obj, $st_timestamp, $et_timestamp, $debug);
@@ -149,9 +149,9 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_event    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                 [-st timestamp] 
-                 [-et timestamp] 
-                 [-format csv|json ]  
+                 [-st timestamp]
+                 [-et timestamp]
+                 [-format csv|json ]
                  [-outdir path]
                  [-help|? ] [ -debug ]
 
@@ -190,18 +190,18 @@ Start time for event list - default value is 7 days
 Timestampt format is "YYYY-MM-DD [HH24:MI:[SS]]"
 
 =item B<-et timestamp>
-End time for event list 
+End time for event list
 Timestampt format is "YYYY-MM-DD [HH24:MI:[SS]]"
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-outdir path>                                                                                                                                            
+=item B<-outdir path>
 Write output into a directory specified by path.
 Files names will include a timestamp and type name
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -218,7 +218,7 @@ Display events from Delphix Engine
 
  dx_get_event -d Landshark5
 
- Appliance            Alert                Action               Response             Target name               Timestamp                           Serverity       Title                Description
+ Appliance            Alert                Action               Response             Target name               Timestamp                           Severity       Title                Description
  -------------------- -------------------- -------------------- -------------------- ------------------------- ----------------------------------- --------------- -------------------- --------------------------------------------------
  Landshark5           ALERT-8538           Contact Delphix Supp N/A                  system                    2016-11-08 12:26:58 GMT             WARNING         Unexpected server re The server is starting up following an unexpected
  Landshark5           ALERT-8539           N/A                  N/A                  VOra_744                  2016-11-08 12:29:19 GMT             INFORMATIONAL   Job complete         SOURCE_STOP job for "VOra_744" completed successfu
@@ -234,6 +234,3 @@ Export events from Delphix Engine into file
  Data exported into /tmp/events-20161108-16-08-01.txt
 
 =cut
-
-
-
