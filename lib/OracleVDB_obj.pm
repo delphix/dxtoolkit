@@ -243,6 +243,19 @@ sub getConfig
         $config = join($joinsep,($config, "-uniqname $unique"));
       }
 
+    } else {
+      # dSource config for Oracle
+      my $cdbref = $self->getCDBContainerRef();
+      if (defined($cdbref)) {
+
+        my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
+        my $cdbname = $self->{_sourceconfig}->getName($cdbref);
+        $config = join($joinsep,($config, "-cdbcont $cdbname"));
+        $config = join($joinsep,($config, "-cdbuser $cdbuser"));
+        $config = join($joinsep,($config, "-cdbpass Change_Me"));
+      }
+
+
     }
 
     if ( (my $rest) = $config =~ m/^,(.*)/ ) {

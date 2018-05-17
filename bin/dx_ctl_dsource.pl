@@ -280,15 +280,17 @@ __DATA__
   -dbuser username
   -password password
   -source_os_user osusername
+  [-creategroup]
   [-logsync yes/no ]
   [-stageinst staging_inst ]
   [-stageenv staging_env ]
   [-stage_os_user staging_osuser ]
   [-backup_dir backup_dir ]
   [-dumppwd password ]
-  [ -mountbase mountpoint ]
+  [-mountbase mountpoint ]
   [-validatedsync mode ]
   [-delphixmanaged yes/no ]
+  [-cdbcont container -cdbuser user -cdbpass password]
   [-debug ]
   [-version ]
   [-help|? ]
@@ -372,7 +374,7 @@ Enable or no LogSync for dSource. Default LogSync is disabled.
 Password for backup used to create dsource
 
 =item B<-mountbase mountpoint>
-For Sybase only - mount point for staging server 
+For Sybase only - mount point for staging server
 
 =item B<-validatedsync mode>
 Set validated sync mode for MS SQL. Allowed values
@@ -381,8 +383,19 @@ TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL
 =item B<-delphixmanaged yes/no>
 Use Delphix Manage backup mode for MS SQL
 
-=back
+=item B<-cdbcont container>
+Oracle only - CDB container for a PDB dSource
 
+=item B<-cdbuser user>
+Oracle only - CDB user for a PDB dSource
+
+=item B<-cdbpass password>
+Oracle only - CDB password for a PDB dSource
+
+=item B<-creategroup>
+Create a Delphix group if it doesn't exist
+
+=back
 
 =head1 OPTIONS
 
@@ -447,6 +460,15 @@ Attach Oracle dsource
                               -sourceenv LINUXSOURCE -source_os_user delphix -dbuser delphixdb -password delphixdb \
                               -group Sources -dsourcename "Oracle dsource"
  Waiting for all actions to complete. Parent action is ACTION-12691
+ Action completed with success
+
+Adding an Oracle PDB dSource
+
+ dx_ctl_dsource -d Landshark5 -action create -sourcename PDB1 -type oracle -sourceinst /u01/app/oracle/12.2.0.1/db1 \
+                              -sourceenv LINUXSOURCE -source_os_user oracle -dbuser delphixdb -password delphixdb -group Sources \
+                              -dsourcename PDB1 -cdbcont test122 -cdbuser c##delphixdb -cdbpass delphixdb
+ Setting credential for CDB test122 sucessful.
+ Waiting for all actions to complete. Parent action is ACTION-13947
  Action completed with success
 
 =cut
