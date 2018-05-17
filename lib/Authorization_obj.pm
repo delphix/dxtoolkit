@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ use Toolkit_helpers qw (logger);
 use Roles_obj;
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -52,23 +52,23 @@ sub new {
         _roles => $roles,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->getAuthorizationList($debug);
     return $self;
 }
 
 
 # Procedure getRoleByName
-# parameters: 
-# - user_ref 
+# parameters:
+# - user_ref
 # Return authorization reference array for particular user ref
 
 sub getAuthorizationByUser {
     my $self = shift;
     my $user_ref = shift;
-    logger($self->{_debug}, "Entering Authorization_obj::getAuthorizationByUser",1);    
+    logger($self->{_debug}, "Entering Authorization_obj::getAuthorizationByUser",1);
     my @ret;
 
     #print Dumper $$config;
@@ -84,24 +84,24 @@ sub getAuthorizationByUser {
 }
 
 # Procedure getUsersByTarget
-# parameters: 
-# - target_ref 
-# Return array of hash ( user / role name) for particular target ref 
+# parameters:
+# - target_ref
+# Return array of hash ( user / role name) for particular target ref
 
 
 sub getUsersByTarget {
     my $self = shift;
     my $target_ref = shift;
-    logger($self->{_debug}, "Entering Authorization_obj::getUsersByTarget",1); 
-    
+    logger($self->{_debug}, "Entering Authorization_obj::getUsersByTarget",1);
+
     my @retarray;
 
     for my $authitem ( sort ( keys %{$self->{_authorizations}} ) ) {
 
-      if ( $self->getTarget($authitem) eq $target_ref) {  
+      if ( $self->getTarget($authitem) eq $target_ref) {
         push(@retarray, $self->getUser($authitem));
       }
-      
+
     }
 
     return \@retarray;
@@ -110,15 +110,15 @@ sub getUsersByTarget {
 
 
 # Procedure getDatabasesByUser
-# parameters: 
-# - user_ref 
-# Return array of hash ( database / role name) for particular user ref 
+# parameters:
+# - user_ref
+# Return array of hash ( database / role name) for particular user ref
 # but limited to database objects only
 
 sub getDatabasesByUser {
     my $self = shift;
     my $user_ref = shift;
-    logger($self->{_debug}, "Entering Authorization_obj::getAuthorizationByUser",1);    
+    logger($self->{_debug}, "Entering Authorization_obj::getAuthorizationByUser",1);
     my %db_hash;
     my @retarray;
 
@@ -142,15 +142,15 @@ sub getDatabasesByUser {
 }
 
 # Procedure getAuthotization
-# parameters: 
+# parameters:
 # - reference
 # Return authotization hash for specific authotization reference
 
 sub getAuthotization {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::getAuthotization",1);    
+
+    logger($self->{_debug}, "Entering Authorization_obj::getAuthotization",1);
 
     my $authorizations = $self->{_authorizations};
     return $authorizations->{$reference}
@@ -158,15 +158,15 @@ sub getAuthotization {
 
 
 # Procedure isDatabaseObject
-# parameters: 
+# parameters:
 # - reference
 # Return 1 for database objects and 0 for non database objects
 
 sub isDatabaseObject {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::isDatabaseObject",1);    
+
+    logger($self->{_debug}, "Entering Authorization_obj::isDatabaseObject",1);
 
     my $authorizations = $self->{_authorizations};
 
@@ -180,16 +180,16 @@ sub isDatabaseObject {
 }
 
 # Procedure isEngineAdmin
-# parameters: 
+# parameters:
 # - user_ref
-# Return authorization ref if is Admin 
+# Return authorization ref if is Admin
 
 sub isEngineAdmin {
     my $self = shift;
     my $user_ref = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::isEngineAdmin",1);    
+
+    logger($self->{_debug}, "Entering Authorization_obj::isEngineAdmin",1);
 
     my $authorizations = $self->{_authorizations};
 
@@ -201,7 +201,7 @@ sub isEngineAdmin {
             my $role = $authorizations->{$authitem}->{role};
             if (( $target eq 'DOMAIN' ) && ( $role eq $admin_role )) {
                 $ret = $authitem;
-            } 
+            }
         }
     }
 
@@ -210,16 +210,16 @@ sub isEngineAdmin {
 }
 
 # Procedure isJS
-# parameters: 
+# parameters:
 # - user_ref
-# Return authorization ref if is Admin 
+# Return authorization ref if is Admin
 
 sub isJS {
     my $self = shift;
     my $user_ref = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::isJS",1);    
+
+    logger($self->{_debug}, "Entering Authorization_obj::isJS",1);
 
     my $authorizations = $self->{_authorizations};
 
@@ -231,7 +231,7 @@ sub isJS {
             my $role = $authorizations->{$authitem}->{role};
             if (( $target eq $user_ref ) && ( $role eq $jsuser )) {
                 $ret = $authitem;
-            } 
+            }
         }
     }
 
@@ -240,30 +240,30 @@ sub isJS {
 }
 
 # Procedure getTarget
-# parameters: 
+# parameters:
 # - reference
 # Return authorization target ref for specific authorization reference
 
 sub getTarget {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::getTarget",1);   
+
+    logger($self->{_debug}, "Entering Authorization_obj::getTarget",1);
 
     my $authorizations = $self->{_authorizations};
     return $authorizations->{$reference}->{target};
 }
 
 # Procedure getUser
-# parameters: 
+# parameters:
 # - reference
 # Return authorization user ref for specific authorization reference
 
 sub getUser {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::getUser",1);   
+
+    logger($self->{_debug}, "Entering Authorization_obj::getUser",1);
 
     my $authorizations = $self->{_authorizations};
     return $authorizations->{$reference}->{user};
@@ -271,7 +271,7 @@ sub getUser {
 
 # Procedure setAuthorisation
 # parameters:
-# - user ref 
+# - user ref
 # - role name
 # - target ref
 # Return 0 if OK
@@ -281,12 +281,12 @@ sub setAuthorisation {
     my $user_ref = shift;
     my $role_name = shift;
     my $target_ref = shift;
-    
-    logger($self->{_debug}, "Entering Authorization_obj::setAuthorisation",1);   
+
+    logger($self->{_debug}, "Entering Authorization_obj::setAuthorisation",1);
 
     my $operation = "resources/json/delphix/authorization";
     logger($self->{_debug}, $operation, 2);
-  
+
     my $roleobj = $self->{_roles}->getRoleByName($role_name);
     if (!defined($roleobj)) {
       print "Role $role_name not found. ";
@@ -305,7 +305,7 @@ sub setAuthorisation {
     my $json_data = to_json(\%auth);
 
     #print Dumper $json_data;
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     #print Dumper $result_fmt;
@@ -316,12 +316,12 @@ sub setAuthorisation {
     } else {
         return 1;
     }
- 
+
 }
 
 # Procedure deleteAuthorisation
 # parameters:
-# - reference 
+# - reference
 # Delete authorization
 # Return 0 if OK
 
@@ -329,12 +329,12 @@ sub deleteAuthorisation {
     my $self = shift;
     my $reference = shift;
 
-    
-    logger($self->{_debug}, "Entering Authorization_obj::deleteAuthorisation",1);   
+
+    logger($self->{_debug}, "Entering Authorization_obj::deleteAuthorisation",1);
 
     my $operation = "resources/json/delphix/authorization/" . $reference . "/delete";
     logger($self->{_debug}, $operation, 2);
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, "{}");
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
@@ -343,7 +343,7 @@ sub deleteAuthorisation {
     } else {
         return 1;
     }
- 
+
 }
 
 
@@ -351,10 +351,10 @@ sub deleteAuthorisation {
 # parameters: none
 # Load a list of authorization objects from Delphix Engine
 
-sub getAuthorizationList 
+sub getAuthorizationList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Authorization_obj::getRolesList",1);   
+    logger($self->{_debug}, "Entering Authorization_obj::getRolesList",1);
 
     my $operation = "resources/json/delphix/authorization";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -364,7 +364,7 @@ sub getAuthorizationList
 
         for my $authitem (@res) {
             $authorizations->{$authitem->{reference}} = $authitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }

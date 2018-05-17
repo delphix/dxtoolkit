@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,11 +43,16 @@ sub process_profile;
 
 my $version = $Toolkit_helpers::version;
 
+my $action = "import";
+
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'file|f=s' => \(my $file),
   'profile=s' => \(my $profile),
+  'action=s'  => \($action),
+  'username=s' => \(my $username),
+  'password=s' => \(my $password),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -56,7 +61,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -67,15 +72,51 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if ((!defined($file)) && (!defined($profile))) {
-  print "Parameter -file or -profile is required\n";
+my $line;
+
+if ((lc $action ne 'import') && (defined($file) || defined($profile))) {
+  print "Parameter -file or -profile are supported only with action import or without -action parameter\n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (lc $action eq 'import') {
+
+  if ((!defined($file)) && (!defined($profile))) {
+    print "Parameter -file or -profile is required\n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
+
+} elsif ((lc $action eq 'lock') || (lc $action eq 'unlock') || (lc $action eq 'password')) {
+
+  if (!defined($username)) {
+    print "Parameter -username is required for action $action\n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
+
+  if (lc $action eq 'lock') {
+    $line = 'L,' . $username;
+  } elsif (lc $action eq 'unlock') {
+    $line = 'E,' . $username;
+  } elsif (lc $action eq 'password') {
+    if (!defined($password)) {
+      $password = $engine_obj->read_password();
+      print "\n";
+    }
+    $line = 'U,' . $username . ',,,,,,,,,' . $password . ',,';
+  }
+
+} else {
+  print "Unknown action $action\n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $FD;
 
@@ -89,8 +130,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
-  if (defined($file)) {
-    $ret = $ret + process_user($engine_obj, $file);
+  if (defined($file) || defined($line)) {
+    $ret = $ret + process_user($engine_obj, $file, $line);
   }
 
   if (defined($profile)) {
@@ -108,15 +149,18 @@ exit $ret;
 sub process_user {
   my $engine_obj = shift;
   my $file = shift;
+  my $inputline = shift;
 
   my @csv;
-  
+
   my $ret=0;
 
   if (defined($file)) {
     open($FD,$file) or die("Can't open file $file $!" );
     @csv = <$FD>;
     close $FD;
+  } else {
+    push(@csv, $inputline);
   }
 
   # load objects for current engine
@@ -125,7 +169,7 @@ sub process_user {
   my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
   for my $line (@csv) {
-    
+
     if ($line =~ /^#/) {
       next;
     }
@@ -150,14 +194,20 @@ sub process_user {
 
     my $user = $users_obj->getUserByName($username);
 
-    if (lc $command eq 'c') { 
-    
+    if (lc $command eq 'c') {
+
       if ( ! defined($user) ) {
 
-        if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
-          print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
+        if (((uc $is_admin eq 'Y') || (uc $is_admin eq 'S')) && (uc $is_JS eq 'Y')) {
+          print "User $username can't be Delphix Admin/sysadmin and Jet Stream user only at same time. Skipping \n";
           $ret = $ret + 1;
           next;
+        }
+
+        if ( (! defined($email) ) || ( $email  eq '') ) {
+            print "Email address is required fpr user $username\n";
+            $ret = $ret + 1;
+            next;
         }
 
         my $newuser = new User_obj($engine_obj, $users_obj, $debug);
@@ -171,8 +221,11 @@ sub process_user {
           $newuser->setAuthentication('LDAP',$principal);
         }
 
+        if (uc $is_admin eq 'S') {
+          $newuser->setSysadmin()
+        }
+
         if ($newuser->createUser($username)) {
-          print "User $username not created. Run with -debug flag. \n";
           $ret = $ret + 1;
         } else {
           print "User $username created. ";
@@ -188,7 +241,7 @@ sub process_user {
     }
 
     if (lc $command eq 'u') {
-      if (defined($user) ) {    
+      if (defined($user) ) {
 
         if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
           print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
@@ -199,7 +252,7 @@ sub process_user {
         $user->setNames($firstname, $lastname);
         $user->setContact($email, $workphone, $homephone, $mobilephone);
 
-        my $isadminYN = $user->isAdmin() ? 'Y' : 'N';
+        my $isadminYN = $user->isAdmin();
 
 
         if ( ($is_admin ne '') && ($isadminYN ne (uc $is_admin)) ) {
@@ -235,7 +288,7 @@ sub process_user {
       }
     }
     if (lc $command eq 'd') {
-      if (defined($user) ) {    
+      if (defined($user) ) {
         if ($user->deleteUser() ) {
           print "Problem with delete. \n";
           $ret = $ret + 1;
@@ -245,7 +298,39 @@ sub process_user {
 
       }
       else {
-        print "User $username doens't exist. Can't delete\n";
+        print "User $username doesn't exist. Can't delete\n";
+        $ret = $ret + 1;
+      }
+    }
+
+    if (lc $command eq 'l') {
+      if (defined($user) ) {
+        if ($user->disableUser() ) {
+          print "Problem with lock(disable). \n";
+          $ret = $ret + 1;
+        } else {
+          print "User $username locked(disabled). \n";
+        }
+
+      }
+      else {
+        print "User $username doesn't exist. Can't locked(disabled)\n";
+        $ret = $ret + 1;
+      }
+    }
+
+    if (lc $command eq 'e') {
+      if (defined($user) ) {
+        if ($user->enableUser() ) {
+          print "Problem with unlock(enable). \n";
+          $ret = $ret + 1;
+        } else {
+          print "User $username unlocked(enabled). \n";
+        }
+
+      }
+      else {
+        print "User $username doesn't exist. Can't unlock(enable)\n";
         $ret = $ret + 1;
       }
     }
@@ -274,7 +359,7 @@ sub process_profile {
   my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
   for my $line (@csv) {
-    
+
     if ($line =~ /^[\s]*#/) {
       next;
     }
@@ -284,7 +369,7 @@ sub process_profile {
     if ($csv_obj->parse($line)) {
       ($username,$target_type,$target_name,$role) = $csv_obj->fields();
       #trim objects
-      
+
     } else {
       print "Can't parse line : $line \n";
       next;
@@ -297,7 +382,7 @@ sub process_profile {
         print "Problem with granting or revoking role for/from user $username \n";
       } else {
         if (lc $role eq 'none') {
-          print "Role on target $target_name revoked from $username\n";          
+          print "Role on target $target_name revoked from $username\n";
         } else {
           print "Role $role for target $target_name set for $username\n";
         }
@@ -307,7 +392,7 @@ sub process_profile {
     }
 
   }
-  
+
 
 
 }
@@ -318,8 +403,9 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_users    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                 <-file filename | -profile filename>  
-                 [-help|?] 
+                 [-action import] <-file filename | -profile filename >
+                 -action lock|unlock|password -username name [-password password]
+                 [-help|?]
                  [-debug]
 
 =head1 DESCRIPTION
@@ -351,13 +437,36 @@ A config file search order is as follow:
 
 =over 4
 
+=item B<-action import|lock|unlock|password>
+Action for a particular user or file
+Actions:
+
+ - import (default) - read input file and run action from it parameters -file or -profile or both are required
+ - lock - disable (lock) user account
+ - unlock - enable (unlock) user account
+ - password - change user password
+
+=item B<-username user>
+Username for action
+
+=item B<-password pass>
+New password for user. If not specified prompt will be displayed.
+
 =item B<-file filename>
-CSV file name with user definition and actions
-Field list
+CSV file name with user definition and actions. Field list as follow:
+
 command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, is_admin
 
+Allowed command values:
+
+ C - create user
+ D - delete user
+ U - update user
+ L - lock user
+ E - enable user
+
 =item B<-profile filename>
-CSV file name with user profile definition. It can be generated using dx_get_users profile option. 
+CSV file name with user profile definition. It can be generated using dx_get_users profile option.
 To revoke existing role from user, role name should be set to None in profile file.
 Allowed role names:
 
@@ -367,7 +476,8 @@ Allowed role names:
  - provisioner
  - owner
 
-Field list
+Field list as follow:
+
 username, target_type, target_name, role
 
 
@@ -377,7 +487,7 @@ username, target_type, target_name, role
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -396,10 +506,10 @@ Add user to one engine using example users file
  User user11 doens't exist. Can't update
  User testuser updated. Password for user testuser updated.
  User testuser2 deleted.
- 
+
 Add user to one engine using users file and profile file
 
- dx_ctl_users -d Landshark5 -file /tmp/users.csv -profile /tmp/profile.csv 
+ dx_ctl_users -d Landshark5 -file /tmp/users.csv -profile /tmp/profile.csv
  User sysadmin exist. Skipping
  User delphix_admin exist. Skipping
  User dev_admin exist. Skipping
@@ -407,18 +517,18 @@ Add user to one engine using users file and profile file
  User dev exist. Skipping
  User qa exist. Skipping
  Role OWNER for target Dev Copies set for dev_admin
- Role PROVISIONER for target Sources set for dev_admin 
- Role PROVISIONER for target Dev Copies set for qa_admin 
+ Role PROVISIONER for target Sources set for dev_admin
+ Role PROVISIONER for target Dev Copies set for qa_admin
  Role OWNER for target QA Copies set for qa_admin
 
 Example csv user file:
 
- # operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user 
- # comment - create a new user with Delphix authentication 
+ # operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user
+ # comment - create a new user with Delphix authentication
  C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y
- # comment - create a new user with LDAP 
+ # comment - create a new user with LDAP
  C,testuser2,Test,User2,test.user@test.mail.com,555-111-111,555-222-222,555-333- 333,LDAP,"testuser@test.domain.com",,Y
- # update existing user - non-empty values will be updated, password can't be modified in this version 
+ # update existing user - non-empty values will be updated, password can't be modified in this version
  U,user11,FirstName,LastName,newemail@test.com,,,,,,, U,testuser,Test,User,test.user@test.com,,555-222-333,,NATIVE,,password,Y
  # delete user
  D,testuser2,,,,,,,,,,
@@ -427,15 +537,28 @@ Example csv profile file:
 
  #Username,Type,Name,Role
  testusr,group,Break Fix,read
- testusr,group,QA Copies,read 
+ testusr,group,QA Copies,read
  testusr,group,Sources,read
- testusr,databases,ASE pubs3 DB,owner 
- testusr,databases,AdventureWorksLT2008R2,provisioner 
+ testusr,databases,ASE pubs3 DB,owner
+ testusr,databases,AdventureWorksLT2008R2,provisioner
  testusr,databases,Agile Masking,data
- testusr,databases,Employee Oracle DB,data 
+ testusr,databases,Employee Oracle DB,data
 
+
+ Lock user
+
+  dx_ctl_users -d Landshark5 -action lock -username testuser
+  User testuser locked(disabled)
+
+ Unlock user
+
+  dx_ctl_users -d Landshark5 -action unlock -username testuser
+  User testuser unlocked(enabled).
+
+  Change user password
+
+  dx_ctl_users -d Landshark5 -action password -username testuser
+  Password:
+  User testuser updated. Password for user testuser updated.
 
 =cut
-
-
-

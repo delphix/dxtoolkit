@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_get_users.pl
 # Description  : Get database and host information
 # Author       : Marcin Przepiorowski
@@ -43,8 +43,8 @@ use Users;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
   'save=s' => \(my $save),
   'audit' => \(my $audit),
@@ -60,7 +60,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 Toolkit_helpers::check_format_opions($format);
 
@@ -98,6 +98,7 @@ if (defined($export)) {
 } else {
   if (defined($audit)) {
     $output->addHeader(
+      {'Appliance',   20},
       {'Username',    20},
       {'Status',      12},
       {'Last login',  25},
@@ -105,9 +106,10 @@ if (defined($export)) {
       {'principal',   30},
       {'admin_priv',   8},
       {'js_user',      8}
-    );    
+    );
   } else {
     $output->addHeader(
+      {'Appliance',   20},
       {'Username',    20},
       {'First Name',  20},
       {'Last Name',   20},
@@ -133,7 +135,7 @@ $output_profile->addHeader(
 );
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $FD;
 my $FDPROF;
@@ -160,7 +162,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $users_obj = new Users ($engine_obj, undef, $debug);
-  my @user_list;
+  my @user_list = ();
 
   if (defined($username)) {
     my $userobj = $users_obj->getUserByName($username);
@@ -188,51 +190,53 @@ for my $engine ( sort (@{$engine_list}) ) {
         $user->getName(),
         $first_name,
         $last_name,
-        $email_address, 
-        $work_phone, 
-        $home_phone, 
+        $email_address,
+        $work_phone,
+        $home_phone,
         $cell_phone,
         $type,
         $principal,
         $password,
-        $user->isAdmin() ? 'Y' : 'N',
+        $user->isAdmin(),
         $user->isJS() ? 'Y' : 'N'
       );
     } else {
       if (defined($audit)) {
-        
+
         my $status = $user->getStatus();
         my $lastlogin = $user->getLastLogin();
-        
+
         $output->addLine(
+          $engine,
           $user->getName(),
           $status,
           $lastlogin,
           $type,
           $principal,
-          $user->isAdmin() ? 'Y' : 'N',
+          $user->isAdmin(),
           $user->isJS() ? 'Y' : 'N'
-        );         
+        );
       } else {
         $output->addLine(
+          $engine,
           $user->getName(),
           $first_name,
           $last_name,
-          $email_address, 
-          $work_phone, 
-          $home_phone, 
+          $email_address,
+          $work_phone,
+          $home_phone,
           $cell_phone,
           $type,
           $principal,
           $password,
-          $user->isAdmin() ? 'Y' : 'N',
+          $user->isAdmin(),
           $user->isJS() ? 'Y' : 'N'
-        );        
+        );
       }
     }
     if (defined($profile)) {
       my $profile_data = $user->getProfile();
-            
+
       for my $item ( @{$profile_data->{'groups'} } ) {
           $output_profile->addLine(
             $user->getName(),
@@ -253,17 +257,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   }
 
+}
 
-  Toolkit_helpers::print_output($output, $format, $nohead, $FD);
-
-
-  if (defined($profile)) {
-    Toolkit_helpers::print_output($output_profile, $format, $nohead, $FDPROF);
-  }
+Toolkit_helpers::print_output($output, $format, $nohead, $FD);
 
 
-
-
+if (defined($profile)) {
+  Toolkit_helpers::print_output($output_profile, $format, $nohead, $FDPROF);
 }
 
 if (defined($save)) {
@@ -283,17 +283,31 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_users    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                 [ -format output_format ] 
-                 [ -save file_name] 
-                 [ -username <username> ] 
-                 [ -profile filename] 
-                 [ -export filename ] 
-                 [ -help|? ] 
+                 [ -format output_format ]
+                 [ -save file_name]
+                 [ -username <username> ]
+                 [ -profile filename]
+                 [ -export filename ]
+                 [ -help|? ]
                  [ -debug ]
 
 =head1 DESCRIPTION
 
 Get users information from Delphix Engine.
+Output Column list:
+
+ username
+ first Name
+ last Name
+ email
+ work phone
+ home phone
+ mobile phone
+ authtype - Native or LDAP
+ principal - LDAP principal
+ password - hardcoded value for scripts
+ admin_pr - Y - for delphix admin role, N - for normal user, S - sysadmin account
+ js_user - Y for Self Service (JS) user only, N - for normal user
 
 =head1 ARGUMENTS
 
@@ -344,7 +358,7 @@ If filename is not specified profile will be displayed on the screen
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -375,11 +389,8 @@ Display all users
 Export all users into files which can be used by dx_ctl_users
 
  dx_get_users -d SourceEngine -export /tmp/source/users.csv -profile /tmp/source/profile.csv
- 
- 
+
+
 
 
 =cut
-
-
-
