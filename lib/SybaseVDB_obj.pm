@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,17 +26,17 @@
 
 package SybaseVDB_obj;
 use Data::Dumper;
-use JSON;    
+use JSON;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug, "Entering SybaseVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
 
     my @configureClone;
     my @postRefresh;
@@ -49,7 +49,7 @@ sub new {
         "preRefresh" => \@preRefresh
     );
 
-   # Sybase specific properties 
+   # Sybase specific properties
 
     my %prov = (
             "type" => "ASEProvisionParameters",
@@ -87,16 +87,16 @@ sub new {
 
     $self->{"NEWDB"} = \%prov;
     $self->{_dbtype} = 'sybase';
-            
+
     return $self;
 }
 
 # Procedure getBackupPath
-# parameters: 
+# parameters:
 # Return backup path
 
 sub getBackupPath {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering SybaseVDB_obj::loadBackupPath",1);
     return $self->{source}->{loadBackupPath};
@@ -108,16 +108,16 @@ sub getBackupPath {
 # parameters: none
 # Return database config
 
-sub getConfig 
+sub getConfig
 {
     my $self = shift;
     my $templates = shift;
     my $backup = shift;
-    
+
     logger($self->{_debug}, "Entering SybaseVDB_obj::getConfig",1);
     my $config = '';
     my $joinsep;
-    
+
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
@@ -132,42 +132,45 @@ sub getConfig
       my $staging_user = $self->getStagingUser();
       my $staging_env = $self->getStagingEnvironment();
       my $staging_inst = $self->getStagingInst();
-                
+
       $config = join($joinsep,($config, "-stageinst \"$staging_inst\""));
       $config = join($joinsep,($config, "-stageenv \"$staging_env\""));
       $config = join($joinsep,($config, "-stage_os_user \"$staging_user\""));
-      
+
       my $backup_path = $self->getBackupPath();
       $config = join($joinsep,($config, "-backup_dir \"$backup_path\""));
     }
-    
+
     if ( (my $rest) = $config =~ /^,(.*)/ ) {
       $config = $rest;
     }
 
     return $config;
-    
+
 }
 
 
 # Procedure addSource
-# parameters: 
+# parameters:
 # - source - name of source DB
 # - source_osuser - name of source OS user
 # - dbuser - DB user name
 # - password - DB user password
 # - dsource_name - name of dsource in environment
 # - group - dsource  group
-# - logsync 
+# - logsync
 # - env - staging environment
 # - inst - staging instance
 # - stageuser - staging OS user
-# Start job to add Sybase dSource 
+# - backup_dir - backup Location
+# - dumppwd - backup Password
+# - staging_mount - in 5.2 you can select it
+# Start job to add Sybase dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub addSource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -182,6 +185,7 @@ sub addSource {
     my $stage_osuser = shift;
     my $backup_dir = shift;
     my $dumppwd = shift;
+    my $mountbase = shift;
 
     logger($self->{_debug}, "Entering SybaseVDB_obj::addSource",1);
 
@@ -214,17 +218,6 @@ sub addSource {
 
     my $stagingrepo = $self->{"NEWDB"}->{"sourceConfig"}->{"repository"};
 
-    # if ( $self->setHost() ) {
-    #     print "Host is not set. VDB won't be created\n";
-    #     return undef;
-    # }
-
-    # if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
-    #     print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
-    #     return undef;
-    # }
-
-
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
 
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
@@ -242,9 +235,9 @@ sub addSource {
     }
 
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
-    
+
     my %dsource_params;
-    
+
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
       %dsource_params = (
           "type" => "ASELinkParameters",
@@ -274,12 +267,12 @@ sub addSource {
               "type"=> "ASELatestBackupSyncParameters"
           }
       );
-      
+
       if (defined($dumppwd)) {
           $dsource_params{source}{dumpCredentials}{type} = "PasswordCredential";
           $dsource_params{source}{dumpCredentials}{password} = $dumppwd;
       }
-      
+
     } else {
         %dsource_params = (
           "type" => "LinkParameters",
@@ -306,18 +299,22 @@ sub addSource {
                   "type"=> "ASELatestBackupSyncParameters"
               }
           }
-      );      
+      );
 
       if (defined($dumppwd)) {
           $dsource_params{linkData}{dumpCredentials}{type} = "PasswordCredential";
           $dsource_params{linkData}{dumpCredentials}{password} = $dumppwd;
       }
-      
-    }    
-    
+
+    }
 
 
 
+    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+      if (defined($mountbase)) {
+          $dsource_params{linkData}{mountBase} = $mountbase;
+      }
+    }
 
 
     my $operation = 'resources/json/delphix/database/link';
@@ -332,7 +329,7 @@ sub addSource {
 
 
 # Procedure attach_dsource
-# parameters: 
+# parameters:
 # - source - name of source DB
 # - source_osuser - name of source OS user
 # - dbuser - DB user name
@@ -342,12 +339,12 @@ sub addSource {
 # - env - staging environment
 # - inst - staging instance
 # - stageuser - staging OS user
-# Start job to add Sybase dSource 
+# Start job to add Sybase dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub attach_dsource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -401,9 +398,9 @@ sub attach_dsource {
         print "Source OS user $stage_osuser not found\n";
         return undef;
     }
-    
+
     my %dsource_params;
-    
+
     if ($self->{_dlpxObject}->getApi() lt "1.8") {
       %dsource_params = (
           "type" => "ASEAttachSourceParameters",
@@ -438,7 +435,7 @@ sub attach_dsource {
                 "sourceHostUser" => $source_os_ref,
                 "stagingHostUser" => $stage_osuser_ref
           }
-      );    
+      );
     }
 
 
@@ -458,16 +455,16 @@ sub attach_dsource {
 
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - group - new DB group
 # - env - new DB environment
 # - inst - new DB instance
-# Start job to create Sybase VBD 
+# Start job to create Sybase VBD
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub createVDB {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -502,7 +499,7 @@ sub createVDB {
     }
 
     delete $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"};
-    
+
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
@@ -512,15 +509,15 @@ sub createVDB {
 
 
 # Procedure v2p
-# parameters: 
+# parameters:
 # - env - new DB environment
 # - inst - new DB instance
-# Start job for v2p Sybase VBD 
+# Start job for v2p Sybase VBD
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub v2p {
-    my $self = shift; 
+    my $self = shift;
 
     my $env = shift;
     my $inst = shift;
@@ -563,15 +560,15 @@ sub v2p {
 
 
 # Procedure setLogTruncate
-# parameters: 
+# parameters:
 # - logtruncate option - true / false
-# Set log truncate option 
+# Set log truncate option
 
 sub setLogTruncate {
     my $self = shift;
-    my $logtrunc = shift;    
+    my $logtrunc = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::setLogTruncate",1);
-    
+
     if (defined($logtrunc)) {
         $self->{"NEWDB"}->{"truncateLogOnCheckpoint"} = JSON::true;
     }
@@ -581,20 +578,20 @@ sub setLogTruncate {
 
 
 # Procedure getLogTruncate
-# parameters: 
-# Return value of log truncate option 
+# parameters:
+# Return value of log truncate option
 
 sub getLogTruncate {
-    my $self = shift;  
+    my $self = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::getLogTruncate",1);
     my $ret;
-    
+
     if ($self->{"source"}->{"runtime"}->{"status"} eq 'RUNNING') {
       $ret = $self->{"source"}->{"runtime"}->{"truncateLogOnCheckpoint"} ? "enabled" : "disabled";
     } else {
       $ret = 'N/A';
     }
-    
+
     return $ret;
 
     #print Dumper $self->{"NEWDB"};
@@ -602,29 +599,29 @@ sub getLogTruncate {
 
 
 # Procedure setName
-# parameters: 
+# parameters:
 # - contname - container name
 # - dbname - database name
-# Set name for new db. 
+# Set name for new db.
 
 sub setName {
     my $self = shift;
-    my $contname = shift;    
+    my $contname = shift;
     my $dbname = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::setName",1);
-    
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
-    
+
 }
 
 # Procedure setHost
-# parameters: 
+# parameters:
 # Set host reference for new db. Host reference is set by setEnvironment method
 # Return 0 if success, 1 if not found
 
 sub setHost {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::setHost",1);
 
     if (defined ($self->{'_hosts'})) {
@@ -632,26 +629,26 @@ sub setHost {
         return 0;
     } else {
         return 1;
-    }     
+    }
 
 }
 
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - name - source name
-# Set dsource reference by name for new db. 
+# Set dsource reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setSource {
-    my $self = shift; 
+    my $self = shift;
     #my $name = shift;
     my $sourceitem = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    
+
 
     #my $sources = new Source_obj($dlpxObject, $debug);
 
@@ -672,18 +669,18 @@ sub setSource {
         }
     } else {
         return 1;
-    }       
+    }
 
 }
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # - frombackup - yes/no
 # - list of files
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
@@ -696,7 +693,7 @@ sub snapshot
       %snapshot_type = (
           "type" => "ASESpecificBackupSyncParameters",
           "backupFiles" => $files
-      );    
+      );
     } elsif (! defined ($frombackup) ) {
         return undef;
     } else {
@@ -724,13 +721,13 @@ sub snapshot
 
 
 # Procedure setEncryption
-# parameters: 
+# parameters:
 # - password - encryption key
 # set backup password
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub setEncryption {
-    my $self = shift; 
+    my $self = shift;
     my $password = shift;
     my $ret;
 
@@ -740,15 +737,15 @@ sub setEncryption {
     my $source = $self->{source}->{reference};
 
     my %encryption_hash = (
-        type => "ASELinkedSource",  
+        type => "ASELinkedSource",
         dumpCredentials=> {
-            password=> $password, 
+            password=> $password,
             type=> "PasswordCredential"
         }
     );
-    
+
     if ($password eq '') {
-      $encryption_hash{dumpCredentials} = JSON::null; 
+      $encryption_hash{dumpCredentials} = JSON::null;
     }
 
 
@@ -777,15 +774,15 @@ sub setEncryption {
 }
 
 # Procedure setCredentials
-# parameters: 
-# - username 
+# parameters:
+# - username
 # - password
 # - force - skip check password if defined (doesn't work for Oracle - check is a part of API)
 # Set credentials for a db
 # Return 0 if success, 1 if not found
 
 sub setCredentials {
-    my $self = shift; 
+    my $self = shift;
     my $username = shift;
     my $password = shift;
     my $force = shift;
@@ -799,8 +796,8 @@ sub setCredentials {
     } else {
         $ret = 0;
     }
-    
-    
+
+
     if ($ret eq 0) {
       my $jobid = $self->{_environment}->changeASEPassword($self->{environment}->{reference}, $password);
       $ret = $ret + Toolkit_helpers::waitForAction($self->{_dlpxObject}, $jobid, "Password changed on environment", "Problem with password change");
@@ -808,10 +805,8 @@ sub setCredentials {
 
 
     return $ret;
-        
+
 
 }
 
 1;
-
-
