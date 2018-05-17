@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_get_template.pl
 # Description  : Export DB templates
 # Author       : Marcin Przepiorowski
@@ -39,14 +39,14 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name|n=s' => \(my $name), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name|n=s' => \(my $name),
   'outdir=s' => \(my $outdir),
   'export' => \(my $export),
   'parameters' => \(my $parameters),
   'compare=s' => \(my $compare),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -56,7 +56,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -86,7 +86,7 @@ if (defined($compare) && (!defined($name))) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -141,7 +141,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # for filtered databases on current engine - display status
   for my $tempitem ( @template_list ) {
-    
+
     if (defined($parameters)) {
       my $paramhash = $templates->getTemplateParameters($tempitem);
       for my $par (sort (keys %{$paramhash})) {
@@ -158,21 +158,26 @@ for my $engine ( sort (@{$engine_list}) ) {
       open($spfile,'<',$compare) or die ('Can\'t open a file: $compare');
       chomp(my @initarray = <$spfile>);
       close $spfile;
-      
+
       my %init;
-      
+
       for my $line (@initarray) {
         $line =~ s/^[^.]*\.(.*)/$1/;
         my ($par, $value) = split('=',$line);
-        if ($par =~ /^#/ ) {
-          next;
+
+        if (defined($value)) {
+          if ($par =~ /^#/ ) {
+            next;
+          } else {
+            $init{$par} = $value;
+          }
         } else {
-          $init{$par} = $value;
+          next;
         }
       }
-      
+
       my ($notininit, $notintemplate, $differnent ) = $templates->compare($tempitem, \%init);
-      
+
       for my $par (sort ( keys %{$differnent})) {
         $ret = $ret + 1;
         $output->addLine(
@@ -182,7 +187,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $differnent->{$par}->{init}
         )
       }
-      
+
       for my $par (sort ( keys %{$notininit})) {
         $ret = $ret + 1;
         $output->addLine(
@@ -191,7 +196,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $notininit->{$par},
           'NA'
         )
-      }    
+      }
 
       for my $par (sort ( keys %{$notintemplate})) {
         $ret = $ret + 1;
@@ -201,13 +206,13 @@ for my $engine ( sort (@{$engine_list}) ) {
           'NA',
           $notintemplate->{$par}
         )
-      }   
+      }
 
-      
+
     } else {
       $output->addLine(
         $engine,
-        $templates->getName($tempitem)  
+        $templates->getName($tempitem)
       );
     }
 
@@ -230,15 +235,15 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_template    [ -engine|d <delphix identifier> | -all ] 
+ dx_get_template    [ -engine|d <delphix identifier> | -all ]
                     [ -configfile file ]
-                    [ -name template_name ] 
-                    [ -parameter | -compare file]
+                    [ -name template_name ]
+                    [ -parameters | -compare file]
                     [ -export -outdir dir]
-                    [ -format csv|json ]  
-                    [ -help|? ] 
-                    [ -debug ] 
-                    
+                    [ -format csv|json ]
+                    [ -help|? ]
+                    [ -debug ]
+
 
 =head1 DESCRIPTION
 
@@ -278,24 +283,24 @@ Template name
 
 =over 3
 
-=item B<-parameter>
+=item B<-parameters>
 Display parameters from template
 
 =item B<-compare file>
 Compare template with init<SID>.ora file ignoring restritcted parameters
 Exit code will be 0 if no difference found.
 
-=item B<-export>                                                                                                                                            
+=item B<-export>
 Export template into JSON file in outdir directory
 
-=item B<-outdir>                                                                                                                                            
+=item B<-outdir>
 Location of exported templates files
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -308,13 +313,13 @@ Turn on debugging
 Display list of VDB templates
 
  dx_get_template -d Landshark43
- 
+
  Appliance            Template name
  -------------------- ------------------------------
  Landshark43          Training Template
  Landshark43          QA Template
  Landshark43          Dev Template
- Landshark43          new 
+ Landshark43          new
 
 Export all VDB templates into /tmp/test directory
 
@@ -340,6 +345,3 @@ Compare templare with initSID.ora file
 
 
 =cut
-
-
-
