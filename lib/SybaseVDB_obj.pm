@@ -326,6 +326,25 @@ sub addSource {
 
 }
 
+# Procedure setMountPoint
+# parameters:
+# - mountpoint - mount point
+# Set mountpoint for new db.
+
+sub setMountPoint {
+    my $self = shift;
+    my $mountpoint = shift;
+    logger($self->{_debug}, "Entering SybaseVDB_obj::setMountPoint",1);
+
+    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+      if (defined($mountpoint)) {
+        $self->{"NEWDB"}->{"source"}->{"mountBase"} = $mountpoint;
+      }
+    }
+
+
+}
+
 
 
 # Procedure attach_dsource

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,21 +49,21 @@ my $version = $Toolkit_helpers::version;
 my $archivelog = 'yes';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'sourcename=s' => \(my $sourcename), 
-  'empty' => \(my $empty), 
-  'targetname=s' => \(my $targetname), 
-  'dbname|path=s'  => \(my $dbname), 
-  'instname=s'  => \(my $instname), 
-  'uniqname=s'  => \(my $uniqname), 
-  'environment=s' => \(my $environment), 
-  'envUser=s' => \(my $envUser), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'sourcename=s' => \(my $sourcename),
+  'empty' => \(my $empty),
+  'targetname=s' => \(my $targetname),
+  'dbname|path=s'  => \(my $dbname),
+  'instname=s'  => \(my $instname),
+  'uniqname=s'  => \(my $uniqname),
+  'environment=s' => \(my $environment),
+  'envUser=s' => \(my $envUser),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'creategroup' => \(my $creategroup),
   'listeners=s'  => \(my $listeners),
-  'srcgroup=s' => \(my $srcgroup), 
+  'srcgroup=s' => \(my $srcgroup),
   'envinst=s' => \(my $envinst),
   'cdb=s' => \(my $cdb),
   'template=s' => \(my $template),
@@ -74,17 +74,17 @@ GetOptions(
   'additionalMount=s@' => \(my $additionalMount),
   'configureclone=s@' => \(my $configureclone),
   'prerefresh=s@' =>\(my $prerefresh),
-  'prerewind=s@' =>\(my $prerewind), 
-  'postrewind=s@' =>\(my $postrewind), 
-  'presnapshot=s@' =>\(my $presnapshot), 
+  'prerewind=s@' =>\(my $prerewind),
+  'postrewind=s@' =>\(my $postrewind),
+  'presnapshot=s@' =>\(my $presnapshot),
   'postsnapshot=s@' =>\(my $postsnapshot),
-  'prestart=s@' =>\(my $prestart), 
+  'prestart=s@' =>\(my $prestart),
   'poststart=s@' =>\(my $poststart),
-  'prestop=s@' =>\(my $prestop), 
+  'prestop=s@' =>\(my $prestop),
   'poststop=s@' =>\(my $poststop),
   'hooks=s' => \(my $hooks),
   'prescript=s' => \(my $prescript),
-  'postscript=s' => \(my $postscript),  
+  'postscript=s' => \(my $postscript),
   'timestamp=s' => \(my $timestamp),
   'location=s' => \(my $changenum),
   'mntpoint=s' => \(my $mntpoint),
@@ -105,7 +105,7 @@ GetOptions(
   'vcdbinstname=s' => \(my $vcdbinstname),
   'vcdbtemplate=s' => \(my $vcdbtemplate),
   'dever=s' => \(my $dever),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
@@ -114,7 +114,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2, -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -142,7 +142,7 @@ if ( ! ( defined($type) && defined($targetname) && defined($dbname) && defined($
 if (! ( defined($sourcename) || defined($empty) ) ) {
   print "Options -sourcename or -empty are required. \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 
@@ -177,7 +177,7 @@ if (defined($vcdbname) && (!( defined($vcdbdbname) ) ) ) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -193,7 +193,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $databases = new Databases($engine_obj,$debug);
-  my $groups = new Group_obj($engine_obj, $debug); 
+  my $groups = new Group_obj($engine_obj, $debug);
   # load objects for current engine
   my $policy = new Policy_obj( $engine_obj, $debug);
 
@@ -212,10 +212,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       $ret = $ret + 1;
       next;
     }
-  } 
-  
+  }
+
   my $source;
-  
+
   if (defined($sourcename)) {
 
     my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, undef, $debug);
@@ -238,7 +238,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $source = ($databases->getDB($source_ref->[0]));
   }
-  
+
   # create a new DB object
   if ( $type eq 'oracle' ) {
     $db = new OracleVDB_obj($engine_obj,$debug);
@@ -251,9 +251,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   } elsif ($type eq 'vFiles') {
     $db = new AppDataVDB_obj($engine_obj,$debug);
   }
-  
+
   # common database code
-  
+
   if (defined($source)) {
     if ( $db->setSource($source) ) {
       print "Problem with setting source $source . VDB won't be created.\n";
@@ -273,7 +273,7 @@ for my $engine ( sort (@{$engine_list}) ) {
             next;
         }
     }
-    
+
   } elsif (($type eq 'vFiles') && (defined($empty))) {
     $db->setEmpty();
   } else {
@@ -283,98 +283,98 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
-  
+
   if ( $db->setEnvironment($environment,$envUser) ) {
       print "Environment $environment or user user not found. VDB won't be created\n";
       $ret = $ret + 1;
-      next; 
+      next;
   }
-  
+
   my $oneline;
   my $op_templates;
 
   if ( defined($postrefresh) ) {
-    
+
     if ($db->setPostRefreshHook($postrefresh)) {
       $ret = $ret + 1;
       last;
-    }    
-  } 
-  
-  
+    }
+  }
+
+
   if ( defined($configureclone) ) {
-      
+
     if ($db->setconfigureCloneHook($configureclone)) {
       $ret = $ret + 1;
       last;
-    }       
-  } 
-  
+    }
+  }
+
 
 
   if ( defined($prerefresh) ) {
     if ($db->setPreRefreshHook($prerefresh)) {
       $ret = $ret + 1;
       last;
-    }   
-  } 
-  
+    }
+  }
+
   if ( defined($prerewind) ) {
     if ($db->setPreRewindHook($prerewind)) {
       $ret = $ret + 1;
       last;
-    }  
-  } 
+    }
+  }
 
   if ( defined($postrewind) ) {
     if ($db->setPostRewindHook($postrewind)) {
       $ret = $ret + 1;
       last;
-    }  
-  } 
-  
+    }
+  }
+
   if ( defined($presnapshot) ) {
     if ($db->setPreSnapshotHook($presnapshot)) {
       $ret = $ret + 1;
       last;
-    }   
-  } 
-  
+    }
+  }
+
   if ( defined($postsnapshot) ) {
     if ($db->setPostSnapshotHook($postsnapshot)) {
       $ret = $ret + 1;
       last;
-    }    
-  } 
-  
+    }
+  }
+
   if ( defined($prestart) ) {
     if ($db->setPreStartHook($prestart)) {
       $ret = $ret + 1;
       last;
-    }     
-  } 
-  
+    }
+  }
+
   if ( defined($poststart) ) {
     if ($db->setPostStartHook($poststart)) {
       $ret = $ret + 1;
       last;
-    }     
-  } 
-  
+    }
+  }
+
   if ( defined($prestop) ) {
     if ($db->setPreStopHook($prestop)) {
       $ret = $ret + 1;
       last;
-    }  
-  } 
-  
+    }
+  }
+
   if ( defined($poststop) ) {
     if ($db->setPostStopHook($poststop)) {
       $ret = $ret + 1;
       last;
-    }  
-  }   
-  
+    }
+  }
+
 
   if (defined($hooks)) {
     my $FD;
@@ -382,11 +382,11 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Can't open a file with hooks: $hooks\n";
       $ret = $ret + 1;
       last;
-    } 
+    }
     local $/ = undef;
     my $json = JSON->new();
     my $loadedHooks;
-    
+
     try {
        $loadedHooks = $json->decode(<$FD>);
     } catch {
@@ -396,17 +396,17 @@ for my $engine ( sort (@{$engine_list}) ) {
        last;
     };
     close $FD;
-    
+
     if ($loadedHooks->{type} ne 'VirtualSourceOperations') {
       print '$hooks is not a export file from dx_get_dbhooks\n' ;
       $ret = $ret + 1;
       last;
     }
-        
-    $db->setHooksfromJSON($loadedHooks);  
-    
+
+    $db->setHooksfromJSON($loadedHooks);
+
   }
-  
+
   #checking policy
   my $snapshotpolicy_ref;
   my $retentionpolicy_ref;
@@ -416,30 +416,30 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Snapshot policy $snapshotpolicy not found. Skipping provisioning on engine $engine\n";
       $ret = $ret + 1;
       next;
-    } 
-    
+    }
+
     if ( $policy->getType($snapshotpolicy_ref) ne 'SnapshotPolicy'  ) {
       print "Snapshot policy $snapshotpolicy is a wrong type. Skipping provisioning on engine $engine\n";
-      $ret = $ret + 1; 
-      next;  
+      $ret = $ret + 1;
+      next;
     }
   }
-  
+
   if (defined($retentionpolicy)) {
     $retentionpolicy_ref = $policy->getPolicyByName($retentionpolicy);
     if (defined($retentionpolicy) && (!defined($retentionpolicy_ref))  ) {
       print "$retentionpolicy policy $retentionpolicy not found. Skipping provisioning on engine $engine\n";
       $ret = $ret + 1;
       next;
-    } 
-    
+    }
+
     if ( defined($retentionpolicy) && ( $policy->getType($retentionpolicy_ref) ne 'RetentionPolicy' ) ) {
       print "$retentionpolicy policy $retentionpolicy is a wrong type. Skipping provisioning on engine $engine\n";
       $ret = $ret + 1;
-      next;  
+      next;
     }
   }
-  
+
 
   if (defined($maskingjob)) {
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
@@ -451,9 +451,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   # set autostart
   $db->setAutostart($autostart);
 
-  
+
   # Database specific code
-  if ( $type eq 'oracle' ) {  
+  if ( $type eq 'oracle' ) {
     if (length($dbname) > 8) {
       print "Max. size of dbname for Oracle is 8 characters\n.";
       print "VDB won't be created\n";
@@ -479,7 +479,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $db->setMapFile($filemap_obj->GetMapping_rule());
 
     }
-    
+
     if (defined($redoSize)) {
       $db->setRedoGroupSize($redoSize);
     }
@@ -505,8 +505,8 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Template $template not found. VDB won't be created\n" ;
         $ret = $ret + 1;
         next;
-      }  
-    } else {    
+      }
+    } else {
      if ( $db->setDefaultParams() ) {
         print "Problem with setting default parameters . VDB won't be created.\n";
         $ret = $ret + 1;
@@ -515,45 +515,49 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     $db->setName($targetname,$dbname, $uniqname, $instname);
-    
-    if (defined($listeners)) {    
+
+    if (defined($listeners)) {
       if ( $db->setListener($listeners) ) {
         print "Listener not found. VDB won't be created\n";
         $ret = $ret + 1;
-        next; 
+        next;
       }
     }
-    
+
     if (defined($vcdbname)) {
       $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate);
     }
-        
+
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance, $cdb);
-        
-  } 
+
+  }
   elsif ($type eq 'mssql') {
 
     if ( defined($postscript) ) {
       $db->setPostScript($postscript)
-    } 
+    }
 
     if ( defined($prescript) ) {
       $db->setPreScript($prescript)
-    } 
+    }
 
     if ( defined($recoveryModel) ) {
       if ($db->setRecoveryModel($recoveryModel)) {
         print "Problem with setting Recovery Model $recoveryModel. VDB won't be created.\n";
         $ret = $ret + 1;
-        next; 
+        next;
       };
     }
 
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
-    
+
   } elsif ($type eq 'sybase') {
-     
+
+    if (defined($mntpoint)) {
+      $db->setMountPoint($mntpoint);
+    }
+
     $db->setName($targetname, $dbname);
     $db->setLogTruncate($truncateLogOnCheckpoint);
     $jobno = $db->createVDB($group,$environment,$envinst);
@@ -562,7 +566,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (! defined($port)) {
         print "Port not defined. VDB won't be created.\n";
         $ret = $ret + 1;
-        next; 
+        next;
     }
 
     $db->setName($targetname, $dbname);
@@ -572,25 +576,25 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ($db->setAdditionalMountpoints($additionalMount)) {
         print "Problem with additional mount points. VDB won't be created.\n";
         $ret = $ret + 1;
-        next;   
+        next;
       }
     }
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
-  } 
-    
+  }
+
   if (defined($snapshotpolicy_ref)) {
     if ($policy->applyPolicy($snapshotpolicy_ref, $db->return_currentobj())) {
       print "Problem with applying snapshot policy - $snapshotpolicy \n";
     }
   }
-  
+
   if (defined($retentionpolicy_ref)) {
     if ($policy->applyPolicy($retentionpolicy_ref, $db->return_currentobj())) {
       print "Problem with applying retention policy - $retentionpolicy \n";
     }
   }
-  
+
   $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "VDB created.","Problem with VDB creation");
 
 }
@@ -602,28 +606,28 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_provision_vdb [ -engine|d <delphix identifier> | -all ] [ -configfile file ] 
-                  -group group_name 
-                  -sourcename src_name 
-                  -targetname targ_name 
-                  -dbname db_name | -path vfiles_mountpoint 
-                  -environment environment_name 
-                  -type oracle|mssql|sybase|vFiles 
+ dx_provision_vdb [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                  -group group_name
+                  -sourcename src_name
+                  -targetname targ_name
+                  -dbname db_name | -path vfiles_mountpoint
+                  -environment environment_name
+                  -type oracle|mssql|sybase|vFiles
                   -envinst OracleHome/MSSQLinstance/SybaseServer
                   [-creategroup]
                   [-srcgroup Source group]
                   [-timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
-                  [-template template_name] 
-                  [-mapfile mapping_file]  
-                  [-instname SID] 
-                  [-uniqname db_unique_name] 
+                  [-template template_name]
+                  [-mapfile mapping_file]
+                  [-instname SID]
+                  [-uniqname db_unique_name]
                   [-mntpoint mount_point ]
                   [-cdb container_name]
                   [-noopen]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
                   [-configureclone pathtoscript | operation_template_name ]
-                  [-prerefresh  pathtoscript | operation_template_name ]  
+                  [-prerefresh  pathtoscript | operation_template_name ]
                   [-postrefresh pathtoscript | operation_template_name ]
                   [-prerewind pathtoscript | operation_template_name ]
                   [-postrewind pathtoscript | operation_template_name ]
@@ -692,7 +696,7 @@ Type (oracle|mssql|sybase|vFiles)
 Group Name
 
 =item B<-creategroup>
-Specify this option to create a new group on Delphix Engine 
+Specify this option to create a new group on Delphix Engine
 while proviioning a new VDB
 
 =item B<-sourcename name>
@@ -711,12 +715,12 @@ Mount point location for vFiles
 Group name where source is located
 
 =item B<-timestamp timestamp>
-Time stamp formats: 
+Time stamp formats:
 
-YYYY-MM-DD HH24:MI:SS or LATEST_POINT for point in time, 
+YYYY-MM-DD HH24:MI:SS or LATEST_POINT for point in time,
 
 @YYYY-MM-DDTHH24:MI:SS.ZZZ , YYYY-MM-DD HH24:MI or LATEST_SNAPSHOT for snapshots.
-@YYYY-MM-DDTHH24:MI:SS.ZZZ is a snapshot name from dx_get_snapshot, while YYYY-MM-DD HH24:MI is a 
+@YYYY-MM-DDTHH24:MI:SS.ZZZ is a snapshot name from dx_get_snapshot, while YYYY-MM-DD HH24:MI is a
 snapshot time in GUI format
 
 
@@ -724,7 +728,7 @@ Default is LATEST_SNAPSHOT
 
 
 =item B<-location location>
-Point in time defined by SCN for Oracle and LSN for MS SQL 
+Point in time defined by SCN for Oracle and LSN for MS SQL
 
 =item B<-environment environment_name>
 Target environment name
@@ -745,7 +749,7 @@ Target VDB instance name (for Oracle)
 Target VDB db_unique_name (for Oracle)
 
 =item B<-mntpoint path>
-Set a mount point for VDB (for Oracle)
+Set a mount point for VDB (for Oracle and Sybase)
 
 =item B<-cdb container_name>
 Set a target container database for vPDB
@@ -842,7 +846,7 @@ ex. -additionalMount target1,/u01/app/add,/
 Comma separated information about node name, instance name and instance number for a RAC provisioning
 Repeat option if you want to provide information for more nodes
 
-ex. -rac_instance node1,VBD1,1 -rac_instance node2,VBD2,2 
+ex. -rac_instance node1,VBD1,1 -rac_instance node2,VBD2,2
 
 
 =item B<-redoGroup N>
@@ -855,7 +859,7 @@ Each group will be N MB in size
 Use listener named listener_name
 
 =item B<-hooks path_to_hooks>
-Import hooks exported using dx_get_hooks 
+Import hooks exported using dx_get_hooks
 
 =item B<-envUser username>
 Use an environment user "username" for provisioning database
@@ -870,7 +874,7 @@ Set VDB autostart flag to yes. Default is no
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print usage information
 
 =item B<-debug>
@@ -886,12 +890,12 @@ Provision an Oracle VDB using latest snapshot
  Starting provisioning job - JOB-232
  0 - 7 - 11 - 13 - 18 - 40 - 48 - 52 - 56 - 58 - 59 - 60 - 62 - 63 - 75 - 100
  Job JOB-232 finised with state: COMPLETED VDB created.
- 
- 
+
+
 Provision an Oracle vPDB using a virtual vCDB
 
  dx_provision_vdb -d Landshark -type oracle -group "test" -creategroup -sourcename "PDBX1"  -srcgroup "Sources" -targetname "vPDBtest"  -dbname "vPDBtest" -environment "marcintgt"  -envinst "/u01/app/ora12102/product/12.1.0/dbhome_1"  -envUser "ora12102"  \
- -vcdbtemplate slon -vcdbname ala -vcdbdbname slon -vcdbgroup test -mntpoint "/mnt/provision" 
+ -vcdbtemplate slon -vcdbname ala -vcdbdbname slon -vcdbgroup test -mntpoint "/mnt/provision"
  Starting provisioning job - JOB-203
  0 - 11 - 15 - 75 - 100
  Job JOB-203 finished with state: COMPLETED
@@ -903,10 +907,10 @@ Provision a Sybase VDB using a latest snapshot
  Starting provisioning job - JOB-158139
  0 - 11 - 15 - 75 - 100
  Job JOB-158139 finised with state: COMPLETED
- 
+
 Provision a Sybase VDB using a snapshot name "@2015-09-08T08:46:47.000" (to list snapshots use dx_get_snapshots)
- 
- dx_provision_vdb -d Landshark -group Analytics -sourcename 'ASE pubs3 DB' -targetname testsybase -dbname testsybase -environment LINUXTARGET -type sybase -envinst LINUXTARGET -timestamp "@2015-09-08T08:46:47.000" 
+
+ dx_provision_vdb -d Landshark -group Analytics -sourcename 'ASE pubs3 DB' -targetname testsybase -dbname testsybase -environment LINUXTARGET -type sybase -envinst LINUXTARGET -timestamp "@2015-09-08T08:46:47.000"
  Starting provisioning job - JOB-158153
  0 - 11 - 15 - 63 - 100
  Job JOB-158153 finised with state: COMPLETED VDB created.
@@ -934,12 +938,9 @@ Privision a MS SQL using a latest snapshot
 
 Privision a MS SQL using a snapshot from "2015-09-23 10:23"
 
- dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER -timestamp "2015-09-23 10:23" 
+ dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER -timestamp "2015-09-23 10:23"
  Starting provisioning job - JOB-158167
  0 - 3 - 11 - 18 - 67 - 75 - 100
  Job JOB-158167 finised with state: COMPLETED VDB created.
 
 =cut
-
-
-
