@@ -1,0 +1,19 @@
+{
+   "type" : "ListResult",
+   "status" : "OK",
+   "job" : null,
+   "overflow" : false,
+   "action" : null,
+   "result" : [
+      {
+         "firstOperation" : "JS_OPERATION-8",
+         "reference" : "JS_BRANCH-5",
+         "dataLayout" : "JS_DATA_CONTAINER-3",
+         "name" : "default",
+         "type" : "JSBranch",
+         "namespace" : null,
+         "lastOperation" : "JS_OPERATION-9"
+      }
+   ],
+   "total" : 1
+}

@@ -1,0 +1,110 @@
+{
+   "type" : "ListResult",
+   "result" : [
+      {
+         "namespace" : null,
+         "host" : "UNIX_HOST-8",
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "name" : "LISTENER",
+         "type" : "OracleNodeListener",
+         "discovered" : true,
+         "reference" : "ORACLE_NODE_LISTENER-35",
+         "endPoints" : [
+            "172.16.180.61:1521",
+            "172.16.180.161:1521"
+         ]
+      },
+      {
+         "name" : "MGMTLSNR",
+         "host" : "UNIX_HOST-8",
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.222.61:1521",
+            "169.254.31.42:1521"
+         ],
+         "reference" : "ORACLE_NODE_LISTENER-36",
+         "discovered" : true,
+         "type" : "OracleNodeListener"
+      },
+      {
+         "host" : "UNIX_HOST-8",
+         "environment" : "ORACLE_CLUSTER-3",
+         "name" : "LISTENER",
+         "namespace" : null,
+         "reference" : "ORACLE_NODE_LISTENER-8",
+         "endPoints" : [
+            "172.16.180.61:1521",
+            "172.16.180.161:1521"
+         ],
+         "type" : "OracleNodeListener",
+         "discovered" : true
+      },
+      {
+         "type" : "OracleNodeListener",
+         "discovered" : true,
+         "reference" : "ORACLE_NODE_LISTENER-34",
+         "endPoints" : [
+            "172.16.222.61:1521",
+            "169.254.31.42:1521"
+         ],
+         "namespace" : null,
+         "host" : "UNIX_HOST-8",
+         "environment" : "ORACLE_CLUSTER-3",
+         "name" : "MGMTLSNR"
+      },
+      {
+         "host" : "UNIX_HOST-9",
+         "environment" : "ORACLE_CLUSTER-3",
+         "name" : "LISTENER",
+         "namespace" : null,
+         "reference" : "ORACLE_NODE_LISTENER-10",
+         "endPoints" : [
+            "172.16.180.62:1521",
+            "172.16.180.162:1521"
+         ],
+         "type" : "OracleNodeListener",
+         "discovered" : true
+      },
+      {
+         "host" : "UNIX_HOST-21",
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "name" : "LISTENER",
+         "namespace" : null,
+         "reference" : "ORACLE_NODE_LISTENER-37",
+         "endPoints" : [
+            "172.16.180.129:1521"
+         ],
+         "type" : "OracleNodeListener",
+         "discovered" : true
+      },
+      {
+         "name" : "LISTENER",
+         "host" : "UNIX_HOST-15",
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.180.130:1521"
+         ],
+         "reference" : "ORACLE_NODE_LISTENER-38",
+         "discovered" : true,
+         "type" : "OracleNodeListener"
+      },
+      {
+         "namespace" : null,
+         "discovered" : true,
+         "type" : "OracleScanListener",
+         "endPoints" : [
+            "collabn-cluster-scan.racattack:1521"
+         ],
+         "name" : "LISTENER_SCAN1",
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "ORACLE_SCAN_LISTENER-7"
+      }
+   ],
+   "status" : "OK",
+   "total" : 8,
+   "action" : null,
+   "job" : null,
+   "overflow" : false
+}

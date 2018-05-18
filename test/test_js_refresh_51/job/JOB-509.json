@@ -1,0 +1,54 @@
+{
+   "job" : null,
+   "type" : "OKResult",
+   "action" : null,
+   "result" : {
+      "type" : "Job",
+      "namespace" : null,
+      "target" : "JS_DATA_CONTAINER-3",
+      "cancelable" : true,
+      "parentAction" : "ACTION-954",
+      "name" : null,
+      "parentActionState" : "COMPLETED",
+      "percentComplete" : 100,
+      "targetObjectType" : "JSDataContainer",
+      "startTime" : "2018-01-24T16:53:59.863Z",
+      "targetName" : "cont1",
+      "events" : [
+         {
+            "messageAction" : null,
+            "percentComplete" : 88,
+            "eventType" : "INFO",
+            "timestamp" : "2018-01-24T16:56:29.938Z",
+            "diagnoses" : [],
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_REFRESH job started for \"cont1\".",
+            "state" : null,
+            "messageCommandOutput" : null,
+            "messageCode" : "event.job.started",
+            "type" : "JobEvent"
+         },
+         {
+            "state" : null,
+            "type" : "JobEvent",
+            "messageCode" : "event.job.completed",
+            "messageCommandOutput" : null,
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_REFRESH job for \"cont1\" completed successfully.",
+            "eventType" : "INFO",
+            "diagnoses" : [],
+            "timestamp" : "2018-01-24T16:56:30.583Z",
+            "messageAction" : null,
+            "percentComplete" : 100
+         }
+      ],
+      "jobState" : "COMPLETED",
+      "queued" : false,
+      "user" : "USER-2",
+      "updateTime" : "2018-01-24T16:56:30.578Z",
+      "actionType" : "JETSTREAM_USER_CONTAINER_REFRESH",
+      "emailAddresses" : null,
+      "suspendable" : false,
+      "reference" : "JOB-509",
+      "title" : "Refresh Jet Stream data container \"cont1\"."
+   },
+   "status" : "OK"
+}

@@ -1,0 +1,22 @@
+{
+   "type" : "OKResult",
+   "status" : "OK",
+   "job" : null,
+   "result" : {
+      "type" : "TimeflowRange",
+      "endPoint" : {
+         "timeflow" : "ORACLE_TIMEFLOW-446",
+         "timestamp" : "2017-05-11T11:42:51.000Z",
+         "location" : "1926646",
+         "type" : "OracleTimeflowPoint"
+      },
+      "startPoint" : {
+         "type" : "OracleTimeflowPoint",
+         "timeflow" : "ORACLE_TIMEFLOW-446",
+         "location" : "1926635",
+         "timestamp" : "2017-05-11T11:42:50.000Z"
+      },
+      "provisionable" : true
+   },
+   "action" : null
+}

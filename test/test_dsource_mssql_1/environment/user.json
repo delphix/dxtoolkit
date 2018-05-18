@@ -1,0 +1,114 @@
+{
+   "result" : [
+      {
+         "type" : "EnvironmentUser",
+         "userId" : 54321,
+         "reference" : "HOST_USER-38",
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "groupId" : 54321,
+         "name" : "oracle"
+      },
+      {
+         "type" : "EnvironmentUser",
+         "userId" : 54322,
+         "reference" : "HOST_USER-36",
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "groupId" : 54322,
+         "name" : "delphix"
+      },
+      {
+         "reference" : "HOST_USER-31",
+         "userId" : 500,
+         "type" : "EnvironmentUser",
+         "name" : "oracle",
+         "groupId" : 500,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "namespace" : null
+      },
+      {
+         "name" : "oracle",
+         "groupId" : 0,
+         "environment" : "ORACLE_CLUSTER-3",
+         "namespace" : null,
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "reference" : "HOST_USER-8",
+         "userId" : 0,
+         "type" : "EnvironmentUser"
+      },
+      {
+         "type" : "EnvironmentUser",
+         "userId" : 501,
+         "reference" : "HOST_USER-26",
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "groupId" : 500,
+         "name" : "delphix"
+      },
+      {
+         "reference" : "HOST_USER-37",
+         "userId" : 54321,
+         "type" : "EnvironmentUser",
+         "name" : "oracle",
+         "groupId" : 54321,
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "namespace" : null
+      },
+      {
+         "namespace" : null,
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "name" : "DELPHIX\\delphix_admin",
+         "groupId" : 0,
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "userId" : 0,
+         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-29"
+      },
+      {
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "reference" : "HOST_USER-30",
+         "namespace" : null,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "groupId" : 0,
+         "name" : "DELPHIX\\delphix_admin"
+      }
+   ],
+   "overflow" : false,
+   "total" : 8,
+   "status" : "OK",
+   "action" : null,
+   "job" : null,
+   "type" : "ListResult"
+}

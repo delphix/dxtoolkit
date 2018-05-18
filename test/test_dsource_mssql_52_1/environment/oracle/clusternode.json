@@ -1,0 +1,154 @@
+{
+   "job" : null,
+   "total" : 8,
+   "action" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "host" : "UNIX_HOST-266792",
+         "virtualIPs" : [
+            {
+               "domainName" : "node4-vip",
+               "ip" : "10.0.0.64",
+               "discovered" : true,
+               "type" : "OracleVirtualIP"
+            }
+         ],
+         "reference" : "ORACLE_CLUSTER_NODE-266764",
+         "name" : "node4",
+         "namespace" : null,
+         "type" : "OracleClusterNode",
+         "enabled" : true,
+         "discovered" : true,
+         "cluster" : "ORACLE_CLUSTER-266747"
+      },
+      {
+         "type" : "OracleClusterNode",
+         "enabled" : true,
+         "discovered" : true,
+         "cluster" : "ORACLE_CLUSTER-1",
+         "namespace" : null,
+         "virtualIPs" : [
+            {
+               "discovered" : true,
+               "type" : "OracleVirtualIP",
+               "domainName" : "collabn1-vip",
+               "ip" : "10.0.0.81"
+            }
+         ],
+         "reference" : "ORACLE_CLUSTER_NODE-1",
+         "name" : "collabn1",
+         "host" : "UNIX_HOST-1"
+      },
+      {
+         "host" : "UNIX_HOST-2",
+         "name" : "collabn2",
+         "reference" : "ORACLE_CLUSTER_NODE-2",
+         "virtualIPs" : [
+            {
+               "ip" : "10.0.0.82",
+               "domainName" : "collabn2-vip",
+               "type" : "OracleVirtualIP",
+               "discovered" : true
+            }
+         ],
+         "namespace" : null,
+         "discovered" : true,
+         "cluster" : "ORACLE_CLUSTER-1",
+         "enabled" : true,
+         "type" : "OracleClusterNode"
+      },
+      {
+         "host" : "UNIX_HOST-266793",
+         "virtualIPs" : [
+            {
+               "discovered" : true,
+               "type" : "OracleVirtualIP",
+               "domainName" : "node5-vip",
+               "ip" : "10.0.0.65"
+            }
+         ],
+         "reference" : "ORACLE_CLUSTER_NODE-266765",
+         "name" : "node5",
+         "namespace" : null,
+         "type" : "OracleClusterNode",
+         "enabled" : true,
+         "cluster" : "ORACLE_CLUSTER-266747",
+         "discovered" : true
+      },
+      {
+         "namespace" : null,
+         "enabled" : true,
+         "type" : "OracleClusterNode",
+         "discovered" : true,
+         "cluster" : "ORACLE_CLUSTER-266745",
+         "host" : "UNIX_HOST-266761",
+         "virtualIPs" : [
+            {
+               "ip" : "192.168.1.198",
+               "domainName" : "192.168.1.198",
+               "type" : "OracleVirtualIP",
+               "discovered" : true
+            }
+         ],
+         "name" : "node8",
+         "reference" : "ORACLE_CLUSTER_NODE-266759"
+      },
+      {
+         "cluster" : "ORACLE_CLUSTER-266745",
+         "discovered" : true,
+         "type" : "OracleClusterNode",
+         "enabled" : true,
+         "namespace" : null,
+         "reference" : "ORACLE_CLUSTER_NODE-266761",
+         "name" : "node9",
+         "virtualIPs" : [
+            {
+               "domainName" : "192.168.1.199",
+               "ip" : "192.168.1.199",
+               "discovered" : true,
+               "type" : "OracleVirtualIP"
+            }
+         ],
+         "host" : "UNIX_HOST-266763"
+      },
+      {
+         "host" : "UNIX_HOST-266747",
+         "name" : "node1",
+         "reference" : "ORACLE_CLUSTER_NODE-266747",
+         "virtualIPs" : [
+            {
+               "ip" : "10.0.0.61",
+               "domainName" : "node1-vip",
+               "type" : "OracleVirtualIP",
+               "discovered" : true
+            }
+         ],
+         "namespace" : null,
+         "discovered" : true,
+         "cluster" : "ORACLE_CLUSTER-266742",
+         "enabled" : true,
+         "type" : "OracleClusterNode"
+      },
+      {
+         "namespace" : null,
+         "enabled" : true,
+         "type" : "OracleClusterNode",
+         "cluster" : "ORACLE_CLUSTER-266742",
+         "discovered" : true,
+         "host" : "UNIX_HOST-266748",
+         "virtualIPs" : [
+            {
+               "domainName" : "node2-vip",
+               "ip" : "10.0.0.62",
+               "discovered" : true,
+               "type" : "OracleVirtualIP"
+            }
+         ],
+         "name" : "node2",
+         "reference" : "ORACLE_CLUSTER_NODE-266748"
+      }
+   ],
+   "status" : "OK"
+}

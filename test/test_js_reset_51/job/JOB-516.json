@@ -1,0 +1,54 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "result" : {
+      "actionType" : "JETSTREAM_USER_CONTAINER_RESET",
+      "type" : "Job",
+      "user" : "USER-2",
+      "percentComplete" : 100,
+      "updateTime" : "2018-01-24T17:07:16.943Z",
+      "parentActionState" : "COMPLETED",
+      "emailAddresses" : null,
+      "cancelable" : true,
+      "name" : null,
+      "target" : "JS_DATA_CONTAINER-3",
+      "startTime" : "2018-01-24T17:03:08.577Z",
+      "jobState" : "COMPLETED",
+      "namespace" : null,
+      "reference" : "JOB-516",
+      "queued" : false,
+      "targetName" : "cont1",
+      "targetObjectType" : "JSDataContainer",
+      "suspendable" : false,
+      "parentAction" : "ACTION-961",
+      "title" : "Reset Jet Stream data container \"cont1\".",
+      "events" : [
+         {
+            "type" : "JobEvent",
+            "state" : null,
+            "diagnoses" : [],
+            "timestamp" : "2018-01-24T17:07:16.281Z",
+            "percentComplete" : 96,
+            "messageCode" : "event.job.started",
+            "messageCommandOutput" : null,
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_RESET job started for \"cont1\".",
+            "eventType" : "INFO",
+            "messageAction" : null
+         },
+         {
+            "type" : "JobEvent",
+            "state" : null,
+            "diagnoses" : [],
+            "timestamp" : "2018-01-24T17:07:16.948Z",
+            "percentComplete" : 100,
+            "messageCode" : "event.job.completed",
+            "messageCommandOutput" : null,
+            "eventType" : "INFO",
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_RESET job for \"cont1\" completed successfully.",
+            "messageAction" : null
+         }
+      ]
+   },
+   "type" : "OKResult",
+   "action" : null
+}

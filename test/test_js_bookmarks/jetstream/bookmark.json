@@ -1,0 +1,50 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "result" : [
+      {
+         "bookmarkType" : "DATA_TEMPLATE",
+         "tags" : [],
+         "checkoutCount" : 0,
+         "template" : "JS_DATA_TEMPLATE-2",
+         "creationTime" : "2018-01-25T16:21:46.073Z",
+         "usable" : true,
+         "expiration" : null,
+         "container" : null,
+         "reference" : "JS_BOOKMARK-4",
+         "shared" : true,
+         "type" : "JSBookmark",
+         "timestamp" : "2018-01-25T16:21:46.594Z",
+         "description" : null,
+         "containerName" : null,
+         "namespace" : null,
+         "templateName" : "ora",
+         "branch" : "JS_BRANCH-4",
+         "name" : "test2"
+      },
+      {
+         "description" : null,
+         "containerName" : "cont1",
+         "namespace" : null,
+         "templateName" : "ora",
+         "branch" : "JS_BRANCH-7",
+         "name" : "test1",
+         "bookmarkType" : "DATA_CONTAINER",
+         "checkoutCount" : 0,
+         "tags" : [],
+         "creationTime" : "2018-01-25T16:47:05.966Z",
+         "template" : "JS_DATA_TEMPLATE-2",
+         "usable" : true,
+         "expiration" : null,
+         "container" : "JS_DATA_CONTAINER-5",
+         "reference" : "JS_BOOKMARK-5",
+         "shared" : false,
+         "type" : "JSBookmark",
+         "timestamp" : "2018-01-25T16:47:13.495Z"
+      }
+   ],
+   "total" : 2,
+   "overflow" : false,
+   "action" : null,
+   "type" : "ListResult"
+}

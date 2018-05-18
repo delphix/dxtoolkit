@@ -1,0 +1,46 @@
+{
+   "overflow" : false,
+   "result" : [
+      {
+         "namespace" : null,
+         "name" : null,
+         "lastPoint" : "SERIALIZATION_POINT-266775",
+         "spec" : "REPLICATION_SPEC-266748",
+         "type" : "ReplicationSourceState",
+         "activePoint" : null,
+         "reference" : "REPLICATION_STATE-266748"
+      },
+      {
+         "reference" : "REPLICATION_STATE-266746",
+         "activePoint" : null,
+         "type" : "ReplicationSourceState",
+         "spec" : "REPLICATION_SPEC-266742",
+         "lastPoint" : "SERIALIZATION_POINT-266768",
+         "name" : null,
+         "namespace" : null
+      },
+      {
+         "type" : "ReplicationSourceState",
+         "lastPoint" : "SERIALIZATION_POINT-266771",
+         "spec" : "REPLICATION_SPEC-266749",
+         "name" : null,
+         "namespace" : null,
+         "activePoint" : null,
+         "reference" : "REPLICATION_STATE-266749"
+      },
+      {
+         "type" : "ReplicationSourceState",
+         "spec" : "REPLICATION_SPEC-266750",
+         "lastPoint" : "SERIALIZATION_POINT-266773",
+         "name" : null,
+         "namespace" : null,
+         "activePoint" : null,
+         "reference" : "REPLICATION_STATE-266750"
+      }
+   ],
+   "total" : 4,
+   "job" : null,
+   "action" : null,
+   "status" : "OK",
+   "type" : "ListResult"
+}

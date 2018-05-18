@@ -1,0 +1,36 @@
+{
+   "type" : "ListResult",
+   "overflow" : false,
+   "result" : [
+      {
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "groupId" : 500,
+         "type" : "EnvironmentUser",
+         "name" : "ora12102",
+         "reference" : "HOST_USER-2",
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "userId" : 500,
+         "namespace" : null
+      },
+      {
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "userId" : 500,
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-1",
+         "groupId" : 500,
+         "name" : "ora12102",
+         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-1"
+      }
+   ],
+   "action" : null,
+   "status" : "OK",
+   "job" : null,
+   "total" : 2
+}

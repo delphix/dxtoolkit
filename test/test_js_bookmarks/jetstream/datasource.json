@@ -1,0 +1,61 @@
+{
+   "action" : null,
+   "type" : "ListResult",
+   "total" : 3,
+   "overflow" : false,
+   "job" : null,
+   "result" : [
+      {
+         "dataLayout" : "JS_DATA_TEMPLATE-1",
+         "name" : "oracle",
+         "type" : "JSDataSource",
+         "reference" : "JS_DATA_SOURCE-1",
+         "container" : "ORACLE_DB_CONTAINER-1",
+         "enabled" : true,
+         "namespace" : null,
+         "properties" : {},
+         "priority" : 1,
+         "description" : null,
+         "masked" : false,
+         "runtime" : null
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-1",
+         "reference" : "JS_DATA_SOURCE-4",
+         "name" : "marina",
+         "type" : "JSDataSource",
+         "dataLayout" : "JS_DATA_TEMPLATE-2",
+         "runtime" : null,
+         "masked" : false,
+         "description" : null,
+         "priority" : 1,
+         "properties" : {},
+         "namespace" : null,
+         "enabled" : true
+      },
+      {
+         "enabled" : true,
+         "namespace" : null,
+         "description" : null,
+         "runtime" : {
+            "type" : "OracleSISourceConnectionInfo",
+            "databaseName" : "testdx",
+            "host" : "marcintgt.dcenter.delphix.com",
+            "oracleHome" : "/u01/app/ora12102/product/12.1.0/dbhome_1",
+            "jdbcStrings" : [
+               "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.10.164)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=testdx)))"
+            ],
+            "version" : "12.1.0.2.0"
+         },
+         "masked" : false,
+         "properties" : {},
+         "priority" : 1,
+         "type" : "JSDataSource",
+         "name" : "testdx",
+         "dataLayout" : "JS_DATA_CONTAINER-5",
+         "reference" : "JS_DATA_SOURCE-7",
+         "container" : "ORACLE_DB_CONTAINER-2"
+      }
+   ],
+   "status" : "OK"
+}

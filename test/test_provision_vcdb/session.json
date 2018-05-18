@@ -1,0 +1,12 @@
+{
+   "error" : {
+      "commandOutput" : null,
+      "details" : "The API session has expired.",
+      "diagnoses" : null,
+      "id" : "exception.webservices.session.expired",
+      "type" : "APIError",
+      "action" : "Create a new API session by calling /resources/json/delphix/session."
+   },
+   "status" : "ERROR",
+   "type" : "ErrorResult"
+}

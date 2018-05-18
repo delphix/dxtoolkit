@@ -1,0 +1,95 @@
+{
+   "type" : "ListResult",
+   "overflow" : false,
+   "total" : 6,
+   "job" : null,
+   "action" : null,
+   "status" : "OK",
+   "result" : [
+      {
+         "host" : "WINDOWS_HOST-19",
+         "name" : "WINDOWSSOURCE",
+         "enabled" : true,
+         "namespace" : null,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "primaryUser" : "HOST_USER-30",
+         "description" : null,
+         "type" : "WindowsHostEnvironment",
+         "proxy" : "WINDOWS_HOST-18"
+      },
+      {
+         "enabled" : true,
+         "namespace" : null,
+         "host" : "WINDOWS_HOST-18",
+         "name" : "WINDOWSTARGET",
+         "type" : "WindowsHostEnvironment",
+         "proxy" : null,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "primaryUser" : "HOST_USER-29",
+         "description" : null
+      },
+      {
+         "reference" : "UNIX_HOST_ENVIRONMENT-19",
+         "primaryUser" : "HOST_USER-38",
+         "description" : "",
+         "type" : "UnixHostEnvironment",
+         "host" : "UNIX_HOST-8",
+         "aseHostEnvironmentParameters" : null,
+         "name" : "racdba1",
+         "enabled" : true,
+         "namespace" : null
+      },
+      {
+         "namespace" : null,
+         "enabled" : true,
+         "name" : "LINUXSOURCE",
+         "host" : "UNIX_HOST-21",
+         "aseHostEnvironmentParameters" : {
+            "dbUser" : "delphix_db",
+            "type" : "ASEHostEnvironmentParameters",
+            "credentials" : {
+               "type" : "PasswordCredential",
+               "password" : "********"
+            }
+         },
+         "type" : "UnixHostEnvironment",
+         "primaryUser" : "HOST_USER-36",
+         "description" : "",
+         "reference" : "UNIX_HOST_ENVIRONMENT-18"
+      },
+      {
+         "host" : "UNIX_HOST-15",
+         "aseHostEnvironmentParameters" : {
+            "credentials" : {
+               "type" : "PasswordCredential",
+               "password" : "********"
+            },
+            "type" : "ASEHostEnvironmentParameters",
+            "dbUser" : "sa"
+         },
+         "name" : "LINUXTARGET",
+         "enabled" : true,
+         "namespace" : null,
+         "reference" : "UNIX_HOST_ENVIRONMENT-10",
+         "description" : null,
+         "primaryUser" : "HOST_USER-26",
+         "type" : "UnixHostEnvironment"
+      },
+      {
+         "version" : "12.1.0.2.0",
+         "type" : "OracleCluster",
+         "scan" : "collabn-cluster-scan.racattack",
+         "primaryUser" : "HOST_USER-8",
+         "crsClusterName" : "racattack-cl",
+         "description" : null,
+         "remoteListener" : null,
+         "reference" : "ORACLE_CLUSTER-3",
+         "crsClusterHome" : "/u01/app/12.1.0.2/grid/",
+         "namespace" : null,
+         "scanManual" : false,
+         "enabled" : true,
+         "name" : "racattack-cl",
+         "clusterUser" : "HOST_USER-8"
+      }
+   ]
+}

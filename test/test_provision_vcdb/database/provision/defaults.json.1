@@ -1,0 +1,137 @@
+{
+   "action" : null,
+   "status" : "OK",
+   "result" : {
+      "type" : "OracleMultitenantProvisionParameters",
+      "source" : {
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "operations" : {
+            "postStart" : [],
+            "preRefresh" : [],
+            "postSnapshot" : [],
+            "preStart" : [],
+            "preRollback" : [],
+            "postRefresh" : [],
+            "configureClone" : [],
+            "preStop" : [],
+            "preSnapshot" : [],
+            "type" : "VirtualSourceOperations",
+            "postStop" : [],
+            "postRollback" : []
+         },
+         "archivelogMode" : true,
+         "type" : "OracleVirtualPdbSource",
+         "mountBase" : "/mnt/provision",
+         "configParams" : {
+            "processes" : "300",
+            "sga_target" : "1258291200",
+            "enable_pluggable_database" : "TRUE",
+            "db_files" : "500",
+            "open_cursors" : "300",
+            "compatible" : "'12.1.0.2.0'",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "_catalog_foreign_restore" : "FALSE",
+            "pga_aggregate_target" : "416284672"
+         },
+         "redoLogGroups" : 3,
+         "customEnvVars" : [],
+         "lsnrProtocolAddresses" : []
+      },
+      "virtualCdb" : {
+         "source" : {
+            "redoLogGroups" : 3,
+            "customEnvVars" : [],
+            "mountBase" : "/mnt/provision",
+            "configParams" : {
+               "remote_login_passwordfile" : "'EXCLUSIVE'",
+               "pga_aggregate_target" : "416284672",
+               "_catalog_foreign_restore" : "FALSE",
+               "log_archive_format" : "'%t_%s_%r.dbf'",
+               "db_files" : "500",
+               "compatible" : "'12.1.0.2.0'",
+               "open_cursors" : "300",
+               "sga_target" : "1258291200",
+               "enable_pluggable_database" : "TRUE",
+               "processes" : "300"
+            },
+            "lsnrProtocolAddresses" : [],
+            "allowAutoVDBRestartOnHostReboot" : false,
+            "type" : "OracleVirtualCdbSource",
+            "operations" : {
+               "preStop" : [],
+               "configureClone" : [],
+               "type" : "VirtualSourceOperations",
+               "preSnapshot" : [],
+               "postStop" : [],
+               "postRollback" : [],
+               "postStart" : [],
+               "preRefresh" : [],
+               "postSnapshot" : [],
+               "preStart" : [],
+               "preRollback" : [],
+               "postRefresh" : []
+            },
+            "archivelogMode" : true
+         },
+         "type" : "OracleVirtualCdbProvisionParameters",
+         "container" : {
+            "sourcingPolicy" : {
+               "logsyncInterval" : 5,
+               "logsyncEnabled" : false,
+               "type" : "OracleSourcingPolicy",
+               "logsyncMode" : "UNDEFINED"
+            },
+            "type" : "OracleDatabaseContainer",
+            "name" : "CDBPDBX1GZL_AZG",
+            "diagnoseNoLoggingFaults" : true,
+            "preProvisioningEnabled" : false,
+            "group" : "GROUP-34",
+            "performanceMode" : "DISABLED"
+         },
+         "sourceConfig" : {
+            "repository" : "ORACLE_INSTALL-1",
+            "databaseName" : "CDBP_AZG",
+            "uniqueName" : "CDBPDBX1GZL_AZG",
+            "type" : "OracleSIConfig",
+            "name" : "CDBPDBX1GZL_AZG",
+            "services" : [],
+            "instance" : {
+               "instanceName" : "CDBPDBX1GAZG",
+               "instanceNumber" : 1,
+               "type" : "OracleInstance"
+            },
+            "linkingEnabled" : false
+         }
+      },
+      "sourceConfig" : {
+         "name" : "PDBX1_GZL",
+         "type" : "OraclePDBConfig",
+         "databaseName" : "PDBX1_GZL",
+         "repository" : "ORACLE_INSTALL-1",
+         "services" : [],
+         "linkingEnabled" : false
+      },
+      "timeflowPointParameters" : {
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "location" : "LATEST_SNAPSHOT",
+         "type" : "TimeflowPointSemantic"
+      },
+      "container" : {
+         "type" : "OracleDatabaseContainer",
+         "name" : "PDBX1_GZL",
+         "sourcingPolicy" : {
+            "logsyncMode" : "UNDEFINED",
+            "type" : "OracleSourcingPolicy",
+            "logsyncInterval" : 5,
+            "logsyncEnabled" : false
+         },
+         "preProvisioningEnabled" : false,
+         "group" : "GROUP-34",
+         "performanceMode" : "DISABLED",
+         "diagnoseNoLoggingFaults" : true
+      }
+   },
+   "job" : null,
+   "type" : "OKResult"
+}

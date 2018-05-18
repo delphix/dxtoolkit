@@ -1,0 +1,32 @@
+{
+   "type" : "ListResult",
+   "total" : 2,
+   "action" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "description" : null,
+         "reference" : "UNIX_HOST_ENVIRONMENT-2",
+         "aseHostEnvironmentParameters" : null,
+         "name" : "marcintgt.dcenter.delphix.com",
+         "type" : "UnixHostEnvironment",
+         "host" : "UNIX_HOST-2",
+         "primaryUser" : "HOST_USER-2",
+         "enabled" : true,
+         "namespace" : null
+      },
+      {
+         "primaryUser" : "HOST_USER-1",
+         "enabled" : true,
+         "namespace" : null,
+         "description" : null,
+         "type" : "UnixHostEnvironment",
+         "name" : "marcinsrc.dcenter.delphix.com",
+         "aseHostEnvironmentParameters" : null,
+         "reference" : "UNIX_HOST_ENVIRONMENT-1",
+         "host" : "UNIX_HOST-1"
+      }
+   ],
+   "status" : "OK",
+   "job" : null
+}

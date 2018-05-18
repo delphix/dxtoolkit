@@ -1,0 +1,54 @@
+{
+   "result" : {
+      "parentActionState" : "COMPLETED",
+      "jobState" : "COMPLETED",
+      "name" : null,
+      "type" : "Job",
+      "suspendable" : false,
+      "percentComplete" : 100,
+      "actionType" : "JETSTREAM_USER_CONTAINER_RESTORE",
+      "user" : "USER-2",
+      "events" : [
+         {
+            "messageCode" : "event.job.started",
+            "type" : "JobEvent",
+            "messageCommandOutput" : null,
+            "eventType" : "INFO",
+            "messageAction" : null,
+            "timestamp" : "2018-01-23T17:14:24.175Z",
+            "diagnoses" : [],
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_RESTORE job started for \"cont1\".",
+            "percentComplete" : 96,
+            "state" : null
+         },
+         {
+            "eventType" : "INFO",
+            "messageCommandOutput" : null,
+            "type" : "JobEvent",
+            "messageCode" : "event.job.completed",
+            "state" : null,
+            "percentComplete" : 100,
+            "messageDetails" : "JETSTREAM_USER_CONTAINER_RESTORE job for \"cont1\" completed successfully.",
+            "messageAction" : null,
+            "diagnoses" : [],
+            "timestamp" : "2018-01-23T17:14:24.816Z"
+         }
+      ],
+      "targetObjectType" : "JSDataContainer",
+      "targetName" : "cont1",
+      "emailAddresses" : null,
+      "reference" : "JOB-483",
+      "cancelable" : true,
+      "target" : "JS_DATA_CONTAINER-3",
+      "queued" : false,
+      "title" : "Restore Jet Stream data container \"cont1\".",
+      "namespace" : null,
+      "updateTime" : "2018-01-23T17:14:24.814Z",
+      "parentAction" : "ACTION-916",
+      "startTime" : "2018-01-23T17:10:31.695Z"
+   },
+   "action" : null,
+   "status" : "OK",
+   "type" : "OKResult",
+   "job" : null
+}

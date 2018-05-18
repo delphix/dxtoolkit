@@ -1,0 +1,42 @@
+{
+   "total" : 1,
+   "job" : null,
+   "status" : "OK",
+   "overflow" : false,
+   "action" : null,
+   "result" : [
+      {
+         "version" : null,
+         "container" : "APPDATA_CONTAINER-149",
+         "timeflow" : "APPDATA_TIMEFLOW-267",
+         "timezone" : "Europe/Dublin,IST+0100",
+         "type" : "AppDataSnapshot",
+         "missingNonLoggedData" : false,
+         "temporary" : false,
+         "name" : "@2017-04-24T11:30:00.178",
+         "latestChangePoint" : {
+            "timeflow" : "APPDATA_TIMEFLOW-267",
+            "type" : "AppDataTimeflowPoint",
+            "timestamp" : "2017-04-24T10:30:00.178Z",
+            "location" : null
+         },
+         "runtime" : {
+            "type" : "AppDataSnapshotRuntime",
+            "provisionable" : true
+         },
+         "metadata" : {},
+         "firstChangePoint" : {
+            "timeflow" : "APPDATA_TIMEFLOW-267",
+            "type" : "AppDataTimeflowPoint",
+            "location" : null,
+            "timestamp" : "2017-04-24T10:30:00.178Z"
+         },
+         "reference" : "APPDATA_SNAPSHOT-636",
+         "consistency" : "CONSISTENT",
+         "creationTime" : "2017-04-24T10:30:00.178Z",
+         "retention" : 0,
+         "namespace" : null
+      }
+   ],
+   "type" : "ListResult"
+}

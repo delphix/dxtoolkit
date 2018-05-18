@@ -1,0 +1,26 @@
+{
+   "action" : null,
+   "result" : [
+      {
+         "properties" : {},
+         "owner" : null,
+         "state" : "ONLINE",
+         "firstOperation" : "JS_OPERATION-8",
+         "type" : "JSDataContainer",
+         "lastUpdated" : "2018-01-24T16:56:30.553Z",
+         "operationCount" : 6,
+         "activeBranch" : "JS_BRANCH-5",
+         "name" : "cont1",
+         "lastOperation" : "JS_OPERATION-13",
+         "template" : "JS_DATA_TEMPLATE-2",
+         "notes" : null,
+         "namespace" : null,
+         "reference" : "JS_DATA_CONTAINER-3"
+      }
+   ],
+   "overflow" : false,
+   "job" : null,
+   "status" : "OK",
+   "type" : "ListResult",
+   "total" : 1
+}

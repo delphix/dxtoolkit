@@ -1,0 +1,487 @@
+{
+   "total" : 13,
+   "result" : [
+      {
+         "toolkitPath" : "/u01/app/toolkit",
+         "dateAdded" : "2016-03-15T09:19:50.730Z",
+         "hostConfiguration" : {
+            "discovered" : true,
+            "machine" : {
+               "memorySize" : 4018696192,
+               "type" : "HostMachine",
+               "platform" : "x86_64"
+            },
+            "operatingSystem" : {
+               "name" : "Linux",
+               "distribution" : "CentOS",
+               "release" : "2.6.32-573.12.1.el6.x86_64",
+               "type" : "HostOS",
+               "timezone" : "Europe/Dublin,IST+0100",
+               "kernel" : null,
+               "version" : "CentOS release 6.7 (Final)"
+            },
+            "lastUpdated" : "2016-10-06T15:42:38.935Z",
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2016-10-06T15:42:38.924Z"
+         },
+         "type" : "UnixHost",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "available" : false,
+            "type" : "HostRuntime",
+            "traceRouteInfo" : null
+         },
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-266742",
+         "reference" : "UNIX_HOST-266765",
+         "name" : "LINUXTARGET",
+         "namespace" : "NAMESPACE-266742",
+         "address" : "LINUXTARGET"
+      },
+      {
+         "toolkitPath" : "/u01/app/toolkit",
+         "dateAdded" : "2017-05-31T12:39:12.729Z",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : null,
+            "lastUpdated" : "2017-05-31T12:39:26.810Z",
+            "operatingSystem" : {
+               "version" : "CentOS Linux release 7.3.1611 (Core)",
+               "timezone" : "UTC,UTC+0000",
+               "kernel" : null,
+               "distribution" : "CentOS",
+               "name" : "Linux",
+               "release" : "3.10.0-514.16.1.el7.x86_64",
+               "type" : "HostOS"
+            },
+            "discovered" : true,
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 3975065600
+            }
+         },
+         "type" : "UnixHost",
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime",
+            "available" : false
+         },
+         "sshPort" : 22,
+         "reference" : "UNIX_HOST-266791",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "namespace" : null,
+         "address" : "10.0.0.157",
+         "name" : "10.0.0.157"
+      },
+      {
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "operatingSystem" : {
+               "type" : "HostOS",
+               "release" : "2.6.39-400.245.1.el6uek.x86_64",
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)",
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "kernel" : null
+            },
+            "lastUpdated" : "2017-02-01T15:07:38.150Z",
+            "machine" : {
+               "memorySize" : 4154650624,
+               "platform" : "x86_64",
+               "type" : "HostMachine"
+            },
+            "discovered" : true,
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2016-12-28T12:04:32.981Z"
+         },
+         "dateAdded" : "2016-02-29T15:37:14.590Z",
+         "toolkitPath" : "/u01/app/toolkit",
+         "namespace" : null,
+         "address" : "10.0.0.58",
+         "name" : "10.0.0.58",
+         "reference" : "UNIX_HOST-266761",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime",
+            "available" : true
+         },
+         "sshPort" : 22
+      },
+      {
+         "name" : "10.0.0.152",
+         "address" : "10.0.0.152",
+         "namespace" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-266781",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "traceRouteInfo" : {
+               "type" : "TracerouteInfo",
+               "networkHops" : "1  10.0.0.32 (10.0.0.32)  0.487 ms  1.687 ms  1.753 ms"
+            },
+            "available" : true
+         },
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "operatingSystem" : {
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "timezone" : "Europe/Dublin,IST+0100",
+               "kernel" : null,
+               "type" : "HostOS",
+               "release" : "3.8.13-16.2.1.el6uek.x86_64",
+               "name" : "Linux",
+               "distribution" : "RedHat"
+            },
+            "lastUpdated" : "2017-05-31T12:43:23.693Z",
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "x86_64",
+               "memorySize" : 4145766400
+            },
+            "discovered" : true,
+            "lastRefreshed" : "2017-05-31T12:43:23.675Z",
+            "type" : "HostConfiguration"
+         },
+         "dateAdded" : "2016-06-14T17:31:09.468Z",
+         "toolkitPath" : "/u01/app/toolkit"
+      },
+      {
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2016-12-28T12:04:34.877Z",
+            "lastUpdated" : "2017-02-01T15:07:38.518Z",
+            "operatingSystem" : {
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "kernel" : null,
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)",
+               "release" : "2.6.39-400.245.1.el6uek.x86_64",
+               "type" : "HostOS",
+               "distribution" : "RedHat",
+               "name" : "Linux"
+            },
+            "discovered" : true,
+            "machine" : {
+               "memorySize" : 4154650624,
+               "type" : "HostMachine",
+               "platform" : "x86_64"
+            }
+         },
+         "dateAdded" : "2016-02-29T15:38:15.128Z",
+         "toolkitPath" : "/u01/app/toolkit",
+         "name" : "10.0.0.59",
+         "address" : "10.0.0.59",
+         "namespace" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-266763",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "available" : true,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         }
+      },
+      {
+         "hostRuntime" : {
+            "available" : false,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         },
+         "sshPort" : 22,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-266790",
+         "namespace" : null,
+         "address" : "10.0.0.153",
+         "name" : "10.0.0.153",
+         "toolkitPath" : "/u01/toolkit",
+         "dateAdded" : "2017-02-01T13:45:16.809Z",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2017-03-08T11:00:51.797Z",
+            "operatingSystem" : {
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "type" : "HostOS",
+               "release" : "3.8.13-16.2.1.el6uek.x86_64",
+               "kernel" : null,
+               "timezone" : "Europe/Dublin,GMT+0000",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)"
+            },
+            "lastUpdated" : "2017-03-08T11:00:51.814Z",
+            "discovered" : true,
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 4145782784
+            }
+         },
+         "type" : "UnixHost"
+      },
+      {
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "traceRouteInfo" : null,
+            "available" : true
+         },
+         "sshPort" : 22,
+         "reference" : "UNIX_HOST-1",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "namespace" : null,
+         "address" : "10.0.0.41",
+         "name" : "10.0.0.41",
+         "toolkitPath" : "/u01/app/oracle/toolkit",
+         "dateAdded" : "2015-08-20T11:39:10.242Z",
+         "hostConfiguration" : {
+            "discovered" : true,
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 4145934336
+            },
+            "lastUpdated" : "2017-02-01T15:07:38.717Z",
+            "operatingSystem" : {
+               "timezone" : "Europe/Dublin,IST+0100",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "kernel" : null,
+               "release" : "3.8.13-16.2.1.el6uek.x86_64",
+               "type" : "HostOS",
+               "distribution" : "RedHat",
+               "name" : "Linux"
+            },
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2016-04-28T09:15:16.728Z"
+         },
+         "type" : "UnixHost"
+      },
+      {
+         "dateAdded" : "2015-08-20T11:41:04.433Z",
+         "toolkitPath" : "/u01/app/oracle/toolkit",
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2016-04-28T09:15:15.275Z",
+            "machine" : {
+               "memorySize" : 4145934336,
+               "type" : "HostMachine",
+               "platform" : "x86_64"
+            },
+            "discovered" : true,
+            "operatingSystem" : {
+               "release" : "3.8.13-16.2.1.el6uek.x86_64",
+               "type" : "HostOS",
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "timezone" : "Eire,IST+0100",
+               "kernel" : null
+            },
+            "lastUpdated" : "2017-02-01T15:07:38.780Z"
+         },
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-2",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "available" : true,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         },
+         "name" : "10.0.0.42",
+         "namespace" : null,
+         "address" : "10.0.0.42"
+      },
+      {
+         "name" : "10.0.0.52",
+         "namespace" : null,
+         "address" : "10.0.0.52",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-266748",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "available" : false,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         },
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2017-03-15T13:27:13.375Z",
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 4154650624
+            },
+            "discovered" : true,
+            "lastUpdated" : "2017-03-15T13:27:13.421Z",
+            "operatingSystem" : {
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "kernel" : null,
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)",
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "type" : "HostOS",
+               "release" : "2.6.39-400.245.1.el6uek.x86_64"
+            }
+         },
+         "dateAdded" : "2015-08-21T21:48:38.704Z",
+         "toolkitPath" : "/u01/app/oracle/toolkit"
+      },
+      {
+         "dateAdded" : "2015-08-21T21:48:14.958Z",
+         "toolkitPath" : "/u01/app/oracle/toolkit",
+         "type" : "UnixHost",
+         "hostConfiguration" : {
+            "discovered" : true,
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "x86_64",
+               "memorySize" : 4154650624
+            },
+            "lastUpdated" : "2017-03-15T13:27:15.080Z",
+            "operatingSystem" : {
+               "version" : "Red Hat Enterprise Linux Server release 6.4 (Santiago)",
+               "timezone" : "Etc/Zulu,UTC+0000",
+               "kernel" : null,
+               "release" : "2.6.39-400.245.1.el6uek.x86_64",
+               "type" : "HostOS",
+               "name" : "Linux",
+               "distribution" : "RedHat"
+            },
+            "lastRefreshed" : "2017-03-15T13:27:15.030Z",
+            "type" : "HostConfiguration"
+         },
+         "reference" : "UNIX_HOST-266747",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "available" : false,
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime"
+         },
+         "name" : "10.0.0.51",
+         "namespace" : null,
+         "address" : "10.0.0.51"
+      },
+      {
+         "connectorAuthenticationKey" : null,
+         "name" : "192.168.1.197",
+         "address" : "192.168.1.197",
+         "namespace" : null,
+         "privilegeElevationProfile" : null,
+         "reference" : "WINDOWS_HOST-266774",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "traceRouteInfo" : null,
+            "available" : false
+         },
+         "type" : "WindowsHost",
+         "hostConfiguration" : {
+            "lastRefreshed" : "2016-07-11T14:39:21.900Z",
+            "type" : "HostConfiguration",
+            "operatingSystem" : {
+               "kernel" : "9600.winblue_r4.141028-1500",
+               "timezone" : "Europe/London,BST+0100",
+               "version" : "Windows Server 2012 R2 Standard",
+               "type" : "HostOS",
+               "release" : "6.3",
+               "distribution" : "Windows",
+               "name" : "Windows"
+            },
+            "lastUpdated" : "2017-02-01T15:06:33.262Z",
+            "discovered" : false,
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "AMD64",
+               "memorySize" : 1073205248
+            }
+         },
+         "dateAdded" : "2016-05-04T11:26:28.017Z",
+         "toolkitPath" : "C:\\Program Files\\Delphix\\DelphixConnector",
+         "connectorPort" : 9100
+      },
+      {
+         "namespace" : null,
+         "address" : "192.168.1.199",
+         "name" : "192.168.1.199",
+         "connectorAuthenticationKey" : null,
+         "hostRuntime" : {
+            "traceRouteInfo" : null,
+            "type" : "HostRuntime",
+            "available" : false
+         },
+         "sshPort" : 22,
+         "reference" : "WINDOWS_HOST-266786",
+         "privilegeElevationProfile" : null,
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2017-01-19T12:20:15.390Z",
+            "operatingSystem" : {
+               "timezone" : "Europe/London,GMT+0000",
+               "version" : "Windows Server 2012 R2 Standard",
+               "kernel" : "9600.winblue_r4.141028-1500",
+               "release" : "6.3",
+               "type" : "HostOS",
+               "name" : "Windows",
+               "distribution" : "Windows"
+            },
+            "lastUpdated" : "2017-02-01T15:06:33.895Z",
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "AMD64",
+               "memorySize" : 2146910208
+            },
+            "discovered" : false
+         },
+         "type" : "WindowsHost",
+         "connectorPort" : 0,
+         "toolkitPath" : "C:\\Program Files\\Delphix\\DelphixConnector",
+         "dateAdded" : "2016-07-11T14:25:05.207Z"
+      },
+      {
+         "dateAdded" : "2016-07-11T12:39:58.108Z",
+         "connectorPort" : 0,
+         "toolkitPath" : "C:\\Program Files\\Delphix\\DelphixConnector",
+         "type" : "WindowsHost",
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "lastRefreshed" : "2017-01-19T12:22:31.662Z",
+            "lastUpdated" : "2017-02-03T11:32:12.418Z",
+            "operatingSystem" : {
+               "timezone" : "Europe/London,GMT+0000",
+               "version" : "Windows Server 2012 R2 Standard",
+               "kernel" : "9600.winblue_r4.141028-1500",
+               "name" : "Windows",
+               "distribution" : "Windows",
+               "type" : "HostOS",
+               "release" : "6.3"
+            },
+            "machine" : {
+               "platform" : "AMD64",
+               "type" : "HostMachine",
+               "memorySize" : 2146910208
+            },
+            "discovered" : false
+         },
+         "reference" : "WINDOWS_HOST-266785",
+         "privilegeElevationProfile" : null,
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "traceRouteInfo" : null,
+            "available" : false
+         },
+         "sshPort" : 22,
+         "namespace" : null,
+         "address" : "192.168.1.198",
+         "name" : "192.168.1.198",
+         "connectorAuthenticationKey" : null
+      }
+   ],
+   "overflow" : false,
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "status" : "OK"
+}

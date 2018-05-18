@@ -1,0 +1,37 @@
+{
+   "status" : "OK",
+   "result" : [
+      {
+         "reference" : "JS_BRANCH-1",
+         "dataLayout" : "JS_DATA_TEMPLATE-1",
+         "lastOperation" : "JS_OPERATION-1",
+         "firstOperation" : "JS_OPERATION-1",
+         "type" : "JSBranch",
+         "name" : "master",
+         "namespace" : null
+      },
+      {
+         "reference" : "JS_BRANCH-4",
+         "dataLayout" : "JS_DATA_TEMPLATE-2",
+         "lastOperation" : "JS_OPERATION-19",
+         "firstOperation" : "JS_OPERATION-7",
+         "name" : "master",
+         "type" : "JSBranch",
+         "namespace" : null
+      },
+      {
+         "dataLayout" : "JS_DATA_CONTAINER-5",
+         "lastOperation" : "JS_OPERATION-21",
+         "firstOperation" : "JS_OPERATION-20",
+         "type" : "JSBranch",
+         "name" : "default",
+         "namespace" : null,
+         "reference" : "JS_BRANCH-7"
+      }
+   ],
+   "job" : null,
+   "overflow" : false,
+   "total" : 3,
+   "type" : "ListResult",
+   "action" : null
+}

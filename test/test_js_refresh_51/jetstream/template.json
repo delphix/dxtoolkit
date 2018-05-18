@@ -1,0 +1,36 @@
+{
+   "job" : null,
+   "type" : "ListResult",
+   "action" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "type" : "JSDataTemplate",
+         "namespace" : null,
+         "firstOperation" : "JS_OPERATION-1",
+         "notes" : null,
+         "activeBranch" : "JS_BRANCH-1",
+         "lastUpdated" : "2017-11-15T17:43:08.559Z",
+         "confirmTimeConsumingOperations" : true,
+         "lastOperation" : "JS_OPERATION-1",
+         "properties" : {},
+         "name" : "oracle",
+         "reference" : "JS_DATA_TEMPLATE-1"
+      },
+      {
+         "confirmTimeConsumingOperations" : true,
+         "lastUpdated" : "2018-01-23T16:54:08.816Z",
+         "activeBranch" : "JS_BRANCH-4",
+         "notes" : null,
+         "firstOperation" : "JS_OPERATION-7",
+         "namespace" : null,
+         "type" : "JSDataTemplate",
+         "reference" : "JS_DATA_TEMPLATE-2",
+         "properties" : {},
+         "name" : "ora",
+         "lastOperation" : "JS_OPERATION-7"
+      }
+   ],
+   "status" : "OK",
+   "total" : 2
+}

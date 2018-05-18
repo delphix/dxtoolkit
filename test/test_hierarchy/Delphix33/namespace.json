@@ -1,0 +1,62 @@
+{
+   "status" : "OK",
+   "type" : "ListResult",
+   "action" : null,
+   "job" : null,
+   "result" : [
+      {
+         "reference" : "NAMESPACE-10",
+         "namespace" : null,
+         "name" : "delphix32-9",
+         "failedOver" : false,
+         "source" : "xport-s:/192.168.1.33:8415-/192.168.1.32:43738",
+         "secureNamespace" : true,
+         "description" : null,
+         "namespaceType" : "REPLICATION",
+         "failoverReport" : null,
+         "tag" : "cdbf2ea0-df83-4a58-9c2a-26fcef6fb783",
+         "type" : "Namespace"
+      },
+      {
+         "description" : null,
+         "namespaceType" : "REPLICATION",
+         "type" : "Namespace",
+         "tag" : "dc6c882e-97e6-4c37-b54d-f6784b4e1258",
+         "failoverReport" : null,
+         "reference" : "NAMESPACE-6",
+         "name" : "delphix32",
+         "namespace" : null,
+         "source" : "xport-s:/192.168.1.33:8415-/192.168.1.32:59717",
+         "secureNamespace" : true,
+         "failedOver" : false
+      },
+      {
+         "description" : null,
+         "namespaceType" : "REPLICATION",
+         "failoverReport" : null,
+         "tag" : "e2472ee3-c30e-412c-a391-8827e1c37f66",
+         "type" : "Namespace",
+         "reference" : "NAMESPACE-3",
+         "namespace" : null,
+         "name" : "delphix32-2",
+         "failedOver" : false,
+         "secureNamespace" : false,
+         "source" : "xport-s:/192.168.1.33:8415-/192.168.1.32:41349"
+      },
+      {
+         "description" : null,
+         "tag" : "2ebb9f27-10bf-4ceb-bf06-9ad6e5784525",
+         "type" : "Namespace",
+         "failoverReport" : null,
+         "namespaceType" : "REPLICATION",
+         "reference" : "NAMESPACE-8",
+         "secureNamespace" : true,
+         "source" : "xport-s:/192.168.1.33:8415-/192.168.1.32:61150",
+         "failedOver" : false,
+         "name" : "delphix32-7",
+         "namespace" : null
+      }
+   ],
+   "overflow" : false,
+   "total" : 4
+}
