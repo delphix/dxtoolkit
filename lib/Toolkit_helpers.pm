@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.3.5.2';
+our $version = '2.3.6-rc1';
 
 sub logger {
 	my $debug = shift;
@@ -39,10 +39,10 @@ sub logger {
 	if (defined($debug)) {
 		if (defined($verbose)) {
 			if ($debug >= $verbose) {
-				printf "%${verbose}s%s\n", '-', $msg;				
+				printf "%${verbose}s%s\n", '-', $msg;
 			}
 		} else {
-			printf "%s\n", $msg;				
+			printf "%s\n", $msg;
 		}
 	}
 
@@ -50,14 +50,14 @@ sub logger {
 		open (my $fh, ">>", 'debug.log') or die ("Can't open new debug file log.log for write");
 		if (defined($verbose)) {
 			if ($debug >= $verbose) {
-				printf $fh "%${verbose}s%s\n", '-', $msg;				
+				printf $fh "%${verbose}s%s\n", '-', $msg;
 			}
 		} else {
-			printf $fh "%s\n", $msg;				
-		}	
+			printf $fh "%s\n", $msg;
+		}
 		close $fh;
 	}
-	
+
 }
 
 
@@ -68,36 +68,36 @@ sub write_to_dir {
 	my $name = shift;
 	my $path = shift;
 	my $unique = shift;
-	
+
 	if (! -d $path) {
 		print "Path $path is not a directory \n";
-		exit (1);  
+		exit (1);
 	}
-	
+
 	if (! -w $path) {
 		print "Path $path is not writtable \n";
-		exit (1);  
+		exit (1);
 	}
-	
+
 	my $filename;
-	
+
 	if (defined($unique)) {
 		my $datestring = UnixDate('now','%Y%m%d-%H-%M-%S');
-		$filename = "$name-$datestring";		
+		$filename = "$name-$datestring";
 	} else {
 		$filename = $name;
 	}
-	
+
 	if (defined($format)) {
 		if (lc $format eq 'csv') {
 			$filename = $filename . ".csv";
 		} elsif (lc $format eq 'json') {
 			$filename = $filename . ".json";
-		} 
+		}
 	} else {
 		$filename = $filename . ".txt";
 	}
-	
+
 	my $fullname = File::Spec->catfile($path,$filename);
 	my $FD;
 	if ( open($FD,'>', $fullname) ) {
@@ -108,8 +108,8 @@ sub write_to_dir {
 		exit 1;
 	}
 	close ($FD);
-	
-	
+
+
 }
 
 
@@ -171,7 +171,7 @@ sub filter_array {
 	for my $db ( @{$filter_array} ) {
 		if ( grep { $_ eq $db } @{$array} ) {
 			push (@ret, $db);
-		} 
+		}
 	}
 
 	return \@ret;
@@ -182,13 +182,13 @@ sub waitForJob {
 	my $jobno = shift;
 	my $success = shift;
 	my $failure = shift;
-	
+
 	my $ret;
-	
+
 	if (defined($jobno)) {
-  
+
     print "Starting provisioning job - $jobno\n";
-  
+
     my $job = new Jobs_obj($engine_obj,$jobno, 'true');
     my $retjob = $job->waitForJob();
     if ($retjob eq 'COMPLETED') {
@@ -196,9 +196,9 @@ sub waitForJob {
       $ret = 0;
     } else {
       print "There was a problem with job - $jobno. Job status is $retjob. \nIf there is no error on the screen, try with -debug flag to find a root cause\n";
-      $ret =  1;   
+      $ret =  1;
     }
-  
+
   } else {
     print "Job wasn't defined. If there is no error on the screen, try with -debug flag to find a root cause.\n";
     $ret =  1;
@@ -213,7 +213,7 @@ sub waitForAction {
 	my $jobno = shift;
 	my $success = shift;
 	my $failure = shift;
-	
+
 	my $ret;
 	if (defined($jobno)) {
 
@@ -222,7 +222,7 @@ sub waitForAction {
       my $st = Toolkit_helpers::timestamp("-5mins", $engine_obj);
       my $action = new Action_obj ($engine_obj, $st, undef, undef, undef, $engine_obj->{_debug});
       $action->loadActionListbyID({ $jobno => 1 });
-        
+
       print "Waiting for all actions to complete. Parent action is " . $jobno . "\n";
       if ( $action->checkStateWithChild($jobno) eq 'COMPLETED' ) {
           print $success . "\n";
@@ -235,8 +235,8 @@ sub waitForAction {
   } else {
       print $failure . ". No job defined.\n";
       $ret = 1;
-  }	
-	
+  }
+
 	return $ret;
 }
 
@@ -258,20 +258,20 @@ sub get_dblist_from_filter {
 	my @db_list;
 
 	logger($debug, "Entering Toolkit_helpers::get_dblist_from_filter",1);
-	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s, dSource - %s" , defined($type) ? $type : 'N/A' , 
+	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s, dSource - %s" , defined($type) ? $type : 'N/A' ,
 		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A', defined($dsource) ? $dsource : 'N/A');
 	logger($debug, $msg ,1);
-	
-	# get all DB 
+
+	# get all DB
 
 	if (defined($primary) ) {
 		@db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getPrimaryDB();
 	} else {
     @db_list = sort { Toolkit_helpers::sort_by_dbname($a,$b,$databases,$groups, $debug) } $databases->getDBList();
   }
-		
+
 	my $ret = \@db_list;
-	
+
 	if ( defined($host) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBForHost($host, $instance) );
@@ -280,8 +280,8 @@ sub get_dblist_from_filter {
   		$ret = filter_array($ret, \@hostfilter);
   		logger($debug, "list of DB after host filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
-  	} 
-		
+  	}
+
 
 	if ( defined($dsource) ) {
     	# get all DB from one host
@@ -291,8 +291,8 @@ sub get_dblist_from_filter {
   		$ret = filter_array($ret, \@hostfilter);
   		logger($debug, "list of DB after parent filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
-  	} 
-		
+  	}
+
 	if ( defined($instancename) ) {
     	# get all DB from one host
     	my @hostfilter =  ( $databases->getDBForInstanceName($instancename) );
@@ -301,7 +301,7 @@ sub get_dblist_from_filter {
   		$ret = filter_array($ret, \@hostfilter);
   		logger($debug, "list of DB after instancename filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
-  	} 
+  	}
 
 
 	if ( defined($envname) ) {
@@ -312,22 +312,22 @@ sub get_dblist_from_filter {
   		$ret = filter_array($ret, \@envfilter);
   		logger($debug, "list of DB after env filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
-  	} 
-  	
+  	}
+
   	if ( defined($type) ) {
     	# get all DB of one type
-    	my @typefilter =  ( $databases->getDBByType($type) );   
+    	my @typefilter =  ( $databases->getDBByType($type) );
 		  logger($debug, "list of DB on env" ,1);
-    	logger($debug, join(",", @typefilter) ,1); 
+    	logger($debug, join(",", @typefilter) ,1);
     	$ret = filter_array($ret, \@typefilter);
   		logger($debug, "list of DB after type filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
   	}
-	
+
 	if ( defined($group) ) {
 	    # get all DB of one group
 	    my $group_ref = defined($groups->getGroupByName($group)) ? $groups->getGroupByName($group)->{reference} : '';
-	    my @groupfilter =  ( $databases->getDBForGroup($group_ref) );   
+	    my @groupfilter =  ( $databases->getDBForGroup($group_ref) );
 		  logger($debug, "list of DB in group" ,1);
     	logger($debug, join(",", @groupfilter) ,1);
 	    $ret = filter_array($ret, \@groupfilter);
@@ -337,15 +337,15 @@ sub get_dblist_from_filter {
 
 	 if ( defined($dbname) ) {
 	 		my @namefilter;
-			
+
 			for my $sdbname ( split(',', $dbname) ) {
-			   
+
 		 		for my $db ( @{$databases->getDBByName($sdbname)} ) {
 		    		push (@namefilter, $db->getReference());
 				}
 
 			}
-	    $ret = filter_array($ret, \@namefilter);		
+	    $ret = filter_array($ret, \@namefilter);
 	 }
 
 	 if ( scalar(@{$ret}) < 1 ) {
@@ -389,7 +389,7 @@ sub get_engine_list {
 	  print "There is no engine selected to process. \n";
 	  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
 	  exit (1);
-	} 
+	}
 
 	return \@engine_list;
 }
@@ -432,12 +432,12 @@ sub parallel_job {
 
 
 sub timestamp {
-	my $timestamp = shift;	
-	my $engine = shift; 
+	my $timestamp = shift;
+	my $engine = shift;
 	my $ret;
 
 	my ($year,$mon,$day,$hh,$mi,$ss);
-	
+
 	if (defined($timestamp)) {
 		if (( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d?\d):(\d\d)/ ) || ( $timestamp =~ /(\d\d\d\d)-(\d\d)-(\d\d)/ ) ) {
 			$timestamp = $timestamp;
@@ -452,15 +452,15 @@ sub timestamp {
 		# - 7 days
 		$timestamp = $engine->getTime(7*24*60);
 	}
-	
+
 	my $tz = new Date::Manip::TZ;
 	my $detz = $engine->getTimezone();
 	my $dt = ParseDate($timestamp);
-	if ($dt ne '') { 
+	if ($dt ne '') {
 		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
 		my $tstz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
 		$ret = uri_escape($tstz);
-	} 
+	}
 
    return $ret;
 }
@@ -504,27 +504,27 @@ sub opname_options {
 	if ( defined($opname) && (! ( (lc $opname eq 'b') || (lc $opname eq 'r') || (lc $opname eq 'w') ) ) ) {
 	  print "Wrong -opname value $opname \n";
 	  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-	  exit (3);  
+	  exit (3);
 	}
 
 	if ( defined($read) && defined($write) ) {
 	  print "Use -read or -write. For read and write operation leave default or set opname='b' \n";
 	  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-	  exit (3);   
+	  exit (3);
 	}
 
 	if (( defined($read) || defined($write) ) && defined($opname) ) {
 	  print "Option -opname and -read or -write are mutually exclusive \n";
 	  pod2usage(-verbose => 2, -output=>\*STDERR, -input=>\*DATA);
-	  exit (3);   
-	}	
+	  exit (3);
+	}
 
 	if ( defined($read) ) {
 	  $opname = 'r';
 	}
 	elsif ( defined($write) ) {
 	  $opname = 'w';
-	} 
+	}
 	elsif ( ! defined ($opname) ) {
 	  $opname = 'b';
 	}
@@ -613,7 +613,7 @@ sub sortcol_by_number {
 
   my ( $anum ) = $a->[$col] =~ /(\d+[.]?\d+)/;
   my ( $bnum ) = $b->[$col] =~ /(\d+[.]?\d+)/;
-    
+
   if (!defined($order) || (lc $order eq 'asc')) {
     return ( $anum || 0 ) <=> ( $bnum || 0 );
   } else {
@@ -647,7 +647,7 @@ sub parse_cron {
 			$ret =  sprintf("%s %2.2d:%2.2d" , $days[$day-1], $hour,$min);
 		} else {
 			my @cronpart = split(' ',$cronstring);
-			
+
 			# comman separeted list for minutes
 			if ($cronpart[1] =~ /^\d+(?:, ?\d+)*$/ ) {
 					my $nopattern = 0;
@@ -660,14 +660,14 @@ sub parse_cron {
 							if (( $minutes[$min] - $minutes[$min-1] ) ne $diff ) {
 								$nopattern = 1;
 							}
-						} 
+						}
 
 						if ($nopattern eq 1) {
 							$ret = "on " . join(',', map { sprintf("%2.2d" , $_) } @minutes) . " min ";
 						} else {
 							$ret = "every $diff min ";
 						}
-					
+
 					} else {
 						$ret = "on " . join(',', map { sprintf("%2.2d" , $_) } @minutes) . " min ";
 					}
@@ -709,7 +709,7 @@ sub parse_cron {
 sub extractErrorFromHash {
 	my $hash = shift;
 	my $ret = '';
-	
+
 	if (ref($hash) eq 'HASH') {
 		if (defined($hash->{details})) {
 			$ret = $hash->{details};
@@ -721,16 +721,16 @@ sub extractErrorFromHash {
 	} else {
 		$ret = $hash;
 	}
-	
-	return $ret;	
-			
+
+	return $ret;
+
 }
 
 
-sub  trim { 
-	my $s = shift; 
-	$s =~ s/^\s+|\s+$//g; 
-	return $s 
+sub  trim {
+	my $s = shift;
+	$s =~ s/^\s+|\s+$//g;
+	return $s
 };
 
 sub convert_using_offset {
@@ -745,9 +745,9 @@ sub convert_using_offset {
 	my $dt = new Date::Manip::Date;
 	my ($err,$date,$offset,$isdst,$abbrev);
 
-	chomp($timestamp); 
+	chomp($timestamp);
 	$timestamp =~ s/T/ /;
-	$timestamp =~ s/\.000Z//; 
+	$timestamp =~ s/\.000Z//;
 
 	$err = $dt->parse($timestamp);
 	my $dttemp = $dt->value();
@@ -755,7 +755,7 @@ sub convert_using_offset {
 	my $delta;
 	my $ts;
 	my $off;
-	
+
 	if ($src eq 'UTC') {
 		my ($h, $m) = ($dst =~ /GMT([+|-]\d\d)\:(\d\d)/);
 		$off = $dst;
@@ -764,7 +764,7 @@ sub convert_using_offset {
 		$delta = $dt->new_delta();
 		$delta->parse('0:0:0:0:' . $hn . ':' . $mn .':0');
 	}
-	
+
 	if ($dst eq 'UTC') {
 		my ($h, $m) = ($src =~ /GMT([+|-]\d\d)\:(\d\d)/);
 		$off = 'UTC';
@@ -773,13 +773,13 @@ sub convert_using_offset {
 		$delta = $dt->new_delta();
 		$delta->parse('0:0:0:0:' . $hn . ':' . $mn .':0');
 	}
-	
+
 	my $nd = $dt->calc($delta);
-	
+
 	if (defined($makeiso)) {
 		$ts = $nd->printf("%Y-%m-%dT%T.000Z");
 	} else {
-		$ts = $nd->printf("%Y-%m-%d %T");		
+		$ts = $nd->printf("%Y-%m-%d %T");
 		if (defined($printtz)) {
       if (defined($printoff)) {
         $off =~ s/GMT//;
@@ -787,9 +787,9 @@ sub convert_using_offset {
       } else {
 			  $ts = $ts . ' ' . $off;
       }
-		}	
+		}
 	}
-	
+
 	return $ts;
 
 }
@@ -801,28 +801,28 @@ sub convert_timezone {
 	my $printtz = shift;
 	my $makeiso = shift;
   my $printoff = shift;
-	
+
 	my $tz = new Date::Manip::TZ;
 	my $dt = new Date::Manip::Date;
 	my ($err,$date,$offset,$isdst,$abbrev);
 
 	$dt->config("setdate","zone," . $src);
 
-	chomp($timestamp); 
+	chomp($timestamp);
 	$timestamp =~ s/T/ /;
-	$timestamp =~ s/\.000Z//;         
-	 
+	$timestamp =~ s/\.000Z//;
+
 
 	$err = $dt->parse($timestamp);
-	
+
 	if ($err) {
 		return undef;
 	}
-	
+
 	my $dttemp = $dt->value();
 	($err,$date,$offset,$isdst,$abbrev) = $tz->convert($dttemp, $src, $dst);
 	my $ts;
-	
+
 	if ($err) {
 		return undef;
 	}
@@ -843,10 +843,10 @@ sub convert_timezone {
 
 
 
-	
-	return $ts; 
-	
-	
+
+	return $ts;
+
+
 }
 
 sub convert_from_utc {
