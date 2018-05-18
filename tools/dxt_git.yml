@@ -1,0 +1,77 @@
+---
+ - hosts: all
+
+   vars:
+      dxloc: "/home/delphix/github"
+      temp: "{{ dxversion | default('HEAD') }}"
+      gittag: "{% if temp != 'HEAD' %} v{{ temp }} {% else %} {{ temp }}{% endif %}"
+
+   tasks:
+     
+     - debug: 
+         msg: "{{ gittag }}"
+
+     - debug: 
+         msg: "{{ temp }}"
+
+     - name: Install CPAN 
+       sudo: yes
+       environment:
+        PATH: "/usr/local/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin"
+       cpanm: name={{ item }}
+       ignore_errors: yes
+       with_items:
+         - "JSON"
+         - "Date::Manip"
+         - "DateTime::Event::Cron::Quartz"
+         - "DateTime::Format::DateParse"
+         - "Crypt::CBC"
+         - "Crypt::Blowfish"
+         - "Text::CSV"
+         - "Try::Tiny"
+         - "LWP::UserAgent"
+         - "Net::SSLeay"
+         - "IO::Socket::SSL"
+         - "LWP::Protocol::https"  
+         - "Filter::Crypto::Decrypt"
+         - "PAR::Packer"
+         - "Term::ReadKey"
+         - "Log::Syslog::Fast"
+     
+     - name: dxtoolkit dirs
+       file: name={{ item }} state=directory
+       with_items:
+         - "{{ dxout }}" 
+         - "{{ dxloc }}" 
+     
+     - name: github checkout
+       git:
+         repo: https://github.com/delphix/dxtoolkit.git 
+         dest: "{{ dxloc }}"
+         clone: yes 
+         version: "{{ gittag }}" 
+         force: yes
+    
+     - name: put password
+       synchronize: src=/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+
+     - name: create script
+       template: src=/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755
+     
+     - name: compile
+       shell: "bash -x {{dxloc}}/bin/compile.sh {{ temp }} > /tmp/compile.log" 
+       args:
+        chdir: "{{ dxloc }}/bin/"
+       register: output
+       failed_when: "'ERROR' in output.stdout" 
+    
+     - name: get toolkit 
+       fetch: src={{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz dest=/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/ flat=yes
+
+     - name: cleanup temp
+       shell: rm -rf /u02/tmp/par*
+
+     - name: cleanup file
+       shell: rm -rf "{{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz"  
+
+
