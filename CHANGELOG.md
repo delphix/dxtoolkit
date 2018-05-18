@@ -1,8 +1,23 @@
+## 2.3.6-rc1
+
+### Added
+- dx_get/ctl_template - support to display template parameters and compare it with init files
+- dx_ctl_dsource - creategroup and PDB documentation added
+- dx_provision_db - mount point can be specified for Sybase VDB (5.2 required)
+- dx_ctl_dsource - mount point for staging database for Sybase dSource (5.2 required) is supported
+- dx_snapshot_db - uuid can be specified for MS SQL backup
+- dx_snapshot_db - full backup and doublesync option added for an Oracle
+- dx_get_users - engine name is displayed, sysadmin user is displayed with S in admin_priv column
+- dx_ctl_users - password change, enable and disable added
+
+### Changed
+- bug fixes
+
 ## 2.3.5.2
 
 ### Changed
 - dx_provision_vdb hook fix
-- dx_get_hierarchy and dx_get_db_env fix for detached dSources 
+- dx_get_hierarchy and dx_get_db_env fix for detached dSources
 
 
 ## 2.3.5
@@ -48,7 +63,7 @@
 ### Changed
 
 * help fixes
-* Various bug fixes 
+* Various bug fixes
 * dx_get_capacity is able to use new cached values (only in version >=5.2)
 * reversed order added to printhierarchy
 * multi NIC output in Analytics
@@ -80,9 +95,9 @@
 ### Changed
 
 * help fixes
-* Various bug fixes 
+* Various bug fixes
 
-## 2.3.3-rc2 
+## 2.3.3-rc2
 
 ### Added
 
@@ -91,22 +106,22 @@
 ### Changed
 
 * fix for caching
-* Various bug fixes 
+* Various bug fixes
 
 ## 2.3.3-rc1
 
 ### Added
 
-* dx_syslog 
-* dx_ctl_users allow to set current role to None 
+* dx_syslog
+* dx_ctl_users allow to set current role to None
 
 ### Changed
 
-* fix for users support 
-* fix for JS containers 
+* fix for users support
+* fix for JS containers
 * fix for timezones defined with offset
 * debug enhancements
-* Various bug fixes 
+* Various bug fixes
 
 
 ## 2.3.2.1
@@ -122,7 +137,7 @@
 * vCPU and vMem information into dx_get_appliance
 * Parent time in dx_get_db_env will display a real provisioning time, SCN/LSN or parent snapshot time - depend what was used to deploy
 * added create and remove JetStream container actions in dx_ctl_js_container
-* new script dx_ctl_js_template to create and remove JetStream template 
+* new script dx_ctl_js_template to create and remove JetStream template
 * added functionalty to restore container from template timeline
 * new script dx_get_capacity_history to extract historical capacity
 
@@ -130,7 +145,7 @@
 
 * fix for RAC to nonRAC provisioning
 * missing cdb parameter in help
-* Various bug fixes 
+* Various bug fixes
 
 ## 2.3.1
 
@@ -141,11 +156,11 @@
 * dx_get_hierarchy - script to display hierarchy - first release
 * dx_get_autostart - script to display autostart flag
 * dx_set_autostart - script to set autostart flag
-* Autostart flag added to provisioning script 
+* Autostart flag added to provisioning script
 * Adding a support for adding database, vfiles manually using dx_ctl_env
 
 ### Changed
-* Various bug fixes 
+* Various bug fixes
 
 ## 2.3.0
 
@@ -160,13 +175,13 @@ No changes between this release. Check list below
   * adding environemnt users
   * manually adding repository (Oracle Home)
   * manually adding database with jdbc string
-* Masking job support on virtualization engine 
+* Masking job support on virtualization engine
   * dx_get_maskingjob
   * dx_ctl_maskingjob
 * instance name added as filter
 
 ### Changed
-* Various bug fixes 
+* Various bug fixes
 
 
 ## 2.3.0-rc1
@@ -174,9 +189,9 @@ No changes between this release. Check list below
 ### Added
 * Display masked status plus job name - dx_get_db_env
 * NFS IOPS added to dx_get_analytic output
-* New timestamp format supported for start / end date. 
+* New timestamp format supported for start / end date.
 Ex. "-5day" to specify a time now minus 5 days and "-10min" to specify a time now minus 10 min.
-* Support for Oracle PDB - provision and metadata backup 
+* Support for Oracle PDB - provision and metadata backup
 * Snapshot and retention policy added to dx_provision_vdb
 * Extract system configuration - dx_get_config
 * Kick off replication job - dx_ctl_replication
@@ -185,5 +200,5 @@ Ex. "-5day" to specify a time now minus 5 days and "-10min" to specify a time no
 
 ### Changed
 * Impoved output for config of databases in dx_get_db_env
-* Support for Delphix Engine version 5.1.X 
+* Support for Delphix Engine version 5.1.X
 * Various bug fixes
