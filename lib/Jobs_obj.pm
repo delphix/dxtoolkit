@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ use Toolkit_helpers qw (logger);
 use Date::Manip;
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - job - job reference
 # - silet - display or not progress
@@ -47,7 +47,7 @@ sub new {
     my $silent = shift;
     my $debug = shift;
 
-    
+
     logger($debug, "Entering Jobs_obj::constructor",1);
     my $self = {
         _dlpxObject => $dlpxObject,
@@ -55,9 +55,9 @@ sub new {
         _silent => $silent,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     if (defined($job)) {
         $self->loadJob();
     }
@@ -68,10 +68,10 @@ sub new {
 # parameters: - none
 # Load job status from Delphix Engine
 
-sub loadJob 
+sub loadJob
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::loadJob",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::loadJob",1);
 
     my $operation = "resources/json/delphix/job/" . $self->{_job};
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -84,17 +84,17 @@ sub loadJob
 }
 
 # Procedure setJob
-# parameters: 
+# parameters:
 # - jobref
 # - job hash
 # Load job status from Delphix Engine
 
-sub setJob 
+sub setJob
 {
     my $self = shift;
     my $job = shift;
     my $jobhash = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::setJob",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::setJob",1);
 
 
     $self->{_job} = $job;
@@ -104,27 +104,27 @@ sub setJob
 # Procedure setTimezone
 # Set timezone for a job
 
-sub setTimezone 
+sub setTimezone
 {
     my $self = shift;
     my $timezone = shift;
 
-    logger($self->{_debug}, "Entering Jobs_obj::setTimezone",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::setTimezone",1);
     $self->{_timezone} = $timezone;
 }
 
 
 # Procedure getJobForAction
-# parameters: 
+# parameters:
 # - reference - action reference
 # Load job status from Delphix Engine
 
-sub getJobForAction 
+sub getJobForAction
 {
     my $self = shift;
     my $reference = shift;
 
-    logger($self->{_debug}, "Entering Jobs_obj::getJobForAction",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobForAction",1);
 
     my $operation = "resources/json/delphix/action/" . $reference . "/getJob";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -139,8 +139,8 @@ sub getJobForAction
 sub getJobName
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobName",1);    
-    return $self->{_joboutput}->{reference};   
+    logger($self->{_debug}, "Entering Jobs_obj::getJobName",1);
+    return $self->{_joboutput}->{reference};
 }
 
 # Procedure getJobState
@@ -150,7 +150,7 @@ sub getJobName
 sub getJobState
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobState",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobState",1);
     return $self->{_joboutput}->{jobState};
 }
 
@@ -161,7 +161,7 @@ sub getJobState
 sub getJobActionType
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobActionType",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobActionType",1);
     return $self->{_joboutput}->{actionType};
 }
 
@@ -172,7 +172,7 @@ sub getJobActionType
 sub getJobTargetName
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobTargetName",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobTargetName",1);
     return defined ($self->{_joboutput}->{targetName}) ? $self->{_joboutput}->{targetName} : '';
 }
 
@@ -183,7 +183,7 @@ sub getJobTargetName
 sub getJobTarget
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobTarget",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobTarget",1);
     return defined($self->{_joboutput}->{target}) ? $self->{_joboutput}->{target} : undef;
 }
 
@@ -194,7 +194,7 @@ sub getJobTarget
 sub getUser
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getUser",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getUser",1);
     return $self->{_joboutput}->{user};
 }
 
@@ -206,21 +206,21 @@ sub getUser
 sub getJobTitle
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getJobTitle",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getJobTitle",1);
     return $self->{_joboutput}->{title};
 }
 
 
 # Procedure getJobStartTimeWithTZ
-# parameters: 
+# parameters:
 # - offset
 # Return job start date with engine time zone
 
 sub getJobStartTimeWithTZ {
     my $self = shift;
     my $retoffset = shift;
-    
-    logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);    
+
+    logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);
     my $ts = $self->{_joboutput}->{startTime};
     my $ret;
 
@@ -232,30 +232,43 @@ sub getJobStartTimeWithTZ {
     return $ret;
 }
 
+# Procedure getJobStartTime
+# parameters:
+# - offset
+# Return job start date in ZULU
+
+sub getJobStartTime {
+    my $self = shift;
+    my $retoffset = shift;
+
+    logger($self->{_debug}, "Entering Jobs_obj::getJobStartTime",1);
+    return $self->{_joboutput}->{startTime};  
+}
+
 
 # Procedure getJobUpdateTimeWithTZ
-# parameters: 
+# parameters:
 # Return job end date with engine time zone
 
 sub getJobUpdateTimeWithTZ {
     my $self = shift;
-    
-    logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);    
-    my $ts = $self->{_joboutput}->{updateTime};    
+
+    logger($self->{_debug}, "Entering Jobs_obj::getJobStartTimeWithTZ",1);
+    my $ts = $self->{_joboutput}->{updateTime};
     return Toolkit_helpers::convert_from_utc($ts, $self->{_timezone}, 1);
-    
+
 }
 
 # Procedure getJobRuntime
-# parameters: 
+# parameters:
 # - reference
 # Return fault date with engine time zone
 
 sub getJobRuntime {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Jobs_obj::getJobRuntime",1);  
+
+    logger($self->{_debug}, "Entering Jobs_obj::getJobRuntime",1);
     my $st = $self->{_joboutput}->{startTime};
     $st =~ s/\....Z//;
     my $et = $self->{_joboutput}->{updateTime};
@@ -271,7 +284,7 @@ sub getJobRuntime {
 sub getPercentage
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getPercentage",1);    
+    logger($self->{_debug}, "Entering Jobs_obj::getPercentage",1);
     my $pct = $self->{_joboutput}->{percentComplete};
     return $pct;
 }
@@ -283,14 +296,14 @@ sub getPercentage
 sub getLastMessage
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::getLastMessage",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::getLastMessage",1);
     my $events =  $self->{_joboutput}->{events};
     my $last_event = @{$events}[-1];
     return $last_event->{messageDetails}
 }
 
 # Procedure isMessage
-# parameters: 
+# parameters:
 # - test to find
 # Return true if message is found
 
@@ -298,9 +311,9 @@ sub isFindMessage
 {
     my $self = shift;
     my $text = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::isFindMessage",1);  
+    logger($self->{_debug}, "Entering Jobs_obj::isFindMessage",1);
 
-    
+
     if (! defined($self->{_joboutput}->{events})) {
         $self->loadJob();
     }
@@ -330,7 +343,7 @@ sub cancel
 {
     my $self = shift;
     my $action = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::cancel",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::cancel",1);
     my $ret;
     if ( ($self->getJobState() eq 'RUNNING' ) || ($self->getJobState() eq 'SUSPENDED' ) ) {
         $ret = $self->runAction('cancel');
@@ -349,7 +362,7 @@ sub suspend
 {
     my $self = shift;
     my $action = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::suspend",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::suspend",1);
     my $ret;
     if ( ($self->getJobState() eq 'RUNNING' ) ) {
         $ret = $self->runAction('suspend');
@@ -368,7 +381,7 @@ sub resume
 {
     my $self = shift;
     my $action = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::resume",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::resume",1);
     my $ret;
     if ( ($self->getJobState() eq 'SUSPENDED' ) ) {
         $ret = $self->runAction('resume');
@@ -380,7 +393,7 @@ sub resume
 }
 
 # Procedure runAction
-# parameters: 
+# parameters:
 # - action
 # return 0 if OK
 
@@ -388,7 +401,7 @@ sub runAction
 {
     my $self = shift;
     my $action = shift;
-    logger($self->{_debug}, "Entering Jobs_obj::runAction",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::runAction",1);
 
     my $operation = "resources/json/delphix/job/" . $self->{_job} . "/" . $action;
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
@@ -418,26 +431,26 @@ sub runAction
 # Wait for job to be finished ( completed / failed or canceled) and display status if not silent
 # return last status
 
-sub waitForJob 
+sub waitForJob
 {
     my $self = shift;
     my $oldpct = 0;
-    logger($self->{_debug}, "Entering Jobs_obj::waitForJob",1);   
+    logger($self->{_debug}, "Entering Jobs_obj::waitForJob",1);
 
     my $jobno = $self->{_joboutput}->{reference};
-    
+
     $oldpct = $self->getPercentage();
-    
+
     if ( (defined ($self->{_silent})) &&  ($self->{_silent} eq 'true' )) {
         print "$oldpct";
     }
-    
+
     while (($self->getJobState() ne 'COMPLETED') && ($self->getJobState() ne 'CANCELED') && ($self->getJobState() ne 'FAILED')) {
         sleep 1;
-        logger($self->{_debug}, "Waiting for job to completed. current progress - " . $self->getPercentage() ,2);   
+        logger($self->{_debug}, "Waiting for job to completed. current progress - " . $self->getPercentage() ,2);
         $self->loadJob();
         if ( (defined ($self->{_silent})) &&  ($self->{_silent} eq 'true' )) {
-            my $newpct = $self->getPercentage();       
+            my $newpct = $self->getPercentage();
             if (defined($newpct)) {
                 if ($oldpct ne $newpct ) {
                     print " - " . $newpct;
@@ -446,7 +459,7 @@ sub waitForJob
             }
         }
     }
-    
+
     if ( (defined ($self->{_silent})) &&  ($self->{_silent} eq 'true' )) {
         print "\n";
         print "Job $jobno finished with state: " .  $self->getJobState() . "\n";
@@ -454,9 +467,9 @@ sub waitForJob
             print "Last message is: " . $self->getLastMessage() . "\n";
         }
     }
-    
+
     return $self->getJobState();
-    
+
 }
 
 1;

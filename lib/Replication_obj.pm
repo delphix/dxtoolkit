@@ -379,6 +379,7 @@ sub getSchedule {
 sub getLastJob {
   my $self      = shift;
   my $reference = shift;
+  my $zulu = shift;
 
   logger( $self->{_debug}, "Entering Replication_obj::getLastJob", 1 );
 
@@ -495,7 +496,11 @@ sub getLastJob {
       my $jobtarget = $job->getJobTarget();
 
       if ( $jobtarget eq $reference ) {
-        $job_data{'StartTime'} = $job->getJobStartTimeWithTZ();
+        if (defined($zulu)) {
+          $job_data{'StartTime'} = $job->getJobStartTime();
+        } else {
+          $job_data{'StartTime'} = $job->getJobStartTimeWithTZ();
+        }
         $job_data{'State'}     = $job->getJobState();
         $job_data{'Runtime'}   = $job->getJobRuntime();
         last;
