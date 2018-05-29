@@ -1,3 +1,8 @@
+## 2.3.6-rc2
+
+### Added
+- dx_ctl_replication - "safe" option added to replication, replication job won't kick off if VDB was deleted since last replication
+
 ## 2.3.6-rc1
 
 ### Added

@@ -150,6 +150,7 @@ __DATA__
 
  dx_ctl_replication [-engine|d <delphix identifier> | -all ]
                      -profilename profile
+                     [-safe]
                      [-nowait]
                      [-help|?]
                      [-debug ]
@@ -188,6 +189,10 @@ Specify a profile name to run
 
 =item B<-nowait>
 Don't wait for a replication job to complete. Job will be running in backgroud.
+
+=item B<-safe>
+Enable "safe" replication. If there was a VDB/dSource deletion operation
+on primary engine, replication job won't be started
 
 =item B<-help>
 Print this screen
