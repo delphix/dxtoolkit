@@ -1,3 +1,9 @@
+## 2.3.6
+
+### Changed
+- fix for file mapping API changes in 5.2 
+
+
 ## 2.3.6-rc2
 
 ### Added

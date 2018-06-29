@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,7 +30,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -39,29 +39,29 @@ sub new {
     my $dlpxObject = shift;
     my $debug = shift;
     logger($debug, "Entering FileMap::constructor",1);
-    
+
     my %hosts;
     my $self = {
         _hosts => \%hosts,
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     return $self;
 }
 
 # Procedure setMapFile
-# parameters: 
+# parameters:
 # - mapfile - hash with map file
 # Set a map file rules for object
 
 sub setMapFile {
     my $self = shift;
     my $mapfile = shift;
-    
-    logger($self->{_debug}, "Entering FileMap::setMapFile",1);  
+
+    logger($self->{_debug}, "Entering FileMap::setMapFile",1);
 
     $self->{_mapping_rule_hash} = $mapfile;
 
@@ -71,7 +71,7 @@ sub setMapFile {
         if ($mapping_rule_de eq '') {
             $mapping_rule_de = $key . ":" . $value;
         } else {
-            $mapping_rule_de = $mapping_rule_de . "\n" . $key . ":" . $value;      
+            $mapping_rule_de = $mapping_rule_de . "\n" . $key . ":" . $value;
         }
     }
 
@@ -80,7 +80,7 @@ sub setMapFile {
 }
 
 # Procedure loadMapFile
-# parameters: 
+# parameters:
 # - file - name of files with rules (format orig:replace, each rule in separated line)
 # Set a map file rules for object
 
@@ -89,7 +89,7 @@ sub loadMapFile {
     my $file = shift;
     my %map_hash;
 
-    logger($self->{_debug}, "Entering FileMap::loadMapFile",1);  
+    logger($self->{_debug}, "Entering FileMap::loadMapFile",1);
 
     open (my $FD, $file) or die ("Can't open file $file : $!");
 
@@ -109,7 +109,7 @@ sub loadMapFile {
         }
 
         $map_hash{$line_split[0]} = $line_split[1];
-        
+
     }
 
     close $FD;
@@ -120,20 +120,16 @@ sub loadMapFile {
 
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - source - name of source db
 # Set a reference for a source db
 
 sub setSource {
     my $self = shift;
     my $source = shift;
-    
-    logger($self->{_debug}, "Entering FileMap::setSource",1);  
 
-    my $sources = new Source_obj($self->{_dlpxObject}, $self->{_debug});
-    my $sourceitem = $sources->getSourceByName($source);
-
-    $self->{_source_ref} = $sourceitem->{container};
+    logger($self->{_debug}, "Entering FileMap::setSource",1);
+    $self->{_source_ref} = $source->{container}->{reference};
 }
 
 # Procedure validate
@@ -144,12 +140,24 @@ sub setSource {
 sub validate {
     my $self = shift;
     my %fileMapping_request;
-    logger($self->{_debug}, "Entering FileMap::validate",1);  
+    logger($self->{_debug}, "Entering FileMap::validate",1);
 
-    $fileMapping_request{"type"} = "FileMappingParameters";
-    $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
-    $fileMapping_request{"timeflowPointParameters"}{"type"} = "TimeflowPointSemantic";
-    $fileMapping_request{"timeflowPointParameters"}{"container"} = $self->{_source_ref};
+    if ($self->{_dlpxObject}->getApi() lt '1.9.0' ) {
+      $fileMapping_request{"type"} = "FileMappingParameters";
+      $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
+      $fileMapping_request{"timeflowPointParameters"}{"type"} = "TimeflowPointSemantic";
+      $fileMapping_request{"timeflowPointParameters"}{"container"} = $self->{_source_ref};
+    } else {
+      $fileMapping_request{"type"} = "FileMappingParameters";
+      $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
+      my %timeflowhash = (
+        "type"=>"TimeflowPointSemantic",
+        "container" => $self->{_source_ref},
+        "location" => "LATEST_POINT"
+      );
+      my @timeflowarray = (\%timeflowhash);
+      $fileMapping_request{"timeflowPointParameters"} = \@timeflowarray;
+    }
 
     my $json_data = to_json(\%fileMapping_request);
 
@@ -173,7 +181,7 @@ sub validate {
 
 sub GetMapping_rule {
     my $self = shift;
-    logger($self->{_debug}, "Entering FileMap::GetMapping_rule",1);  
+    logger($self->{_debug}, "Entering FileMap::GetMapping_rule",1);
     return $self->{_mapping_rule};
 }
 
@@ -183,7 +191,7 @@ sub GetMapping_rule {
 
 sub GetMappedFiles {
     my $self = shift;
-    logger($self->{_debug}, "Entering FileMap::GetMappedFiles",1);  
+    logger($self->{_debug}, "Entering FileMap::GetMappedFiles",1);
     return $self->{mappedFiles};
 }
 

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,15 +45,15 @@ my $version = $Toolkit_helpers::version;
 my $timestamp = 'LATEST_SNAPSHOT';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'sourcename=s' => \(my $sourcename),
-  'srcgroup=s' => \(my $srcgroup),  
-  'dbname=s'  => \(my $dbname), 
-  'instname=s'  => \(my $instname), 
-  'uniqname=s'  => \(my $uniqname), 
-  'environment=s' => \(my $environment), 
-  'type=s' => \(my $type),  
+  'srcgroup=s' => \(my $srcgroup),
+  'dbname=s'  => \(my $dbname),
+  'instname=s'  => \(my $instname),
+  'uniqname=s'  => \(my $uniqname),
+  'environment=s' => \(my $environment),
+  'type=s' => \(my $type),
   'envinst=s' => \(my $envinst),
   'template=s' => \(my $template),
   'mapfile=s' =>\(my $map_file),
@@ -71,7 +71,7 @@ GetOptions(
   'dspusecompression' => \(my $dspusecompression),
   'dspuseencryption' => \(my $dspuseencryption),
   'dever=s' => \(my $dever),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
@@ -80,7 +80,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -109,12 +109,12 @@ if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') ) )
 if ( ( ( $type eq 'oracle') || ( $type eq 'mssql') ) && (! defined($targetDirectory)) ) {
   print "Option targetDirectory is required. \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -150,7 +150,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   my $source = ($databases->getDB($source_ref->[0]));
-  
+
 
   # create a new DB object
   if ( $type eq 'oracle' ) {
@@ -186,13 +186,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ( $db->setTemplate($template) ) {
         print  "Template $template not found. V2P process won't be created\n";
         exit(1);
-      }  
+      }
     }
 
     if ( defined($map_file) ) {
       my $filemap_obj = new FileMap($engine_obj,$debug);
       $filemap_obj->loadMapFile($map_file);
-      $filemap_obj->setSource($sourcename);
+      $filemap_obj->setSource($source);
       if ($filemap_obj->validate()) {
         die ("Problem with mapping file. V2P process won't be created.")
       }
@@ -215,28 +215,28 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db->setDSP($dspconnections, $dspusecompression, $dspuseencryption);
     $jobno = $db->v2pSI($environment,$envinst);
 
-  } 
+  }
   elsif ($type eq 'mssql') {
 
     if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
       exit(1);
     }
-    
+
     if (defined($norecovery)) {
       $db->setNoRecovery();
     }
     $jobno = $db->v2p($environment,$envinst);
-  } 
+  }
   elsif ($type eq 'sybase') {
     if (defined($norecovery)) {
       $db->setNoRecovery();
     }
     $jobno = $db->v2p($environment,$envinst);
-  } 
+  }
 
   $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "V2P finished.","Problem with V2P process");
-  
+
 }
 
 
@@ -247,28 +247,28 @@ exit $ret;
 =head1 SYNOPSIS
 
  dx_v2p   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-            -sourcename src_name  
-            -dbname db_name 
-            -environment environment_name 
-            -type oracle|mssql|sybase 
+            -sourcename src_name
+            -dbname db_name
+            -environment environment_name
+            -type oracle|mssql|sybase
             -envinst OracleHome/MSSQLinstance/SybaseInstance
-          [ -targetDirectory target_directory ] 
+          [ -targetDirectory target_directory ]
           [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp ]
-          [ -template template_name ] 
-          [ -mapfile mapping_file ]  
+          [ -template template_name ]
+          [ -mapfile mapping_file ]
           [ -norecovery ]
           [ -noopen ]
-          [ -instname SID ] 
-          [ -uniqname db_unique_name ] 
-          [ -archiveDirectory arch_directory ] 
+          [ -instname SID ]
+          [ -uniqname db_unique_name ]
+          [ -archiveDirectory arch_directory ]
           [ -dataDirectory data_dir ]
-          [ -externalDirectory external_dir ] 
+          [ -externalDirectory external_dir ]
           [ -tempDirectory temp_dir ]
           [ -dspconnections=n ]
           [ -dspusecompression ]
           [ -dspuseencryption ]
           [ -concurrentfiles=n ]
-          [ -help] 
+          [ -help]
           [ -debug]
 
 
@@ -373,7 +373,7 @@ Set number of concurrent files being copy (for an Oracle only)
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -383,10 +383,10 @@ Turn on debugging
 
 =head1 EXAMPLES
 
-Oracle V2P process 
+Oracle V2P process
 
  dx_v2p -d Landshark -sourcename testdx -dbname v2p -environment LINUXTARGET -type oracle -envinst "/u01/app/oracle/product/11.2.0/dbhome_1" -targetDirectory /data/u02/v2p
- Starting provisioning job - JOB-231 
+ Starting provisioning job - JOB-231
  0 - 2 - 3 - 5 - 6 - 7 - 8 - 9 - 10 - 12 - 13 - 14 - 15 - 16 - 17 - 18 - 19 - 20 - 21 - 22 - 23 - 25 - 26 - 27 - 28 - 29 - 30 - 31 - 32 - 33 - 34 - 35 - 36 - 37 - 38 - 39 - 40 - 41 - 42 - 43 - 44 - 46 - 47 - 49 - 50 - 51 - 52 - 54 - 55 - 56 - 57 - 58 - 59 - 60 - 61 - 62 - 63 - 64 - 65 - 66 - 67 - 68 - 69 - 70 - 71 - 72 - 73 - 74 - 75 - 76 - 77 - 78 - 79 - 80 - 81 - 82 - 83 - 84 - 85 - 86 - 87 - 88 - 89 - 90 - 92 - 93 - 94 - 95 - 96 - 97 - 98 - 99 - 100
  Job JOB-231 finised with state: COMPLETED
  V2P job finished with COMPLETED status.
@@ -408,5 +408,3 @@ Sybase V2P process ( database SYBV2P has to be precreated with for load option )
  V2P finished..
 
 =cut
-
-
