@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_rewind_db.pl
 # Description  : Control VDB and dsource databases
 # Author       : Marcin Przepiorowski
@@ -42,16 +42,16 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname),  
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'timestamp=s' => \(my $timestamp),
   'location=s' => \(my $changenum),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -61,7 +61,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -88,7 +88,7 @@ if (! defined($timestamp)) {
 Toolkit_helpers::check_filer_options (1,$type, $group, $host, $dbname, undef, $dsource);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -101,11 +101,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation 
+  # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -120,7 +120,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbobj = $databases->getDB($dbitem);
     my $dbname = $dbobj->getName();
     my $jobno;
-    
+
     if ($dbobj->getType() ne 'VDB') {
       print "You can't rewind dSource $dbname \n";
       $ret = $ret + 1;
@@ -128,7 +128,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if (defined($changenum)) {
-      undef $timestamp; 
+      undef $timestamp;
     }
 
     $jobno = $dbobj->rewind($timestamp, $changenum);
@@ -159,8 +159,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($parallel) && (scalar(@jobs) > 0)) {
     while (scalar(@jobs) > 0) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
-      $ret = $ret + $pret; 
-    }   
+      $ret = $ret + $pret;
+    }
   }
 
 }
@@ -174,10 +174,10 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_rewind_db  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-               < -group group_name | -name db_name | -host host_name | -type dsource|vdb > 
-               [ -timestamp timestamp] 
-               [ -help|? ] 
-               [ -debug ] 
+               < -group group_name | -name db_name | -host host_name | -type dsource|vdb >
+               [ -timestamp timestamp]
+               [ -help|? ]
+               [ -debug ]
                [-parallel p]
 
 =head1 DESCRIPTION
@@ -224,7 +224,7 @@ Type (dsource|vdb)
 =item B<-dsource dsourcename>
 Dsource name
 
-=back 
+=back
 
 =head1 OPTIONS
 
@@ -235,11 +235,11 @@ Time stamp for export format (YYYY-MM-DD HH24:MI:SS in VBD timezone) or LATEST_P
 Default is LATEST_SNAPSHOT
 
 =item B<-location>
-Point in time defined by SCN for Oracle and LSN for MS SQL 
+Point in time defined by SCN for Oracle and LSN for MS SQL
 
 
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -269,6 +269,3 @@ Single VDB rewind to the snapshot take at 2015-10-14 00:41
 
 
 =cut
-
-
-

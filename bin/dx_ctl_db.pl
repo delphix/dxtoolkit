@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_ctl_db.pl
 # Description  : Control VDB and dsource databases
 # Author       : Marcin Przepiorowski
@@ -42,19 +42,20 @@ my $version = $Toolkit_helpers::version;
 my $force = 'false';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
   'instance=n' => \(my $instance),
-  'action=s' => \(my $action), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'action=s' => \(my $action),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'envname=s' => \(my $envname),
   'instancename=s' => \(my $instancename),
+  'olderthan=s' => \(my $creationtime),
   'restore=s' => \(my $restore),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -65,10 +66,10 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 pod2usage(-verbose => 1,  -input=>\*DATA) && exit if ! ($action || $restore);
 
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 
@@ -105,11 +106,11 @@ if ( defined($restore) ) {
   # we don't need filters
   Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, $envname, $dsource);
 } else {
-   Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, $envname, $dsource, $instancename);   
+   Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, $envname, $dsource, $instancename);
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 my $ret = 0;
@@ -123,11 +124,16 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation 
-              
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $instancename, $debug);
+  # filter implementation
+
+  my $zulutime;
+  if (defined($creationtime)) {
+    $zulutime = Toolkit_helpers::convert_to_utc($creationtime, $engine_obj->getTimezone(), undef, 1);
+  }
+
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $instancename, $zulutime, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -141,14 +147,14 @@ for my $engine ( sort (@{$engine_list}) ) {
   my @jobs;
 
   if (defined ($restore) ) {
-    my $restore_file = $restore . "." . $engine;   
-    open (my $restore_stream, "<", $restore_file) or die ("Can't open file $restore_file for reading : $!" );    
+    my $restore_file = $restore . "." . $engine;
+    open (my $restore_stream, "<", $restore_file) or die ("Can't open file $restore_file for reading : $!" );
     local $/ = undef;
     my $json = JSON->new();
     $restore_state = $json->decode(<$restore_stream>);
     close $restore_stream;
   }
-  
+
   my $jobno;
 
   # for filtered databases on current engine - display status
@@ -177,21 +183,21 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
 
     }
-    
+
     if (defined($instancename)) {
       if ($dbobj->isRAC()) {
         $instance = $dbobj->getInstanceNumber($instancename);
         if (!defined($instance)) {
           print "Instance number not defined for name $instancename\n";
           $ret = $ret + 1;
-          next;  
+          next;
         }
       } else {
         print "Target DB is not Oracle RAC. Can't use instance name to control status of instances.\n";
         $ret = $ret + 1;
         next;
       }
-      
+
     }
 
 
@@ -226,7 +232,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
       }
     }
-    
+
 
     if ( $action eq 'disable' ) {
       if ( $dbobj->getEnabled() eq 'enabled' ) {
@@ -234,7 +240,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $smartforce;
         if (lc $force eq 'only') {
           $smartforce = 1;
-        } 
+        }
         $jobno = $dbobj->disable($smartforce);
       } else {
         print "Database $dbname is already disabled.\n";
@@ -248,7 +254,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
         print "Database $dbname is already enabled.\n";
       }
-    } 
+    }
 
     if (defined ($jobno) ) {
       print "Starting job $jobno for database $dbname.\n";
@@ -269,7 +275,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + $pret;
       }
     }
-    
+
     undef $jobno;
 
   }
@@ -277,28 +283,28 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($parallel) && (scalar(@jobs) > 0)) {
     while (scalar(@jobs) > 0) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
-      $ret = $ret + $pret; 
-    }   
+      $ret = $ret + $pret;
+    }
   }
-  
+
   if ((lc $force eq 'onfailure') && (lc $action eq 'disable')) {
-    # if onfailure force option for disable action was specified 
+    # if onfailure force option for disable action was specified
     # we need to run again disable action for all objects with force flag set to yes
     # database which are already disabled will be skipped
     #$databases = new Databases( $engine_obj, $debug);
     $ret = 0;
     my $source = new Source_obj($engine_obj, $debug);
     for my $dbitem ( @{$db_list} ) {
-      
+
       my $dbobj = $databases->getDB($dbitem);
       my $dbname = $dbobj->getName();
       $dbobj->refreshRuntime($source);
-            
+
       if ( $dbobj->getEnabled() eq 'enabled' ) {
         print "Disabling force database $dbname.\n";
         $jobno = $dbobj->disable(1);
-      } 
-      
+      }
+
       if (defined ($jobno) ) {
         print "Starting job $jobno for database $dbname.\n";
         my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
@@ -318,20 +324,20 @@ for my $engine ( sort (@{$engine_list}) ) {
           $ret = $ret + $pret;
         }
       }
-      
+
       undef $jobno;
-      
+
     }
-    
+
     if (defined($parallel) && (scalar(@jobs) > 0)) {
       while (scalar(@jobs) > 0) {
         my $pret = Toolkit_helpers::parallel_job(\@jobs);
-        $ret = $ret + $pret; 
-      }   
+        $ret = $ret + $pret;
+      }
     }
-    
+
   }
-  
+
 
 }
 
@@ -344,12 +350,12 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_db    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
-              [-instance inst_no] 
-              <-action start|stop|enable|disable>  
+              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname |  -olderthan date]
+              [-instance inst_no]
+              <-action start|stop|enable|disable>
               [-restore filename]
-              [-force false|onfailure|only] 
-              [-help|? ] 
+              [-force false|onfailure|only]
+              [-help|? ]
               [-debug ]
 
 =head1 DESCRIPTION
@@ -420,16 +426,16 @@ Instance number
 =over 4
 
 =item B<-action> start|stop|enable|disable
-Run an action specified for all databases selected by filter 
+Run an action specified for all databases selected by filter
 
-=back 
+=back
 
 =head1 OPTIONS
 
 =over 3
 
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -439,7 +445,7 @@ Turn on debugging
 Restore database status using a file <filename.engine_name> generated by dx_get_db_env's save option
 
 =item B<-parallel n>
-Run action on N targets in parallel 
+Run action on N targets in parallel
 
 =item B<-force false|onfailure|only>
 Run action using a force option depend on argument:
@@ -453,7 +459,7 @@ onfailure  - first attempt to disable normally; if failure, then force disable
 only  - disable force only; do not attempt disable normally
 
 =item *
-false  - (default value) - only attempt disable normally 
+false  - (default value) - only attempt disable normally
 
 =back
 
@@ -464,13 +470,13 @@ false  - (default value) - only attempt disable normally
 
 Stop all VDB in group Analytics
 
- dx_ctl_db -d Landshark -group Analytics -action stop 
+ dx_ctl_db -d Landshark -group Analytics -action stop
  Stopping database testmssql.
  Starting job JOB-229 for database testmssql.
  0 - 50 - 100
- Job JOB-229 finised with state: COMPLETED 
+ Job JOB-229 finised with state: COMPLETED
  Stopping database testdx.
- Starting job JOB-230 for database testdx. 
+ Starting job JOB-230 for database testdx.
  0 - 40 - 50 - 100
  Job JOB-230 finised with state: COMPLETED
 
@@ -483,13 +489,13 @@ Start single instance (nr 1) of RAC VDB called Vracdb_FEE
 
 Stop instances nr 1 from all RAC VDBs on single node of RAC cluster
 
- dx_ctl_db -d Delphix32 -host 10.0.0.58 -instance 1 -action stop 
+ dx_ctl_db -d Delphix32 -host 10.0.0.58 -instance 1 -action stop
  Stopping instance 1 of database Vrac_08B.
  Starting job JOB-267182 for database Vrac_08B.
  0 - 40 - 50 - 100
- Job JOB-267182 finished with state: COMPLETED 
- Stopping instance 1 of database Vracdb_FEE. 
- Starting job JOB-267183 for database Vracdb_FEE. 
+ Job JOB-267182 finished with state: COMPLETED
+ Stopping instance 1 of database Vracdb_FEE.
+ Starting job JOB-267183 for database Vracdb_FEE.
  0 - 40 - 50 - 100
  Job JOB-267183 finished with state: COMPLETED
 
@@ -516,6 +522,3 @@ Restore state of objects saved using dx_get_db_env
  Job JOB-7567 finished with state: COMPLETED
 
 =cut
-
-
-

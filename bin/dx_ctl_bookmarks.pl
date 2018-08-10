@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,8 +41,8 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'name=s' => \(my $name),
   'dbname=s' => \(my $dbname),
   'group=s' => \(my $group),
@@ -57,7 +57,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -91,7 +91,7 @@ if ( (lc $action eq 'delete') && (! defined($name)  ) ) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -103,13 +103,13 @@ for my $engine ( sort (@{$engine_list}) ) {
   };
 
   my $db = new Databases ( $engine_obj, $debug );
-  my $groups = new Group_obj($engine_obj, $debug); 
+  my $groups = new Group_obj($engine_obj, $debug);
   my $bookmarks = new Bookmark_obj ($engine_obj, $db, $debug );
 
 
   if (lc $action eq 'create') {
 
-    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef, undef, undef, undef, $debug);
+    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef, undef, undef, undef, undef, $debug);
 
     if (! defined($db_list)) {
       print "There is no DB selected to process on $engine . Please check filter definitions. \n";
@@ -154,12 +154,12 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_bookmarks [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                     -action [ create | delete ] 
-                     -name bookmarkname 
+                     -action [ create | delete ]
+                     -name bookmarkname
                      [-dbname database_name]
                      [-group group_name]
-                     [-timestamp now|latest|'yyyy-mm-dd hh24:mi:ss']  
-                     [-help|? ] 
+                     [-timestamp now|latest|'yyyy-mm-dd hh24:mi:ss']
+                     [-help|? ]
                      [-debug ]
 
 
@@ -196,7 +196,7 @@ Bookmark name to create or delete
 Name of database to create bookmark for
 
 =item B<-group group_name>
-Name of group with database - only if dbname is not unique 
+Name of group with database - only if dbname is not unique
 
 =item B<-timestamp timestamp>
 Point in time to create bookmark for. Possible formats
@@ -210,7 +210,7 @@ Point in time to create bookmark for. Possible formats
 
 =over 3
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -225,18 +225,15 @@ Turn off header output
 
 Create bookmark named "TEST BOOKMARK" for database TESTDX on a last snapshot
 
- dx_ctl_bookmarks -d Landshark5 -action create -name "test bookmark" -dbname testdx -timestamp latest 
+ dx_ctl_bookmarks -d Landshark5 -action create -name "test bookmark" -dbname testdx -timestamp latest
  Bookmark test bookmark for time 2016-04-20 12:58:41 has been created
 
-Create bookmark named "BOOKMARK NOW" for database TESTDX on a current time. 
+Create bookmark named "BOOKMARK NOW" for database TESTDX on a current time.
 Timezone of engine is used to create a point in time.
 
- dx_ctl_bookmarks -d Landshark5 -action create -name "bookmark now" -dbname testdx -timestamp now 
+ dx_ctl_bookmarks -d Landshark5 -action create -name "bookmark now" -dbname testdx -timestamp now
  Bookmark bookmark now for time 2016-04-21T10:57:41.000Z has been created
 
 
 
 =cut
-
-
-

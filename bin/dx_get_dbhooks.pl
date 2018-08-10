@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,18 +39,18 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
+  'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
-  'hooktype=s' => \(my $hooktype), 
-  'hookname=s' => \(my $hookname), 
+  'hooktype=s' => \(my $hooktype),
+  'hookname=s' => \(my $hookname),
   'dbname=s'  => \(my $dbname),
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'outdir=s' => \(my $outdir),
   'save' => \(my $save),
   'exportDBHooks' => \(my $exportDBHooks),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -60,7 +60,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -102,7 +102,7 @@ if (defined($hooktype)) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -110,7 +110,7 @@ $output->addHeader(
     {'dbname',   20},
     {'hook type', 20},
     {'name',   20},
-    {'type',   15},   
+    {'type',   15},
     {'command', 100}
 );
 
@@ -129,27 +129,27 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
     my $databases = new Databases ( $engine_obj );
-    my $groups = new Group_obj($engine_obj, $debug);  
+    my $groups = new Group_obj($engine_obj, $debug);
 
-    # filter implementation 
+    # filter implementation
 
-    my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, $debug);
+    my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
     if (! defined($db_list)) {
       print "There is no DB selected to process on $engine . Please check filter definitions. \n";
       $ret = $ret + 1;
       next;
     }
-    
+
     if (defined($exportDBHooks)) {
-      
-      # export hooks in DE JSON format for backup 
+
+      # export hooks in DE JSON format for backup
       for my $dbitem (@{$db_list}) {
         my $dbobj = $databases->getDB($dbitem);
         $dbobj->exportDBHooks($outdir);
       }
-        
+
     } else {
-      
+
       # list hooks and bodys in formatter
       # or save a directory tree
 
@@ -162,11 +162,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $hookfound = 0;
         for my $hookitem (@hookLoopArray) {
           my $array = $dbobj->getHook($hookitem, $save);
-                    
+
           if (scalar(@{$array})>0) {
-            
+
             for my $h (@{$array}) {
-              
+
               if (defined($hookname)) {
                 if ($h->{name} ne $hookname) {
                   next;
@@ -174,7 +174,7 @@ for my $engine ( sort (@{$engine_list}) ) {
                   $hookfound = 1;
                 }
               }
-              
+
               if (defined($save)) {
                 my $loc = File::Spec->catfile($outdir,$groupname);
                 mkdir $loc;
@@ -222,14 +222,14 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_dbhooks    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                   [ -hookname hook_name ] 
+                   [ -hookname hook_name ]
                    [ -dbname dbname | -group group | -host host | -type type ]
                    [ -outdir dir]
                    [ -save ]
                    [ -exportDBHooks ]
-                   [ -format csv|json ]  
-                   [ -help|? ] 
-                   [ -debug ] 
+                   [ -format csv|json ]
+                   [ -help|? ]
+                   [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -282,7 +282,7 @@ Type (dsource|vdb)
 
 =over 3
 
-=item B<-exportDBHooks>                                                                                                                                            
+=item B<-exportDBHooks>
 Export database (specified by database filters) hooks in Delphix Engine JSON format into a outdir directory
 This file(s) can by used by dx_provision_vdb or dx_ctl_dbhooks script
 
@@ -290,14 +290,14 @@ This file(s) can by used by dx_provision_vdb or dx_ctl_dbhooks script
 Save a hook(s) as file(s) into a directory structure started by -outdir
 Output structure is defined as follow: OUTDIR/DBNAME/HOOKTYPE/hookname
 
-=item B<-outdir>                                                                                                                                            
+=item B<-outdir>
 Location of exported operation templates files
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -310,7 +310,7 @@ Turn on debugging
 Display all hooks from datasets on Delphix Engine
 
  dx_get_dbhooks -d Landshark51
- 
+
  dbname               hook type            name                 type            command
  -------------------- -------------------- -------------------- --------------- ----------------------------------------------------------------------------------------------------
  autofs               preRollback          savestate            BASH            cp /home/save /tmp
@@ -329,6 +329,3 @@ Export hooks using Delphix Engine JSON format for other dxtoolkit scripts
 
 
 =cut
-
-
-

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,7 +16,7 @@
 # Program Name : VDB_obj.pm
 # Description  : Delphix Engine Database objects
 # It's include the following classes:
-# - VDB_obj - generic class of database object 
+# - VDB_obj - generic class of database object
 # - OracleVDB_obj - Oracle VDB
 # - MSSQLVDB_obj - MS SQL VDB
 #
@@ -51,7 +51,7 @@ use Toolkit_helpers qw (logger);
 use Op_template_obj;
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -61,7 +61,7 @@ sub new {
     my $dlpxObject = shift;
     my $debug = shift;
     logger($debug, "Entering VDB_obj::constructor",1);
-    
+
     # define object properties
     # NEWDB - is a set of settings to provision a new VDB based on defaults
     my $self = {
@@ -71,7 +71,7 @@ sub new {
    };
 
 
-    
+
     bless($self,$classname);
     return $self;
 }
@@ -80,7 +80,7 @@ sub new {
 # parameters: none
 # Return JSON encoded parameters to provision a new VDB
 
-sub getJSON 
+sub getJSON
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getJSON",1);
@@ -94,7 +94,7 @@ sub getJSON
 # parameters: none
 # Return database name
 
-sub getName 
+sub getName
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getName",1);
@@ -115,7 +115,7 @@ sub getName
 # parameters: none
 # Return database type
 
-sub getDBType 
+sub getDBType
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getDBType",1);
@@ -126,7 +126,7 @@ sub getDBType
 # parameters: none
 # Return is this db is a replica or not
 
-sub isReplica 
+sub isReplica
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::isReplica",1);
@@ -137,18 +137,29 @@ sub isReplica
 # parameters: none
 # Return database namespace
 
-sub getNamespace 
+sub getNamespace
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getNamespace",1);
     return $self->{container}->{namespace};
 }
 
+# Procedure getCreationTime
+# parameters: none
+# Return database creation time
+
+sub getCreationTime
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getCreationTime",1);
+    return $self->{container}->{creationTime};
+}
+
 # Procedure getMasked
 # parameters: none
 # Return masked or non-masked status
 
-sub getMasked 
+sub getMasked
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getMasked",1);
@@ -159,135 +170,135 @@ sub getMasked
 # parameters: none
 # Return masked job
 
-sub getMaskingJob 
+sub getMaskingJob
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getMaskingJob",1);
     my $ret = '';
-    
+
     for my $hook (@{$self->{source}->{operations}->{configureClone}}) {
       if ($hook->{type} eq 'RunMaskingJobOnSourceOperation') {
         $ret = $hook->{name};
       }
     }
-    
+
     return $ret;
 }
 
 
 # Procedure setMaskingJob
-# parameters: 
+# parameters:
 # - maskingjob - reference of masking job
 
 
-sub setMaskingJob 
+sub setMaskingJob
 {
     my $self = shift;
     my $maskingjob = shift;
     logger($self->{_debug}, "Entering VDB_obj::setMaskingJob",1);
 
     $self->{"NEWDB"}->{maskingJob} = $maskingjob;
-    
+
 }
 
 # Procedure setNoRecovery
-# parameters: 
+# parameters:
 
 
 
-sub setNoRecovery 
+sub setNoRecovery
 {
     my $self = shift;
     my $maskingjob = shift;
     logger($self->{_debug}, "Entering VDB_obj::setNoRecovery",1);
 
     $self->{"NEWDB"}->{recoverDatabase} = JSON::false;
-    
+
 }
 
 
 # Procedure setAutostart
-# parameters: 
+# parameters:
 # - autostart - set yes to autostart
 # set autostart during provisioning
 
 
-sub setAutostart 
+sub setAutostart
 {
     my $self = shift;
     my $autostart = shift;
     logger($self->{_debug}, "Entering VDB_obj::setAutostart",1);
-    
+
     if ($self->{_dlpxObject}->getApi() ge "1.8") {
       if (defined($autostart) && (lc $autostart eq 'yes')) {
-        $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::true;        
+        $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::true;
       } else {
         $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
       }
     }
-    
+
 }
 
 # Procedure getAutostart
-# parameters: 
-# get autostart 
+# parameters:
+# get autostart
 
 
-sub getAutostart 
+sub getAutostart
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getAutostart",1);
-    
+
     my $ret;
-    
+
     if ($self->{_dlpxObject}->getApi() ge "1.8") {
       $ret = $self->{source}->{allowAutoVDBRestartOnHostReboot} ? 'yes' : 'no';
     } else {
       $ret = 'N/A';
     }
-    
+
     return $ret;
-    
+
 }
 
 
 
 # Procedure changeAutostart
-# parameters: 
+# parameters:
 # - autostart - set yes to autostart
 # set autostart of existing database
 
 
-sub changeAutostart 
+sub changeAutostart
 {
     my $self = shift;
     my $autostart = shift;
     logger($self->{_debug}, "Entering VDB_obj::changeAutostart",1);
-    
+
     my %source_hash;
     my $ret;
-        
+
     if ($self->{_dlpxObject}->getApi() ge "1.8") {
       if (defined($autostart) && (lc $autostart eq 'yes')) {
         %source_hash = (
             "type" => $self->{source}->{type},
-            "allowAutoVDBRestartOnHostReboot" => JSON::true    
-        );     
+            "allowAutoVDBRestartOnHostReboot" => JSON::true
+        );
       } else {
         %source_hash = (
             "type" => $self->{source}->{type},
-            "allowAutoVDBRestartOnHostReboot" => JSON::false      
-        );  
+            "allowAutoVDBRestartOnHostReboot" => JSON::false
+        );
       }
     } else {
       return 1;
     }
-    
+
     my $json_data = to_json(\%source_hash);
-    
+
     logger($self->{_debug}, $json_data ,2);
-        
-    my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference}; 
+
+    my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
@@ -295,7 +306,7 @@ sub changeAutostart
     } else {
       $ret = 1;
     }
-    
+
     return $ret;
 }
 
@@ -304,12 +315,12 @@ sub changeAutostart
 # parameters: none
 # Return database user
 
-sub getDbUser 
+sub getDbUser
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getDbUser",1);
     my $ret;
-    
+
     if ($self->{sourceConfig} ne 'NA') {
       if (defined($self->{sourceConfig}->{user})) {
         $ret = $self->{sourceConfig}->{user};
@@ -326,7 +337,7 @@ sub getDbUser
 # parameters: none
 # Return OS user
 
-sub getOSUser 
+sub getOSUser
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getOSUser",1);
@@ -343,7 +354,7 @@ sub getOSUser
     } else {
       $ret = 'N/A';
     }
-    
+
     return $ret;
 }
 
@@ -351,16 +362,16 @@ sub getOSUser
 # parameters: none
 # Return OS user
 
-sub getStagingUser 
+sub getStagingUser
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingUser",1);
     my $ret;
     my $user;
-    
+
     my $staging_env = $self->{staging_environment}->{reference};
     my $staging_user_ref;
-    
+
     if (defined($staging_env)) {
       $staging_user_ref = $self->{staging_sourceConfig}->{environmentUser};
       $ret = $self->{_environment}->getEnvironmentUserNamebyRef($staging_env, $staging_user_ref);
@@ -375,7 +386,7 @@ sub getStagingUser
 # parameters: none
 # Return parent database if defined, otherwise empty string
 
-sub getParentName 
+sub getParentName
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getParentName",1);
@@ -399,7 +410,7 @@ sub getParentContainer
 # parameters: none
 # Return database timezone
 
-sub getTimezone 
+sub getTimezone
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getTimezone",1);
@@ -414,7 +425,7 @@ sub getTimezone
 # parameters: none
 # Return parent database if defined
 
-sub getReference 
+sub getReference
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getReference",1);
@@ -425,7 +436,7 @@ sub getReference
 # parameters: none
 # Return status of Log Sync
 
-sub getLogSync 
+sub getLogSync
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
@@ -436,7 +447,7 @@ sub getLogSync
 # parameters: none
 # Return parent database if defined
 
-sub getGroup 
+sub getGroup
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getGroup",1);
@@ -448,7 +459,7 @@ sub getGroup
 # # parameters: none
 # # Return database version
 
-# sub getVersion 
+# sub getVersion
 # {
 #     my $self = shift;
 #     logger($self->{_debug}, "Entering VDB_obj::getVersion",1);
@@ -465,7 +476,7 @@ sub getEnvironmentUserName
     logger($self->{_debug}, "Entering VDB_obj::getEnvironmentUserName",1);
 
     my $ret;
-    
+
     if (defined($self->{_environment})) {
         $ret = $self->{_environment}->getEnvironmentUserNamebyRef($self->{environment}->{reference}, $self->{sourceConfig}->{environmentUser});
     } else {
@@ -503,7 +514,7 @@ sub getEnvironmentName
 # parameters: none
 # Return database name
 
-sub getDatabaseName 
+sub getDatabaseName
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getDatabaseName",1);
@@ -515,10 +526,10 @@ sub getDatabaseName
 # parameters: none
 # Return database instance name
 
-sub getSourceName 
+sub getSourceName
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getSourceName",1);      
+    logger($self->{_debug}, "Entering VDB_obj::getSourceName",1);
     return $self->{source}->{name};
 }
 
@@ -526,10 +537,10 @@ sub getSourceName
 # parameters: none
 # Return name of source config
 
-sub getSourceConfigName 
+sub getSourceConfigName
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getSourceConfigName",1); 
+    logger($self->{_debug}, "Entering VDB_obj::getSourceConfigName",1);
     my $ret;
     if ($self->{sourceConfig} ne 'NA') {
         $ret = $self->{sourceConfig}->{name};
@@ -544,7 +555,7 @@ sub getSourceConfigName
 sub getSourceConfigType
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getSourceConfigType",1); 
+    logger($self->{_debug}, "Entering VDB_obj::getSourceConfigType",1);
     my $ret;
     if ($self->{sourceConfig} ne 'NA') {
         $ret = $self->{sourceConfig}->{type};
@@ -558,7 +569,7 @@ sub getSourceConfigType
 # parameters: none
 # Return database hostname
 
-sub getHost 
+sub getHost
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getHost",1);
@@ -587,12 +598,12 @@ sub getType
 }
 
 # Procedure getBackup`
-# parameters: 
+# parameters:
 # -engine
 # -output
 # Return a definition of backup metadata
 
-sub getBackup 
+sub getBackup
 {
     my $self = shift;
     my $engine = shift;
@@ -605,10 +616,10 @@ sub getBackup
     my $templates = shift;
     my $groups = shift;
     logger($self->{_debug}, "Entering VDB_obj::getBackup",1);
-    
+
     #my $hooks = new Hook_obj (  $self->{_dlpxObject}, 1, $self->{_debug} );
     #$self->{_hooks} = $hooks;
-    
+
     if ($self->getType() eq 'VDB') {
       $self->getVDBBackup($engine, $output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
     } elsif (($self->getType() eq 'dSource') || ($self->getType() eq 'detached')) {
@@ -617,18 +628,18 @@ sub getBackup
 }
 
 # Procedure getVDBBackup`
-# parameters: 
+# parameters:
 # -engine
 # -output
 # -backup - location for hooks
-# -groupname 
+# -groupname
 # -parentname
 # -parentgroup
 # -templates - handler to template object
 # Return a definition of backup metadata
 
 
-sub getVDBBackup 
+sub getVDBBackup
 {
     my $self = shift;
     my $engine = shift;
@@ -642,7 +653,7 @@ sub getVDBBackup
     logger($self->{_debug}, "Entering VDB_obj::getVDBBackup",1);
 
     my $suffix = '';
-    if ( $^O eq 'MSWin32' ) { 
+    if ( $^O eq 'MSWin32' ) {
       $suffix = '.exe';
     }
 
@@ -655,20 +666,20 @@ sub getVDBBackup
     $self->exportDBHooks($backup);
 
     my $restore_args;
-  
+
     $dbhostname = $self->getDatabaseName();
 
     $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup";
     $restore_args = $restore_args . " -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" -targetname \"$dbn\" ";
     $restore_args = $restore_args . " -dbname \"$dbhostname\" -environment \"" . $self->getEnvironmentName() . "\" ";
-    $restore_args = $restore_args . " -envinst \"$rephome\" ";          
-    
-      
+    $restore_args = $restore_args . " -envinst \"$rephome\" ";
+
+
     $restore_args = $restore_args . " -envUser \"" . $self->getEnvironmentUserName() . "\" ";
     $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
     $restore_args = $restore_args . $self->getConfig($templates, 1, $groups);
-        
+
     $output->addLine(
       $restore_args
     );
@@ -677,17 +688,17 @@ sub getVDBBackup
 
 
 # Procedure getdSourceBackup`
-# parameters: 
+# parameters:
 # -engine
 # -output
 # -backup - location for hooks
-# -groupname 
+# -groupname
 # -parentname
 # -parentgroup
 
 # Return a definition of backup metadata
 
-sub getdSourceBackup 
+sub getdSourceBackup
 {
     my $self = shift;
     my $engine = shift;
@@ -696,12 +707,12 @@ sub getdSourceBackup
     my $groupname = shift;
 
     logger($self->{_debug}, "Entering VDB_obj::getdSourceBackup",1);
-    
+
     my $suffix = '';
-    if ( $^O eq 'MSWin32' ) { 
+    if ( $^O eq 'MSWin32' ) {
       $suffix = '.exe';
     }
-    
+
     $self->exportDBHooks($backup);
 
     my $dbtype = $self->getType();
@@ -711,24 +722,24 @@ sub getdSourceBackup
     my $rephome = $self->getHome();
 
     $dbhostname = $self->getSourceConfigName();
-    
+
     if (! defined($dbhostname)) {
       $dbhostname = 'detached';
     }
-    
+
     my $osuser = $self->getOSUser();
-                
+
     my $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
     $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" ";
     $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
-    
+
     my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
     my $dbuser = $self->getDbUser();
-      
+
     $restore_args = $restore_args . "-dbuser $dbuser -password ChangeMeDB -logsync $logsync";
 
     $restore_args = $restore_args . $self->getConfig(undef, 1);
-    
+
     $output->addLine(
       $restore_args
     );
@@ -739,7 +750,7 @@ sub getdSourceBackup
 # parameters: none
 # Return timeflow of the database
 
-sub getCurrentTimeflow 
+sub getCurrentTimeflow
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getCurrentTimeflow",1);
@@ -751,7 +762,7 @@ sub getCurrentTimeflow
 # parameters: none
 # Return database staging environment
 
-sub getStagingEnvironment 
+sub getStagingEnvironment
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingEnvironment",1);
@@ -768,7 +779,7 @@ sub getStagingEnvironment
 # parameters: none
 # Return database staging environment
 
-sub getStagingInst 
+sub getStagingInst
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingInst",1);
@@ -786,7 +797,7 @@ sub getStagingInst
 # parameters: none
 # Return database staging hostname
 
-sub getStagingHost 
+sub getStagingHost
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getStagingHost",1);
@@ -797,7 +808,7 @@ sub getStagingHost
 # parameters: none
 # Return database runtime status
 
-sub getRuntimeStatus 
+sub getRuntimeStatus
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getRuntimeStatus",1);
@@ -811,10 +822,10 @@ sub getRuntimeStatus
 }
 
 # Procedure refreshRuntime
-# parameters: 
+# parameters:
 # - Source_obj with new data
 
-sub refreshRuntime 
+sub refreshRuntime
 {
     my $self = shift;
     my $source = shift;
@@ -841,7 +852,7 @@ sub getEnabled
     } else {
 
         if ($self->{_dlpxObject}->getApi() lt "1.5") {
-            $ret = $self->{source}->{enabled} ? "enabled" : "disabled";   
+            $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
         } else {
             $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
         }
@@ -853,9 +864,9 @@ sub getEnabled
 # Procedure detach_dsource
 # Return job number if job started or undef otherwise
 
-sub detach_dsource 
+sub detach_dsource
 {
-    my $self = shift; 
+    my $self = shift;
 
     logger($self->{_debug}, "Entering VDB_obj::detach_dsource",1);
 
@@ -872,22 +883,22 @@ sub detach_dsource
 
     my $operation = 'resources/json/delphix/database/'. $self->{container}->{reference} .'/detachSource' ;
     my $json_data = encode_json(\%detach_data);
-    return $self->runJobOperation($operation,$json_data, 'ACTION');    
+    return $self->runJobOperation($operation,$json_data, 'ACTION');
 }
 
 # Procedure return_currentobj
-# Return current object 
+# Return current object
 
-sub return_currentobj 
+sub return_currentobj
 {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::return_currentobj",1);
     return $self->{_currentobj};
 }
 
 
 # Procedure runJobOperation
-# parameters: 
+# parameters:
 # - operation - API string
 # - json_data - JSON encoded data
 # Run POST command running background job for particular operation and json data
@@ -901,10 +912,10 @@ sub runJobOperation {
 
     logger($self->{_debug}, "Entering VDB_obj::runJobOperation",1);
     logger($self->{_debug}, $operation, 2);
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
     my $jobno;
-    
+
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
         $self->{_currentobj} = $result->{result};
         if (defined($action) && $action eq 'ACTION') {
@@ -913,7 +924,7 @@ sub runJobOperation {
             $jobno = $result->{job};
         }
     } else {
-        if (defined($result->{error})) {          
+        if (defined($result->{error})) {
             print "Problem with starting job\n";
             print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
             logger($self->{_debug}, "Can't submit job for operation $operation",1);
@@ -932,7 +943,7 @@ sub runJobOperation {
 # Start VDB
 # Return job number if job started or undef otherwise
 
-sub start 
+sub start
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::start",1);
@@ -945,7 +956,7 @@ sub start
 # Stop VDB
 # Return job number if job started or undef otherwise
 
-sub stop 
+sub stop
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::stop",1);
@@ -958,7 +969,7 @@ sub stop
 # Enable database
 # Return job number if job started or undef otherwise
 
-sub enable 
+sub enable
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::enable",1);
@@ -969,11 +980,11 @@ sub enable
 # Procedure disable
 # parameters:
 # - force
-# - type 
+# - type
 # Disable database
 # Return job number if job started or undef otherwise
 
-sub disable 
+sub disable
 {
     my $self = shift;
     my $force = shift;
@@ -992,12 +1003,12 @@ sub disable
 
     if (defined($type)) {
         %disable_hash = (
-            type => $type, 
+            type => $type,
             attemptCleanup => $disable_force
         );
     } else {
         %disable_hash = (
-            type => "SourceDisableParameters", 
+            type => "SourceDisableParameters",
             attemptCleanup => $disable_force
         );
     };
@@ -1011,11 +1022,11 @@ sub disable
 # Procedure delete
 # parameters:
 # - force
-# - type 
+# - type
 # Delete VDB
 # Return job number if job started or undef otherwise
 
-sub delete 
+sub delete
 {
     my $self = shift;
     my $force = shift;
@@ -1033,12 +1044,12 @@ sub delete
 
     if (defined($type)) {
         %delete_hash = (
-            type => $type, 
+            type => $type,
             force => $delete_force
         );
     } else {
         %delete_hash = (
-            type => "DeleteParameters", 
+            type => "DeleteParameters",
             force => $delete_force
         );
     };
@@ -1047,17 +1058,17 @@ sub delete
     my $json_data = encode_json(\%delete_hash);
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/delete";
     #print Dumper $json_data;
-    return $self->runJobOperation($operation,$json_data);    
+    return $self->runJobOperation($operation,$json_data);
 }
 
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # - snapshot type hash
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
     my $snapshot_type = shift;
@@ -1066,18 +1077,18 @@ sub snapshot
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/sync";
 
     my $json_data = encode_json($snapshot_type);
-    return $self->runJobOperation($operation,$json_data);    
+    return $self->runJobOperation($operation,$json_data);
 }
 
 
 # Procedure rewind
-# parameters: 
+# parameters:
 # - timestamp - timestamp / LATEST_POINT / LATEST_SNAPSHOT
 # - type - timeflow type
 # rewind VDB
 # Return job number if job started or undef otherwise
 
-sub rewind 
+sub rewind
 {
     my $self = shift;
     my $timestamp = shift;
@@ -1113,18 +1124,18 @@ sub rewind
     );
 
     my $json_data = encode_json(\%timeflow);
-    return $self->runJobOperation($operation,$json_data);    
+    return $self->runJobOperation($operation,$json_data);
 }
 
 
 # Procedure refresh
-# parameters: 
+# parameters:
 # - timestamp - timestamp / LATEST_POINT / LATEST_SNAPSHOT
 # - type - timeflow type
 # refresh VDB
 # Return job number if job started or undef otherwise
 
-sub refresh 
+sub refresh
 {
     my $self = shift;
     my $timestamp = shift;
@@ -1144,9 +1155,9 @@ sub refresh
       print "Parent database not found.\n";
       return undef;
     }
-    
-    
-    
+
+
+
     if (defined($timestamp)) {
         if ($self->setTimestamp($timestamp)) {
             print "Error with setting point in time for refresh \n";
@@ -1169,21 +1180,21 @@ sub refresh
 
     my $json_data = encode_json(\%timeflow);
     #print Dumper $json_data;
-    return $self->runJobOperation($operation,$json_data);    
+    return $self->runJobOperation($operation,$json_data);
 }
 
 
 
 
 # Procedure setEnvironment
-# parameters: 
+# parameters:
 # - name - environment name
 # - envUser - user name
 # Set environment reference by name for new db
 # Return 0 if success, 1 if not found
 
 sub setEnvironment {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
     my $envUser = shift;
     logger($self->{_debug}, "Entering VDB_obj::setEnvironment",1);
@@ -1205,7 +1216,7 @@ sub setEnvironment {
         $self->{'_newenv'} = $envitem->{'reference'};
         $self->{'_hosts'} = $envitem->{'host'};
         $self->{'_newenvtype'} = $envitem->{'type'};
-        
+
         if (defined($envUser)) {
           my $envUser_ref = $environments->getEnvironmentUserByName($envitem->{'reference'}, $envUser);
           if (defined($envUser_ref)) {
@@ -1218,18 +1229,18 @@ sub setEnvironment {
         return 0;
     } else {
         return 1;
-    }     
+    }
 
 }
 
 # Procedure setHome
-# parameters: 
+# parameters:
 # - name - home name
-# Set home/mssql instance reference by name for new db. Home/instance has to exist on defined environment 
+# Set home/mssql instance reference by name for new db. Home/instance has to exist on defined environment
 # Return 0 if success, 1 if not found
 
 sub setHome {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
     logger($self->{_debug}, "Entering VDB_obj::setHome",1);
 
@@ -1252,15 +1263,15 @@ sub setHome {
         return 1;
     }
 
-}      
+}
 
 
 # Procedure getHome
-# parameters: 
+# parameters:
 # Return OH/instance name
 
 sub getHome {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getHome",1);
 
     my $name;
@@ -1273,14 +1284,14 @@ sub getHome {
 
     return $name;
 
-}  
+}
 
 # Procedure getVersion
-# parameters: 
+# parameters:
 # Return db version
 
 sub getVersion {
-    my $self = shift; 
+    my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getVersion",1);
 
     my $version;
@@ -1292,17 +1303,17 @@ sub getVersion {
 
     return $version;
 
-} 
+}
 
 
 
 # Procedure setConfig
-# parameters: 
+# parameters:
 # - name - source name
 # Return SourceConfig reference
 
 sub setConfig {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
     my $source_inst = shift;
     my $source_env = shift;
@@ -1313,7 +1324,7 @@ sub setConfig {
     my $debug = $self->{_debug};
 
     my $sourceconfig;
-    
+
 
     if (!defined($self->{_sourceconfig})) {
         $sourceconfig = new SourceConfig_obj($dlpxObject, $debug);
@@ -1323,7 +1334,7 @@ sub setConfig {
     my $ret;
 
     if (defined($source_inst) && defined($source_env)) {
-    # this is for non unique souce name 
+    # this is for non unique souce name
 
         my $environments;
         if (defined($self->{_environment})) {
@@ -1369,24 +1380,24 @@ sub setConfig {
 
     return $ret;
 
-} 
+}
 
 
 
 
 # Procedure setGroup
-# parameters: 
+# parameters:
 # - name - group name
-# Set target group name reference by name for new db. 
+# Set target group name reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setGroup {
-    my $self = shift; 
+    my $self = shift;
     my $name = shift;
     logger($self->{_debug}, "Entering VDB_obj::setGroup",1);
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    my $groups = new Group_obj($dlpxObject, $debug);    
+    my $groups = new Group_obj($dlpxObject, $debug);
     $self->{_groups} = $groups;
 
 
@@ -1400,20 +1411,20 @@ sub setGroup {
 }
 
 # Procedure setCredentials
-# parameters: 
-# - username 
+# parameters:
+# - username
 # - password
 # - force - skip check password if defined (doesn't work for Oracle - check is a part of API)
 # Set credentials for a db
 # Return 0 if success, 1 if not found
 
 sub setCredentials {
-    my $self = shift; 
+    my $self = shift;
     my $username = shift;
     my $password = shift;
     my $force = shift;
     logger($self->{_debug}, "Entering VDB_obj::setCredentials",1);
-  
+
     if ($self->{_sourceconfig}->setCredentials($self->{sourceConfig}->{reference}, $username, $password, $force)) {
         print "Username or password is invalid.\n";
         return 1;
@@ -1425,22 +1436,22 @@ sub setCredentials {
 
 
 # Procedure setTimestamp
-# parameters: 
+# parameters:
 # - timestamp - timestamp / LATEST_POINT / LATEST_SNAPSHOT
-# Set timestamp object for new db. 
+# Set timestamp object for new db.
 # Return 0 if success, 1 if not found
 
 sub setTimestamp {
-    my $self = shift; 
+    my $self = shift;
     my $timestamp = shift;
-    
+
     logger($self->{_debug}, "Entering VDB_obj::setTimestamp",1);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
 
     my $source_temp;
-    
+
 
     if (! defined($self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"}) ) {
         return 1;
@@ -1449,7 +1460,7 @@ sub setTimestamp {
 
     }
 
-    my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, undef);   
+    my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, undef);
 
     if ( $timestamp eq 'LATEST_SNAPSHOT') {
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"} = "LATEST_SNAPSHOT";
@@ -1474,7 +1485,7 @@ sub setTimestamp {
         my $sttz = Toolkit_helpers::convert_to_utc($fixformat_timestamp, $tf->{timezone}, undef, 1);
 
         logger($self->{_debug}, "timeflow - " . $tf->{timeflow} . " -  requested timestamp - " . $sttz ,2);
-        
+
         if ($sttz lt $tf->{full_startpoint}) {
           # if real subseconds are bigger than 000 we need to use real subseconds. This is an issue for AppData
           $sttz = $tf->{full_startpoint};
@@ -1486,7 +1497,7 @@ sub setTimestamp {
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timeflow"} = $tf->{timeflow};
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timestamp"} = $sttz;
 
-    } 
+    }
     elsif ( ( ($year,$mon,$day,$hh,$mi) = $timestamp =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d\d)$/ ) ) {
         delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
         delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"};
@@ -1540,19 +1551,19 @@ sub setTimestamp {
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"timestamp"} = $snapshot_time;
 
         logger($self->{_debug}, "timeflow - " . $snapshot_timeflow . " -  timestamp - " . $snapshot_time ,2);
-    } 
+    }
     elsif ( $timestamp eq 'LATEST_PROVISIONABLE_SNAPSHOT' )  {
         delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
         delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"};
         my $tz = new Date::Manip::TZ;
 
         my $snapref = $snapshot->getLastProvisionableSnapshot();
-        
+
         if (!defined($snapref)) {
           print "There is no provisionable snapshot found.\n";
           return 1;
         }
-        
+
         my $snapshot_time = $snapshot->getStartPoint($snapref);
         my $snapshot_timeflow = $snapshot->getSnapshotTimeflow($snapref);
 
@@ -1585,15 +1596,15 @@ sub setTimestamp {
 
 
 # Procedure setChangeNum
-# parameters: 
+# parameters:
 # - changenum
-# Set changenum object for new db. 
+# Set changenum object for new db.
 # Return 0 if success, 1 if not found
 
 sub setChangeNum {
-    my $self = shift; 
+    my $self = shift;
     my $changenum = shift;
-    
+
     logger($self->{_debug}, "Entering VDB_obj::setChangeNum",1);
 
 
@@ -1610,7 +1621,7 @@ sub setChangeNum {
         $source_temp = $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
     }
 
-    my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, 1);   
+    my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, 1);
 
 
     my $tf = $snapshot->findTimeflowforLocation($changenum);
@@ -1618,7 +1629,7 @@ sub setChangeNum {
     if (! defined($tf)) {
         return 1;
     }
-    
+
     delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
     delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"};
     $self->{"NEWDB"}->{"timeflowPointParameters"}->{"type"} = "TimeflowPointLocation";
@@ -1630,25 +1641,25 @@ sub setChangeNum {
 }
 
 # Procedure setMapFileV2P
-# parameters: 
+# parameters:
 # - map_file - hash of map file
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setMapFileV2P {
-    my $self = shift; 
+    my $self = shift;
     my $map_file = shift;
     logger($self->{_debug}, "Entering VDB_obj::setMapFileV2P",1);
     $self->{"NEWDB"}->{"fileMappingRules"} = $map_file;
-}  
+}
 
 
 # Procedure setFileSystemLayout
-# parameters: 
+# parameters:
 # - map_file - hash of map file
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setFileSystemLayout {
-    my $self = shift; 
+    my $self = shift;
     my $targetDirectory = shift;
     my $archiveDirectory = shift;
     my $dataDirectory = shift;
@@ -1686,17 +1697,17 @@ sub setFileSystemLayout {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
     }
 
-}  
+}
 
 
 # Procedure upgradeVDB
-# parameters: 
+# parameters:
 # - home - new DB home
 # Upgrade VDB
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub upgradeVDB {
-    my $self = shift; 
+    my $self = shift;
     my $home = shift;
     my $type = shift;
     my $ret;
@@ -1721,8 +1732,8 @@ sub upgradeVDB {
     }
 
     my %upgrade_hash = (
-        type => $type, 
-        #environmentUser: "HOST_USER-2", 
+        type => $type,
+        #environmentUser: "HOST_USER-2",
         repository => $self->{NEWDB}->{sourceConfig}->{repository}
     );
 
@@ -1745,10 +1756,10 @@ sub upgradeVDB {
         #     print "There were problems with upgrade.\n";
         #     $ret = 1;
         # }
-        # 
-        
+        #
+
         $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Upgrade completed with success", "There were problems with upgrade.");
-        
+
     } else {
         print "There were problems with upgrade.\n";
         if (defined($result->{error})) {
@@ -1766,7 +1777,7 @@ sub upgradeVDB {
 # parameters: none
 # Return database bct information
 
-sub getBCT 
+sub getBCT
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getBCT",1);
@@ -1775,12 +1786,12 @@ sub getBCT
 }
 
 # Procedure getHook
-# parameters: 
+# parameters:
 # - hooktype - type of hook
 # Return Hook body array
 
 sub getHook {
-    my $self = shift; 
+    my $self = shift;
     my $hooktype = shift;
     my $save = shift;
     logger($self->{_debug}, "Entering VDB_obj::getHook",1);
@@ -1790,9 +1801,9 @@ sub getHook {
     my @retarray;
 
     if (defined($hook_hash->{$hooktype})) {
-      
+
       my $count = 0;
-      
+
       for my $i (@{$hook_hash->{$hooktype}}) {
         my %ret_hash;
         $ret_hash{hooktype} = $hooktype;
@@ -1810,24 +1821,24 @@ sub getHook {
         $count++;
         push(@retarray, \%ret_hash);
       }
-      
+
 
     }
-    
+
     return \@retarray;
 
-} 
+}
 
 
 # Procedure getHookOSType
-# parameters: 
+# parameters:
 # - val
 # Return human hook type for specific hook internal type
 
 sub getHookOSType {
     my $self = shift;
     my $val = shift;
-    
+
     my $ret;
 
     if ($val eq 'RunBashOnSourceOperation') {
@@ -1846,7 +1857,7 @@ sub getHookOSType {
 }
 
 # Procedure getCommand
-# parameters: 
+# parameters:
 # - val
 # - type
 # Return hook command for specific hook with <cr>
@@ -1855,7 +1866,7 @@ sub getCommand {
     my $self = shift;
     my $ret = shift;
     my $type = shift;
-    
+
 
     if ($type eq 'RunPowerShellOnSourceOperation') {
       $ret =~ s/\r\n/<cr>/g;
@@ -1867,26 +1878,26 @@ sub getCommand {
 
 
 # Procedure setHooksfromJSON
-# parameters: 
+# parameters:
 # - hook - JSON object
 # Set Hook from JSON
 
 sub setHooksfromJSON {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setHooksfromJSON",1);
 
     $self->{"NEWDB"}->{"source"}->{"operations"} = $hook;
-} 
+}
 
 # Procedure deleteHook
-# parameters: 
+# parameters:
 # - hooktype - type of hook
-# - hookname 
+# - hookname
 # delete from existing hooks list
 
 sub deleteHook {
-    my $self = shift; 
+    my $self = shift;
     my $hooktype = shift;
     my $hookname = shift;
     logger($self->{_debug}, "Entering VDB_obj::deleteHook",1);
@@ -1894,12 +1905,12 @@ sub deleteHook {
     $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
 
     my @hook_array = @{$self->{"source"}->{"operations"}->{$hooktype}};
-    
+
     if (scalar(@hook_array) eq 0) {
       #hook not found
       return 2;
     }
-    
+
     my %hook_update_hash = (
       "type" => $self->{"source"}->{type},
       "operations" => {
@@ -1909,15 +1920,15 @@ sub deleteHook {
 
     if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
       # there is no name for hook so hook will be a number
-      
+
       if ($hookname > scalar(@hook_array)) {
-        # hook not found 
+        # hook not found
         return 2;
       }
-          
+
       splice @hook_array, $hookname, 1;
-      
-      
+
+
     } else {
       if (grep { $_->{name} eq $hookname } @hook_array) {
         @hook_array = grep { $_->{name} ne $hookname } @hook_array;
@@ -1939,9 +1950,9 @@ sub deleteHook {
     my $ret;
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-        
+
         $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Hook deleted", "There were problems with hook deletion.");
-        
+
     } else {
         print "There were problem with hook deletion action.\n";
         if (defined($result->{error})) {
@@ -1955,26 +1966,26 @@ sub deleteHook {
     $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
 
     return $ret;
-  
+
 }
 
 # Procedure updateHook
-# parameters: 
+# parameters:
 # - hooktype - type of hook
-# - hookname 
-# - hook 
+# - hookname
+# - hook
 # - hook - shell command (line sepatated by /r)
 # update existing hooks list
 
 sub readHook {
-    my $self = shift; 
+    my $self = shift;
   	my $hooktype = shift;
   	my $hooklist = shift;
     my $op_templates = shift;
   	my $FD;
-    
+
     my $ret = 0;
-    
+
     for my $hookitem (@{$hooklist}) {
       my @linesplit = split(',',$hookitem);
       my $hookname;
@@ -1982,9 +1993,9 @@ sub readHook {
       my $hookOStype;
 
       my $hookbody;
-      
-      
-      if (scalar(@linesplit) > 1) {      
+
+
+      if (scalar(@linesplit) > 1) {
         if (defined($linesplit[0])) {
           $hookname = $linesplit[0];
         }
@@ -2002,7 +2013,7 @@ sub readHook {
         $hookOStype = "bash";
         $hookfilename = $hookitem;
       }
-      
+
       # if (scalar(@linesplit) > 2) {
       #   #hook in file with type
       #   $hookOStype = $linesplit[0];
@@ -2010,9 +2021,9 @@ sub readHook {
       #   if (! open ($FD, $linesplit[2])) {
       #     print "Can't open a file with $hookname script: $linesplit[2]\n";
       #     return undef;
-      #   } 
+      #   }
       #   my @script = <$FD>;
-      #   close($FD);  
+      #   close($FD);
       #   $hookbody = join('', @script);
       # } else {
         #hook in file or op template
@@ -2022,24 +2033,24 @@ sub readHook {
           print "Hook filename match also operation template name\n";
           print "Please rename a file or operation template to have unique match\n";
           return undef;
-        }          
-        
+        }
+
         if (defined($hookref)) {
           $hookbody = $op_templates->getHook($hookref)->{operation}->{command};
           $hookOStype = $op_templates->getType($hookref);
         } else {
-        
+
           if (! open ($FD, $hookfilename)) {
             print "Can't open a file with $hookname script: $hookitem\n";
             return undef;
-          } 
+          }
           my @script = <$FD>;
-          close($FD);  
+          close($FD);
           $hookbody = join('', @script);
-          
+
         }
       #}
-      
+
       $ret = $ret + $self->setHook($hooktype, $hookOStype, $hookname, $hookbody);
     }
 
@@ -2049,13 +2060,13 @@ sub readHook {
 
 
 # Procedure setHook
-# parameters: 
+# parameters:
 # - hooktype - type of hook
 # - hook - shell command (line sepatated by /r)
 # Set Hook
 
 sub setHook {
-    my $self = shift; 
+    my $self = shift;
     my $hooktype = shift;
     my $ostype = shift;
     my $hookname = shift;
@@ -2072,7 +2083,7 @@ sub setHook {
         );
     } else {
         my $hookOStype;
-                           
+
         if (lc $ostype eq 'bash') {
           $hookOStype = 'RunBashOnSourceOperation';
         } elsif (lc $ostype eq 'shell') {
@@ -2084,22 +2095,22 @@ sub setHook {
         } else {
           $hookOStype = 'RunBashOnSourceOperation';
         }
-      
+
         %hook_hash = (
             "type" => $hookOStype, # this is API > 1.4
             "command" => $hook
         );
     }
-    
+
     if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
       $hook_hash{"name"} = $hookname;
     }
-    
-    my @hook_array;
-    
 
-    
-    
+    my @hook_array;
+
+
+
+
     if (defined($self->{"source"}->{"reference"})) {
       my %hook_update_hash = (
         "type" => $self->{"source"}->{type},
@@ -2107,45 +2118,45 @@ sub setHook {
           "type" => $self->{"source"}->{operations}->{type}
         }
       );
-      
+
       #refresh source to make sure we have a latest state
-      
+
       $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
-      
+
       if (defined($self->{"source"}->{"operations"}->{$hooktype})) {
         @hook_array = @{$self->{"source"}->{"operations"}->{$hooktype}};
         # todo
         # add replace hook with same name or number
-        
+
         if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
           # there is no name for hook so hook will be a number
-          
+
           if ($hookname =~ /\D/) {
             $hookname = 1000;
           }
-              
+
           if (scalar(@hook_array)<$hookname) {
             $hookname = scalar(@hook_array);
-          }    
-              
+          }
+
           $hook_array[$hookname] = \%hook_hash;
-          
+
         } else {
           if (grep { $_->{name} eq $hookname } @hook_array) {
             @hook_array = grep { $_->{name} ne $hookname } @hook_array;
           }
           push(@hook_array, \%hook_hash);
-        
+
         }
-        
-        
-        
+
+
+
       } else {
-        @hook_array = ( \%hook_hash ); 
+        @hook_array = ( \%hook_hash );
       }
-      
+
       $hook_update_hash{"operations"}{$hooktype} = \@hook_array;
-      
+
       my $json_data = to_json(\%hook_update_hash);
 
       my $operation = 'resources/json/delphix/source/' . $self->{"source"}->{"reference"};
@@ -2153,9 +2164,9 @@ sub setHook {
       my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
       if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-          
+
           $ret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $result->{action}, "Hook added", "There were problems with adding hook.");
-          
+
       } else {
           print "There were problem with adding hook action.\n";
           if (defined($result->{error})) {
@@ -2163,9 +2174,9 @@ sub setHook {
           }
           $ret = 1;
       }
-      
+
       #refresh source
-      
+
       $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
 
     } else {
@@ -2173,112 +2184,112 @@ sub setHook {
         @hook_array = @{$self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}};
         push(@hook_array, \%hook_hash);
       } else {
-        @hook_array = ( \%hook_hash ); 
+        @hook_array = ( \%hook_hash );
       }
       $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype} = \@hook_array;
     }
 
     return $ret;
 
-} 
+}
 
 
 # Procedure setPostRefreshHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Post Refresh Hook
 
 sub setAnyHook {
-    my $self = shift; 
+    my $self = shift;
     my $type = shift;
     my $hooks = shift;
 
     logger($self->{_debug}, "Entering VDB_obj::setAnyHook",1);
-    
+
     my $op_templates;
-    
+
     if (defined($self->{_op_templates})) {
       $op_templates  = $self->{_op_templates};
     } else {
       $op_templates = new Op_template_obj ( $self->{_dlpxObject}, undef, $self->{_debug});
     }
-  
+
     my $ret = $self->readHook($type, $hooks, $op_templates);
     return $ret;
-}  
+}
 
 # Procedure setPostRefreshHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre Refresh Hook
 
 sub setPostRefreshHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostRefreshHook",1);
 
     $self->setAnyHook('postRefresh', $hook);
-}  
+}
 
 # Procedure setPreRefreshHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre Refresh Hook
 
 sub setPreRefreshHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreRefreshHook",1);
 
     $self->setAnyHook('preRefresh', $hook);
-}  
+}
 
 # Procedure setconfigureCloneHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Configure Clone hook
 
 sub setconfigureCloneHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setconfigureClonehHook",1);
 
     $self->setAnyHook('configureClone', $hook);
-}  
+}
 
 # Procedure setpreRollbackHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre Rewind Hook
 
 sub setPreRewindHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setpreRollbackHook",1);
 
     $self->setAnyHook('preRollback', $hook);
-} 
+}
 
 # Procedure setpostRollbackHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Post Rewind Hook
 
 sub setPostRewindHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setpostRollbackHook",1);
 
     $self->setAnyHook('postRollback', $hook);
-} 
+}
 
 # Procedure setPreSnapshotHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre Snapshot Hook
 
 sub setPreSnapshotHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreSnapshotHook",1);
 
@@ -2286,12 +2297,12 @@ sub setPreSnapshotHook {
 }
 
 # Procedure setPostSnapshotHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Post Snapshot Hook
 
 sub setPostSnapshotHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostSnapshotHook",1);
 
@@ -2299,12 +2310,12 @@ sub setPostSnapshotHook {
 }
 
 # Procedure setPreStartHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre Start Hook
 
 sub setPreStartHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreStartHook",1);
 
@@ -2312,12 +2323,12 @@ sub setPreStartHook {
 }
 
 # Procedure setPostStartHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Post Start Hook
 
 sub setPostStartHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostStartHook",1);
 
@@ -2325,12 +2336,12 @@ sub setPostStartHook {
 }
 
 # Procedure setPreStopHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Pre stop Hook
 
 sub setPreStopHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPreStopHook",1);
 
@@ -2338,12 +2349,12 @@ sub setPreStopHook {
 }
 
 # Procedure setPostStopHook
-# parameters: 
+# parameters:
 # - hook - shell command (line sepatated by /r)
 # Set Post Stop Hook
 
 sub setPostStopHook {
-    my $self = shift; 
+    my $self = shift;
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setPostStopHook",1);
 
@@ -2351,7 +2362,7 @@ sub setPostStopHook {
 }
 
 # Procedure exportDBHooks
-# parameters: 
+# parameters:
 # - location - directory
 # Return 0 if no errors
 
@@ -2359,10 +2370,10 @@ sub exportDBHooks {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::exportDBHooks",1);   
+    logger($self->{_debug}, "Entering VDB_obj::exportDBHooks",1);
 
     my $hooks = $self->{source}->{operations};
-    
+
     if (defined($hooks)) {
       my $dbname = $self->getName();
       my $filename =  $location . "/" . $dbname . ".dbhooks";
@@ -2379,7 +2390,7 @@ sub exportJSONHook {
     my $hook = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::exportJSONHook",1);   
+    logger($self->{_debug}, "Entering VDB_obj::exportJSONHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
 
@@ -2394,7 +2405,7 @@ sub exportHook {
     my $body = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::exportHook",1);   
+    logger($self->{_debug}, "Entering VDB_obj::exportHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
     print $FD $body;
@@ -2404,7 +2415,7 @@ sub exportHook {
 
 
 # Procedure importDBHooks
-# parameters: 
+# parameters:
 # - database object
 # - filename - filename
 # Return 0 if no errors
@@ -2414,7 +2425,7 @@ sub importDBHooks {
     my $dbobj = shift;
     my $filename = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::importDBHooks",1);   
+    logger($self->{_debug}, "Entering VDB_obj::importDBHooks",1);
 
     my $hooks = $dbobj->{source}->{operations};
     my $source = $dbobj->{source}->{reference};
@@ -2428,9 +2439,9 @@ sub importDBHooks {
     local $/ = undef;
     my $json = JSON->new();
     $loadedHook = $json->decode(<$FD>);
-    
+
     close $FD;
-    
+
     print "Importing hooks from $filename into database $dbname \n";
 
     my $operation = 'resources/json/delphix/source/' . $source;
@@ -2442,7 +2453,7 @@ sub importDBHooks {
 
     my $json_data = to_json(\%hooks_hash);
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print "Import completed\n";
@@ -2461,19 +2472,19 @@ sub importDBHooks {
 
 package MySQLVDB_obj;
 use Data::Dumper;
-use JSON;    
+use JSON;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug, "Entering MySQLVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
 
-   # MySQL specific properties 
+   # MySQL specific properties
 
 
     my @configureClone;
@@ -2518,22 +2529,22 @@ sub new {
             },
     );
 
-    $self->{"NEWDB"} = \%prov; 
+    $self->{"NEWDB"} = \%prov;
     $self->{_dbtype} = 'mysql';
     return $self;
 }
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - group - new DB group
 # - env - new DB environment
 # - inst - new DB instance
-# Start job to create Sybase VBD 
+# Start job to create Sybase VBD
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub createVDB {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -2563,14 +2574,14 @@ sub createVDB {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
-    
+
     print Dumper $self->{"NEWDB"}->{"source"};
 
     delete $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"};
 
     $self->setPort($port);
     $self->setMountPoint($mountpoint);
-    
+
     if ($self->{_dlpxObject}->getApi() ge "1.8") {
       $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
     }
@@ -2585,30 +2596,30 @@ sub createVDB {
 }
 
 # Procedure setName
-# parameters: 
+# parameters:
 # - contname - container name
 # - dbname - database name
-# Set name for new db. 
+# Set name for new db.
 
 sub setName {
     my $self = shift;
-    my $contname = shift;    
+    my $contname = shift;
     my $dbname = shift;
     logger($self->{_debug}, "Entering MySQLVDB_obj::setName",1);
-    
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
-    
+
 }
 
 # Procedure setPort
-# parameters: 
+# parameters:
 # - port
 # Set port
 
 
 sub setPort {
-    my $self = shift; 
+    my $self = shift;
     my $port = shift;
     logger($self->{_debug}, "Entering MySQLVDB_obj::setPort",1);
 
@@ -2617,20 +2628,20 @@ sub setPort {
 
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - name - source name
-# Set dsource reference by name for new db. 
+# Set dsource reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setSource {
-    my $self = shift; 
+    my $self = shift;
     #my $name = shift;
     my $sourceitem = shift;
     logger($self->{_debug}, "Entering MySQLVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    
+
 
     if (defined ($sourceitem)) {
         my $sourcetype = $sourceitem->{container}->{'type'};
@@ -2643,21 +2654,21 @@ sub setSource {
         }
     } else {
         return 1;
-    }       
+    }
 
 }
 
 
 # Procedure setMountPoint
-# parameters: 
+# parameters:
 # - mountpoint - mount point
-# Set mountpoint for new db. 
+# Set mountpoint for new db.
 
 sub setMountPoint {
-    my $self = shift; 
+    my $self = shift;
     my $mountpoint = shift;
     logger($self->{_debug}, "Entering MySQLVDB_obj::setMountPoint",1);
-    
+
     my $mntpoint;
 
     if (defined($mountpoint)) {
@@ -2677,15 +2688,15 @@ sub setMountPoint {
 
     }
     $self->{"NEWDB"}->{"source"}->{"mountBase"} = $mntpoint;
-}   
+}
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # - frombackup - yes/no
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
@@ -2725,24 +2736,24 @@ sub snapshot
 
 package PostgresVDB_obj;
 use Data::Dumper;
-use JSON;    
+use JSON;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug, "Entering PostgresVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
 
     $self->{_dbtype} = 'postgresql';
-            
+
     return $self;
 }
 
-# 
+#
 # End of package
 
 

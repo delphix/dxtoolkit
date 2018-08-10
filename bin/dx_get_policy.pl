@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,13 +12,13 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_get_policy.pl
 # Description  : Get Delphix Engine policies
 # Author       : Marcin Przepiorowski
 # Created      : 01 Oct 2015 (v2.2.0)
 #
-# 
+#
 
 use strict;
 use warnings;
@@ -45,16 +45,16 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'type=s' => \(my $type),
-  'name=s' => \(my $dbname),  
-  'policy=s' => \(my $policytype), 
+  'name=s' => \(my $dbname),
+  'policy=s' => \(my $policytype),
   'policyname=s' => \(my $policyname),
-  'group=s' => \(my $group), 
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'envname=s' => \(my $envname),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'outdir=s' => \(my $outdir),
   'export' => \(my $export),
   'mapping=s' => \(my $mapping),
@@ -67,7 +67,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -107,7 +107,7 @@ if ( defined($policytype) && ( ! ( (uc $policytype eq 'RETENTION') || (uc $polic
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -123,7 +123,7 @@ if (! (defined($export) || defined($mapping) ) ) {
   } else {
     $output->addHeader(
         {'Appliance',   20},
-        {'Group',       15},   
+        {'Group',       15},
         {'Database',    30},
         {ucfirst (lc $policytype),   30},
         {ucfirst (lc $policytype) . ' schedule', 100}
@@ -158,19 +158,19 @@ for my $engine ( sort (@{$engine_list}) ) {
     for my $groupitem ( @groups_array) {
       push (@cont, $groupitem);
       my @temp = $db->getDBForGroup($groupitem);
-      my %temp_type = map { $_ => $db->getDB($_)->getType() } @temp;  
+      my %temp_type = map { $_ => $db->getDB($_)->getType() } @temp;
       %cont_type = (%temp_type, %cont_type);
       push (@cont, @temp);
     }
 
     $contref = \@cont;
   } else {
-       
-    $contref = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $db, $groups, $envname, undef, undef, undef, undef, $debug);
+
+    $contref = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $db, $groups, $envname, undef, undef, undef, undef, undef, $debug);
     if (! defined($contref)) {
       next;
     }
-    %cont_type = map { $_ => $db->getDB($_)->getType() } @{$contref};  
+    %cont_type = map { $_ => $db->getDB($_)->getType() } @{$contref};
   }
 
 
@@ -184,7 +184,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($polref)) {
       $output->addLine (
         $engine,
-        $policy->getName($polref),        
+        $policy->getName($polref),
         $policy->getType($polref),
         $policy->getSchedule($polref)
       );
@@ -205,7 +205,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         if (defined($mapping)) {
           $policy->exportMapping($mapping, $groups,$db);
-        }     
+        }
 
     } elsif (defined($mapping)) {
           $policy->exportMapping($mapping, $groups,$db);
@@ -224,7 +224,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $polref = $policy->getRetention($contitem);
         }
 
-        my $groupname; 
+        my $groupname;
         my $dbname;
 
 
@@ -288,7 +288,7 @@ A config file search order is as follow:
 - dxtools.conf from dxtoolkit location
 
 =item B<-policy type>
-Choose policy type to display - RETENTION | SNAPSYNC | SNAPSHOT  | REFRESH 
+Choose policy type to display - RETENTION | SNAPSYNC | SNAPSHOT  | REFRESH
 
 =back
 
@@ -322,21 +322,21 @@ Environment name
 
 =over 3
 
-=item B<-export>                                                                                                                                            
+=item B<-export>
 Export all polices or policy selected by policyname
 
-=item B<-outdir dir>                                                                                                                                            
+=item B<-outdir dir>
 Direcotry where policies will be exported
 
-=item B<-mapping filename>                                                                                                                                            
+=item B<-mapping filename>
 Export mapping between policies and database / groups into filename.
 Use a database filters like name, group, etc to limit mapping export to the particular objects
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -363,7 +363,7 @@ Display a retention policy
  DE001                                Vvas_DA3                       * Default Retention            Logs 1 day(s), snapshots 1 week(s)
  DE001                                installs                       * Default Retention            Logs 1 day(s), snapshots 1 week(s)
 
-Export polices and mapping into files 
+Export polices and mapping into files
 
  dx_get_policy -d Landshark -export -outdir /tmp/policy -mapping /tmp/policy/mapping.Landshark
  Exporting policy into file /tmp/policy/Default Retention.policy
@@ -373,6 +373,3 @@ Export polices and mapping into files
 
 
 =cut
-
-
-

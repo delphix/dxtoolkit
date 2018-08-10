@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -73,6 +73,7 @@ GetOptions(
   'hostenv=s' =>  \($hostenv),
   'config' => \(my $config),
   'backup=s' => \(my $backup),
+  'olderthan=s' => \(my $creationtime),
   'save=s' => \(my $save),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -134,23 +135,23 @@ if (lc $hostenv eq 'h') {
 if (defined($backup)) {
   if (! -d $backup) {
     print "Path $backup is not a directory \n";
-    exit (1);  
+    exit (1);
   }
   if (! -w $backup) {
     print "Path $backup is not writtable \n";
-    exit (1);  
+    exit (1);
   }
-  
+
   $hostenv = 'e';
   $output->addHeader(
       {'Paramters', 200}
   );
-  
+
   $dsource_output = new Formater();
   $dsource_output->addHeader(
       {'Paramters', 200}
   );
-  
+
 } elsif (defined($config)) {
   $hostenv = 'e';
   $output->addHeader(
@@ -176,7 +177,7 @@ if (defined($backup)) {
       {'SourceDB',    30},
       {'Masked',      10},
       {'Masking job', 15}
-    );  
+    );
   } else {
     $output->addHeader(
       {'Appliance'      ,20},
@@ -190,7 +191,8 @@ if (defined($backup)) {
       {'Status'         ,10},
       {'Enabled'        ,10},
       {'Unique Name'    ,30},
-      {'Parent time'    ,35}
+      {'Parent time'    ,35},
+      {'VDB creation time'    ,35}
     );
   }
 }
@@ -222,15 +224,21 @@ for my $engine ( sort (@{$engine_list}) ) {
   } else {
     if (lc $parentlast eq 'p') {
       $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
-    } 
-    $capacity = new Capacity_obj($engine_obj, $debug); 
+    }
+    $capacity = new Capacity_obj($engine_obj, $debug);
     $capacity->LoadDatabases();
-    $timeflows = new Timeflow_obj($engine_obj, $debug);  
+    $timeflows = new Timeflow_obj($engine_obj, $debug);
   }
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $debug);
+
+  my $zulutime;
+  if (defined($creationtime)) {
+    $zulutime = Toolkit_helpers::convert_to_utc($creationtime, $engine_obj->getTimezone(), undef, 1);
+  }
+
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $zulutime, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -250,7 +258,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $parentgroup;
     my $uniquename;
     my $parenttime;
-    
+
     if ($dbobj->getDBType() eq 'oracle') {
       $uniquename = $dbobj->getUniqueName();
     } else {
@@ -288,16 +296,16 @@ for my $engine ( sort (@{$engine_list}) ) {
         $dbobj->getVersion(),
         $other
       );
-      
+
     } elsif (defined($backup)) {
-      
+
       #backup($engine, $dbobj, $output, $dsource_output, $groups, $parentname, $hostenv_line, $parentgroup, $templates);
       $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
 
     } else {
 
       $parentsnap = $timeflows->getParentSnapshot($dbobj->getCurrentTimeflow());
-      
+
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
@@ -311,9 +319,9 @@ for my $engine ( sort (@{$engine_list}) ) {
               $parenttime = $snaptime;
             }
           } else {
-            $parenttime = 'N/A';          
+            $parenttime = 'N/A';
           }
-          
+
         } else {
           $snaptime = 'N/A';
           $parenttime = 'N/A';
@@ -325,8 +333,8 @@ for my $engine ( sort (@{$engine_list}) ) {
         ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
         $parenttime = 'N/A';
       }
-      
-      
+
+
 
       if (defined($masking)) {
         my $masked;
@@ -347,7 +355,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $parentname,
           $masked,
           $maskedjob_name
-        );      
+        );
       } else {
         $output->addLine(
           $engine,
@@ -361,7 +369,8 @@ for my $engine ( sort (@{$engine_list}) ) {
           $dbobj->getRuntimeStatus(),
           $dbobj->getEnabled(),
           $uniquename,
-          $parenttime
+          $parenttime,
+          Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $engine_obj->getTimezone())
         );
       }
 
@@ -382,10 +391,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 }
 
 if (defined($backup)) {
-    
+
   my $FD;
   my $filename = File::Spec->catfile($backup,'backup_metadata_dsource.txt');
-  
+
   if ( open($FD,'>', $filename) ) {
     $dsource_output->savecsv(1,$FD);
     print "Backup exported into $filename \n";
@@ -396,7 +405,7 @@ if (defined($backup)) {
   close ($FD);
 
   $filename = File::Spec->catfile($backup,'backup_metadata_vdb.txt');
-  
+
   if ( open($FD,'>', $filename) ) {
     $output->savecsv(1,$FD);
     print "Backup exported into $filename \n";
@@ -405,9 +414,9 @@ if (defined($backup)) {
     $ret = $ret + 1;
   }
   close ($FD);
-  
+
 } else {
-    Toolkit_helpers::print_output($output, $format, $nohead);  
+    Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
 
@@ -418,15 +427,15 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_db_env    [-engine|d <delphix identifier> | -all ] 
-                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname] 
+ dx_get_db_env    [-engine|d <delphix identifier> | -all ]
+                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date]
                   [-save]
                   [-masking]
-                  [-parentlast l|p] 
+                  [-parentlast l|p]
                   [-config]
-                  [-backup path] 
-                  [-hostenv h|e] 
-                  [-format csv|json ] 
+                  [-backup path]
+                  [-hostenv h|e]
+                  [-format csv|json ]
                   [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -479,7 +488,7 @@ Environment name
 Dsource name
 
 =item B<-instancename instname>
-Instance name 
+Instance name
 
 =back
 
@@ -545,13 +554,13 @@ Columns description
 
 =item B<Appliance> - Delphix Engine name from dxtools.conf file
 
-=item B<Hostname> - Delphix environment hostname or IP address 
+=item B<Hostname> - Delphix environment hostname or IP address
 
 =item B<Env. name> - Delphix environment name
 
 =item B<Database> - Database name ( dSource or VDB )
 
-=item B<Group> - Group name 
+=item B<Group> - Group name
 
 =item B<Type> - Database type
 
@@ -586,7 +595,7 @@ List all databases known to Delphix Engine
  Landshark5 linuxsource          Oracle dsource                 Sources         dSource                                 N/A                                 0.64       RUNNING    enabled      orcl
  Landshark5 linuxsource          Sybase dsource                 Sources         dSource                                 N/A                                 0.00       RUNNING    enabled      N/A
 
-List databases from group "Analytics" and display last snapshot time 
+List databases from group "Analytics" and display last snapshot time
 
  dx_get_db_env -d Landshark51 -group Analytics -parentlast l
 
@@ -625,15 +634,15 @@ List databases from group "Analytics" with configuration
  Landshark5 LINUXTARGET          autotest                       Analytics       VDB      Oracle dsource                 /u01/app/oracle/11.2.0.4/db1        oracle     11.2.0.4.0 -redoGroup 3,-redoSize 100,-archivelog=yes,-mntpoint "/mnt/provision",-instname autotest,-uniqname a
  Landshark5 LINUXTARGET          testsybase                     Analytics       VDB      Sybase dsource                 LINUXTARGET                         sybase     15.7 SP101
 
-Generate backup of databases metadata from group "Analytics" into directory /tmp 
+Generate backup of databases metadata from group "Analytics" into directory /tmp
 
  dx_get_db_env -d Landshark51 -group "Analytics" -backup /tmp
  Exporting database autotest hooks into  /tmp/autotest.dbhooks
  Exporting database testsybase hooks into  /tmp/testsybase.dbhooks
  Backup exported into /tmp/backup_metadata_dsource.txt
  Backup exported into /tmp/backup_metadata_vdb.txt
- 
- 
+
+
 List masking status and jobs
 
  dx_get_db_env -d Delphix32 -masking
@@ -645,6 +654,6 @@ List masking status and jobs
  Delphix32  10.0.0.152           test1                          Sources         dSource                                 NO
  Delphix32  10.0.0.152           maskvdb                        Test            VDB      test1                          YES        SCOTT_JOB
 
- 
+
 
 =cut

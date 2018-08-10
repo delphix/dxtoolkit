@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,14 +12,14 @@
 # limitations under the License.
 #
 # Copyright (c) 2014,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_get_snapshots.pl
 # Description  : Get database and host information
 # Author       : Edward de los Santos
 # Created      : 30 Jan 2014 (v1.0.0)
 #
 # Modified     : 14 Mar 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use strict;
 use warnings;
@@ -46,12 +46,12 @@ my $timeloc = 't';
 my $timeflow = 'c';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname), 
-  'format=s' => \(my $format), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
+  'format=s' => \(my $format),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'timeloc=s' => \($timeloc),
@@ -60,7 +60,7 @@ GetOptions(
   'endDate=s' => \(my $endDate),
   'snapshotname=s' => \(my $snapshotname),
   'size:s'    => \(my $size),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'details' => \(my $details),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -70,7 +70,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -87,7 +87,7 @@ Toolkit_helpers::check_filer_options (undef,$type, $group, $host, $dbname);
 my $ret = 0;
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -126,11 +126,11 @@ if (defined($size)) {
       {'Group',          20},
       {'Database',       30},
       {'Snapshot name',  30},
-      {'Creation time ', 30},   
+      {'Creation time ', 30},
       {'Size',           30},
       {'Depended objects', 60}
-  ); 
-  
+  );
+
 } else  {
 
   if (defined($details)) {
@@ -139,14 +139,14 @@ if (defined($size)) {
         {'Engine',         20},
         {'Group',          20},
         {'Database',       20},
-        {'Snapshot name',  30},   
+        {'Snapshot name',  30},
         {'Start ' . $header,      30},
         {'End ' . $header,        30},
         {'Creation time ',        30},
         {'Timeflow',   10},
         {'Retention',   8},
         {'Version',     4}
-    );  
+    );
 
   } else {
 
@@ -155,20 +155,20 @@ if (defined($size)) {
           {'Engine',         30},
           {'Group',          20},
           {'Database',       30},
-          {'Snapshot name',  30},   
+          {'Snapshot name',  30},
           {'Start ' . $header,      30},
           {'End ' . $header,        30}
-      );  
+      );
     } else {
       $output->addHeader(
           {'Engine',         30},
           {'Group',          20},
           {'Database',       30},
-          {'Snapshot name',  30},   
+          {'Snapshot name',  30},
           {'Start ' . $header,      30},
           {'End ' . $header,        30},
           {'Timeflow',   10}
-      );   
+      );
     }
 
   }
@@ -185,17 +185,17 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
   my $snapshots;
   my $timeflows;
-    
+
   if (defined($size)) {
     $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
-    $timeflows = Timeflow_obj->new($engine_obj, $debug);    
+    $timeflows = Timeflow_obj->new($engine_obj, $debug);
   }
 
-  # filter implementation 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
+  # filter implementation
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -212,11 +212,11 @@ for my $engine ( sort (@{$engine_list}) ) {
       $allsnapshots = '1';
     }
 
-    
+
     if (defined($size)) {
       if (snapshot_size($output, $groups, $databases, $dbobj, $engine, $engine_obj, $dbitem, $timeflows, $snapshots, $debug)) {
         $ret = $ret + 1;
-      }      
+      }
     } else {
       if (snapshot_list($output, $groups, $dbobj, $engine, $engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate)) {
         $ret = $ret + 1;
@@ -239,9 +239,9 @@ exit $ret;
 
 
 # Procedure snapshot_list
-# parameters: 
+# parameters:
 #  output - output object
-#  groups - groups object 
+#  groups - groups object
 #  dbobj  - db object
 #  engine - engine name
 #  engine_obj - engine object
@@ -263,11 +263,11 @@ sub snapshot_list {
   my $debug = shift;
   my $startDate = shift;
   my $endDate = shift;
-  
+
 
   my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
   my $snaplist = $snapshots->getSnapshots($snapshotname);
-  
+
   if ( (!defined($snaplist)) || (scalar(@{$snaplist}) < 1) ) {
     if (defined($dbname) || defined($group) || defined($type) || defined($host) ) {
       print "There is no snapshots selected for database " . $dbobj->getName() ." on $engine . Please check filter definitions. \n";
@@ -291,7 +291,7 @@ sub snapshot_list {
       }
     } else {
       $snapstart = 'not provisionable';
-      $snapstop = 'not provisionable';     
+      $snapstop = 'not provisionable';
     }
 
     if (defined($details)) {
@@ -316,7 +316,7 @@ sub snapshot_list {
           $snaptimeflow,
           $snapshots->getSnapshotRetention($snapitem),
           $snapshots->getSnapshotVersion($snapitem),
-        );  
+        );
 
     } else {
       if (lc $timeflow eq 'c' ) {
@@ -327,7 +327,7 @@ sub snapshot_list {
           $snapshots->getSnapshotName($snapitem),
           $snapstart,
           $snapstop
-        ); 
+        );
       } else {
         my $snaptimeflow ;
 
@@ -346,19 +346,19 @@ sub snapshot_list {
           $snapstart,
           $snapstop,
           $snaptimeflow
-        );  
+        );
       }
     }
 
   }
-  
+
 }
 
 
 # Procedure snapshot_size
-# parameters: 
+# parameters:
 #  output - output object
-#  groups - groups object 
+#  groups - groups object
 #  databases - databases object
 #  dbobj  - db object
 #  engine - engine name
@@ -379,7 +379,7 @@ sub snapshot_size {
   my $timeflows = shift;
   my $snapshots = shift;
   my $debug = shift;
-  
+
   my $capacity = new Capacity_obj($engine_obj, $debug);
   my $all_snaps = $capacity->LoadSnapshots($dbitem);
 
@@ -390,25 +390,25 @@ sub snapshot_size {
 
     my $snap_ref = $snap->{snapshot};
     my @ddb_array;
-        
+
     for my $ddb (@{$snap->{descendantVDBs}}) {
       my $ddb_name = $databases->getDB($ddb)->getName();
       my $ddb_group = $groups->getName($databases->getDB($ddb)->getGroup());
       my $timeflow = $databases->getDB($ddb)->getCurrentTimeflow();
-      
+
       my $current;
-      
+
       if ($timeflows->getParentSnapshot($timeflow) eq $snap_ref) {
         $current = 'current tf';
       } else {
         $current = 'previous tf'
       }
-      
+
       push(@ddb_array, $ddb_group . '/' . $ddb_name . '/' . $current );
-    } 
-    
+    }
+
     my $depend_string = join(';', @ddb_array);
-    
+
     $output->addLine(
       $engine,
       $groups->getName($dbobj->getGroup()),
@@ -417,10 +417,10 @@ sub snapshot_size {
       $snapshots->getSnapshotCreationTimeWithTimezone($snap_ref),
       sprintf("%10.5f",$snap->{space}),
       $depend_string
-    ); 
+    );
 
   }
-    
+
 }
 
 __DATA__
@@ -428,18 +428,18 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
-                     [ -timeloc t|l] 
+                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ]
+                     [ -timeloc t|l]
                      [ -startDate startDate]
                      [ -endDate endDate]
                      [ -snapshotname snapshotname]
-                     [ -format csv|json ]  
+                     [ -format csv|json ]
                      [ -help|? ] [ -debug ]
-                     
+
  dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                      -size [ asc | desc ]
-                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
-                     [ -format csv|json ]  
+                     [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ]
+                     [ -format csv|json ]
                      [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -486,7 +486,7 @@ Host Name
 Type (dsource|vdb)
 
 =item B<-dsource name>
-Name of dSource 
+Name of dSource
 
 =item B<-startDate startDate>
 Display snapshot created after startDate
@@ -520,11 +520,11 @@ Display current fimeflow - c (default value), or display all timeflows
 =item B<-details>
 Display more details about snapshot - version and retention time in days
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -573,8 +573,8 @@ List all snapshots for database VDBA
  de01loca                       DB                   VDBA                           @2016-11-27T23:30:20.903Z      2016-11-28 00:30:24 CET   2016-11-28 00:30:28 CET
  de01loca                       DB                   VDBA                           @2016-11-28T23:30:17.095Z      2016-11-29 00:30:22 CET   2016-11-29 00:30:31 CET
  de01loca                       DB                   VDBA                           @2016-11-29T23:30:15.738Z      2016-11-30 00:30:25 CET   2016-11-30 17:03:23 CET
- 
-List all snapshots for database VDBR from all timeflows with details 
+
+List all snapshots for database VDBR from all timeflows with details
 
  dx_get_snapshots -d de01loca -name VDBR -details -timeflow a
 
@@ -592,7 +592,7 @@ List all snapshots for database VDBR from all timeflows with details
  de01loca             DB                   VDBR                 @2016-11-30T13:42:23.915Z      2016-11-30 08:42:24 EST   2016-11-30 11:14:55 EST   2016-11-30 08:42:23 EST   current    Policy   12.1
 
 
-List size of all snapshots in descending order 
+List size of all snapshots in descending order
 
  dx_get_snapshots -d dc -size desc
 
@@ -615,10 +615,7 @@ List size of all snapshots in descending order
  dc                             Sources              cdbkate                        @2017-10-10T13:46:32.118Z      2017-10-10 06:46:32 PDT           0.00000                     group1/vcdb/current tf
  dc                             Sources              marina                         @2017-10-10T12:05:21.936Z      2017-10-10 05:05:21 PDT           0.00000                     group1/test/current tf
  dc                             Sources              PDBKATE                        @2017-10-10T13:47:21.166Z      2017-10-10 06:47:21 PDT           0.00000                     group1/vpdb/current tf
- 
+
 
 
 =cut
-
-
-

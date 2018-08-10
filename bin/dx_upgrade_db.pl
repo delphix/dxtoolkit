@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_upgrade_db.pl
 # Description  : Upgrade a DB
 # Author       : Marcin Przepiorowski
@@ -42,15 +42,15 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'envinst=s' => \(my $envinst),
-  'name=s' => \(my $dbname), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'name=s' => \(my $dbname),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'envname=s' => \(my $envname),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -60,7 +60,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -85,7 +85,7 @@ my $ret = 0;
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 
@@ -98,10 +98,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, undef, undef, undef, undef, $debug);
+  # filter implementation
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, undef, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -123,10 +123,10 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_upgrade_db  [ -engine|d <delphix identifier> | -all ] [ -configfile file ] 
+ dx_upgrade_db  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                 < -envinst OracleHome/MSSQLinstance >
                 < -group group_name | -name db_name | -host host_name | -type dsource|vdb | -envname name >
-                [ -help] 
+                [ -help]
                 [ -debug]
 
 =head1 DESCRIPTION
@@ -182,7 +182,7 @@ Environment name
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -209,11 +209,8 @@ Upgrade of MS SQL ( including enabling and disabling VDB)
  Enabling database autotest.
  Starting job JOB-831 for database autotest.
  0 - 25 - 75 - 100
- Job JOB-831 finised with state: COMPLETED 
+ Job JOB-831 finised with state: COMPLETED
 
 
 
 =cut
-
-
-

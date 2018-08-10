@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,12 +41,12 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname), 
-  'format=s' => \(my $format), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
+  'format=s' => \(my $format),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'envname=s' => \(my $envname),
@@ -60,7 +60,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -75,7 +75,7 @@ if (defined($all) && defined($dx_host)) {
 Toolkit_helpers::check_filer_options (undef,$type, $group, $host, $dbname, $envname);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -87,7 +87,7 @@ $output->addHeader(
   {'Group',     15},
   {'Database',  30},
   {'Instance',  10},
-  {'Type',       8},  
+  {'Type',       8},
   {'Status',    10},
 );
 
@@ -103,11 +103,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation 
+  # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -155,10 +155,10 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_instance  [-engine|d <delphix identifier> | -all ] 
-                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb ]  
-                  [-format csv|json ]  
-                  [-help|? ] 
+ dx_get_instance  [-engine|d <delphix identifier> | -all ]
+                  [-group group_name | -name db_name | -host host_name | -type dsource|vdb ]
+                  [-format csv|json ]
+                  [-help|? ]
                   [-debug ]
 
 =head1 DESCRIPTION
@@ -214,11 +214,11 @@ Environment name
 =over 3
 
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -241,8 +241,5 @@ Display a Oracle instance status
  Landshark4 racattack            192.168.1.62                   Analytics       racd                           racd2      VDB      down
  Landshark4 LINUXTARGET          172.16.180.251                 Analytics       test1                          test1      VDB      down
  Landshark4 LINUXSOURCE          172.16.180.250                 Sources         Employee Oracle 11G DB         orcl       dSource  up
- 
+
 =cut
-
-
-

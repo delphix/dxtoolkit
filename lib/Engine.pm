@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,12 +54,12 @@ use Try::Tiny;
 use Term::ReadKey;
 use dbutils;
 
-use LWP::Protocol::http; 
+use LWP::Protocol::http;
 push(@LWP::Protocol::http::EXTRA_SOCK_OPTS, MaxLineLength => 0);
 
 
 # constructor
-# parameters 
+# parameters
 # - debug - debug flag (debug on if defined)
 
 sub new
@@ -69,7 +69,7 @@ sub new
    my $debug = shift;
    my $ua;
 
-   logger($debug,"Dxtoolkit version " . $Toolkit_helpers::version); 
+   logger($debug,"Dxtoolkit version " . $Toolkit_helpers::version);
    logger($debug,"Entering Engine::constructor",1);
    $ua = LWP::UserAgent->new;
    $ua->agent("Delphix Perl Agent/0.1");
@@ -92,18 +92,18 @@ sub new
 }
 
 # Procedure load_config
-# parameters: 
+# parameters:
 # - fn - configuration file name
 # load configuration file (dxtools.conf) into internal structure
 
 sub load_config {
    my $self = shift;
-   my $fn = shift;   
+   my $fn = shift;
    logger($self->{_debug}, "Entering Engine::load_config",1);
 
    my $data;
    my %engines;
-   
+
    my $config_file;
 
    if (defined($fn)) {
@@ -126,7 +126,7 @@ sub load_config {
       die ('Error in JSON configuration file. Please check it. ' . $_);
    };
    close($json_stream);
-   
+
 
    for my $host ( @{$data->{data}} ) {
       my $name = $host->{hostname};
@@ -136,7 +136,7 @@ sub load_config {
       $engines{$name}{port}       = defined($host->{port}) ? $host->{port} : 80 ;
       $engines{$name}{default}    = defined($host->{default}) ? $host->{default} : 'false';
       $engines{$name}{protocol}   = defined($host->{protocol}) ? $host->{protocol} : 'http';
-      $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false'; 
+      $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
       $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
@@ -144,7 +144,7 @@ sub load_config {
          if ($engines{$name}{password} =~ /^#/ ) { # check if password if really encrypted
             $engines{$name}{password} = $self->decrypt($engines{$name});
          }
-      } 
+      }
    }
 
    $self->{_config_file} = $fn;
@@ -154,13 +154,13 @@ sub load_config {
 
 
 # Procedure encrypt_config
-# parameters: 
+# parameters:
 # - fn - configuration file name
 # save configuration file (dxtools.conf) from internal structure
 
 sub encrypt_config {
    my $self = shift;
-   my $fn = shift;   
+   my $fn = shift;
    logger($self->{_debug}, "Entering Engine::encrypt_config",1);
 
    my $engines = $self->{_engines};
@@ -187,16 +187,16 @@ sub encrypt_config {
 
 
 # Procedure encrypt
-# parameters: 
-# - config hash 
+# parameters:
+# - config hash
 # Return encrypted password
 
 sub encrypt {
-   my $self = shift;  
+   my $self = shift;
    my $engine = shift;
    logger($self->{_debug}, "Entering Engine::encrypt",1);
    my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
-   my $cipher = Crypt::CBC->new( 
+   my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
       -iv => substr($engine->{ip_address} . $engine->{username},0,8),
@@ -208,17 +208,17 @@ sub encrypt {
 }
 
 # Procedure decrypt
-# parameters: 
-# - config hash 
+# parameters:
+# - config hash
 # Return decrypted password
 
 sub decrypt {
-   my $self = shift;  
+   my $self = shift;
    my $engine = shift;
    logger($self->{_debug}, "Entering Engine::decrypt",1);
 
    my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
-   my $cipher = Crypt::CBC->new( 
+   my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
       -iv => substr($engine->{ip_address} . $engine->{username},0,8),
@@ -231,43 +231,43 @@ sub decrypt {
 
 
 # Procedure getAllNonSysadminEngines
-# parameters: 
+# parameters:
 # Return names of all engines loaded
 
 sub getAllNonSysadminEngines {
-   my $self = shift;  
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getAllEngines",1);
    my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} ne lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
    return @nonsysadmin;
 }
 
 # Procedure getAllSysadminEngines
-# parameters: 
+# parameters:
 # Return names of all engines loaded
 
 sub getAllSysadminEngines {
-   my $self = shift;  
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getAllEngines",1);
    my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} eq lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
    return @nonsysadmin;
 }
 
 # Procedure getAllEngines
-# parameters: 
+# parameters:
 # Return names of all engines loaded
 
 sub getAllEngines {
-   my $self = shift;  
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getAllEngines",1);
    return sort ( keys %{$self->{_engines} } );
 }
 
 # Procedure getDefaultEngines
-# parameters: 
-# Return names of all defaults engines 
+# parameters:
+# Return names of all defaults engines
 
 sub getDefaultEngines {
-   my $self = shift; 
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getDefaultEngines",1);
    my @default;
    for my $engine ( sort ( keys %{$self->{_engines}} ) ) {
@@ -285,55 +285,55 @@ sub getDefaultEngines {
 # Return engine config for engine
 
 sub getEngine {
-   my $self = shift;  
+   my $self = shift;
    my $name = shift;
    logger($self->{_debug}, "Entering Engine::getEngine",1);
    return $self->{_engines}->{$name};
 }
 
 # Procedure getIP
-# parameters: 
+# parameters:
 # Return IP/name of engine
 
 sub getIP {
-   my $self = shift; 
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getIP",1);
    return $self->{_host};
 }
 
 # Procedure getEngineName
-# parameters: 
+# parameters:
 # Return name of engine connected to
 
 sub getEngineName {
-   my $self = shift; 
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getEngineName",1);
    return $self->{_enginename};
 }
 
 
 # Procedure getUsername
-# parameters: 
+# parameters:
 # Return username
 
 sub getUsername {
-   my $self = shift; 
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getUsername",1);
    return $self->{_user};
 }
 
 # Procedure getApi
-# parameters: 
+# parameters:
 # Return api version
 
 sub getApi {
-   my $self = shift; 
+   my $self = shift;
    logger($self->{_debug}, "Entering Engine::getApi",1);
    return $self->{_api};
 }
 
 # Procedure dlpx_connect
-# parameters: 
+# parameters:
 # - engine - name of engine
 # return 0 if OK, 1 if failed
 
@@ -357,7 +357,7 @@ sub dlpx_connect {
    if (! defined($engine_config) ) {
       print "Can't find $engine in config file.\n";
       return 1;
-   } 
+   }
 
 
    my $cookie_dir = File::Spec->tmpdir();
@@ -382,10 +382,10 @@ sub dlpx_connect {
    $self->{_host} = $engine_config->{ip_address};
    $self->{_user} = $engine_config->{username};
    $self->{_password} = $engine_config->{password};
-   $self->{_port} = $engine_config->{port};   
+   $self->{_port} = $engine_config->{port};
    $self->{_protocol} = $engine_config->{protocol};
    $self->{_enginename} = $engine;
-   
+
    undef $self->{timezone};
 
    logger($self->{_debug},"connecting to: $engine ( IP/name : " . $self->{_host} . " )");
@@ -417,18 +417,18 @@ sub dlpx_connect {
                return 1;
             }
          } else {
-            # use an Engine API 
+            # use an Engine API
             $self->session('1.3.0');
             my $operation = "resources/json/delphix/about";
             my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
             if ($result->{status} eq "OK") {
-               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor} 
+               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
                               . "." . $result->{result}->{apiVersion}->{micro};
                $self->{_api} = $ses_version;
             } else {
                logger($self->{_debug}, "Can't determine Delphix API version" );
                return 1;
-            } 
+            }
 
          }
 
@@ -439,9 +439,9 @@ sub dlpx_connect {
             $rc = 1;
          }
          else {
-           
+
            if ($self->{_password} eq '') {
-             # if no password provided and there is no open session 
+             # if no password provided and there is no open session
              $self->{_password} = $self->read_password();
            }
            if ( $self->login() ) {
@@ -455,8 +455,8 @@ sub dlpx_connect {
            }
          }
    } else {
-      logger($self->{_debug}, "Session exists.");  
-      $self->{_api} = $ses_version; 
+      logger($self->{_debug}, "Session exists.");
+      $self->{_api} = $ses_version;
       $rc = 0;
    }
 
@@ -477,7 +477,7 @@ sub session {
    my $major;
    my $minor;
    my $micro;
-   
+
    if (defined($version)) {
          ($major,$minor,$micro) = split(/\./,$version);
    }
@@ -487,7 +487,7 @@ sub session {
          $micro = 0;
    }
 
-   my %mysession =   
+   my %mysession =
    (
       "session" => {
          "type" => "APISession",
@@ -497,7 +497,7 @@ sub session {
             "minor" => $minor + 0,
             "micro" => $micro + 0
          }
-      } 
+      }
    );
 
    logger($self->{_debug}, "API Version: $major\.$minor");
@@ -530,11 +530,11 @@ sub getSession {
 
    my $ret;
    my $ver_api;
-   
+
    if ($retcode || ($result->{status} eq 'ERROR') ) {
       $ret = 1 + $retcode;
    } else {
-      $ver_api = $result->{result}->{version}->{major} . "." . $result->{result}->{version}->{minor} . 
+      $ver_api = $result->{result}->{version}->{major} . "." . $result->{result}->{version}->{minor} .
                  "." . $result->{result}->{version}->{micro};
       $ret = 0;
    }
@@ -558,7 +558,7 @@ sub login {
    my $result;
    logger($self->{_debug}, "Entering Engine::login",1);
 
-   my %mylogin = 
+   my %mylogin =
    (
       "user" => {
          "type" => "LoginRequest",
@@ -635,7 +635,7 @@ sub getTimezone {
          $self->{timezone} = $timezone;
       } else {
          $timezone = 'N/A';
-      } 
+      }
    }
 
    return $timezone;
@@ -644,7 +644,7 @@ sub getTimezone {
 
 
 # Procedure getTime
-# parameters: 
+# parameters:
 # - minus - date current date minus minus minutes
 # return timezone of Delphix engine
 
@@ -662,14 +662,14 @@ sub getTime {
       $time =~ s/\s[A-Z]{1,3}$//;
 
       if (defined($minus)) {
-         
+
          $time = DateCalc(ParseDate($time), ParseDateDelta('- ' . $minus . ' minutes'));
 
       }
 
    } else {
       $time = 'N/A';
-   } 
+   }
 
    return $time;
 
@@ -678,7 +678,7 @@ sub getTime {
 
 
 # Procedure checkSSHconnectivity
-# parameters: 
+# parameters:
 # - minus - date current date minus minus minutes
 # return timezone of Delphix engine
 
@@ -718,7 +718,7 @@ sub checkSSHconnectivity {
 }
 
 # Procedure checkConnectorconnectivity
-# parameters: 
+# parameters:
 # - minus - date current date minus minus minutes
 # return timezone of Delphix engine
 
@@ -758,7 +758,7 @@ sub checkConnectorconnectivity {
 }
 
 # Procedure checkJDBCconnectivity
-# parameters: 
+# parameters:
 # username
 # password
 # jdbc string
@@ -798,10 +798,10 @@ sub checkJDBCconnectivity {
 
 
 # Procedure getJSONResult
-# parameters: 
+# parameters:
 # - operation - API url
 # Send GET request to Delphix engine with url defined in operation parameter
-# return 
+# return
 # - response
 # - pretty formated response
 # - rc - 0 if OK, 1 if failed
@@ -819,7 +819,7 @@ sub getJSONResult {
 
    my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
    my $api_url = "$url/$operation";
-  
+
 
    logger($self->{_debug}, "GET: $api_url");
 
@@ -827,7 +827,7 @@ sub getJSONResult {
    $request->content_type("application/json");
 
    my $response = $self->{_ua}->request($request);
-   
+
    if ( $response->is_success ) {
       $decoded_response = $response->decoded_content;
       $result = decode_json($decoded_response);
@@ -850,7 +850,7 @@ sub getJSONResult {
                   mkdir $md or die("Can't create directory for debug " . $md);
                }
             }
-            
+
          }
          my $filename = $tempname . ".json";
          $filename =~ s|\?|_|;
@@ -876,7 +876,7 @@ sub getJSONResult {
 
 
 # Procedure generateSupportBundle
-# parameters: 
+# parameters:
 # - file
 # Generate a support bundle
 
@@ -887,14 +887,21 @@ sub generateSupportBundle {
    logger($self->{_debug}, "Entering Engine::generateSupportBundle",1);
    my $timeout =    $self->{_ua}->timeout();
    $self->{_ua}->timeout(60*60*24);
-   
+
   #  === POST /resources/json/delphix/service/support/bundle/upload ===
   #  {
   #      "type": "SupportBundleUploadParameters",
   #      "includeAnalyticsData": true,
   #      "caseNumber": 666666
   #  }
-      
+
+
+  # my %bundle_hash = (
+  #   "type" => "SupportBundleGenerateParameters",
+  #   "bundleType" => "MASKING"
+  # );
+  #
+  # my $json = to_json(\%bundle_hash);
 
    my $operation = "resources/json/delphix/service/support/bundle/generate";
    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation,'{}');
@@ -908,12 +915,12 @@ sub generateSupportBundle {
    } else {
       $token = $result->{result};
       logger($self->{_debug}, 'token ' . $token, 2);
-      
+
       my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port} . '/resources/json/delphix/data/download?token='. $token;
       logger($self->{_debug}, $url , 2);
-         
-      my $response = $self->{_ua}->get($url, ':content_file' => $file);   
-      
+
+      my $response = $self->{_ua}->get($url, ':content_file' => $file);
+
       if ($response->is_success) {
          $ret = 0;
       } else {
@@ -921,13 +928,13 @@ sub generateSupportBundle {
          $ret = 1;
       }
    }
-                               
-   $self->{_ua}->timeout($timeout);                             
+
+   $self->{_ua}->timeout($timeout);
    return $ret;
 }
 
 # Procedure uploadSupportBundle
-# parameters: 
+# parameters:
 # - caseNumber
 # Upload a support bundle
 
@@ -937,11 +944,11 @@ sub uploadSupportBundle {
 
    logger($self->{_debug}, "Entering Engine::uploadSupportBundle",1);
 
-   
+
    my %case_hash = (
        "type" => "SupportBundleUploadParameters"
    );
-   
+
    if (defined($caseNumber)) {
       $case_hash{caseNumber} = 0 + $caseNumber;
    }
@@ -961,18 +968,18 @@ sub uploadSupportBundle {
       $ret = $result->{job};
       logger($self->{_debug}, 'jobno ' . $ret, 2);
    }
-                                                         
+
    return $ret;
 }
 
 
 # Procedure postJSONData
-# parameters: 
+# parameters:
 # - operation - API url
 # - post_data - json data to send
 # Send POST request to Delphix engine with url defined in operation parameter
 # and data defined in post_data
-# return 
+# return
 # - response
 # - pretty formated response
 # - rc - 0 if OK, 1 if failed
@@ -1000,7 +1007,7 @@ sub postJSONData {
       $request->content($post_data);
    }
 
-   logger($self->{_debug}, $post_data, 1);   
+   logger($self->{_debug}, $post_data, 1);
 
    my $response = $self->{_ua}->request($request);
 
@@ -1016,7 +1023,7 @@ sub postJSONData {
       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
       $retcode = 1;
    }
-   
+
    if (defined($self->{_debug}) && ( $self->{_debug} eq 3) ) {
       my $enginename = $self->getEngineName();
       my $debug_dir = "debug_" . $enginename;
@@ -1036,9 +1043,9 @@ sub postJSONData {
                mkdir $md or die("Can't create directory for debug " . $md);
             }
          }
-         
+
       }
-      
+
       if (defined($self->{_debugfiles}) && defined($self->{_debugfiles}->{$tempname})) {
         $self->{_debugfiles}->{$tempname} = $self->{_debugfiles}->{$tempname} + 1;
       } else {
@@ -1046,9 +1053,9 @@ sub postJSONData {
         $self->{_debugfiles} = \%debug_hash;
         $self->{_debugfiles}->{$tempname} = 1;
       }
-      
+
       #print Dumper $tempname . " " . $self->{_debugfiles}->{$tempname};
-      
+
       my $filename = $tempname . ".json." . $self->{_debugfiles}->{$tempname};
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
@@ -1057,7 +1064,7 @@ sub postJSONData {
       open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
       print $fh to_json($result, {pretty=>1});
       close $fh;
-      
+
       $filename = $tempname . ".json.req." . $self->{_debugfiles}->{$tempname};
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
@@ -1065,8 +1072,8 @@ sub postJSONData {
       #print Dumper $filename;
       open ($fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
       print $fh $post_data;
-      close $fh;    
-      
+      close $fh;
+
    }
 
    return ($result,$result_fmt, $retcode);

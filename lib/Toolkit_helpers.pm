@@ -253,6 +253,7 @@ sub get_dblist_from_filter {
 	my $primary = shift;
 	my $instance = shift;
 	my $instancename = shift;
+	my $creation_time = shift;
 	my $debug = shift;
 
 	my @db_list;
@@ -334,6 +335,16 @@ sub get_dblist_from_filter {
   		logger($debug, "list of DB after group filter" ,1);
   		logger($debug, join(",", @{$ret}) ,1);
 	 }
+
+	 if ( defined($creation_time) ) {
+ 	    # get all DB of older than
+ 	    my @creationfilter =  ( $databases->getDBByCreationTime($creation_time) );
+ 		  logger($debug, "list of DB in creation_time" ,1);
+     	logger($debug, join(",", @creationfilter) ,1);
+ 	    $ret = filter_array($ret, \@creationfilter);
+   		logger($debug, "list of DB after creation filter" ,1);
+   		logger($debug, join(",", @{$ret}) ,1);
+ 	 }
 
 	 if ( defined($dbname) ) {
 	 		my @namefilter;

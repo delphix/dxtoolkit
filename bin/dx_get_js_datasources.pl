@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,12 +43,12 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'template_name=s' => \(my $template_name),
   'datasource_name=s' => \(my $datasource_name),
   'dbname=s' => \(my $dbname),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'group=s' => \(my $group),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -59,7 +59,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -73,13 +73,13 @@ if (defined($all) && defined($dx_host)) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
 
 $output->addHeader(
     {'Appliance',         20},
-    {'Datasource name',   20}, 
+    {'Datasource name',   20},
     {'Template name',     30},
     {'Database name',     50},
 );
@@ -97,12 +97,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
   my $db = new Databases ( $engine_obj , $debug);
-  my $groups = new Group_obj($engine_obj, $debug); 
+  my $groups = new Group_obj($engine_obj, $debug);
   my $db_obj;
   my $template_obj;
 
   if (defined($dbname)) {
-    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef, undef, undef, undef, $debug);
+    my $db_list = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dbname, $db, $groups, undef, undef, undef, undef, undef, undef, $debug);
 
     if (! defined($db_list)) {
       print "There is no DB selected to process on $engine . Please check filter definitions. \n";
@@ -171,8 +171,8 @@ __DATA__
  dx_get_js_datasource    [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name]
                          [-datasource_name datasource_name]
                          [-dbname dbname]
-                         [-group group] 
-                         [-format csv|json ]  
+                         [-group group]
+                         [-format csv|json ]
                          [-help|? ] [ -debug ]
 
 
@@ -223,11 +223,11 @@ Display data sources for database name dbname and group groupname
 
 =over 3
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -251,6 +251,3 @@ List of data sources for database called Oracle dsource
 
 
 =cut
-
-
-

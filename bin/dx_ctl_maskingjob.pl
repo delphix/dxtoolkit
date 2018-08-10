@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,9 +12,9 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_ctl_maskingjob.pl
-# Description  : Control masking jobs 
+# Description  : Control masking jobs
 # Author       : Marcin Przepiorowski
 # Created      : 23 December 2016 (v2.3.0)
 #
@@ -40,17 +40,17 @@ use Databases;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name|n=s' => \(my $name), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name|n=s' => \(my $name),
   'dbname=s' => \(my $dbname),
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
   'envname=s' => \(my $envname),
   'action=s' => \(my $action),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -60,7 +60,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -73,7 +73,7 @@ if (defined($all) && defined($dx_host)) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -92,14 +92,14 @@ for my $engine ( sort (@{$engine_list}) ) {
     $ret = $ret + 1;
     next;
   }
-  
+
   if (lc $action eq 'assign') {
-  
+
     my $databases = new Databases ( $engine_obj, $debug );
-    my $groups = new Group_obj($engine_obj, $debug); 
+    my $groups = new Group_obj($engine_obj, $debug);
     my $maskingjob_list;
 
-    my $dbobj = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, undef, undef, $debug);
+    my $dbobj = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, undef, undef, undef, $debug);
 
     if (!defined($dbobj)) {
       print "Database not found\n";
@@ -114,7 +114,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     my $dbref = ($databases->getDB($dbobj->[-1]))->getReference();
-    
+
     if ($maskingjob_obj->setAssociatedContainer($maskingjob, $dbref)) {
       print "Problem with assigning masking job $name to $dbname\n";
       $ret = $ret + 1;
@@ -142,12 +142,12 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_maskingjob  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                    -name maskingjo_name 
+                    -name maskingjo_name
                     -action assign|unassign
-                    [ -group group_name | -dbname db_name | -host host_name | -type dsource|vdb ]  
-                    [ -help|? ] 
-                    [ -debug ] 
-                    
+                    [ -group group_name | -dbname db_name | -host host_name | -type dsource|vdb ]
+                    [ -help|? ]
+                    [ -debug ]
+
 =head1 DESCRIPTION
 
 Control a masking jobs on virtualization engine
@@ -209,7 +209,7 @@ Environment name
 
 =over 3
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -223,7 +223,7 @@ Assign job "JOB2" to database autoprov
 
  dx_ctl_maskingjob -d Delphix32 -name JOB2 -dbname "autoprov" -action assign
  Masking job JOB2 assigned to database autoprov
- 
+
 Unassign job "JOB2" from database
 
  dx_ctl_maskingjob -d Delphix32 -name JOB2 -action unassign
@@ -234,6 +234,3 @@ Unassign job "JOB2" from database
 
 
 =cut
-
-
-

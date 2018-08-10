@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,8 +48,8 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'container_name=s' => \(my $container_name),
   'template_name=s' => \(my $template_name),
   'container_def=s@' => \(my $container_def),
@@ -67,7 +67,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -82,21 +82,21 @@ if (defined($all) && defined($dx_host)) {
 
 
 
-if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' ) 
+if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' )
     || (lc $action eq 'create' ) || (lc $action eq 'delete' ) ) ) ) {
   print "Action parameter not specified or has a wrong value - $action \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 if (!defined($container_name)) {
   print "Container name is required \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -106,8 +106,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
     next;
   };
-  
-  
+
+
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
 
   my $template_ref;
@@ -123,15 +123,15 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $jobno;
   my $jscontainers = new JS_container_obj ( $engine_obj, $template_ref, $debug);
-  
-  if ((lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' ) 
+
+  if ((lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' )
       || (lc $action eq 'delete' )) {
     my $jscontainer_ref = $jscontainers->getJSContainerByName($container_name);
     if (! defined($jscontainer_ref)) {
       print "Can't find container name $container_name\n";
       next;
     }
-    
+
     if (lc $action eq 'reset') {
       $jobno = $jscontainers->resetContainer($jscontainer_ref);
     } elsif (lc $action eq 'refresh') {
@@ -145,7 +145,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
         my $branch_obj = new JS_branch_obj ( $engine_obj, $template_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('master');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);        
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);
       } else {
         my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('default');
@@ -155,26 +155,26 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (!defined($dropvdb) || ( ! ( ( lc $dropvdb eq 'yes' ) || (lc $dropvdb eq 'no' ) ) ) ) {
         print "dropvdb parameter has to be set to yes or no \n";
         pod2usage(-verbose => 1,  -input=>\*DATA);
-        exit (1); 
+        exit (1);
       }
       $jobno = $jscontainers->deleteContainer($jscontainer_ref, $dropvdb);
     }
   }
-  
-  
+
+
   if (lc $action eq 'create') {
     if (!defined($container_def)) {
       print "Container definition parameter -container_def is required to create container \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);  
+      exit (1);
     }
-    
+
     if (!defined($template_name)) {
       print "Template name has to be defined to create container \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);     
+      exit (1);
     }
-    
+
     my @contowner_array;
     if (defined($container_owners)) {
       my $users = new Users ( $engine_obj, $debug );
@@ -193,38 +193,38 @@ for my $engine ( sort (@{$engine_list}) ) {
         next;
       }
     }
-    
-    
+
+
     # find a source definition from template matching a VDB provided
     my $jsdatasources = new JS_datasource_obj ( $engine_obj, $template_ref, undef, $debug );
     my $databases = new Databases($engine_obj, $debug);
     my $groups = new Group_obj($engine_obj, $debug);
-    
+
     my @cont_array;
 
-    
+
     my %dupVDBprotection;
-    
+
     for my $coitem ( @{$container_def} ) {
-            
+
       my @single_cont = split(',', $coitem);
       if (scalar(@single_cont) ne 2) {
         print "container_def required a 2 comma separated values - group name, database name\n";
         pod2usage(-verbose => 1,  -input=>\*DATA);
-        exit (1);  
+        exit (1);
       }
-      
+
       if (defined($dupVDBprotection{$single_cont[0].$single_cont[1]})) {
         print "VDB $single_cont[0]/$single_cont[1] is already used in other container definition. Exiting\n";
         exit(1);
       } else {
         $dupVDBprotection{$single_cont[0].$single_cont[1]} = 1;
       }
-      
+
       for my $ds ( @{$jsdatasources->getJSDataSourceList()} ) {
         my $dsource = $jsdatasources->getJSDBContainer($ds);
-        my $vdb_ref = Toolkit_helpers::get_dblist_from_filter(undef, $single_cont[0], undef, $single_cont[1], $databases, $groups, undef, undef, undef, undef, undef, undef);
-        
+        my $vdb_ref = Toolkit_helpers::get_dblist_from_filter(undef, $single_cont[0], undef, $single_cont[1], $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+
         if ((!defined($vdb_ref)) || (scalar(@{$vdb_ref}) < 1)) {
           print "VDB $single_cont[0]/$single_cont[1] not found \n";
           exit(1)
@@ -243,10 +243,10 @@ for my $engine ( sort (@{$engine_list}) ) {
             "vdb_ref" => $vdb_ref->[0]
           );
           push(@cont_array, \%con);
-        }  
-        
+        }
+
       }
-          
+
     }
 
     if (scalar(@cont_array) ne scalar(@{$container_def})) {
@@ -258,7 +258,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Template definition contain more sources than VDBs provided.Exiting\n";
       exit(1);
     }
-    
+
     $jobno = $jscontainers->createContainer($container_name, $template_ref, \@cont_array, \@contowner_array, $dontrefresh);
 
   }
@@ -291,10 +291,10 @@ __DATA__
 
  dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                         -action reset|refresh|restore|create
-                        -container_name container_name 
+                        -container_name container_name
                         [-container_def GroupName,VDBName]
                         [-container_owner username]
-                        [-template_name template_name]  
+                        [-template_name template_name]
                         [-timestamp timestamp]
                         [-dropvdb yes|no]
                         [-dontrefresh]
@@ -328,9 +328,9 @@ Run a action on the container
 
 =over 3
 
-=item B<-create> - create JS container 
+=item B<-create> - create JS container
 
-=item B<-delete> - create JS container 
+=item B<-delete> - create JS container
 
 =item B<-reset> - reset JS container to latest point
 
@@ -344,7 +344,7 @@ and fromtemplate flag is required.
 =back
 
 =item B<-container_name container_name>
-Name of container to run action on 
+Name of container to run action on
 
 =item B<-template_name template_name>
 Name of container's templates
@@ -363,7 +363,7 @@ This parameter can be repeated if more than one VDB is required.
 Specify a container owner
 This parameter can be repeated if more than one owner is required.
 
-=item B<-timestamp "YYYY-MM-DD HH24:MI:SS" or bookmark name >                                                                                                                                            
+=item B<-timestamp "YYYY-MM-DD HH24:MI:SS" or bookmark name >
 Use timestamp or bookmark name to restore container
 
 =item B<-dropvdb yes|no>
@@ -375,7 +375,7 @@ Use template timeline for container restore
 =item B<<-dontrefresh>
 Don't refresh VDB while creating container (req. Delphix Enigne >= 5.1.6)
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -390,25 +390,25 @@ Reset of the container
 
  dx_ctl_js_container -d Landshark5 -container_name cont -action reset
  Starting job JOB-5043 for container cont.
- 0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 76 - 90 - 100 
+ 0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 76 - 90 - 100
  Job JOB-5043 finished with state: COMPLETED
- 
- 
+
+
 Refresh of the container from latest point in time in source
- 
+
  dx_ctl_js_container -d Landshark5 -container_name cont -action refresh
  Starting job JOB-5050 for container cont.
- 0 - 3 - 4 - 12 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 70 - 77 - 83 - 100 
+ 0 - 3 - 4 - 12 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 70 - 77 - 83 - 100
  Job JOB-5050 finished with state: COMPLETED
 
-Restore of the cointainer to a bookmark "fixeddate" 
+Restore of the cointainer to a bookmark "fixeddate"
 
  dx_ctl_js_container -d Landshark5 -container_name cont1 -action restore -timestamp fixeddate
  Starting job JOB-7637 for container cont1.
  0 - 3 - 4 - 23 - 26 - 29 - 30 - 34 - 45 - 47 - 52 - 54 - 57 - 58 - 59 - 60 - 61 - 68 - 77 - 82 - 100
  Job JOB-7637 finished with state: COMPLETED
 
-Restore if the container from template timeline 
+Restore if the container from template timeline
 
  dx_ctl_js_container -d Landshark51 -action restore -template_name template2 -container_name cont2 -timestamp "2017-04-15 12:00:00" -fromtemplate
  Starting job JOB-2356 for container cont2.
@@ -421,7 +421,7 @@ Create a new container based on template with 2 sources
  Starting job JOB-2411 for container cont2.
  0 - 2 - 3 - 13 - 24 - 26 - 27 - 48 - 52 - 53 - 66 - 67 - 68 - 75 - 81 - 100
  Job JOB-2411 finished with state: COMPLETED
- 
+
 Delete a container cont2 without dropping a VDB
 
  dx_ctl_js_container -d Landshark51 -action delete -container_name cont2 -dropvdb no
@@ -430,6 +430,3 @@ Delete a container cont2 without dropping a VDB
  Job JOB-2434 finished with state: COMPLETED
 
 =cut
-
-
-

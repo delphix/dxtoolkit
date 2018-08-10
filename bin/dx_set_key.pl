@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,7 +12,7 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_set_key.pl
 # Description  : Set key for dSource
 # Author       : Marcin Przepiorowski
@@ -44,14 +44,14 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'key=s' => \(my $password),
-  'name=s' => \(my $dbname), 
-  'group=s' => \(my $group), 
+  'name=s' => \(my $dbname),
+  'group=s' => \(my $group),
   'host=s' => \(my $host),
   'envname=s' => \(my $envname),
-  'debug:n' => \(my $debug), 
+  'debug:n' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -61,7 +61,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -87,7 +87,7 @@ my $ret = 0;
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 
@@ -100,11 +100,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
+  my $groups = new Group_obj($engine_obj, $debug);
 
-  # filter implementation 
+  # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter('dSource', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter('dSource', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -131,8 +131,8 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_set_key  [ -engine|d <delphix identifier> | -all ] [ -configfile file ] 
-               -group group_name | -name db_name | -host host_name   
+ dx_set_key  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+               -group group_name | -name db_name | -host host_name
                <-key password>
 
  [-help] [-debug]
@@ -161,7 +161,7 @@ A config file search order is as follow:
 - dxtools.conf from dxtoolkit location
 
 =item B<-key password>
-Specify an encryption password 
+Specify an encryption password
 
 =back
 
@@ -188,7 +188,7 @@ Host Name
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -202,8 +202,8 @@ Set backup encryption key for database "Sybase dsource"
 
  dx_set_key -d Landshark51 -name "Sybase dsource" -key "SecurePassword"
  Encryption key for database Sybase dsource set with success.
- 
- 
+
+
 Remove backup encryption key from database "Sybase dsource"
 
   dx_set_key -d Landshark51 -name "Sybase dsource" -key ""
@@ -211,6 +211,3 @@ Remove backup encryption key from database "Sybase dsource"
 
 
 =cut
-
-
-

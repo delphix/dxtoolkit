@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 # Created      : 30 Jan 2014 (v1.0.0)
 #
 # Modified     : 14 Mar 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use warnings;
 use strict;
@@ -44,18 +44,18 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name=s' => \(my $dbname), 
-  'format=s' => \(my $format), 
-  'type=s' => \(my $type), 
-  'group=s' => \(my $group), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name=s' => \(my $dbname),
+  'format=s' => \(my $format),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
   'dsource=s' => \(my $dsource),
   'host=s' => \(my $host),
   'sortby=s' => \(my $sortby),
   'forcerefresh' => \(my $forcerefresh),
   'dbdetails'   => \(my $dbdetails),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'details:s' => \(my $details),
   'dever=s' => \(my $dever),
   'unvirt'    => \(my $unvirt),
@@ -66,7 +66,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -94,7 +94,7 @@ if (defined($sortby) && ( ! ( (uc $sortby eq 'SIZE') ) ) ) {
 Toolkit_helpers::check_filer_options (undef,$type, $group, $host, $dbname);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -112,12 +112,12 @@ if (defined($details)) {
   if (lc $details eq 'all') {
     push (@header_array, {'Snapshots',35});
     push (@header_array, {'Size [GB]',10});
-  } 
+  }
 } else {
   if (defined($unvirt)) {
     push (@header_array, {'Unvirt [GB]',11});
-  } 
-    
+  }
+
   if (defined($dbdetails)) {
     push (@header_array, {'Environment name', 30});
     push (@header_array, {'Parent', 30});
@@ -146,13 +146,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # load objects for current engine
   my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);  
-  
+  my $groups = new Group_obj($engine_obj, $debug);
+
   $capacity->LoadDatabases();
 
-  # filter implementation 
+  # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -163,8 +163,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
     my $capacity_hash = $capacity->getDetailedDBUsage($dbitem, $details);
-    
-    
+
+
 
     if (defined($details) && ($details eq '')) {
       $output->addLine(
@@ -291,8 +291,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       );
       if (defined($unvirt)) {
         push(@linearray, sprintf("%10.2f", $capacity_hash->{unvirtualized}));
-      } 
-        
+      }
+
       if (defined($dbdetails)) {
           my $parentName;
           if ($dbobj->getType() eq 'VDB') {
@@ -304,18 +304,18 @@ for my $engine ( sort (@{$engine_list}) ) {
             $parentName = 'N/A - dSource';
           }
           push(@linearray, $dbobj->getEnvironmentName());
-          push(@linearray, $parentName);             
-      } 
+          push(@linearray, $parentName);
+      }
       $output->addLine(@linearray);
-      
+
     }
 
   }
 
  my $held_hash = $capacity->getDetailedDBUsage("Heldspace", undef);
- 
+
  if ($held_hash->{totalsize} ne 0) {
-   
+
    my @printarray = (
      $engine,
      $held_hash->{group_name},
@@ -323,17 +323,17 @@ for my $engine ( sort (@{$engine_list}) ) {
      "N/A",
      sprintf("%10.2f", $held_hash->{totalsize})
    );
-   
+
    # make sure all columns for detail view are filled with ''
    if (($output->getHeaderSize() - scalar(@printarray)) gt 0) {
      push @printarray, ('') x ($output->getHeaderSize() - scalar(@printarray)) ;
    }
-   
+
    $output->addLine(
     @printarray
-   );   
+   );
  }
-  
+
 
 
 }
@@ -341,7 +341,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 if ( (! defined($details) ) && defined($sortby) ) {
   if (uc $sortby eq 'SIZE') {
     $output->sortbynumcolumn(4);
-  } 
+  }
 }
 
 Toolkit_helpers::print_output($output, $format, $nohead);
@@ -353,13 +353,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_capacity    [-engine|d <delphix identifier> | -all ] 
-                    [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ] 
-                    [-details [all]] 
+ dx_get_capacity    [-engine|d <delphix identifier> | -all ]
+                    [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ]
+                    [-details [all]]
                     [-sortby size ]
-                    [-format csv|json ] 
-                    [-unvirt] 
-                    [-help|? ] 
+                    [-format csv|json ]
+                    [-unvirt]
+                    [-help|? ]
                     [-debug ]
 
 =head1 DESCRIPTION
@@ -426,13 +426,13 @@ By default ourput is sorted by group name and db name
 Display a information about unvirtualized size of object - can't be mixed with -details flag
 
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
 
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -468,7 +468,7 @@ Display a size of databases on Delphix Engine
  Landshark5                     Sources              test_src                       NO        0.00
  Landshark5                     Test                 vFiles                         NO        0.00
 
-Display a size of databases from group Analytics with details 
+Display a size of databases from group Analytics with details
 
  dx_get_capacity -d Landshark5 -details -group Analytics
 
@@ -482,7 +482,7 @@ Display a size of databases from group Analytics with details
                                                                                                    Current copy               0.02
                                                                                                    DB Logs                    0.00
                                                                                                    Snapshots total            0.00
- Landshark5                     Analytics            test                           NO        0.01 
+ Landshark5                     Analytics            test                           NO        0.01
                                                                                                    Current copy               0.01
                                                                                                    DB Logs                    0.00
                                                                                                    Snapshots total            0.00
@@ -510,6 +510,3 @@ Display a size of database name cont1 with snapshot details
                                                                                                                                    Snapshot 2016-10-25T07:58:04.423Z         0.00
 
 =cut
-
-
-
