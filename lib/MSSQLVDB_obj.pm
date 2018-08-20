@@ -386,6 +386,7 @@ sub addSource {
     my $dumppwd = shift;
     my $validatedSyncMode = shift;
     my $delphixmanaged = shift;
+    my $compression = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::addSource",1);
 
@@ -539,7 +540,8 @@ sub addSource {
       }
 
 
-    } else {
+    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+        # for engine before 5.2.5
         %dsource_params = (
           "type" => "LinkParameters",
           "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -592,6 +594,71 @@ sub addSource {
             $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
           }
 
+
+    } else {
+      ### for 5.2.5
+
+      my @backup_loc;
+
+      print Dumper $backup_dir;
+
+      if (defined($backup_dir)) {
+
+        @backup_loc = split(',', $backup_dir);
+
+        #push(@backup_loc, $backup_dir);
+      }
+
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "MSSqlLinkData",
+            "config" => $config->{reference},
+            "sourcingPolicy" => {
+                "type" => "SourcingPolicy",
+                "logsyncEnabled" => $logsync_param
+            },
+            "dbCredentials" => {
+                "type" => "PasswordCredential",
+                "password" => $password
+            },
+            "dbUser" => $dbuser,
+            "environmentUser" => $source_os_ref,
+            "sharedBackupLocations" => \@backup_loc,
+            "sourceHostUser" => $source_os_ref,
+            "pptHostUser" => $stage_osuser_ref,
+            "pptRepository"=> $stagingrepo
+          }
+        );
+
+
+
+        if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+          my $compression_json = JSON::false;
+
+          if (lc $compression eq "yes") {
+            $compression_json = JSON::true;
+          }
+          $dsource_params{"linkData"}{"ingestionStrategy"}{"type"} = "DelphixManagedBackupIngestionStrategy";
+          $dsource_params{"linkData"}{"ingestionStrategy"}{"compressionEnabled"} = $compression_json;
+          $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNewCopyOnlyFullBackupSyncParameters";
+          $dsource_params{"linkData"}{"syncParameters"}{"compressionEnabled"} = $compression_json;
+        } else {
+
+          if (defined($validatedSyncMode)) {
+            $dsource_params{"linkData"}{"ingestionStrategy"}{"type"} = "ExternalBackupIngestionStrategy";
+            $dsource_params{"linkData"}{"ingestionStrategy"}{"validatedSyncMode"} = $vsm;
+          } else {
+            $dsource_params{"linkData"}{"ingestionStrategy"}{"type"} = "NoBackupIngestionStrategy"
+          }
+          $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlExistingMostRecentBackupSyncParameters";
+        }
+
+        if (defined($dumppwd)) {
+          $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
+        }
 
     }
 
@@ -766,8 +833,14 @@ sub getBackupPath {
     my $self = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getBackupPath",1);
-    return $self->{source}->{sharedBackupLocation};
+    my $ret;
 
+    if ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+      $ret = $self->{source}->{sharedBackupLocation};
+    } else {
+      $ret = join(',' ,@{$self->{source}->{sharedBackupLocations}});
+    }
+    return $ret;
 }
 
 # Procedure setRecoveryModel
@@ -808,10 +881,19 @@ sub getValidatedMode {
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedMode",1);
     my $ret;
-    if (defined($self->{source}->{validatedSyncMode})) {
-      $ret = $self->{source}->{validatedSyncMode};
+
+    if ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+      if (defined($self->{source}->{validatedSyncMode})) {
+        $ret = $self->{source}->{validatedSyncMode};
+      } else {
+        $ret = 'N/A';
+      }
     } else {
-      $ret = 'N/A';
+      if (defined($self->{source}->{ingestionStrategy}) && ($self->{source}->{ingestionStrategy}->{"type"} eq "ExternalBackupIngestionStrategy")) {
+        $ret = $self->{source}->{ingestionStrategy}->{validatedSyncMode};
+      } else {
+        $ret = 'N/A';
+      }
     }
     return $ret;
 
@@ -831,13 +913,20 @@ sub getDelphixManaged {
       if (defined($self->{container}->{delphixManaged})) {
         $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
       }
-    } else {
-
+    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
       if (defined($self->{container}->{delphixManagedStatus})) {
         if ($self->{container}->{delphixManagedStatus} eq 'NOT_DELPHIX_MANAGED') {
           $ret = 'no';
         } else {
           $ret = 'yes';
+        }
+      }
+    } else {
+      if (defined($self->{source}->{ingestionStrategy})) {
+        if ($self->{source}->{ingestionStrategy}->{type} eq 'DelphixManagedBackupIngestionStrategy') {
+          $ret = 'yes';
+        } else {
+          $ret = 'no';
         }
       }
     }

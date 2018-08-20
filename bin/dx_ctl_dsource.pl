@@ -42,6 +42,7 @@ use FileMap;
 my $version = $Toolkit_helpers::version;
 
 my $logsync = "no";
+my $compression = "no";
 
 GetOptions(
   'help|?' => \(my $help),
@@ -68,6 +69,7 @@ GetOptions(
   'logsync=s' => \($logsync),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
+  'compression=s' => \($compression),
   'type=s' => \(my $type),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
@@ -248,7 +250,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
