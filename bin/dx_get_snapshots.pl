@@ -44,6 +44,7 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 my $timeloc = 't';
 my $timeflow = 'c';
+my $notime = 0;
 
 GetOptions(
   'help|?' => \(my $help),
@@ -62,6 +63,7 @@ GetOptions(
   'size:s'    => \(my $size),
   'debug:i' => \(my $debug),
   'details' => \(my $details),
+  'notime' => \($notime),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -281,17 +283,23 @@ sub snapshot_list {
     my $snapstart;
     my $snapstop;
 
-    if ($snapshots->isProvisionable($snapitem)) {
-      if ($timeloc eq 't') {
-        $snapstart = $snapshots->getStartPointwithzone($snapitem),
-        $snapstop = $snapshots->getEndPointwithzone($snapitem),
+    if ($notime eq 0) {
+
+      if ($snapshots->isProvisionable($snapitem)) {
+        if ($timeloc eq 't') {
+          $snapstart = $snapshots->getStartPointwithzone($snapitem),
+          $snapstop = $snapshots->getEndPointwithzone($snapitem),
+        } else {
+          $snapstart = $snapshots->getStartPointLocation($snapitem);
+          $snapstop = $snapshots->getEndPointLocation($snapitem);
+        }
       } else {
-        $snapstart = $snapshots->getStartPointLocation($snapitem);
-        $snapstop = $snapshots->getEndPointLocation($snapitem);
+        $snapstart = 'not provisionable';
+        $snapstop = 'not provisionable';
       }
     } else {
-      $snapstart = 'not provisionable';
-      $snapstop = 'not provisionable';
+      $snapstart = 'skipped';
+      $snapstop = 'skipped';
     }
 
     if (defined($details)) {
@@ -434,6 +442,7 @@ __DATA__
                      [ -endDate endDate]
                      [ -snapshotname snapshotname]
                      [ -format csv|json ]
+                     [ -notime ]
                      [ -help|? ] [ -debug ]
 
  dx_get_snapshots    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
@@ -510,6 +519,8 @@ To sort by size add asc or desc to -size option.
 Depended objects are displayed in the following format
 groupname/vdbname/timeflow status
 
+=item B<-notime>
+Don't check start and end time to all snapshots. Useful to check if there was snapshot done but we are not interested in provisioning times
 
 =item B<-timeloc t|l>
 Display snapshot range using a time stamps or location (ex. SCN)
