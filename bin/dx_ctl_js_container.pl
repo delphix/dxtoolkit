@@ -83,8 +83,9 @@ if (defined($all) && defined($dx_host)) {
 
 
 if (!defined($action) || ( ! ( (lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' )
-    || (lc $action eq 'create' ) || (lc $action eq 'delete' ) ) ) ) {
-  print "Action parameter not specified or has a wrong value - $action \n";
+    || (lc $action eq 'create' ) || (lc $action eq 'delete' ) || (lc $action eq 'enable' ) || (lc $action eq 'disable' )
+    || (lc $action eq 'addowner' ) || (lc $action eq 'deleteowner' ) ) ) ) {
+  print "Action parameter not specified or has a wrong value\n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -124,8 +125,11 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $jobno;
   my $jscontainers = new JS_container_obj ( $engine_obj, $template_ref, $debug);
 
+
+  # actions for existing container
   if ((lc $action eq 'reset' ) || (lc $action eq 'refresh' ) || (lc $action eq 'restore' )
-      || (lc $action eq 'delete' )) {
+      || (lc $action eq 'delete' ) || (lc $action eq 'enable' ) || (lc $action eq 'disable' )
+      || (lc $action eq 'addowner' ) || (lc $action eq 'deleteowner' ) ) {
     my $jscontainer_ref = $jscontainers->getJSContainerByName($container_name);
     if (! defined($jscontainer_ref)) {
       print "Can't find container name $container_name\n";
@@ -158,10 +162,58 @@ for my $engine ( sort (@{$engine_list}) ) {
         exit (1);
       }
       $jobno = $jscontainers->deleteContainer($jscontainer_ref, $dropvdb);
+    } elsif (lc $action eq 'enable') {
+      $jobno = $jscontainers->enableContainer($jscontainer_ref);
+    } elsif (lc $action eq 'disable') {
+      $jobno = $jscontainers->disableContainer($jscontainer_ref);
+    } elsif (lc $action eq 'addowner') {
+      if (!defined($container_owners)) {
+        print "Container_owner need to be defined\n";
+        $ret = $ret + 1;
+        next;
+      }
+      my $users = new Users ( $engine_obj, $debug );
+      my $userobj;
+      for my $cowner (@{$container_owners}) {
+          my $userobj = $users->getUserByName($cowner);
+          if (defined($userobj)) {
+            if (($userobj->isJS()) || ($userobj->isAdmin())) {
+              $jobno = $jscontainers->addOwner($jscontainer_ref, $userobj->getReference());
+              $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Owner $cowner added", "There were problems with adding owner");
+              undef $jobno;
+            }
+          } else {
+            print "Delphix User $cowner not found\n";
+            $ret = $ret + 1;
+          }
+      }
+
+    } elsif (lc $action eq 'deleteowner') {
+      if (!defined($container_owners)) {
+        print "Container_owner need to be defined\n";
+        $ret = $ret + 1;
+        next;
+      }
+      my $users = new Users ( $engine_obj, $debug );
+      my $userobj;
+      for my $cowner (@{$container_owners}) {
+          my $userobj = $users->getUserByName($cowner);
+          if (defined($userobj)) {
+            if (($userobj->isJS()) || ($userobj->isAdmin())) {
+              $jobno = $jscontainers->removeOwner($jscontainer_ref, $userobj->getReference());
+              $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Owner $cowner removed", "There were problems with removing owner");
+              undef $jobno;
+            }
+          } else {
+            print "Delphix User $cowner not found\n";
+            $ret = $ret + 1;
+          }
+      }
+
     }
   }
 
-
+  # create a new container only
   if (lc $action eq 'create') {
     if (!defined($container_def)) {
       print "Container definition parameter -container_def is required to create container \n";
@@ -263,19 +315,21 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   }
 
+  if ( ! ( (lc $action eq 'addowner' ) || (lc $action eq 'deleteowner' ) ) ) {
 
+    if (defined ($jobno) ) {
+      print "Starting job $jobno for container $container_name.\n";
+      my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
 
-  if (defined ($jobno) ) {
-    print "Starting job $jobno for container $container_name.\n";
-    my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
-
-    my $jobstat = $job->waitForJob();
-    if ($jobstat ne 'COMPLETED') {
+      my $jobstat = $job->waitForJob();
+      if ($jobstat ne 'COMPLETED') {
+        $ret = $ret + 1;
+      }
+    } else {
+      print "Job for container is not created. \n";
       $ret = $ret + 1;
     }
-  } else {
-    print "Job for container is not created. \n";
-    $ret = $ret + 1;
+
   }
 
 }
@@ -290,7 +344,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                        -action reset|refresh|restore|create
+                        -action reset|refresh|restore|create|addowner|deleteowner
                         -container_name container_name
                         [-container_def GroupName,VDBName]
                         [-container_owner username]
@@ -340,6 +394,10 @@ Run a action on the container
 Bookmark name can be from template or container timeline.
 If ones want to restore container from template's point in time - template_name
 and fromtemplate flag is required.
+
+=item B<-addowner> - Add owner to container
+
+=item B<-deleteowner> - Remove owner from container
 
 =back
 
@@ -428,5 +486,11 @@ Delete a container cont2 without dropping a VDB
  Starting job JOB-2434 for container cont2.
  0 - 100
  Job JOB-2434 finished with state: COMPLETED
+
+Adding owner to container
+
+ dx_ctl_js_container -d Landshark5 -action addowner -container_name test1 -container_owner js
+ Waiting for all actions to complete. Parent action is ACTION-16427
+ Owner js added
 
 =cut
