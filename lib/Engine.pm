@@ -558,14 +558,42 @@ sub login {
    my $result;
    logger($self->{_debug}, "Entering Engine::login",1);
 
-   my %mylogin =
-   (
-      "user" => {
-         "type" => "LoginRequest",
-         "username" => "$user",
-         "password" => "$password"
-      }
-   );
+   my $domain;
+   my %mylogin;
+
+   if (($domain) = $user =~ /(\w+)@(\w+)/) {
+     if (uc $2 eq "DOMAIN") {
+       $domain = "DOMAIN";
+       $user = $1;
+     } elsif (uc $2 eq "SYSTEM") {
+       $domain = "SYSTEM";
+       $user = $1;
+     } else {
+       print "User can have only target - DOMAIN or SYSTEM";
+       return 1;
+     }
+     %mylogin =
+     (
+        "user" => {
+           "type" => "LoginRequest",
+           "username" => "$user",
+           "password" => "$password",
+           "target" => $domain
+        }
+     );
+   } else {
+     #  keep this for backward compability of dxtools.conf file
+     #  if sysadmin is defined there we need to be able to login
+     %mylogin =
+     (
+        "user" => {
+           "type" => "LoginRequest",
+           "username" => "$user",
+           "password" => "$password"
+        }
+     );
+   }
+
 
    my $operation = "resources/json/delphix/login";
    my $json_data = encode_json($mylogin{'user'});
