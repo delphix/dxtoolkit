@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ use Toolkit_helpers qw (logger);
 
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -45,22 +45,24 @@ sub new {
     my %capacityGroups;
     my %databases;
     my %groups;
+    my @storage_containers;
     my $self = {
         _capacityGroups => \%capacityGroups,
         _databases => \%databases,
         _groups => \%groups,
         _dlpxObject => $dlpxObject,
+        _storagecontainers => \@storage_containers,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     return $self;
 }
 
 
 # Procedure LoadSnapshots
-# parameters: 
+# parameters:
 # - db reference
 # Return snapshot space information
 
@@ -69,35 +71,47 @@ sub LoadSnapshots {
   my $self = shift;
   my $db_ref = shift;
   my $all_snaps;
-  logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);    
+  logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);
   if ($self->{_dlpxObject}->getApi() lt '1.9') {
     $all_snaps = $self->LoadSnapshots_18($db_ref);
   } else {
     $all_snaps = $self->LoadSnapshots_19($db_ref);
   }
-  
+
   return $all_snaps;
 
 }
 
+# Procedure getStorageContainers
+# Return list of storage containers
+# held storage objects
+
+
+sub getStorageContainers {
+    my $self = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::getStorageContainers",1);
+    return $self->{_storagecontainers};
+}
+
+
 
 # Procedure getDetailedDBUsage
-# parameters: 
+# parameters:
 # - db reference
 # Return detailed usage of database as hash
 
 
 sub getDetailedDBUsage {
-    my $self = shift; 
+    my $self = shift;
     my $db_ref = shift;
     my $details = shift;
-    logger($self->{_debug}, "Entering Capacity_obj::getDetailedDBUsage",1);    
+    logger($self->{_debug}, "Entering Capacity_obj::getDetailedDBUsage",1);
 
     my %dbutil_hash;
 
     if (defined($self->{_databases}->{$db_ref}->{breakdown}->{actualSpace})) {
 
-        $dbutil_hash{totalsize} = $self->{_databases}->{$db_ref}->{breakdown}->{actualSpace}/1024/1024/1024; # whole db 
+        $dbutil_hash{totalsize} = $self->{_databases}->{$db_ref}->{breakdown}->{actualSpace}/1024/1024/1024; # whole db
         $dbutil_hash{currentcopy} = $self->{_databases}->{$db_ref}->{breakdown}->{activeSpace}/1024/1024/1024; # current size
 
         $dbutil_hash{dblogs} = $self->{_databases}->{$db_ref}->{breakdown}->{logSpace}/1024/1024/1024; # logs
@@ -114,7 +128,7 @@ sub getDetailedDBUsage {
 
         if (defined($details) && (lc $details eq 'all')) {
             my $all_snaps = $self->LoadSnapshots($db_ref);
-            
+
             for my $snapitem ( @{$all_snaps} ) {
                 $snapsum = $snapsum + $snapitem->{space};
             }
@@ -123,7 +137,7 @@ sub getDetailedDBUsage {
             $dbutil_hash{snapshots_shared} = $dbutil_hash{snapshots_total} - $snapsum;
             $dbutil_hash{snapshots_list} = $all_snaps;
 
-        }  
+        }
 
     } else {
         $dbutil_hash{totalsize} = 0;
@@ -142,15 +156,15 @@ sub getDetailedDBUsage {
 
 
 # Procedure getDatabaseUsage
-# parameters: 
+# parameters:
 # - reference
 # Return usage of database in GB
 
 
 sub getDatabaseUsage {
-    my $self = shift; 
+    my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Capacity_obj::getDatabaseUsage",1);    
+    logger($self->{_debug}, "Entering Capacity_obj::getDatabaseUsage",1);
     my $size;
     if (defined($self->{_databases}->{$reference}->{breakdown}->{actualSpace})) {
         $size = sprintf("%2.2f",$self->{_databases}->{$reference}->{breakdown}->{actualSpace}/1024/1024/1024);
@@ -166,8 +180,8 @@ sub getDatabaseUsage {
 
 
 sub forcerefesh {
-    my $self = shift; 
-    logger($self->{_debug}, "Entering Capacity_obj::forcerefesh",1);    
+    my $self = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::forcerefesh",1);
 
     my $ret;
 
@@ -182,8 +196,8 @@ sub forcerefesh {
         $jobno = $result->{job};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
-      }    
-      
+      }
+
       if (defined($jobno)) {
         $ret = Toolkit_helpers::waitForJob($self->{_dlpxObject}, $jobno, "Capacity data refreshed.");
       } else {
@@ -194,15 +208,15 @@ sub forcerefesh {
 }
 
 # Procedure LoadSnapshots_18
-# parameters: 
+# parameters:
 # - reference db
 # Return snapshot information for API < 1.9
 
 
 sub LoadSnapshots_18 {
-    my $self = shift; 
+    my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_18",1);    
+    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_18",1);
 
     my @snapshots_ret;
 
@@ -216,7 +230,7 @@ sub LoadSnapshots_18 {
 
         for my $snapitem (@res) {
             $snapshots{$snapitem->{snapshotTimestamp}} = $snapitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
@@ -224,7 +238,7 @@ sub LoadSnapshots_18 {
     $operation = "resources/json/delphix/snapshot/space";
 
     my %snapspace = (
-        "type" => "SnapshotSpaceParameters"  
+        "type" => "SnapshotSpaceParameters"
     );
 
     for my $snapitem ( sort ( keys %snapshots ) ) {
@@ -264,15 +278,15 @@ sub LoadSnapshots_18 {
 
 
 # Procedure LoadSnapshots_19
-# parameters: 
+# parameters:
 # - reference db
 # Return snapshot information for API >= 1.9
 
 
 sub LoadSnapshots_19 {
-    my $self = shift; 
+    my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_19",1);    
+    logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots_19",1);
 
     my @snapshots_ret;
 
@@ -287,7 +301,7 @@ sub LoadSnapshots_19 {
         for my $snapitem (@res) {
             $snapitem->{"space"} = $snapitem->{"space"}/1024/1024/1024;
             push (@snapshots_ret, $snapitem);
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
@@ -301,7 +315,7 @@ sub LoadSnapshots_19 {
 # parameters: none
 # Load a list of Capacity objects from Delphix Engine
 
-sub LoadDatabases 
+sub LoadDatabases
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Capacity_obj::LoadDatabases",1);
@@ -310,36 +324,38 @@ sub LoadDatabases
 
     my @res;
     my $databases;
+    my $storage_containers = $self->{_storagecontainers};
 
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
 
         @res = @{$result->{result}};
         $databases = $self->{_databases};
-    
 
         for my $dbitem (@res) {
           my $dbref = $dbitem->{container};
           if (defined($dbref)) {
             $databases->{$dbref} = $dbitem;
           } else {
-            $databases->{"Heldspace"} = $dbitem;
+            push(@{$storage_containers}, $dbitem->{storageContainer});
+            $databases->{$dbitem->{storageContainer}} = $dbitem;
           }
-        } 
+        }
 
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
-    
+
+
 }
 
 # Procedure LoadSystemHistory
-# parameters: 
+# parameters:
 # - start date
 # - end date
 # - resolution in sec
 # Load system capacity history from Delphix Engine
 
-sub LoadSystemHistory 
+sub LoadSystemHistory
 {
     my $self = shift;
     my $startDate = shift;
@@ -347,15 +363,15 @@ sub LoadSystemHistory
     my $resolution = shift;
     logger($self->{_debug}, "Entering Capacity_obj::LoadSystemHistory",1);
     my $operation = "resources/json/delphix/capacity/system/historical?resolution=" . $resolution;
-    
+
     if (defined($startDate)) {
       $operation = $operation . "&startDate=" . $startDate;
     }
-    
+
     if (defined($endDate)) {
       $operation = $operation . "&endDate=" . $endDate;
     }
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
     my @res;
@@ -370,17 +386,17 @@ sub LoadSystemHistory
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
-    
+
 }
 
 
 # Procedure processSystemHistory
-# parameters: 
+# parameters:
 # - output
 # - details
 # Process capacity history and put into Formatter object
 
-sub processSystemHistory 
+sub processSystemHistory
 {
     my $self = shift;
     my $output = shift;
@@ -390,15 +406,15 @@ sub processSystemHistory
     my $total;
     my $enginename = $self->{_dlpxObject}->getEngineName();
     my $enginezone = $self->{_dlpxObject}->getTimezone();
-    
+
     my $histtime;
     my $usage;
 
-    
+
     for my $histitem (@{$self->{_systemHistory}}) {
 
       my $time = Toolkit_helpers::convert_from_utc($histitem->{timestamp}, $enginezone, 1);
-      
+
       if (defined($time)) {
           $histtime = $time;
       } else {
@@ -407,7 +423,7 @@ sub processSystemHistory
 
       $total = ($histitem->{source}->{actualSpace} + $histitem->{virtual}->{actualSpace});
       $usage = $total / $histitem->{totalSpace} * 100;
-      
+
       if (defined($details)) {
 
         $output->addLine(
@@ -424,9 +440,9 @@ sub processSystemHistory
           sprintf("%15.2f" ,$total/1024/1024/1024),
           sprintf("%12.2f" ,$usage)
         );
-        
+
       } else {
-        
+
         $output->addLine(
           $enginename,
           $histtime,
@@ -436,7 +452,7 @@ sub processSystemHistory
           sprintf("%12.2f" ,$usage)
         );
       }
-            
+
     }
 }
 

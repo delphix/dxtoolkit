@@ -312,26 +312,42 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   }
 
- my $held_hash = $capacity->getDetailedDBUsage("Heldspace", undef);
+ my $held_array = $capacity->getStorageContainers();
 
- if ($held_hash->{totalsize} ne 0) {
 
-   my @printarray = (
-     $engine,
-     $held_hash->{group_name},
-     "Held space - " . $held_hash->{storageContainer},
-     "N/A",
-     sprintf("%10.2f", $held_hash->{totalsize})
-   );
 
-   # make sure all columns for detail view are filled with ''
-   if (($output->getHeaderSize() - scalar(@printarray)) gt 0) {
-     push @printarray, ('') x ($output->getHeaderSize() - scalar(@printarray)) ;
+ if (scalar(@{$held_array}) > 0) {
+
+   my $held_hash;
+
+   for my $hs (@{$held_array}) {
+
+     $held_hash = $capacity->getDetailedDBUsage($hs, undef);
+
+     my $groupname;
+     if (defined($held_hash->{group_name})) {
+       $groupname = $held_hash->{group_name};
+     } else {
+       $groupname = 'N/A';
+     }
+
+     my @printarray = (
+       $engine,
+       $groupname,
+       "Held space - " . $held_hash->{storageContainer},
+       "N/A",
+       sprintf("%10.2f", $held_hash->{totalsize})
+     );
+
+     # make sure all columns for detail view are filled with ''
+     if (($output->getHeaderSize() - scalar(@printarray)) gt 0) {
+       push @printarray, ('') x ($output->getHeaderSize() - scalar(@printarray)) ;
+     }
+
+     $output->addLine(
+      @printarray
+     );
    }
-
-   $output->addLine(
-    @printarray
-   );
  }
 
 
