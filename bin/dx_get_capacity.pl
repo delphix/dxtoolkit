@@ -374,6 +374,7 @@ __DATA__
                     [-details [all]]
                     [-sortby size ]
                     [-format csv|json ]
+                    [-forcerefresh]
                     [-unvirt]
                     [-help|? ]
                     [-debug ]
@@ -429,6 +430,9 @@ Name of dsource
 =head1 OPTIONS
 
 =over 3
+
+=item B<-forcerefresh>
+Force refresh of capacity data (in >= 5.2 )
 
 =item B<-details [all]>
 Display breakdown of usage.

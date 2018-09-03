@@ -187,7 +187,7 @@ sub waitForJob {
 
 	if (defined($jobno)) {
 
-    print "Starting provisioning job - $jobno\n";
+    print "Starting job - $jobno\n";
 
     my $job = new Jobs_obj($engine_obj,$jobno, 'true');
     my $retjob = $job->waitForJob();
