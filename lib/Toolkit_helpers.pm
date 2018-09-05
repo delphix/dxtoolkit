@@ -445,6 +445,7 @@ sub parallel_job {
 sub timestamp {
 	my $timestamp = shift;
 	my $engine = shift;
+	my $nourl = shift;
 	my $ret;
 
 	my ($year,$mon,$day,$hh,$mi,$ss);
@@ -470,7 +471,11 @@ sub timestamp {
 	if ($dt ne '') {
 		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
 		my $tstz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
-		$ret = uri_escape($tstz);
+		if (defined($nourl)) {
+			$ret = $tstz;
+		} else {
+			$ret = uri_escape($tstz);
+		}
 	}
 
    return $ret;
