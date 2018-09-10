@@ -344,7 +344,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_js_container    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                        -action reset|refresh|restore|create|addowner|deleteowner
+                        -action reset|refresh|restore|create|addowner|deleteowner|enable|disable
                         -container_name container_name
                         [-container_def GroupName,VDBName]
                         [-container_owner username]
@@ -377,7 +377,7 @@ A config file search order is as follow:
 - DXTOOLKIT_CONF variable
 - dxtools.conf from dxtoolkit location
 
-=item B<-action reset|refresh|recover|create|delete>
+=item B<-action reset|refresh|recover|create|delete|enable|disable>
 Run a action on the container
 
 =over 3
@@ -398,6 +398,10 @@ and fromtemplate flag is required.
 =item B<-addowner> - Add owner to container
 
 =item B<-deleteowner> - Remove owner from container
+
+=item B<-enable> - Enable container
+
+=item B<-disable> - Disable container
 
 =back
 
