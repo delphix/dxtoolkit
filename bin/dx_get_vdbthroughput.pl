@@ -13,7 +13,7 @@
 #
 # Copyright (c) 2018 by Delphix. All rights reserved.
 #
-# Program Name : dx_get_perfhistory.pl
+# Program Name : dx_get_vdbthroughput.pl
 # Description  : Get Delphix Engine database performance
 # Author       : Marcin Przepiorowski
 # Created      : 27 Aug 2015 (v2.3.7) Marcin Przepiorowski
@@ -113,7 +113,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $et_timestamp;
 
   if (defined($et)) {
-    $et = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($et, $engine_obj);
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj, 1))) {
       print "Wrong end time (et) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -142,29 +141,35 @@ for my $engine ( sort (@{$engine_list}) ) {
   # check if no data returned
   my $firstts = (keys(%{$perfdata}))[0];
 
-  my @dbnamelist;
-  push(@dbnamelist, {'timestamp', '30'});
+  if (defined($firstts)) {
 
-  for my $dbref (sort(keys(%{$perfdata->{$firstts}}))) {
-    $dbobj = $db->getDB($dbref);
-    push(@dbnamelist, {$dbobj->getName(), '30'});
-  }
+    my @dbnamelist;
+    push(@dbnamelist, {'timestamp', '30'});
 
-  $output->addHeader(
-    @dbnamelist
-  );
+    for my $dbref (sort(keys(%{$perfdata->{$firstts}}))) {
+      $dbobj = $db->getDB($dbref);
+      push(@dbnamelist, {$dbobj->getName(), '30'});
+    }
+
+    $output->addHeader(
+      @dbnamelist
+    );
 
 
-  for my $ts (sort (keys(%{$perfdata}))) {
-    my @tarray = map { $perfdata->{$ts}->{$_} } sort(keys(%{$perfdata->{$ts}}));
-    my @fullarray = ($ts, @tarray);
-    $output->addLine(@fullarray);
-  }
+    for my $ts (sort (keys(%{$perfdata}))) {
+      my @tarray = map { $perfdata->{$ts}->{$_} } sort(keys(%{$perfdata->{$ts}}));
+      my @fullarray = ($ts, @tarray);
+      $output->addLine(@fullarray);
+    }
 
-  if (defined($outdir)) {
-    Toolkit_helpers::write_to_dir($output, $format, $nohead,$engine . '-vdbthroughput',$outdir,1);
+    if (defined($outdir)) {
+      Toolkit_helpers::write_to_dir($output, $format, $nohead,$engine . '-vdbthroughput',$outdir,1);
+    } else {
+      Toolkit_helpers::print_output($output, $format, $nohead);
+    }
   } else {
-    Toolkit_helpers::print_output($output, $format, $nohead);
+    print "No data found. Please check start/end date and interval\n";
+    $ret = 1;
   }
 
 }
@@ -177,12 +182,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_vdbperf    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                   [-st timestamp]
-                   [-et timestamp]
-                   [-i 60|3600]
-                   [-outdir path]
-                   [ --help|? ] [ -debug ]
+ dx_get_vdbthroughput    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                         [-st timestamp]
+                         [-et timestamp]
+                         [-i 1|60|3600]
+                         [-outdir path]
+                         [ --help|? ]
+                         [ -debug ]
 
 =head1 DESCRIPTION
 
