@@ -821,6 +821,23 @@ sub getRuntimeStatus
     return $ret;
 }
 
+# Procedure getRuntimeSize
+# parameters: none
+# Return database runtime size in GB
+
+sub getRuntimeSize
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getRuntimeSize",1);
+    my $ret;
+    if (defined($self->{source}->{runtime})) {
+        $ret = sprintf("%.2f",$self->{source}->{runtime}->{databaseSize} / 1024 / 1024 / 1024);
+    } else {
+        $ret = 'NA';
+    }
+    return $ret;
+}
+
 # Procedure refreshRuntime
 # parameters:
 # - Source_obj with new data
