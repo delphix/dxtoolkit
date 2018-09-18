@@ -164,6 +164,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbobj = $databases->getDB($dbitem);
     my $capacity_hash = $capacity->getDetailedDBUsage($dbitem, $details);
 
+    if ($capacity_hash->{snapshots_shared} eq 0) {
+      # storage info not found - maybe database is deleted
+      # skipping it
+      next;
+    }
 
 
     if (defined($details) && ($details eq '')) {
