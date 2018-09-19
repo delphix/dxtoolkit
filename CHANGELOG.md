@@ -1,7 +1,27 @@
+## 2.3.7-rc1
+
+### Added
+- dx_ctl_js_branch - create/delete/activate a Self Service branch
+- dx_get_js_branch - list a Self Service branches
+- dx_get_vdbthrogput - extract VDB throughout for last 24 hours
+- dx_get_dsourcesize - show dSource sizes without compression
+- support for user logging with @DOMAIN and @SYSTEM
+- new filer oldthan added to dx_get_db_env/dx_refresh_db/dx_rewind_db to refresh databases older than date
+- option -notime added to dx_get_snapshot to quickly list a list of snapshot without provision time
+- dx_ctl_js_container has an action to enable and disable container
+
+### Changed
+- bugs fixed for held space and deleted objects in dx_get_capacity
+- dx_ctl_dSource fixed with new API of 5.2.5 
+
+
+### Changed
+- fix for file mapping API changes in 5.2
+
 ## 2.3.6
 
 ### Changed
-- fix for file mapping API changes in 5.2 
+- fix for file mapping API changes in 5.2
 
 
 ## 2.3.6-rc2
