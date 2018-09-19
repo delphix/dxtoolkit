@@ -149,11 +149,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
         my $branch_obj = new JS_branch_obj ( $engine_obj, $template_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('master');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref->[0], $timestamp, $template_ref);
       } else {
         my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('default');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $jscontainer_ref);
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref->[0], $timestamp, $jscontainer_ref);
       }
     } elsif (lc $action eq 'delete') {
       if (!defined($dropvdb) || ( ! ( ( lc $dropvdb eq 'yes' ) || (lc $dropvdb eq 'no' ) ) ) ) {

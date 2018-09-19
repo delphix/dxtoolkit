@@ -11,12 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2016,2018 by Delphix. All rights reserved.
+# Copyright (c) 2018 by Delphix. All rights reserved.
 #
-# Program Name : dx_get_js_containers.pl
-# Description  : Get Delphix Engine JS container
+# Program Name : dx_get_js_branches.pl
+# Description  : Get Delphix Engine JS branches
 # Author       : Marcin Przepiorowski
-# Created      : 02 Mar 2016 (v2.2.5)
+# Created      : Sept 2018 (v2.3.6)
 #
 
 use strict;
@@ -48,6 +48,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
+  'branch_name=s' => \(my $branch_name),
   'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -80,8 +81,7 @@ $output->addHeader(
     {'Appliance'     , 20},
     {'Container name', 20},
     {'Template name' , 20},
-    {'Active branch' , 20},
-    {'Owners'        , 50}
+    {'Branch name'   , 20}
 );
 # }
 
@@ -99,59 +99,80 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
 
+  my $jsbranches;
   my $template_ref;
 
   if (defined($template_name)) {
-    my $template_ref = $jstemplates->getJSTemplateByName($template_name);
+    $template_ref = $jstemplates->getJSTemplateByName($template_name);
     if (! defined($template_ref)) {
       print "Can't find template $template_name \n";
       $ret = $ret + 1;
       next;
     }
+
   }
 
-
   my $jscontainers = new JS_container_obj ( $engine_obj, $template_ref, $debug);
-  my $jsbranches = new JS_branch_obj ( $engine_obj, $template_ref, $debug );
 
-  my @contarr;
+  my @branchlist;
 
-  if (defined($container_name)) {
-    @contarr = @{$jscontainers->getJSContainerByName($container_name, 1)};
-    if (scalar(@contarr)<1) {
-      print "Can't find container $container_name \n";
+  if (defined($template_name) || defined($container_name)) {
+    # only branches from template or container need to be loaded
+    my $datasource_ref;
+    if (defined($container_name)) {
+      # load all branches from container name
+      my @contarr = @{$jscontainers->getJSContainerByName($container_name, 1)};
+      if (scalar(@contarr)<1) {
+        print "Can't find container $container_name \n";
+        $ret = $ret + 1;
+      }
+      for my $cont (@contarr) {
+        if (!defined($jsbranches)) {
+          $jsbranches = new JS_branch_obj ( $engine_obj, $cont, $debug );
+        } else {
+          $jsbranches->loadJSBranchList($cont);
+        }
+      }
+    } else {
+      # load all branches from template
+      $jsbranches = new JS_branch_obj ( $engine_obj, $template_ref, $debug );
+    }
+  } else {
+    # all branches are loaded
+    $jsbranches = new JS_branch_obj ( $engine_obj, undef, $debug );
+  }
+
+  my $dataobj;
+  my $printtemplate;
+  my $printcontainer;
+
+  if (defined($branch_name)) {
+    @branchlist = @{$jsbranches->getJSBranchByName($branch_name, 1)};
+    if (scalar(@branchlist) < 1) {
       $ret = $ret + 1;
     }
   } else {
-    @contarr = @{$jscontainers->getJSContainerList()};
+    @branchlist = @{$jsbranches->getJSBranchList()};
   }
 
-  my $users = new Users ( $engine_obj, $debug);
-
-  for my $jsconitem (@contarr) {
-
-    my @owners_array = ();
-    my $owners = $users->getUsersByTarget($jsconitem);
-    if (defined($owners)) {
-      for my $owner (@{$owners}) {
-        my $userobj = $users->getUser($owner);
-        if (defined($userobj)) {
-          push(@owners_array, $userobj->getName());
-        }
-      }
+  for my $branch (@branchlist) {
+    $dataobj = $jsbranches->getDataobj($branch);
+    $printtemplate = $jstemplates->getName($dataobj);
+    if ($printtemplate eq 'N/A') {
+      # it's not template
+      $printcontainer = $jscontainers->getName($dataobj);
+      my $tempref =$jscontainers->getJSContainerTemplate($dataobj);
+      $printtemplate = $jstemplates->getName($tempref);
+    } else {
+      # it's template
+      $printcontainer = 'N/A';
     }
-
-    my $owners_string = join(',',@owners_array);
-
     $output->addLine(
-       $engine,
-       $jscontainers->getName($jsconitem),
-       $jstemplates->getName($jscontainers->getJSContainerTemplate($jsconitem)),
-       $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)),
-       $owners_string
+      $engine,
+      $printcontainer,
+      $printtemplate,
+      $jsbranches->getName($branch)
     );
-
-
   }
 
 }
@@ -165,8 +186,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_containers [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-container_name container_name]
-                        [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_js_branches     [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                        [ -template_name template_name ]
+                        [ -container_name container_name ]
+                        [ -branch_name branch_name ]
+                        [ -format csv|json ]
+                        [ --help|? ]
+                        [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -198,11 +224,14 @@ A config file search order is as follow:
 =over 4
 
 =item B<-template_name template_name>
-Display containers using template_name
+If used without container_name this option will display branch for template_name
+If used with container_name this option will limit containers to specific template
 
 =item B<-container_name container_name>
-Display container using container_name
+Display branches for particular container_name
 
+=item B<-branch_name branch_name>
+Display branches for particular branch_name
 
 =back
 
@@ -227,14 +256,26 @@ Turn off header output
 
 =head1 EXAMPLES
 
-List all containers
+List all branches
 
- dx_get_js_containers -d Landshark5
+ dx_get_js_branches -d Landshark5
 
- Appliance            Container name       Template name        Active branch
+ Appliance            Container name       Template name        Branch name
  -------------------- -------------------- -------------------- --------------------
- Landshark5           cont                 test                 default
+ Landshark5           N/A                  testdx               master
+ Landshark5           N/A                  other                master
+ Landshark5           testcon              other                default
+ Landshark5           testcon              testdx               now
+ Landshark5           testcon              testdx               frombook
 
+List branches for container name
 
+ dx_get_js_branches -d Landshark5 -container_name testcon
+
+ Appliance            Container name       Template name        Branch name
+ -------------------- -------------------- -------------------- --------------------
+ Landshark5           testcon              other                default
+ Landshark5           testcon              testdx               ala
+ Landshark5           testcon              testdx               frombook
 
 =cut

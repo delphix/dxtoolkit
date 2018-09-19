@@ -63,21 +63,30 @@ sub new {
 # Procedure getJSContainerByName
 # parameters:
 # - name
-# Return template reference for particular name
+# - array
+# Return container reference for particular name
+# or array of containers if array flag is set
 
 sub getJSContainerByName {
     my $self = shift;
     my $name = shift;
+    my $array = shift;
     logger($self->{_debug}, "Entering JS_container_obj::getJSContainerByName",1);
+    my @contarray = grep { $self->getName($_) eq $name } ( sort ( keys %{$self->{_jscontainer}} ) );
     my $ret;
 
-    for my $containeritem ( sort ( keys %{$self->{_jscontainer}} ) ) {
-
-        if ( $self->getName($containeritem) eq $name) {
-            $ret = $containeritem;
-        }
+    if (defined($array)) {
+      $ret = \@contarray;
+    } else {
+      if (scalar(@contarray) == 1) {
+        $ret = $contarray[0];
+      }
+      elsif (scalar(@contarray) < 1) {
+        print "Can't find container with name $name on engine " . $self->{_dlpxObject}->getEngineName() . "\n";
+      } elsif (scalar(@contarray) > 1) {
+        print "Container name $name on engine" . $self->{_dlpxObject}->getEngineName() . " is not unique. Please add template name\n";
+      }
     }
-
     return $ret;
 }
 
