@@ -600,8 +600,6 @@ sub addSource {
 
       my @backup_loc;
 
-      print Dumper $backup_dir;
-
       if (defined($backup_dir)) {
 
         @backup_loc = split(',', $backup_dir);
@@ -958,6 +956,8 @@ sub attach_dsource
     my $stage_osuser = shift;
     my $backup_dir = shift;
     my $vsm = shift;
+    my $delphixmanaged = shift;
+    my $compression = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::attachSource",1);
 
@@ -1034,7 +1034,7 @@ sub attach_dsource
           "sourceHostUser" => $source_os_ref,
           "pptHostUser" => $stage_osuser_ref
       );
-    } else {
+    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
       %attach_data = (
           "type" => "AttachSourceParameters",
           "attachData" =>  {
@@ -1053,6 +1053,56 @@ sub attach_dsource
               "validatedSyncMode" => $vsm
           }
       );
+    } else {
+      # 5.2.5 and above
+      my @backup_loc;
+
+      if (defined($backup_dir)) {
+
+        @backup_loc = split(',', $backup_dir);
+
+        #push(@backup_loc, $backup_dir);
+      }
+
+      %attach_data = (
+          "type" => "AttachSourceParameters",
+          "attachData" =>  {
+              "type" => "MSSqlAttachData",
+              "config" => $config->{reference},
+              "operations" => \%operations,
+              "sharedBackupLocations" => \@backup_loc,
+              "dbCredentials" => {
+                "type" => "PasswordCredential",
+                "password" => $password
+              },
+              "dbUser" => $dbuser,
+              "pptRepository" => $stagingrepo,
+              "sourceHostUser" => $source_os_ref,
+              "pptHostUser" => $stage_osuser_ref,
+              "ingestionStrategy" => {
+                "type" => "NoBackupIngestionStrategy"
+              }
+          }
+      );
+
+      if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+        my $compression_json = JSON::false;
+
+        if (lc $compression eq "yes") {
+          $compression_json = JSON::true;
+        }
+        $attach_data{"attachData"}{"ingestionStrategy"}{"type"} = "DelphixManagedBackupIngestionStrategy";
+        $attach_data{"attachData"}{"ingestionStrategy"}{"compressionEnabled"} = $compression_json;
+      } else {
+        if (defined($vsm)) {
+          $attach_data{"attachData"}{"ingestionStrategy"}{"type"} = "ExternalBackupIngestionStrategy";
+          $attach_data{"attachData"}{"ingestionStrategy"}{"validatedSyncMode"} = $vsm;
+        }
+      }
+
+      print "After job will be completed please go to Configuration > Data Management to make updates to your Netbackup configuration.\n";
+
+
     }
 
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/attachSource";
