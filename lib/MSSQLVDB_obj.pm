@@ -568,7 +568,7 @@ sub addSource {
             }
           );
 
-          if (defined($backup_dir) && ($backup_dir eq '')) {
+          if ((!defined($backup_dir)) || (defined($backup_dir) && ($backup_dir eq ''))) {
             # autobackup dir set
             delete $dsource_params{"linkData"}{sharedBackupLocation};
           }
