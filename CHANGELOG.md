@@ -1,3 +1,10 @@
+## 2.3.7
+
+### Changed
+- changes in API version check to make it compatible with 5.3
+- various fixes for 5.3 support
+- fix for importing VDB templates
+
 ## 2.3.7-rc1
 
 ### Added
@@ -12,7 +19,7 @@
 
 ### Changed
 - bugs fixed for held space and deleted objects in dx_get_capacity
-- dx_ctl_dSource fixed with new API of 5.2.5 
+- dx_ctl_dSource fixed with new API of 5.2.5
 
 
 ### Changed
