@@ -31,6 +31,7 @@ use Toolkit_helpers qw (logger);
 use JS_bookmark_obj;
 use JS_datasource_obj;
 use Snapshot_obj;
+use version;
 use Date::Manip;
 
 # constructor
@@ -265,7 +266,7 @@ sub restoreContainer {
 
         if (defined($zulutime)) {
 
-            if ($self->{_dlpxObject}->getApi() lt "1.8") {
+            if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
               %timelineHash = (
                   "type" => "JSTimelinePointTimeInput",
                   "sourceDataLayout" => $dataobj_ref,
@@ -301,7 +302,7 @@ sub restoreContainer {
 
     my %recoveryHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %recoveryHash = %timelineHash;
     } else {
       %recoveryHash =  (
@@ -334,7 +335,7 @@ sub refreshContainer {
 
     my %refreshHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %refreshHash = ();
     } else {
       %refreshHash =  (
@@ -366,7 +367,7 @@ sub resetContainer {
 
     my %resetHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %resetHash = ();
     } else {
       %resetHash =  (
@@ -516,7 +517,7 @@ sub createContainer {
 
     my %conthash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8.2") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.2)) {
       if (defined($dontrefresh)) {
         print "Your Delphix Engine version doesn't allow JS container creation without refresh.\n";
         return undef;

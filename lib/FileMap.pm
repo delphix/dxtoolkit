@@ -27,6 +27,7 @@ use warnings;
 use strict;
 use Data::Dumper;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 
 # constructor
@@ -142,7 +143,7 @@ sub validate {
     my %fileMapping_request;
     logger($self->{_debug}, "Entering FileMap::validate",1);
 
-    if ($self->{_dlpxObject}->getApi() lt '1.9.0' ) {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       $fileMapping_request{"type"} = "FileMappingParameters";
       $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
       $fileMapping_request{"timeflowPointParameters"}{"type"} = "TimeflowPointSemantic";

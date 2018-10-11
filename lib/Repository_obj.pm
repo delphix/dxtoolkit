@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,10 +29,11 @@ use warnings;
 use strict;
 use Data::Dumper;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,23 +49,23 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->listRepositoryList($debug);
     return $self;
 }
 
 # Procedure getRepository
-# parameters: 
+# parameters:
 # - reference
 # Return repository hash for specific repository reference
 
 sub getRepository {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Repository_obj::getRepository",1);    
+
+    logger($self->{_debug}, "Entering Repository_obj::getRepository",1);
 
     my $repositories = $self->{_repositories};
     my $ret;
@@ -77,15 +78,15 @@ sub getRepository {
 }
 
 # Procedure getEnvironment
-# parameters: 
+# parameters:
 # - reference
 # Return environment reference for specific repository reference
 
 sub getEnvironment {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Repository_obj::getEnvironment",1);  
+
+    logger($self->{_debug}, "Entering Repository_obj::getEnvironment",1);
 
     my $repositories = $self->{_repositories};
     my $ret;
@@ -98,15 +99,15 @@ sub getEnvironment {
 }
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return repository name for specific repository reference
 
 sub getName {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Repository_obj::getName",1);  
+
+    logger($self->{_debug}, "Entering Repository_obj::getName",1);
 
     my $repositories = $self->{_repositories};
     return $repositories->{$reference}->{'name'};
@@ -114,7 +115,7 @@ sub getName {
 
 
 # Procedure getRepositoryByNameForEnv
-# parameters: 
+# parameters:
 # - name - repository name
 # - env - environment reference
 # Return repository reference for particular name and environemnt
@@ -124,13 +125,13 @@ sub getRepositoryByNameForEnv {
     my $name = shift;
     my $env = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Repository_obj::getRepositoryByNameForEnv",1);  
+
+    logger($self->{_debug}, "Entering Repository_obj::getRepositoryByNameForEnv",1);
 
     for my $repitem ( sort ( keys %{$self->{_repositories}} ) ) {
 
         if ( ( $self->getName($repitem) eq $name)  && ( $self->getEnvironment($repitem) eq $env ) ) {
-            $ret = $self->getRepository($repitem); 
+            $ret = $self->getRepository($repitem);
         }
     }
 
@@ -139,7 +140,7 @@ sub getRepositoryByNameForEnv {
 
 
 # Procedure getRepositoryByNameForEnv
-# parameters: 
+# parameters:
 # - env - environment reference
 # Return list repository reference for particular env
 
@@ -147,8 +148,8 @@ sub getRepositoryByEnv {
     my $self = shift;
     my $env = shift;
     my @ret;
-    
-    logger($self->{_debug}, "Entering Repository_obj::getRepositoryByEnv",1);  
+
+    logger($self->{_debug}, "Entering Repository_obj::getRepositoryByEnv",1);
 
     for my $repitem ( sort ( keys %{$self->{_repositories}} ) ) {
 
@@ -167,12 +168,12 @@ sub getRepositoryByEnv {
 # parameters: none
 # Load a list of repository objects from Delphix Engine
 
-sub listRepositoryList 
+sub listRepositoryList
 {
     my $self = shift;
     my $debug = shift;
 
-    logger($self->{_debug}, "Entering Repository_obj::listRepositoryList",1);  
+    logger($self->{_debug}, "Entering Repository_obj::listRepositoryList",1);
     my $operation = "resources/json/delphix/repository";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
@@ -180,7 +181,7 @@ sub listRepositoryList
         my $repositories = $self->{_repositories};
         for my $repitem (@res) {
             $repositories->{$repitem->{reference}} = $repitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
@@ -196,7 +197,7 @@ sub listRepositoryList
 # - ohversion (Oracle)
 # - oraclebase (Oracle)
 # Create repository
-# Return 0 if OK 
+# Return 0 if OK
 
 sub createRepository
 {
@@ -211,7 +212,7 @@ sub createRepository
     logger($self->{_debug}, "Entering Environment_obj::createRepository",1);
 
     my $type;
-    
+
     if (!defined($repotype)) {
       print "Repository type has to be set\n";
       return 1;
@@ -229,21 +230,21 @@ sub createRepository
       return 1;
     }
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       if (!defined($bits)) {
         print "Bits flag has to be specified\n";
         return 1;
       }
       if (!defined($ohversion)) {
         print "Oracle home version (ohversion) has to be specified\n";
-        return 1;      
+        return 1;
       }
     }
 
     my $operation = "resources/json/delphix/repository";
-    
+
     my %repo_data;
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       %repo_data = (
         "type" => $type,
         "environment" => $reference,
@@ -278,7 +279,7 @@ sub createRepository
             print "Unknown error. Try with debug flag\n";
         }
     }
-    
+
     return $ret;
 }
 
@@ -287,7 +288,7 @@ sub createRepository
 # - reference - env reference
 # - repopath
 # Create repository
-# Return 0 if OK 
+# Return 0 if OK
 
 sub deleteRepository
 {
@@ -298,13 +299,13 @@ sub deleteRepository
     logger($self->{_debug}, "Entering Environment_obj::createRepository",1);
 
     my $repo = $self->getRepositoryByNameForEnv($repopath, $reference);
-    
-    
+
+
     if (!defined($repo->{reference})) {
       print "Can't find repository $repopath \n";
       return 1;
     }
-    
+
 
     my $operation = "resources/json/delphix/repository/" . $repo->{reference} . "/delete";
 

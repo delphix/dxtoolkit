@@ -31,6 +31,7 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 use Roles_obj;
+use version;
 
 # constructor
 # parameters
@@ -223,7 +224,12 @@ sub isJS {
 
     my $authorizations = $self->{_authorizations};
 
-    my $jsuser = $self->{_roles}->getRoleByName('Jet Stream User')->{reference};
+    my $jsuser;
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse("1.10.0")) {
+      $jsuser = $self->{_roles}->getRoleByName('Jet Stream User')->{reference};
+    } else {
+      $jsuser = $self->{_roles}->getRoleByName('Self-Service User')->{reference};
+    }
 
     for my $authitem ( sort ( keys %{$self->{_authorizations}} ) ) {
         if ( $self->getUser($authitem) eq $user_ref) {

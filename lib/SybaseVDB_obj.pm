@@ -27,6 +27,7 @@
 package SybaseVDB_obj;
 use Data::Dumper;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
@@ -238,7 +239,7 @@ sub addSource {
 
     my %dsource_params;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
       %dsource_params = (
           "type" => "ASELinkParameters",
           "container" => {
@@ -310,7 +311,7 @@ sub addSource {
 
 
 
-    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.9.0)) {
       if (defined($mountbase)) {
           $dsource_params{linkData}{mountBase} = $mountbase;
       }
@@ -336,7 +337,7 @@ sub setMountPoint {
     my $mountpoint = shift;
     logger($self->{_debug}, "Entering SybaseVDB_obj::setMountPoint",1);
 
-    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.9.0)) {
       if (defined($mountpoint)) {
         $self->{"NEWDB"}->{"source"}->{"mountBase"} = $mountpoint;
       }
@@ -420,7 +421,7 @@ sub attach_dsource {
 
     my %dsource_params;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
       %dsource_params = (
           "type" => "ASEAttachSourceParameters",
           "sourceHostUser" => $source_os_ref,
