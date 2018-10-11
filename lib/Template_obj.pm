@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,23 +48,23 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->loadTemplateList($debug);
     return $self;
 }
 
 
 # Procedure getTemplateByName
-# parameters: 
-# - name 
+# parameters:
+# - name
 # Return template reference for particular name
 
 sub getTemplateByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Template_obj::getTemplateByName",1);    
+    logger($self->{_debug}, "Entering Template_obj::getTemplateByName",1);
     my $ret;
 
     #print Dumper $$config;
@@ -72,7 +72,7 @@ sub getTemplateByName {
     for my $templateitem ( sort ( keys %{$self->{_templates}} ) ) {
 
         if ( $self->getName($templateitem) eq $name) {
-            $ret = $templateitem; 
+            $ret = $templateitem;
         }
     }
 
@@ -80,15 +80,15 @@ sub getTemplateByName {
 }
 
 # Procedure getTemplate
-# parameters: 
+# parameters:
 # - reference
 # Return template hash for specific template reference
 
 sub getTemplate {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Template_obj::getTemplate",1);    
+
+    logger($self->{_debug}, "Entering Template_obj::getTemplate",1);
 
     my $templates = $self->{_templates};
     return $templates->{$reference};
@@ -96,33 +96,33 @@ sub getTemplate {
 
 
 # Procedure getTemplateParameters
-# parameters: 
+# parameters:
 # - reference
 # Return template parmeters for specific template reference
 
 sub getTemplateParameters {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Template_obj::getTemplateParameters",1);    
+
+    logger($self->{_debug}, "Entering Template_obj::getTemplateParameters",1);
 
     my $templates = $self->{_templates};
     return $templates->{$reference}->{parameters};
 }
 
 # Procedure compare
-# parameters: 
+# parameters:
 # - reference
 # - hash with init.ora
-# Return three sets - array existing in template but not in VDB and 
+# Return three sets - array existing in template but not in VDB and
 # array existing in VDB but not in template, hash differences
 
 sub compare {
     my $self = shift;
     my $reference = shift;
     my $init = shift;
-    
-    logger($self->{_debug}, "Entering Template_obj::compare",1);    
+
+    logger($self->{_debug}, "Entering Template_obj::compare",1);
 
     my %restricted = (
       active_instance_count => 1,
@@ -172,7 +172,7 @@ sub compare {
       __streams_pool_size => 1,
       _omf => 1
     );
-    
+
     my %settodefault = (
       filesystemio_options => 1,
       audit_file_dest => 1,
@@ -192,7 +192,7 @@ sub compare {
       log_archive_dest_6 => 1,
       log_archive_dest_7 => 1,
       log_archive_dest_8 => 1,
-      log_archive_dest_9 => 1, 
+      log_archive_dest_9 => 1,
       log_archive_dest_10 => 1,
       log_archive_dest_11 => 1,
       log_archive_dest_12 => 1,
@@ -249,13 +249,13 @@ sub compare {
       remote_listener => 1,
       user_dump_dest => 1,
     );
-    
+
     my %notintemplate;
     my %notininit;
     my %different;
-    
+
     my $templatepar = $self->getTemplateParameters($reference);
-    
+
     for my $par (sort keys %{$templatepar}) {
       if (defined($init->{$par})) {
         $init->{$par} =~ s/['|"]//g;
@@ -269,9 +269,9 @@ sub compare {
       } else {
         $notininit{$par} = $templatepar->{$par};
       }
-      
+
     }
-    
+
     for my $par (sort keys %{$init}) {
       if (!defined($restricted{$par})) {
         if (!defined($templatepar->{$par})) {
@@ -280,46 +280,46 @@ sub compare {
           }
         }
       }
-      
+
     }
-    
+
     return (\%notininit, \%notintemplate, \%different);
-    
-    
+
+
   }
 
 
 # Procedure getTemplateList
-# parameters: 
+# parameters:
 # Return template list
 
 sub getTemplateList {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Template_obj::getTemplateList",1);    
+
+    logger($self->{_debug}, "Entering Template_obj::getTemplateList",1);
 
     return keys %{$self->{_templates}};
 }
 
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return template name for specific template reference
 
 sub getName {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Template_obj::getName",1);   
+
+    logger($self->{_debug}, "Entering Template_obj::getName",1);
 
     my $templates = $self->{_templates};
     return $templates->{$reference}->{name};
 }
 
 # Procedure exportTemplate
-# parameters: 
+# parameters:
 # - reference
 # - location - directory
 # Return 0 if no errors
@@ -329,7 +329,7 @@ sub exportTemplate {
     my $reference = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Template_obj::exportTemplate",1);   
+    logger($self->{_debug}, "Entering Template_obj::exportTemplate",1);
 
     my $filename =  $location . "/" . $self->getName($reference) . ".template";
 
@@ -347,7 +347,7 @@ sub exportTemplate {
 }
 
 # Procedure importTemplate
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -355,7 +355,7 @@ sub importTemplate {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Template_obj::importTemplate",1);   
+    logger($self->{_debug}, "Entering Template_obj::importTemplate",1);
 
     my $filename =  $location;
 
@@ -366,13 +366,17 @@ sub importTemplate {
     local $/ = undef;
     my $json = JSON->new();
     $loadedTemplate = $json->decode(<$FD>);
-    
+
     close $FD;
 
 
 
     delete $loadedTemplate->{reference};
     delete $loadedTemplate->{namespace};
+
+    if (!defined($loadedTemplate->{description})) {
+      delete $loadedTemplate->{description};
+    };
 
     $self->loadTemplateList();
 
@@ -387,7 +391,7 @@ sub importTemplate {
 
     my $operation = 'resources/json/delphix/database/template';
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Import completed\n";
@@ -400,7 +404,7 @@ sub importTemplate {
 
 
 # Procedure updateTemplate
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -408,7 +412,7 @@ sub updateTemplate {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Template_obj::updateTemplate",1);   
+    logger($self->{_debug}, "Entering Template_obj::updateTemplate",1);
 
     my $filename =  $location;
 
@@ -419,7 +423,7 @@ sub updateTemplate {
     local $/ = undef;
     my $json = JSON->new();
     $loadedTemplate = $json->decode(<$FD>);
-    
+
     close $FD;
 
     delete $loadedTemplate->{reference};
@@ -432,7 +436,7 @@ sub updateTemplate {
     if (! defined($self->getTemplateByName($loadedTemplate->{name}))) {
         print "Template " . $loadedTemplate->{name} . " from file $filename doesn't exist. Can't update.\n";
         return 1;
-    } 
+    }
 
     my $reference = $self->getTemplateByName($loadedTemplate->{name});
 
@@ -442,7 +446,7 @@ sub updateTemplate {
 
     my $operation = 'resources/json/delphix/database/template/' . $reference;
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Update completed\n";
@@ -458,10 +462,10 @@ sub updateTemplate {
 # parameters: none
 # Load a list of template objects from Delphix Engine
 
-sub loadTemplateList 
+sub loadTemplateList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Template_obj::loadTemplateList",1);   
+    logger($self->{_debug}, "Entering Template_obj::loadTemplateList",1);
 
     my $operation = "resources/json/delphix/database/template";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -473,7 +477,7 @@ sub loadTemplateList
 
         for my $templateitem (@res) {
             $templates->{$templateitem->{reference}} = $templateitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
