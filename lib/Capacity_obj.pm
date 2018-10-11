@@ -28,6 +28,7 @@ use warnings;
 use strict;
 use Data::Dumper;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 
 
@@ -72,7 +73,7 @@ sub LoadSnapshots {
   my $db_ref = shift;
   my $all_snaps;
   logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);
-  if ($self->{_dlpxObject}->getApi() lt '1.9') {
+  if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
     $all_snaps = $self->LoadSnapshots_18($db_ref);
   } else {
     $all_snaps = $self->LoadSnapshots_19($db_ref);
@@ -185,7 +186,7 @@ sub forcerefesh {
 
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() lt '1.9') {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       print "Refresh not supported for engine version < 5.2.0\n";
       return 0;
     } else {

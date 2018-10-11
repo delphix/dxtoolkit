@@ -25,6 +25,7 @@ use Databases;
 use DateTime::Event::Cron::Quartz;
 use DateTime::Format::DateParse;
 use Time::Seconds;
+use version;
 
 # constructor
 # parameters
@@ -53,7 +54,7 @@ sub new {
 
   $self->loadReplicationList($debug);
 
-  if ( $self->{_dlpxObject}->getApi() ge '1.5' ) {
+  if ( version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.5.0) ) {
     $self->loadReplicationState();
     $self->loadReplicationPoint();
   }
@@ -295,7 +296,7 @@ sub getObjects {
 
   my $ret;
 
-  if ( $self->{_dlpxObject}->getApi() lt '1.5' ) {
+  if ( version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0) ) {
     $ret = $replication->{$reference}->{objects};
   }
   else {
@@ -393,7 +394,7 @@ sub getLastJob {
   my %job_data;
   my $job;
 
-  if ( $self->{_dlpxObject}->getApi() lt '1.5' ) {
+  if ( version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0) ) {
 
     # find a job for particular DE based on title and message - this is for 4.1 only
 

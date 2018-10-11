@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,19 +26,20 @@
 
 package AppDataVDB_obj;
 use Data::Dumper;
-use JSON;    
+use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
 sub new {
     my $class  = shift;
     my $dlpxObject = shift;
-    my $debug = shift;    
+    my $debug = shift;
     logger($debug, "Entering AppDataVDB_obj::constructor",1);
     # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug); 
+    my $self       = $class->SUPER::new($dlpxObject, $debug);
 
-   # MySQL specific properties 
+   # MySQL specific properties
 
 
     my @configureClone;
@@ -81,28 +82,28 @@ sub new {
             },
     );
 
-    $self->{"NEWDB"} = \%prov; 
+    $self->{"NEWDB"} = \%prov;
     $self->{_dbtype} = 'vFiles';
 
-    if ($self->{_dlpxObject}->getApi() gt "1.6") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.6.0)) {
         $prov{"source"}{"parameters"} = {};
         $prov{"sourceConfig"}{"parameters"} = {};
     }
-            
+
     return $self;
 }
 
 
 # Procedure getdSourceBackup`
-# parameters: 
+# parameters:
 # -engine
 # -output
 # -backup - location for hooks
-# -groupname 
+# -groupname
 
 # Return a definition of backup metadata
 
-sub getdSourceBackup 
+sub getdSourceBackup
 {
     my $self = shift;
     my $engine = shift;
@@ -113,7 +114,7 @@ sub getdSourceBackup
     logger($self->{_debug}, "Entering AppDataVDB_obj::getdSourceBackup",1);
 
     my $suffix = '';
-    if ( $^O eq 'MSWin32' ) { 
+    if ( $^O eq 'MSWin32' ) {
       $suffix = '.exe';
     }
 
@@ -126,17 +127,17 @@ sub getdSourceBackup
     my $rephome = $self->getHome();
 
     $dbhostname = $self->getSourceConfigName();
-    
+
     if (! defined($dbhostname)) {
       $dbhostname = 'detached';
     }
 
     my $osuser = $self->getOSUser();
-                
+
     $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
     $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" ";
     $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
-    
+
     $output->addLine(
       $restore_args
     );
@@ -146,17 +147,17 @@ sub getdSourceBackup
 
 
 # Procedure getVDBBackup`
-# parameters: 
+# parameters:
 # -engine
 # -output
 # -backup - location for hooks
-# -groupname 
+# -groupname
 # -parentname
 # -parentgroup
 # -templates - handler to template object
 # Return a definition of backup metadata
 
-sub getVDBBackup 
+sub getVDBBackup
 {
     my $self = shift;
     my $engine = shift;
@@ -169,7 +170,7 @@ sub getVDBBackup
     logger($self->{_debug}, "Entering AppDataVDB_obj::getVDBBackup",1);
 
     my $suffix = '';
-    if ( $^O eq 'MSWin32' ) { 
+    if ( $^O eq 'MSWin32' ) {
       $suffix = '.exe';
     }
 
@@ -182,25 +183,25 @@ sub getVDBBackup
     $self->exportDBHooks($backup);
 
     my $restore_args;
-  
+
     $dbhostname = $self->getDatabaseName();
-    
+
     if ($parentname eq '') {
       $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -empty  ";
     } else {
-      $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" ";          
+      $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" ";
     }
 
     $restore_args = $restore_args . " -targetname \"$dbn\" ";
     $restore_args = $restore_args . " -dbname \"$dbhostname\" -environment \"" . $self->getEnvironmentName() . "\" ";
-    $restore_args = $restore_args . " -envinst \"$rephome\" ";          
-    
-      
+    $restore_args = $restore_args . " -envinst \"$rephome\" ";
+
+
     $restore_args = $restore_args . " -envUser \"" . $self->getEnvironmentUserName() . "\" ";
     $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
     $restore_args = $restore_args . $self->getConfig();
-          
+
     $output->addLine(
       $restore_args
     );
@@ -211,16 +212,16 @@ sub getVDBBackup
 # parameters: none
 # Return database config
 
-sub getConfig 
+sub getConfig
 {
     my $self = shift;
     my $templates = shift;
     my $backup = shift;
-    
+
     logger($self->{_debug}, "Entering AppDataVDB_obj::getConfig",1);
     my $config = '';
     my $joinsep;
-    
+
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
@@ -233,24 +234,24 @@ sub getConfig
         $config = join($joinsep,($config, "-additionalMount $am "));
       }
     }
-    
+
     if ( (my $rest) = $config =~ /^,(.*)/ ) {
       $config = $rest;
     }
 
     return $config;
-    
+
 }
 
 
 
 # Procedure snapshot
-# parameters: 
+# parameters:
 # - frombackup - yes/no
 # Run snapshot
 # Return job number if job started or undef otherwise
 
-sub snapshot 
+sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
@@ -266,16 +267,16 @@ sub snapshot
             "type" => "AppDataSyncParameters",
             "resync" => JSON::false
     );
-    
+
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
 # Procedure setEmpty
-# parameters: 
+# parameters:
 # set a flag to create a empty vFiles
 
 sub setEmpty {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -288,16 +289,16 @@ sub setEmpty {
 
 
 # Procedure createVDB
-# parameters: 
+# parameters:
 # - group - new DB group
 # - env - new DB environment
 # - inst - new DB instance
-# Start job to create vFiles VBD 
+# Start job to create vFiles VBD
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub createVDB {
-    my $self = shift; 
+    my $self = shift;
 
     my $group = shift;
     my $env = shift;
@@ -326,7 +327,7 @@ sub createVDB {
         print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
         return undef;
     }
-    
+
 
     my $operation = 'resources/json/delphix/database/provision';
 
@@ -338,32 +339,32 @@ sub createVDB {
 
 
     my $json_data = $self->getJSON();
-    
+
     return $self->runJobOperation($operation,$json_data);
 
 }
 
 # Procedure addSource
-# parameters: 
+# parameters:
 # - source - name of source DB
 # - source_inst - instance
 # - source_env - env
 # - source_osuser - name of source OS user
 # - dsource_name - name of dsource in environment
 # - group - dsource  group
-# Start job to add AppData dSource 
+# Start job to add AppData dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef 
+# Return job number if provisioning has been started, otherwise return undef
 
 sub addSource {
-    my $self = shift; 
+    my $self = shift;
     my $source = shift;
     my $source_inst = shift;
     my $source_env = shift;
     my $source_osuser = shift;
     my $dsource_name = shift;
     my $group = shift;
-    
+
 
     logger($self->{_debug}, "Entering AppDataVDB_obj::addSource",1);
 
@@ -387,13 +388,13 @@ sub addSource {
         print "Source OS user $source_osuser not found\n";
         return undef;
     }
-    
+
     my @followarray;
     my @excludes;
     my %dsource_params;
-    
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
-  
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+
       my %dsource_params = (
           "type" => "AppDataLinkParameters",
           "container" => {
@@ -409,12 +410,12 @@ sub addSource {
           },
           "environmentUser" => $source_os_ref
       );
-      
-      if ($self->{_dlpxObject}->getApi() gt "1.6") {
+
+      if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.6.0)) {
           $dsource_params{"source"}{"parameters"} = {};
       }
     } else {
-            
+
       %dsource_params = (
         "type" => "LinkParameters",
         "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -441,38 +442,38 @@ sub addSource {
 
 
 # Procedure setName
-# parameters: 
+# parameters:
 # - contname - container name
 # - dbname - database name
-# Set name for new db. 
+# Set name for new db.
 
 sub setName {
     my $self = shift;
-    my $contname = shift;    
+    my $contname = shift;
     my $dbname = shift;
     logger($self->{_debug}, "Entering AppDataVDB_obj::setName",1);
-    
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"source"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"name"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"path"} = $dbname;
-    
+
 }
 
-# Procedure getAdditionalMountpoints 
+# Procedure getAdditionalMountpoints
 # parameters: none
 # Return an array with combained list of additional mount point env,path,sharedPath
 
-sub getAdditionalMountpoints 
+sub getAdditionalMountpoints
 {
     my $self = shift;
     logger($self->{_debug}, "Entering AppDataVDB_obj::getAdditionalMountpoints",1);
-    
+
     my @retarray;
     my $addmountarray = $self->{source}->{additionalMountPoints};
-    
+
     #print Dumper $addmountarray;
-    
+
     for my $addmount (@{$addmountarray}) {
       my $envname = $self->{_environment}->getName($addmount->{environment});
       if (defined($envname)) {
@@ -482,16 +483,16 @@ sub getAdditionalMountpoints
         next;
       }
     }
-    
+
     return \@retarray;
 }
 
 # Procedure setAdditionalMountpoints
-# parameters: 
+# parameters:
 # - array of mountpoints
 # Return an array with combained list of additional mount point env,path,sharedPath
 
-sub setAdditionalMountpoints 
+sub setAdditionalMountpoints
 {
     my $self = shift;
     my $addmount = shift;
@@ -511,18 +512,18 @@ sub setAdditionalMountpoints
       if (!defined($shared)) {
         print "Shared path for additional mount point not found\n";
         return 1;
-      }      
+      }
       my %addmount_hash =  (
         'type' => 'AppDataAdditionalMountPoint',
         'mountPath' => $path,
         'sharedPath' => $shared,
         'environment' => $env_obj->{reference}
       );
-      
+
       push (@additionalMountPoints, \%addmount_hash);
-      
+
     }
-    
+
     $self->{NEWDB}->{source}->{additionalMountPoints} = \@additionalMountPoints;
     return 0;
 }
@@ -532,7 +533,7 @@ sub setAdditionalMountpoints
 # parameters: none
 # Return database name
 
-sub getDatabaseName 
+sub getDatabaseName
 {
     my $self = shift;
     logger($self->{_debug}, "Entering AppDataVDB_obj::getDatabaseName",1);
@@ -540,20 +541,20 @@ sub getDatabaseName
 }
 
 # Procedure setSource
-# parameters: 
+# parameters:
 # - name - source name
-# Set dsource reference by name for new db. 
+# Set dsource reference by name for new db.
 # Return 0 if success, 1 if not found
 
 sub setSource {
-    my $self = shift; 
+    my $self = shift;
     #my $name = shift;
     my $sourceitem = shift;
     logger($self->{_debug}, "Entering AppDataVDB_obj::setSource",1);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
-    
+
 
     if (defined ($sourceitem)) {
         my $sourcetype = $sourceitem->{container}->{'type'};
@@ -566,7 +567,7 @@ sub setSource {
         }
     } else {
         return 1;
-    }       
+    }
 
 }
 

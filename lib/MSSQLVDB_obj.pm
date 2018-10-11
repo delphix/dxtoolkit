@@ -28,6 +28,7 @@ use Data::Dumper;
 use strict;
 use warnings;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 our @ISA = qw(VDB_obj);
 
@@ -250,7 +251,7 @@ sub snapshot
 
     my %snapshot_type;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
 
       if ($self->getType() eq 'VDB') {
           %snapshot_type = (
@@ -468,7 +469,7 @@ sub addSource {
     my %dsource_params;
 
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
 
 
       if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
@@ -540,7 +541,7 @@ sub addSource {
       }
 
 
-    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
         # for engine before 5.2.5
         %dsource_params = (
           "type" => "LinkParameters",
@@ -573,7 +574,7 @@ sub addSource {
             delete $dsource_params{"linkData"}{sharedBackupLocation};
           }
 
-          if ($self->{_dlpxObject}->getApi() lt "1.9") {
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
             if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
               $dsource_params{"linkData"}{"delphixManaged"} = JSON::true;
               delete $dsource_params{"linkData"}{"sourcingPolicy"}{"loadFromBackup"};
@@ -833,7 +834,7 @@ sub getBackupPath {
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getBackupPath",1);
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       $ret = $self->{source}->{sharedBackupLocation};
     } else {
       $ret = join(',' ,@{$self->{source}->{sharedBackupLocations}});
@@ -880,7 +881,7 @@ sub getValidatedMode {
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedMode",1);
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       if (defined($self->{source}->{validatedSyncMode})) {
         $ret = $self->{source}->{validatedSyncMode};
       } else {
@@ -907,11 +908,8 @@ sub getDelphixManaged {
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getDelphixManaged",1);
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
-      if (defined($self->{container}->{delphixManaged})) {
-        $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
-      }
-    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      # before 5.2.5
       if (defined($self->{container}->{delphixManagedStatus})) {
         if ($self->{container}->{delphixManagedStatus} eq 'NOT_DELPHIX_MANAGED') {
           $ret = 'no';
@@ -919,7 +917,13 @@ sub getDelphixManaged {
           $ret = 'yes';
         }
       }
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
+      # before 5.2
+      if (defined($self->{container}->{delphixManaged})) {
+        $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
+      }
     } else {
+      # 5.2.5 and above
       if (defined($self->{source}->{ingestionStrategy})) {
         if ($self->{source}->{ingestionStrategy}->{type} eq 'DelphixManagedBackupIngestionStrategy') {
           $ret = 'yes';
@@ -1015,7 +1019,7 @@ sub attach_dsource
     }
 
     my %attach_data;
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
       %attach_data = (
           "type" => "MSSqlAttachSourceParameters",
           "source" =>  {
@@ -1034,7 +1038,7 @@ sub attach_dsource
           "sourceHostUser" => $source_os_ref,
           "pptHostUser" => $stage_osuser_ref
       );
-    } elsif ($self->{_dlpxObject}->getApi() lt "1.9.3") {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       %attach_data = (
           "type" => "AttachSourceParameters",
           "attachData" =>  {

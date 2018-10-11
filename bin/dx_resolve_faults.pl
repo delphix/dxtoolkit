@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,14 +12,14 @@
 # limitations under the License.
 #
 # Copyright (c) 2014,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_resolve_faults.pl
 # Description  : Resolve Delphix Engine faults
 # Author       : Edward de los Santos
 # Created      : 30 Jan 2014 (v1.0.0)
 #
 # Modified     : 20 Jul 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use strict;
 use warnings;
@@ -29,6 +29,7 @@ use File::Basename;
 use Pod::Usage;
 use FindBin;
 use Data::Dumper;
+use version;
 
 my $abspath = $FindBin::Bin;
 
@@ -42,15 +43,15 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'st=s' => \(my $st), 
-  'et=s' => \(my $et), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'st=s' => \(my $st),
+  'et=s' => \(my $et),
   'severity=s' => \(my $severity),
   'target=s' => \(my $target),
-  'status=s' => \(my $status), 
+  'status=s' => \(my $status),
   'fault=s' => \(my $fault),
-  'ignore' => \(my $ignore),  
+  'ignore' => \(my $ignore),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -61,7 +62,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj= new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -89,11 +90,11 @@ if (defined($severity) && ( ! ( (uc $severity eq 'WARNING') || (uc $severity eq 
 if ((!defined($severity)) && (!defined($fault)) && (!defined($status))) {
   print "Please define a filter for faults to resolve\n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1); 
+  exit (1);
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -116,10 +117,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($ignore)) {
   # this is for 4.2 >
-    if ($engine_obj->getApi() lt '1.5') {
+    if (version->parse($engine_obj->getApi()) < version->parse(1.5.0)) {
       print "Option ignore is allowed for Delphix Engine version 4.2 or higher\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      $ret = $ret + 1; 
+      $ret = $ret + 1;
     }
 
   }
@@ -128,14 +129,14 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (! defined($st)) {
       # take engine time minus 5 days
     $st = "-5days";
-  } 
-  
+  }
+
   my $st_timestamp;
 
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);  
+    exit (1);
   }
 
   my $et_timestamp;
@@ -145,8 +146,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj))) {
       print "Wrong end time (et) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);  
-    } 
+      exit (1);
+    }
   }
 
   my $faults = new Faults_obj($engine_obj, $st_timestamp, $et_timestamp,  $status, $severity , $debug);
@@ -156,13 +157,13 @@ for my $engine ( sort (@{$engine_list}) ) {
     for my $faultitem ( @{ $faults->getFaultsList('asc') } ) {
 
       my $faultTarget = $faults->getTarget($faultitem);
-      
+
       if (defined($target)) {
 
         # if like is defined we are going to resolve only ones maching like
         if ( ! ($faultTarget =~ m/\Q$target/)  ) {
           next;
-        } 
+        }
 
       }
 
@@ -177,7 +178,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $engine,
           $faultitem,
           $faults->getStatus($faultitem)
-        );      
+        );
       }
 
     }
@@ -193,7 +194,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $engine,
         $fault,
         $faults->getStatus($fault)
-      );      
+      );
     }
   }
 }
@@ -207,14 +208,14 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_resolve_faults [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                   [ -fault FAULTREF | all] 
-                   [ -st timestamp] 
-                   [ -et timestamp] 
-                   [ -severity severity] 
-                   [ -status status] 
+                   [ -fault FAULTREF | all]
+                   [ -st timestamp]
+                   [ -et timestamp]
+                   [ -severity severity]
+                   [ -status status]
                    [ -target target]
-                   [ -format csv|json ]  
-                   [ -help|? ] 
+                   [ -format csv|json ]
+                   [ -help|? ]
                    [ -debug ]
 
 =head1 DESCRIPTION
@@ -270,13 +271,13 @@ Fault target ( VDB name, target host name)
 Start time for faults list - default value is 7 days
 
 =item B<-et timestamp>
-End time for faults list 
+End time for faults list
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -291,8 +292,8 @@ Turn off header output
 
 Resolve fault with reference FAULT-130
 
- dx_resolve_faults -d Landshark -fault FAULT-130 
- 
+ dx_resolve_faults -d Landshark -fault FAULT-130
+
  Appliance            Fault ref            Resolved
  -------------------- -------------------- ----------
  Landshark            FAULT-130            RESOLVED
@@ -301,7 +302,7 @@ Resolve fault with reference FAULT-130
 Resolve all faults
 
  dx_resolve_faults -d Landshark -fault all
- 
+
  Appliance            Fault ref            Resolved
  -------------------- -------------------- ----------
  Landshark            FAULT-128            RESOLVED
@@ -312,7 +313,7 @@ Resolve all faults
 Resolve faults for target "Employee Oracle DB" since 2015-08-01
 
  dx_resolve_faults -d Landshark -fault all -target "Employee Oracle DB" -st "2015-08-01"
- 
+
  Appliance            Fault ref            Resolved
  -------------------- -------------------- ----------
  Landshark            FAULT-125            RESOLVED
@@ -320,6 +321,3 @@ Resolve faults for target "Employee Oracle DB" since 2015-08-01
 
 
 =cut
-
-
-
