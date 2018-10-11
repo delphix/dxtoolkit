@@ -36,6 +36,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Date::Manip;
+use version;
 
 use Group_obj;
 use Host_obj;
@@ -229,7 +230,7 @@ sub setAutostart
     my $autostart = shift;
     logger($self->{_debug}, "Entering VDB_obj::setAutostart",1);
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       if (defined($autostart) && (lc $autostart eq 'yes')) {
         $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::true;
       } else {
@@ -251,7 +252,7 @@ sub getAutostart
 
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       $ret = $self->{source}->{allowAutoVDBRestartOnHostReboot} ? 'yes' : 'no';
     } else {
       $ret = 'N/A';
@@ -278,7 +279,7 @@ sub changeAutostart
     my %source_hash;
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       if (defined($autostart) && (lc $autostart eq 'yes')) {
         %source_hash = (
             "type" => $self->{source}->{type},
@@ -821,6 +822,23 @@ sub getRuntimeStatus
     return $ret;
 }
 
+# Procedure getRuntimeSize
+# parameters: none
+# Return database runtime size in GB
+
+sub getRuntimeSize
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getRuntimeSize",1);
+    my $ret;
+    if (defined($self->{source}->{runtime})) {
+        $ret = sprintf("%.2f",$self->{source}->{runtime}->{databaseSize} / 1024 / 1024 / 1024);
+    } else {
+        $ret = 'NA';
+    }
+    return $ret;
+}
+
 # Procedure refreshRuntime
 # parameters:
 # - Source_obj with new data
@@ -851,7 +869,7 @@ sub getEnabled
 
     } else {
 
-        if ($self->{_dlpxObject}->getApi() lt "1.5") {
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
             $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
         } else {
             $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
@@ -1918,7 +1936,7 @@ sub deleteHook {
       }
     );
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       # there is no name for hook so hook will be a number
 
       if ($hookname > scalar(@hook_array)) {
@@ -2076,7 +2094,7 @@ sub setHook {
     my %hook_hash;
     my $ret = 0;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.5") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
         %hook_hash = (
             "type" => "RunCommandOperation", # this is API 1.4
             "command" => $hook
@@ -2102,7 +2120,7 @@ sub setHook {
         );
     }
 
-    if ($self->{_dlpxObject}->getApi() ge "1.9.0") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.9.0)) {
       $hook_hash{"name"} = $hookname;
     }
 
@@ -2128,7 +2146,7 @@ sub setHook {
         # todo
         # add replace hook with same name or number
 
-        if ($self->{_dlpxObject}->getApi() lt "1.9.0") {
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
           # there is no name for hook so hook will be a number
 
           if ($hookname =~ /\D/) {
@@ -2582,7 +2600,7 @@ sub createVDB {
     $self->setPort($port);
     $self->setMountPoint($mountpoint);
 
-    if ($self->{_dlpxObject}->getApi() ge "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.8.0)) {
       $self->{"NEWDB"}->{"source"}->{"allowAutoVDBRestartOnHostReboot"} = JSON::false;
     }
 

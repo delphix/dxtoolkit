@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 # Created      : 30 Jan 2014 (v1.0.0)
 #
 # Modified     : 20 Jul 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use JSON;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev); #avoids conflicts with ex host and help
@@ -27,6 +27,7 @@ use File::Basename;
 use Pod::Usage;
 use FindBin;
 use Data::Dumper;
+use version;
 
 my $abspath = $FindBin::Bin;
 
@@ -40,15 +41,15 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \$help, 
-  'd|engine=s' => \(my $dx_host), 
-  'st=s' => \(my $st), 
-  'et=s' => \(my $et), 
+  'help|?' => \$help,
+  'd|engine=s' => \(my $dx_host),
+  'st=s' => \(my $st),
+  'et=s' => \(my $et),
   'target=s' => \(my $target),
   'severity=s' => \(my $severity),
-  'status=s' => \(my $status), 
+  'status=s' => \(my $status),
   'outdir=s' => \(my $outdir),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -58,7 +59,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -85,7 +86,7 @@ if (defined($severity) && ( ! ( (uc $severity eq 'WARNING') || (uc $severity eq 
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -95,7 +96,7 @@ $output->addHeader(
     {'Fault ref',  20},
     {'Status',  10},
     {'Date Diagnosed', 25},
-    {'Severity',       8},   
+    {'Severity',       8},
     {'Target',  55},
     {'Title', 35}
 );
@@ -110,10 +111,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if ($status eq 'IGNORED') {
   # this is for 4.2 >
-    if ($engine_obj->getApi() le '1.5') {
+    if (version->parse($engine_obj->getApi()) < version->parse(1.5.0)) {
       print "Status IGNORED is allowed for Delphix Engine version 4.3 or higher\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1); 
+      exit (1);
     }
 
   }
@@ -122,7 +123,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);  
+    exit (1);
   }
 
   my $et_timestamp;
@@ -132,8 +133,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj))) {
       print "Wrong end time (et) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);  
-    } 
+      exit (1);
+    }
   }
 
   my $faults = new Faults_obj($engine_obj, $st_timestamp, $et_timestamp,  uc $status, uc $severity);
@@ -141,13 +142,13 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $fault ( @{ $faults->getFaultsList('asc') } ) {
 
     my $faultTarget = $faults->getTarget($fault);
-    
+
     if (defined($target)) {
 
       # if like is defined we are going to resolve only ones maching like
       if ( ! ($faultTarget =~ m/\Q$target/)  ) {
         next;
-      } 
+      }
 
     }
 
@@ -175,13 +176,13 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_faults    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                  [-st timestamp] 
-                  [-et timestamp] 
-                  [-severity severity] 
-                  [-status status] 
+                  [-st timestamp]
+                  [-et timestamp]
+                  [-severity severity]
+                  [-status status]
                   [-target target]
                   [-format csv|json ]
-                  [-outdir path]  
+                  [-outdir path]
                   [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -237,16 +238,16 @@ Start time for faults list. Format "YYYY-MM-DD [HH24:MI:SS]". Default value is "
 =item B<-et timestamp>
 End time for faults list. Format "YYYY-MM-DD [HH24:MI:SS]"
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-outdir path>                                                                                                                                            
+=item B<-outdir path>
 Write output into a directory specified by path.
 Files names will include a timestamp and type name
 
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -279,6 +280,3 @@ Export faults from Delphix Engine into file
  Data exported into /tmp/faults-20161108-16-11-58.txt
 
 =cut
-
-
-

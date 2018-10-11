@@ -284,7 +284,7 @@ Type (dsource|vdb)
 
 =item B<-exportDBHooks>
 Export database (specified by database filters) hooks in Delphix Engine JSON format into a outdir directory
-This file(s) can by used by dx_provision_vdb or dx_ctl_dbhooks script
+This file(s) can by used by dx_provision_vdb
 
 =item B<-save>
 Save a hook(s) as file(s) into a directory structure started by -outdir
@@ -316,15 +316,15 @@ Display all hooks from datasets on Delphix Engine
  autofs               preRollback          savestate            BASH            cp /home/save /tmp
  autotest             postRefresh          changepassword       BASH            sqlplus / as sysdba <<EOF<cr>alter user app identified by app;<cr>EOF
 
-Save hooks into file under outdir folder
+Save hooks into file under outdir folder. Hook can be loaded using dx_ctl_dbhooks using load action
 
- dx_get_dbhooks.pl -d Landshark51 -save -outdir /tmp
+ dx_get_dbhooks -d Landshark51 -save -outdir /tmp
  Saving hook to file /tmp/autofs/preRollback/savestate
  Saving hook to file /tmp/autotest/postRefresh/changepassword
 
 Export hooks using Delphix Engine JSON format for other dxtoolkit scripts
 
- dx_get_dbhooks.pl -d Landshark51 -exportDBHooks -outdir /tmp -dbname autotest
+ dx_get_dbhooks -d Landshark51 -exportDBHooks -outdir /tmp -dbname autotest
  Exporting database autotest hooks into  /tmp/autotest.dbhooks
 
 

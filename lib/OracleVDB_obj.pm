@@ -30,6 +30,7 @@ use warnings;
 use Data::Dumper;
 use Template_obj;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 use SourceConfig_obj;
 our @ISA = qw(VDB_obj);
@@ -602,7 +603,7 @@ sub getListenersNames
 
     my $listloc;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       $listloc = 'nodeListenerList';
     } else {
       $listloc = 'nodeListeners';
@@ -846,7 +847,7 @@ sub getArchivelog {
     my $archlog_param;
     my $archlog;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.5") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
         $archlog = $self->{source}->{runtime}->{archivelogEnabled};
         if ($self->getRuntimeStatus() eq 'RUNNING') {
             $archlog_param = $archlog ? 'archivelog=yes' : 'archivelog=no';
@@ -890,7 +891,7 @@ sub setRedoGroupNumber {
     my $redogroups = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupNumber",1);
 
-    if ($self->{_dlpxObject}->getApi() ge "1.5") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.5.0)) {
       $self->{NEWDB}->{source}->{redoLogGroups} = 0 + $redogroups;
     }
 
@@ -916,7 +917,7 @@ sub setRedoGroupSize {
     my $redosize = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setRedoGroupSize",1);
 
-    if ($self->{_dlpxObject}->getApi() ge "1.5") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.5.0)) {
       $self->{NEWDB}->{source}->{redoLogSizeInMB} = 0+ $redosize;
     }
 
@@ -1167,7 +1168,7 @@ sub attach_dsource
     );
 
     my %attach_data;
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
       %attach_data = (
           "type" => "OracleAttachSourceParameters",
           "source" =>  {
@@ -1422,7 +1423,7 @@ sub addSource {
 
     my %dsource_params;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
       %dsource_params = (
             "environmentUser" => $source_os_ref,
             "source" => {
@@ -1651,7 +1652,7 @@ sub createVDB {
         return undef;
       }
 
-      if ($self->{_dlpxObject}->getApi() ge '1.9.0') {
+      if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.9.0)) {
         $self->{"NEWDB"}->{"type"} = "OracleMultitenantProvisionParameters";
         $self->{"NEWDB"}->{"source"}->{"type"} = "OracleVirtualPdbSource";
       }
@@ -1668,7 +1669,7 @@ sub createVDB {
       } else {
         # creating a vCDB
 
-        if ($self->{_dlpxObject}->getApi() lt '1.9.0') {
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
           print "Virtual CDB is supported in Delphix Engine 5.2 or higher\n";
           return undef;
         }

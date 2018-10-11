@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,10 +27,11 @@ use strict;
 use Data::Dumper;
 use Date::Manip;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -50,23 +51,23 @@ sub new {
         _container => $container,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->loadJSBoomkarkList($debug);
     return $self;
 }
 
 
 # Procedure getJSBookmarkByName
-# parameters: 
-# - name 
+# parameters:
+# - name
 # Return bookmark reference for particular name
 
 sub getJSBookmarkByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkByName",1);    
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkByName",1);
     my $ret;
 
     #print Dumper $$config;
@@ -74,7 +75,7 @@ sub getJSBookmarkByName {
     for my $bookitem ( sort ( keys %{$self->{_jsbookmarks}} ) ) {
 
         if ( $self->getName($bookitem) eq $name) {
-            $ret = $bookitem; 
+            $ret = $bookitem;
         }
     }
 
@@ -82,15 +83,15 @@ sub getJSBookmarkByName {
 }
 
 # Procedure getBookmark
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark hash for specific bookmark reference
 
 sub getJSBookmark {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmark",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmark",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
     return $jsbookmarks->{$reference};
@@ -99,7 +100,7 @@ sub getJSBookmark {
 
 # Procedure existBookmarkTimeForBranch
 # parameters:
-# - time 
+# - time
 # - branch
 # Return true if bookmark exist for specific bookmark reference
 
@@ -107,7 +108,7 @@ sub existJSBookmarkTimeForBranch {
     my $self = shift;
     my $time = shift;
     my $branch = shift;
-    logger($self->{_debug}, "Entering JS_bookmark_obj::existJSBookmarkTimeForBranch",1);  
+    logger($self->{_debug}, "Entering JS_bookmark_obj::existJSBookmarkTimeForBranch",1);
     my $book = grep { (($self->getJSBookmarkTime($_, 1) eq $time ) && ($self->getJSBookmarkBranch($_) eq $branch)) } keys %{$self->{_jsbookmarks}};
 
     return $book;
@@ -116,7 +117,7 @@ sub existJSBookmarkTimeForBranch {
 
 # Procedure existBookmarkNameForBranch
 # parameters:
-# - name 
+# - name
 # - branch
 # Return true if bookmark exist for specific bookmark reference
 
@@ -124,7 +125,7 @@ sub existBookmarkNameForBranch {
     my $self = shift;
     my $name = shift;
     my $branch = shift;
-    logger($self->{_debug}, "Entering JS_bookmark_obj::existBookmarkNameForBranch",1);  
+    logger($self->{_debug}, "Entering JS_bookmark_obj::existBookmarkNameForBranch",1);
     my $book = grep { (($self->getName($_) eq $name ) && ($self->getJSBookmarkBranch($_) eq $branch)) } keys %{$self->{_jsbookmarks}};
 
     return $book;
@@ -133,7 +134,7 @@ sub existBookmarkNameForBranch {
 
 
 # Procedure getBookmarkBranch
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark branch for specific bookmark reference
 
@@ -141,8 +142,8 @@ sub getJSBookmarkBranch {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkBranch",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkBranch",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
@@ -152,7 +153,7 @@ sub getJSBookmarkBranch {
 }
 
 # Procedure getBookmarkTemplate
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark template for specific bookmark reference
 
@@ -160,8 +161,8 @@ sub getJSBookmarkTemplate {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTemplate",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTemplate",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
@@ -172,7 +173,7 @@ sub getJSBookmarkTemplate {
 
 
 # Procedure getJSBookmarkTemplateName
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark template name for specific bookmark reference
 
@@ -180,8 +181,8 @@ sub getJSBookmarkTemplateName {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkTemplateName",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkTemplateName",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
@@ -192,7 +193,7 @@ sub getJSBookmarkTemplateName {
 
 
 # Procedure getJSBookmarkContainerName
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark container name for specific bookmark reference
 
@@ -200,8 +201,8 @@ sub getJSBookmarkContainerName {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkContainerName",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkContainerName",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
@@ -211,7 +212,7 @@ sub getJSBookmarkContainerName {
 }
 
 # Procedure getJSBookmarkContainer
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark container name for specific bookmark reference
 
@@ -219,13 +220,13 @@ sub getJSBookmarkContainer {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkContainer",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkContainer",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
     my $container_ref = $jsbookmarks->{$reference}->{container};
-  
+
     return defined($container_ref) ? $container_ref : 'N/A' ;
 }
 
@@ -233,7 +234,7 @@ sub getJSBookmarkContainer {
 
 
 # Procedure getBookmarkTime
-# parameters: 
+# parameters:
 # - reference
 # - native
 # Return bookmark time for specific bookmark reference
@@ -242,8 +243,8 @@ sub getJSBookmarkTime {
     my $self = shift;
     my $reference = shift;
     my $native = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTime",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTime",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
@@ -261,15 +262,15 @@ sub getJSBookmarkTime {
 
 
 # Procedure getBookmarkTime
-# parameters: 
+# parameters:
 # - reference
 # Return bookmark time for specific bookmark reference
 
 sub getJSBookmarkTimeWithTimestamp {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTimeWithTimestamp",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTimeWithTimestamp",1);
 
     my $detz = $self->{_dlpxObject}->getTimezone();
 
@@ -296,14 +297,14 @@ sub getJSBookmarkTimeWithTimestamp {
 
 
 # Procedure getJSBookmarkList
-# parameters: 
+# parameters:
 # Return JS bookmark list
 
 sub getJSBookmarkList {
     my $self = shift;
     my $cont_only = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkList",1);    
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkList",1);
 
     my @arrret = sort { $self->getJSBookmarkTime($a) cmp $self->getJSBookmarkTime($b) } (keys %{$self->{_jsbookmarks}} );
 
@@ -316,15 +317,15 @@ sub getJSBookmarkList {
 
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return JS bookmark name for specific branch reference
 
 sub getName {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::getName",1);   
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getName",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
     return $jsbookmarks->{$reference}->{name};
@@ -336,10 +337,10 @@ sub getName {
 # parameters: none
 # Load a list of branch objects from Delphix Engine
 
-sub loadJSBoomkarkList 
+sub loadJSBoomkarkList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering JS_bookmark_obj::loadJSBranchList",1);   
+    logger($self->{_debug}, "Entering JS_bookmark_obj::loadJSBranchList",1);
 
     my $operation = "resources/json/delphix/jetstream/bookmark?";
 
@@ -358,14 +359,14 @@ sub loadJSBoomkarkList
 
         for my $bookmarkitem (@res) {
             $jsbookmarks->{$bookmarkitem->{reference}} = $bookmarkitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
 }
 
 # Procedure createBookmark
-# parameters: 
+# parameters:
 # - name
 # - branch
 # - datalayout
@@ -381,8 +382,8 @@ sub createBookmark {
     my $time = shift;
     my $zulu = shift;
     my $expireat = shift;
-    
-    logger($self->{_debug}, "Entering JS_bookmark_obj::createBookmark",1);   
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::createBookmark",1);
 
 
     my %createbookmark_hash;
@@ -410,7 +411,7 @@ sub createBookmark {
 
         if (defined($zulu)) {
             $zulutime = $time;
-        } else { 
+        } else {
             my $tz = new Date::Manip::TZ;
             my $dt = ParseDate($time);
             my $detz = $self->{_dlpxObject}->getTimezone();
@@ -431,8 +432,8 @@ sub createBookmark {
             return undef;
         }
 
-        
-        if ($self->{_dlpxObject}->getApi() lt "1.8") {
+
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
           %createbookmark_hash = (
               "type" => "JSBookmarkCreateParameters",
               "bookmark" => {
@@ -459,12 +460,12 @@ sub createBookmark {
                   "branch" => $branch,
                   "time" => $zulutime
               }
-          ); 
+          );
         }
-        
+
     }
 
-    if ($self->{_dlpxObject}->getApi() gt "1.6") {
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.6.0)) {
       if (defined($expireat)) {
         $createbookmark_hash{"bookmark"}{expiration} = $expireat;
       }
@@ -487,9 +488,9 @@ sub createBookmark {
 
 
 # Procedure deleteBookmark
-# parameters: 
+# parameters:
 # - reference
-# Delete bookmark 
+# Delete bookmark
 # return job reference
 
 sub deleteBookmark {
@@ -505,7 +506,7 @@ sub deleteBookmark {
 }
 
 # Procedure runJobOperation
-# parameters: 
+# parameters:
 # - operation - API string
 # - json_data - JSON encoded data
 # Run POST command running background job for particular operation and json data
@@ -519,7 +520,7 @@ sub runJobOperation {
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::runJobOperation",1);
     logger($self->{_debug}, $operation, 2);
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
     my $jobno;
 

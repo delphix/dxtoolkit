@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ use FindBin;
 use Data::Dumper;
 use warnings;
 use strict;
+use version;
 
 my $abspath = $FindBin::Bin;
 
@@ -50,9 +51,9 @@ my $version = $Toolkit_helpers::version;
 my $diff = 60;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'action=s'  => \(my $action), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'action=s'  => \(my $action),
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
   'bookmark_name=s' => \(my $bookmark_name),
@@ -72,7 +73,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -126,7 +127,7 @@ if (lc $action eq 'create') {
   if (defined($snapshots) && (!defined($source))) {
     print "Option snapshot require a source to be defined \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1); 
+    exit (1);
   }
 
 
@@ -145,7 +146,7 @@ if (lc $action eq 'create') {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -168,19 +169,19 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($container_name)) {
       $datalayout = new JS_container_obj ( $engine_obj, $datalayout_ref, $debug );
       $datalayout_ref = $datalayout->getJSContainerByName($container_name);
-    } 
+    }
   }
 
   $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
-    
+
 
   if (!defined($datalayout_ref)) {
     print "Can't find template with a name $template_name on engine $engine \n";
     $ret = $ret + 1;
-    next;    
+    next;
   }
 
-  
+
   my $branchs = new JS_branch_obj ( $engine_obj, $datalayout_ref, $debug );
 
   my $active_branch;
@@ -194,7 +195,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   } else {
     $active_branch =  $datalayout->getJSActiveBranch($datalayout_ref);
-  } 
+  }
 
 
   if (lc $action eq 'create') {
@@ -202,7 +203,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $datasources = new JS_datasource_obj ( $engine_obj, $datalayout_ref, undef, undef );
 
     if ( defined($snapshots) ) {
-      
+
 
       my $ds_ref = $datasources->getJSDataSourceByName($source);
 
@@ -222,7 +223,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         for my $snapitem ( @{ $snapshot->getSnapshots() }) {
           my $time = $snapshot->getSnapshotCreationTime($snapitem);
           my $goodtime;
-          if ($engine_obj->getApi() lt "1.8") { 
+          if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
             $goodtime = $datasources->checkTime($datalayout_ref, $time);
           } else {
             $goodtime = $datasources->checkTime($active_branch, $time);
@@ -235,14 +236,14 @@ for my $engine ( sort (@{$engine_list}) ) {
             last;
           }
         }
-      } 
+      }
 
       if ((lc $snapshots eq 'last') || (lc $snapshots eq 'both')) {
         my $last_time = (@{ $snapshot->getSnapshots() })[-1];
 
         my $time = $snapshot->getSnapshotCreationTime($last_time);
         my $goodtime;
-        if ($engine_obj->getApi() lt "1.8") { 
+        if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
           $goodtime = $datasources->checkTime($datalayout_ref, $time);
         } else {
           $goodtime = $datasources->checkTime($active_branch, $time);
@@ -260,7 +261,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         for my $snapitem ( @{ $snapshot->getSnapshots() }) {
           my $time = $snapshot->getSnapshotCreationTime($snapitem);
           my $goodtime;
-          if ($engine_obj->getApi() lt "1.8") { 
+          if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
             $goodtime = $datasources->checkTime($datalayout_ref, $time);
           } else {
             $goodtime = $datasources->checkTime($active_branch, $time);
@@ -273,7 +274,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           }
         }
       }
-      
+
 
       for my $bookname_item (sort (keys %bookmark_times_hash)) {
 
@@ -300,7 +301,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $bookmark_time = $operations->getEndTime($firstop);
 
           $zulu = 1;
-        
+
         } else {
           print "Can't find a first operation for template or container \n";
           $ret = $ret + 1;
@@ -336,8 +337,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (!defined($bookmarks)) {
       $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
-    } 
-    
+    }
+
 
     my @bookmark_array;
 
@@ -386,7 +387,7 @@ sub create {
   my $bookmark_time = shift;
   my $zulu = shift;
   my $expireat = shift;
-  
+
   if (defined($expireat)) {
     my $tz = $engine_obj->getTimezone();
     $expireat = Toolkit_helpers::convert_to_utc($expireat, $tz, undef, 1);
@@ -417,12 +418,12 @@ __DATA__
  dx_ctl_js_bookmarks    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                          -action create | remove
                          -template_name template_name
-                         -container_name container_name 
-                         -bookmark_name bookmark_name 
+                         -container_name container_name
+                         -bookmark_name bookmark_name
                         [-bookmark_time "YYYY-MM-DD HH24:MI:SS" | first | latest ]
                         [-snapshots first | last | both | all]
                         [-source source_name]
-                        [-container_name container_name]  
+                        [-container_name container_name]
                         [-expireat timestamp ]
                         [ --help|? ] [ -debug ]
 
@@ -456,7 +457,7 @@ A config file search order is as follow:
 =over 4
 
 =item B<-action action_name>
-Action name. Allowed values are : 
+Action name. Allowed values are :
 
 create - to create bookmark
 
@@ -506,7 +507,7 @@ or "YYYY-MM-DD HH24:MI:SS"
 
 =over 3
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -517,8 +518,8 @@ Turn on debugging
 
 =head1 EXAMPLES
 
-Create template bookmarks for all snapshots for template "template"" and source "oracle", bookmarks name starts with prefix "pre" 
-plus time of snapshot, 
+Create template bookmarks for all snapshots for template "template"" and source "oracle", bookmarks name starts with prefix "pre"
+plus time of snapshot,
 
  dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "pre" -template_name template -snapshots all -source oracle -action create
  Starting job JOB-7623 for bookmark pre-2016-10-12 12:02:31.
@@ -532,7 +533,7 @@ Create template bookmark for a first snapshot of source "oracle" taken after tem
  5 - 100
  Job JOB-7625 finished with state: COMPLETED
 
-Create template bookmark for particular time 
+Create template bookmark for particular time
 
  dx_ctl_js_bookmarks -d Landshark5 -bookmark_name "fixeddate" -template_name template -bookmark_time "2016-10-12 13:05:02" -branch_name master -action create
  Starting job JOB-7626 for bookmark fixeddate.
@@ -554,6 +555,3 @@ Deleting bookmark for template
  Job JOB-7629 finished with state: COMPLETED
 
 =cut
-
-
-

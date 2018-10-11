@@ -164,6 +164,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $dbobj = $databases->getDB($dbitem);
     my $capacity_hash = $capacity->getDetailedDBUsage($dbitem, $details);
 
+    if ($capacity_hash->{snapshots_shared} eq 0) {
+      # storage info not found - maybe database is deleted
+      # skipping it
+      next;
+    }
 
 
     if (defined($details) && ($details eq '')) {
@@ -374,6 +379,7 @@ __DATA__
                     [-details [all]]
                     [-sortby size ]
                     [-format csv|json ]
+                    [-forcerefresh]
                     [-unvirt]
                     [-help|? ]
                     [-debug ]
@@ -429,6 +435,9 @@ Name of dsource
 =head1 OPTIONS
 
 =over 3
+
+=item B<-forcerefresh>
+Force refresh of capacity data (in >= 5.2 )
 
 =item B<-details [all]>
 Display breakdown of usage.

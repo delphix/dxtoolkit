@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ use FindBin;
 use Data::Dumper;
 use warnings;
 use strict;
+use version;
 
 my $abspath = $FindBin::Bin;
 
@@ -48,8 +49,8 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
   'bookmark_name=s' => \(my $bookmark_name),
@@ -65,7 +66,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -86,14 +87,14 @@ if (defined($realtime) && (!defined($bookmark_name))) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
 
 if (defined($realtime)) {
   $output->addHeader(
       {'Appliance',         20},
-      {'Bookmark name',     30}, 
+      {'Bookmark name',     30},
       {'Bookmark time',     30},
       {'Template name',     30},
       {'Container name',    30},
@@ -101,10 +102,10 @@ if (defined($realtime)) {
       {'Source name',       20},
       {'Source time',       30}
   );
-} else { 
+} else {
   $output->addHeader(
       {'Appliance',         20},
-      {'Bookmark name',     30}, 
+      {'Bookmark name',     30},
       {'Bookmark time',     30},
       {'Template name',     30},
       {'Container name',    30},
@@ -146,8 +147,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (!defined($bookmarks)) {
     $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
-  } 
-  
+  }
+
 
   my $branchs = new JS_branch_obj ( $engine_obj, undef, $debug );
   my $datasources;
@@ -173,17 +174,17 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   for my $bookmarkitem (@bookmark_array) {
     my $bookmark_time = $bookmarks->getJSBookmarkTimeWithTimestamp($bookmarkitem);
-    
+
     my $obj_ref;
     my $contref = $bookmarks->getJSBookmarkContainer($bookmarkitem);
     my $tempref = $bookmarks->getJSBookmarkTemplate($bookmarkitem);
-    
+
     if (defined($contref) && ($contref ne 'N/A') ) {
       $obj_ref = $contref;
     } else {
       $obj_ref = $tempref;
     }
-    
+
     if (defined($realtime)) {
 
       $output->addLine (
@@ -199,8 +200,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       my $t = $bookmarks->getJSBookmarkTime($bookmarkitem, 1);
       my $realtime;
-      
-      if ($engine_obj->getApi() lt "1.8") { 
+
+      if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
         $realtime = $datasources->checkTime($obj_ref, $t);
       } else {
         $realtime = $datasources->checkTime($bookmarks->getJSBookmarkBranch($bookmarkitem), $t);
@@ -248,12 +249,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_bookmarks    [-engine|d <delphix identifier> | -all ] 
-                        [-template_name template_name] 
-                        [-container_name container_name] 
-                        [-bookmark_name bookmark_name] 
-                        [-realtime] [-container_only] 
-                        [-format csv|json ]  
+ dx_get_js_bookmarks    [-engine|d <delphix identifier> | -all ]
+                        [-template_name template_name]
+                        [-container_name container_name]
+                        [-bookmark_name bookmark_name]
+                        [-realtime] [-container_only]
+                        [-format csv|json ]
                         [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -306,11 +307,11 @@ Display exact time of bookmark (works with bookmark name only)
 
 =over 3
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -323,7 +324,7 @@ Turn off header output
 
 =head1 EXAMPLES
 
-List all bookmarks 
+List all bookmarks
 
  dx_get_js_bookmarks -d Landshark5
 
@@ -353,6 +354,3 @@ Display a real database point for bookmark1
 
 
 =cut
-
-
-

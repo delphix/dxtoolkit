@@ -28,6 +28,7 @@ use warnings;
 use strict;
 use Data::Dumper;
 use JSON;
+use version;
 use Toolkit_helpers qw (logger);
 
 
@@ -72,7 +73,7 @@ sub LoadSnapshots {
   my $db_ref = shift;
   my $all_snaps;
   logger($self->{_debug}, "Entering Capacity_obj::LoadSnapshots",1);
-  if ($self->{_dlpxObject}->getApi() lt '1.9') {
+  if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
     $all_snaps = $self->LoadSnapshots_18($db_ref);
   } else {
     $all_snaps = $self->LoadSnapshots_19($db_ref);
@@ -185,7 +186,7 @@ sub forcerefesh {
 
     my $ret;
 
-    if ($self->{_dlpxObject}->getApi() lt '1.9') {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       print "Refresh not supported for engine version < 5.2.0\n";
       return 0;
     } else {
@@ -254,6 +255,7 @@ sub LoadSnapshots_18 {
 
         if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
             $space = $result->{result}->{totalSize};
+            $snapshots{$snapitem}{"space"} = $space/1024/1024/1024;
         } else {
             if (defined($result->{error})) {
                 print "Problem with space calculation for snapshot " . $result->{error}->{details} . "\n";
@@ -262,15 +264,15 @@ sub LoadSnapshots_18 {
             } else {
                 print "Unknown error. Try with debug flag\n";
             }
+            $snapshots{$snapitem}{"space"} = 0;
         }
 
 
-        $snapshots{$snapitem}{"space"} = $space/1024/1024/1024;
+
         push (@snapshots_ret, $snapshots{$snapitem});
 
 
     }
-
 
     return \@snapshots_ret;
 

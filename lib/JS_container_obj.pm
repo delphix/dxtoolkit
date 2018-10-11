@@ -31,6 +31,7 @@ use Toolkit_helpers qw (logger);
 use JS_bookmark_obj;
 use JS_datasource_obj;
 use Snapshot_obj;
+use version;
 use Date::Manip;
 
 # constructor
@@ -63,21 +64,30 @@ sub new {
 # Procedure getJSContainerByName
 # parameters:
 # - name
-# Return template reference for particular name
+# - array
+# Return container reference for particular name
+# or array of containers if array flag is set
 
 sub getJSContainerByName {
     my $self = shift;
     my $name = shift;
+    my $array = shift;
     logger($self->{_debug}, "Entering JS_container_obj::getJSContainerByName",1);
+    my @contarray = grep { $self->getName($_) eq $name } ( sort ( keys %{$self->{_jscontainer}} ) );
     my $ret;
 
-    for my $containeritem ( sort ( keys %{$self->{_jscontainer}} ) ) {
-
-        if ( $self->getName($containeritem) eq $name) {
-            $ret = $containeritem;
-        }
+    if (defined($array)) {
+      $ret = \@contarray;
+    } else {
+      if (scalar(@contarray) == 1) {
+        $ret = $contarray[0];
+      }
+      elsif (scalar(@contarray) < 1) {
+        print "Can't find container with name $name on engine " . $self->{_dlpxObject}->getEngineName() . "\n";
+      } elsif (scalar(@contarray) > 1) {
+        print "Container name $name on engine" . $self->{_dlpxObject}->getEngineName() . " is not unique. Please add template name\n";
+      }
     }
-
     return $ret;
 }
 
@@ -256,7 +266,7 @@ sub restoreContainer {
 
         if (defined($zulutime)) {
 
-            if ($self->{_dlpxObject}->getApi() lt "1.8") {
+            if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
               %timelineHash = (
                   "type" => "JSTimelinePointTimeInput",
                   "sourceDataLayout" => $dataobj_ref,
@@ -292,7 +302,7 @@ sub restoreContainer {
 
     my %recoveryHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %recoveryHash = %timelineHash;
     } else {
       %recoveryHash =  (
@@ -325,7 +335,7 @@ sub refreshContainer {
 
     my %refreshHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %refreshHash = ();
     } else {
       %refreshHash =  (
@@ -357,7 +367,7 @@ sub resetContainer {
 
     my %resetHash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.9") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
       %resetHash = ();
     } else {
       %resetHash =  (
@@ -507,7 +517,7 @@ sub createContainer {
 
     my %conthash;
 
-    if ($self->{_dlpxObject}->getApi() lt "1.8.2") {
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.2)) {
       if (defined($dontrefresh)) {
         print "Your Delphix Engine version doesn't allow JS container creation without refresh.\n";
         return undef;
