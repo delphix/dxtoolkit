@@ -1463,7 +1463,8 @@ sub setTimestamp {
     my $self = shift;
     my $timestamp = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::setTimestamp",1);
+    logger($self->{_debug}, "Entering VDB_obj::setTimestamp", 1);
+    logger($self->{_debug}, "timestamp parameter " . $timestamp, 2);
 
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
@@ -1601,7 +1602,7 @@ sub setTimestamp {
             delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"};
             delete $self->{"NEWDB"}->{"timeflowPointParameters"}->{"container"};
         } else {
-            print "Timestamp format doesn't match any known format \n";
+            print "Timestamp $timestamp format doesn't match any known format \n";
             return 1;
         }
     }
