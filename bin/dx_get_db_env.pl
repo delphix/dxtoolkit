@@ -152,6 +152,8 @@ if (defined($backup)) {
       {'Paramters', 200}
   );
 
+  $primary = 1;
+
 } elsif (defined($config)) {
   $hostenv = 'e';
   $output->addHeader(
