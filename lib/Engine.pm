@@ -53,6 +53,7 @@ use File::Spec;
 use Try::Tiny;
 use Term::ReadKey;
 use dbutils;
+use open qw(:std :utf8);
 
 use LWP::Protocol::http;
 push(@LWP::Protocol::http::EXTRA_SOCK_OPTS, MaxLineLength => 0);
