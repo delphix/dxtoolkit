@@ -724,6 +724,8 @@ sub setName {
         $instance_name = $dbname;
     }
 
+    print $contname . "\n";
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"} = $unique_name;

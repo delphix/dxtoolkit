@@ -41,6 +41,7 @@ use MSSQLVDB_obj;
 use SybaseVDB_obj;
 use AppDataVDB_obj;
 use Toolkit_helpers qw (logger);
+use Encode qw(decode_utf8);
 
 # constructor
 # parameters
@@ -312,6 +313,8 @@ sub getDB {
 sub getDBByName {
     my $self = shift;
     my $name = shift;
+
+    $name = decode_utf8($name);
 
     logger($self->{_debug}, "Entering Databases::getDBByName",1);
     my $dbs = $self->{_dbs};
