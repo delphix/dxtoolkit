@@ -267,6 +267,35 @@ sub getConfig
 
 }
 
+# Procedure getType
+# parameters: none
+# Return database type (dSource / VDB)
+
+sub getType
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getType",1);
+    my $type = $self->{source}->{type};
+
+    if (defined($type)) {
+        if ($type =~ /Linked(.*)Source/ ) {
+            if ($self->{container}->{contentType} eq 'ROOT_CDB') {
+              return "CDB"
+            } else {
+              return "dSource";
+            }
+        } else {
+            if ($self->{container}->{contentType} eq 'ROOT_CDB') {
+              return "vCDB";
+            } else {
+              return "VDB";
+            }
+        }
+    } else {
+        return "detached";
+    }
+}
+
 
 # Procedure getInstances
 # parameters: none
