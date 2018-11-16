@@ -17,18 +17,18 @@ for i in dx_*.pl ; do
     name=${i%.pl}
     echo Compiling $name;
     {% if openssl is defined %}
-    $PP -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so  -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
+    $PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so  -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
     {% else %}
-    $PP -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
+    $PP -u -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
     {% endif %}
 done
 
 {% if openssl is defined %}
-$PP -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
+$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
 $PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_get_replication dx_get_replication.pl 
 $PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_replication dx_ctl_replication.pl 
 {% else %}
-$PP -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
+$PP -u -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
 $PP -u -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_get_replication dx_get_replication.pl 
 $PP -u -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_replication dx_ctl_replication.pl 
 {% endif %}
