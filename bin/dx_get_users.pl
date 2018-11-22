@@ -165,12 +165,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   my @user_list = ();
 
   if (defined($username)) {
-    my $userobj = $users_obj->getUserByName($username);
+    my $userobj = $users_obj->getAllUsersByName($username);
     if (!defined($userobj)) {
       $ret = $ret + 1;
       next;
     }
-    push (@user_list, $userobj->getReference());
+    @user_list = @{$userobj};
   } else {
     @user_list = $users_obj->getUsers();
   }
