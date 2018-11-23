@@ -3,7 +3,8 @@ use Data::Dumper;
 use Test::More tests => 11;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
+use lib '../../lib/';
+use lib '../';
 use lib '.';
 use server;
 
@@ -14,18 +15,12 @@ my $server = server->new(8080);
 $server->host('127.0.0.1');
 $server->background();
 
- 
+
 script_compiles('../../bin/dx_get_snapshots.pl');
 script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-name','Oracle dsource'] ,  "dSource snapshot test");
 
 my $expected_stdout = <<EOF;
 #Engine,Group,Database,Snapshot name,Start time,End time
-=======
-
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-name','Oracle dsource'] ,  "dSource Snapshot test");
-
-my $expected_stdout = <<EOF;
->>>>>>> 0990b4992c2e1c2e117073c84b3dbd97f73e489c
 local,Sources,Oracle dsource,\@2017-05-09T18:14:12.639Z,2017-05-09 14:14:08 EDT,2017-05-09 14:14:08 EDT
 local,Sources,Oracle dsource,\@2017-06-06T12:00:04.096Z,2017-06-06 07:59:59 EDT,2017-06-06 08:18:29 EDT
 local,Sources,Oracle dsource,\@2017-06-06T12:18:28.754Z,2017-06-06 08:18:29 EDT,2017-06-06 08:54:00 EDT
@@ -75,7 +70,7 @@ EOF
 
 script_stdout_is $expected_stdout, "All objects results compare";
 
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-startDate','2017-06-06 07:59:59'] ,  "startDate"); 
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-startDate','2017-06-06 07:59:59'] ,  "startDate");
 
 my $expected_stdout = <<EOF;
 local,Sources,Oracle dsource,\@2017-06-06T12:00:04.096Z,2017-06-06 07:59:59 EDT,2017-06-06 08:18:29 EDT
@@ -87,7 +82,7 @@ EOF
 script_stdout_is $expected_stdout, "startDate results compare";
 
 
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-endDate','2017-05-13 00:00:00','-name','TESTEBI'] ,  "endDate plus name"); 
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-endDate','2017-05-13 00:00:00','-name','TESTEBI'] ,  "endDate plus name");
 my $expected_stdout = <<EOF;
 local,Sources,TESTEBI,\@2017-04-06T13:16:37.405,2017-04-06 13:16:37 IST,2017-04-06 13:16:37 IST
 local,Sources,TESTEBI,\@2017-05-10T15:39:31.846,2017-05-10 15:39:31 IST,2017-05-10 15:39:31 IST

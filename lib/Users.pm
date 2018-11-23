@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ use User_obj;
 
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -51,11 +51,11 @@ sub new {
         _databases => $databases,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
 
     my $authorizations = new Authorization_obj($dlpxObject,$debug);
-    
+
     $self->{_authorizations} = $authorizations;
 
     $self->getUserList($debug);
@@ -64,38 +64,67 @@ sub new {
 
 
 # Procedure getUserByName
-# parameters: 
-# - name 
+# parameters:
+# - name
 # Return user reference for particular user name
 
 sub getUserByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Users::getUserByName",1);    
+    my $usertype = shift;
+    logger($self->{_debug}, "Entering Users::getUserByName",1);
     my $ret;
 
-    #print Dumper $$config;
+    if (!defined($usertype)) {
+      $usertype = '';
+    }
 
     for my $useritem ( sort ( keys %{$self->{_users}} ) ) {
         my $user = $self->{_users}->{$useritem};
         if ( $user->getName() eq $name) {
-            $ret = $user;
+          if ($usertype eq 'SYSTEM') {
+            if ($user->getUserType() eq 'SYSTEM') {
+              $ret = $user;
+            }
+          } else {
+            if ($user->getUserType() eq 'DOMAIN') {
+              $ret = $user;
+            }
+          }
         }
     }
 
     return $ret;
 }
 
+# Procedure getAllUsersByName
+# parameters:
+# - name
+# Return array with users obj
+
+sub getAllUsersByName {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Users::getAllUsersByName",1);
+    my $ret;
+
+    # limit a list of users ref to ones matching a name parameter
+    my @userrefarray = grep { $self->{_users}->{$_}->getName() eq $name } sort ( keys %{$self->{_users}} );
+
+    return \@userrefarray;
+}
+
 # Procedure getUser
-# parameters: 
+# parameters:
 # - reference
 # Return user hash for specific user reference
 
 sub getUser {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Users::getUser",1);    
+
+    logger($self->{_debug}, "Entering Users::getUser",1);
 
     my $users = $self->{_users};
     return $users->{$reference};
@@ -103,23 +132,23 @@ sub getUser {
 }
 
 # Procedure getUsers
-# parameters: 
+# parameters:
 # Return list of users
 
 sub getUsers {
     my $self = shift;
-    logger($self->{_debug}, "Entering Users::getUsers",1); 
+    logger($self->{_debug}, "Entering Users::getUsers",1);
     return sort (keys %{$self->{_users}});
 }
 
 
 # Procedure getJSUsers
-# parameters: 
+# parameters:
 # Return list of JS users plus delphix admin one as they can have JS objects
 
 sub getJSUsers {
     my $self = shift;
-    logger($self->{_debug}, "Entering Users::getJSUsers",1); 
+    logger($self->{_debug}, "Entering Users::getJSUsers",1);
     my @retarray;
     for my $userref (sort (keys %{$self->{_users}})) {
       if (($self->{_users}->{$userref}->isJS()) || ($self->{_users}->{$userref}->isAdmin())) {
@@ -131,15 +160,15 @@ sub getJSUsers {
 
 
 # Procedure getUsersByTarget
-# parameters: 
+# parameters:
 # - target ref
 # Return list of users for target
 
 sub getUsersByTarget {
     my $self = shift;
     my $target_ref = shift;
-    logger($self->{_debug}, "Entering Users::getUsersByTarget",1); 
-    
+    logger($self->{_debug}, "Entering Users::getUsersByTarget",1);
+
     return $self->{_authorizations}->getUsersByTarget($target_ref);
 }
 
@@ -147,11 +176,13 @@ sub getUsersByTarget {
 # parameters: none
 # Load a list of user objects from Delphix Engine
 
-sub getUserList 
+sub getUserList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Users::getUserList",1);   
-    
+    logger($self->{_debug}, "Entering Users::getUserList",1);
+
+    delete $self->{_users};
+
     my $databases;
     if (defined($self->{_databases})) {
       $databases = $self->{_databases};
@@ -172,7 +203,7 @@ sub getUserList
             $user->{_databases} = $databases;
             $user->{_user} = $useritem;
             $self->{_users}->{$useritem->{reference}} = $user;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }

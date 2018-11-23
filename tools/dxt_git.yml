@@ -53,10 +53,17 @@
          force: yes
     
      - name: put password
+<<<<<<< HEAD
        synchronize: src=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/lib/dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
 
      - name: create script
        template: src=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755
+=======
+       synchronize: src=../lib/dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+
+     - name: create script
+       template: src=compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755
+>>>>>>> userseparation
      
      - name: compile
        shell: "bash -x {{dxloc}}/bin/compile.sh {{ temp }} > /tmp/compile.log" 
@@ -66,10 +73,17 @@
        failed_when: "'ERROR' in output.stdout" 
     
      - name: get toolkit 
+<<<<<<< HEAD
        fetch: src={{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz dest=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools flat=yes
+=======
+       fetch: src={{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz dest=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/ flat=yes
+>>>>>>> userseparation
 
      - name: cleanup temp
        shell: rm -rf /u02/tmp/par*
+
+     - name: cleanup temp2
+       shell: rm -rf /tmp/par*
 
      - name: cleanup file
        shell: rm -rf "{{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz"  

@@ -165,12 +165,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   my @user_list = ();
 
   if (defined($username)) {
-    my $userobj = $users_obj->getUserByName($username);
+    my $userobj = $users_obj->getAllUsersByName($username);
     if (!defined($userobj)) {
       $ret = $ret + 1;
       next;
     }
-    push (@user_list, $userobj->getReference());
+    @user_list = @{$userobj};
   } else {
     @user_list = $users_obj->getUsers();
   }
@@ -285,6 +285,7 @@ __DATA__
  dx_get_users    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                  [ -format output_format ]
                  [ -save file_name]
+                 [ -audit ]
                  [ -username <username> ]
                  [ -profile filename]
                  [ -export filename ]
@@ -351,6 +352,9 @@ Export users into file compatible with dx_ctl_users script
 Export users profile into file compatible with dx_ctl_users script.
 If filename is not specified profile will be displayed on the screen
 
+=item B<-audit>
+Display information about user status (locked / unlocked)
+and a last login time
 
 =back
 
@@ -390,7 +394,17 @@ Export all users into files which can be used by dx_ctl_users
 
  dx_get_users -d SourceEngine -export /tmp/source/users.csv -profile /tmp/source/profile.csv
 
+Display an audit information about users
 
+ dx_get_users -d Landshark5 -audit
+
+ Appliance            Username             Status       Last login                Authtype principal                      admin_pr js_user
+ -------------------- -------------------- ------------ ------------------------- -------- ------------------------------ -------- --------
+ Landshark5           sysadmin             enabled      2018-11-20 01:07:06 GMT   NATIVE                                  S        N
+ Landshark5           delphix_admin        enabled      2018-11-20 00:45:02 GMT   NATIVE                                  Y        N
+ Landshark5           dev                  enabled      2017-10-25 09:06:17 IST   NATIVE                                  N        N
+ Landshark5           js                   enabled      2018-10-19 12:33:33 IST   NATIVE                                  N        Y
+ Landshark5           user                 enabled      N/A                       LDAP     "uid=user,ou=People,DC=CA,DC=D N        N
 
 
 =cut

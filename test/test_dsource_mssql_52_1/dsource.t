@@ -3,8 +3,9 @@ use Data::Dumper;
 use Test::More tests => 5;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/test/';
+use lib '../../lib/';
+use lib '../';
+use lib '.';
 use server;
 
 
@@ -14,7 +15,7 @@ my $server = server->new(8080);
 $server->host('127.0.0.1');
 $server->background();
 
- 
+
 script_compiles('../../bin/dx_ctl_dsource.pl');
 
 script_runs(['../../bin/dx_ctl_dsource.pl', '-d', 'local','-action','create','-group','Sources','-creategroup','-dsourcename',
@@ -34,7 +35,7 @@ script_stdout_is $expected_stdout, "add dSource with backup results compare";
 
 script_runs(['../../bin/dx_ctl_dsource.pl', '-d', 'local', '-action','create','-group','Sources','-creategroup','-dsourcename','simple','-type',
             'mssql','-sourcename','simple','-sourceinst','KVMTARGET2012','-sourceenv','WIN2012N1STD','-source_os_user','DELPHIX\delphix_admin','-dbuser',
-            'delphixdb','-password','delphixdb','-logsync','no','-stageinst','KVMTARGET2012','-stageenv','WIN2012N1STD','-stage_os_user','DELPHIX\delphix_admin','-delphixmanaged','yes'] 
+            'delphixdb','-password','delphixdb','-logsync','no','-stageinst','KVMTARGET2012','-stageenv','WIN2012N1STD','-stage_os_user','DELPHIX\delphix_admin','-delphixmanaged','yes']
             ,  "add dSource managed backup");
 
 my $expected_stdout = <<EOF;

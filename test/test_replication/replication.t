@@ -4,7 +4,8 @@ use Test::More tests => 5;
 use Test::Script;
 use LWP::UserAgent;
 use lib '../../lib/';
-use lib '../../test/test_replication';
+use lib '../';
+use lib '.';
 use server;
 
 
@@ -15,7 +16,7 @@ sub writetofile {
   open(my $FD, '>', $filename);
   print $FD $content;
   close($FD);
-  
+
 }
 
 
@@ -23,7 +24,7 @@ my $server = server->new(8080);
 $server->host('127.0.0.1');
 $server->background();
 
- 
+
 script_compiles('../../bin/dx_get_replication.pl');
 
 

@@ -3,8 +3,9 @@ use Data::Dumper;
 use Test::More tests => 2;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
-use lib './';
+use lib '../../lib/';
+use lib '../';
+use lib '.';
 use server;
 
 
@@ -29,9 +30,9 @@ $server2->background();
 
 # $server->set_dir('dupazbita');
 # my $ala = $server->get_dir();
-# 
+#
 # print Dumper $ala;
-# 
+#
 # exit(1);
 
 script_compiles('../../bin/dx_get_hierarchy.pl');

@@ -102,6 +102,16 @@ sub getAuthType {
     return $self->{_user}->{authenticationType};
 }
 
+# Procedure getUserType
+# Return:
+# - DOMAIN / 'SYSTEM'
+
+sub getUserType {
+    my $self = shift;
+
+    logger($self->{_debug}, "Entering User_obj::getUserType",1);
+    return $self->{_user}->{userType};
+}
 
 
 # Procedure getNames
@@ -337,16 +347,19 @@ sub enableUser {
 
 # Procedure createUser
 # parameters:
+# - Username
+# - usertype - DOMAIN/SYSTEM
 # Return 0 if user has been updated
 
 sub createUser {
     my $self = shift;
     my $username = shift;
+    my $usertype = shift;
 
     logger($self->{_debug}, "Entering User_obj::createUser",1);
 
 
-    if ( defined ($self->{_user_list}->getUserByName($username)) ) {
+    if ( defined ($self->{_user_list}->getUserByName($username, $usertype)) ) {
         return 1;
     }
 

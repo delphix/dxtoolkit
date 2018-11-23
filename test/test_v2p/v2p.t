@@ -3,7 +3,8 @@ use Data::Dumper;
 use Test::More tests => 5;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
+use lib '../../lib/';
+use lib '../';
 use lib '.';
 use server;
 
@@ -14,7 +15,7 @@ my $server = server->new(8080);
 $server->host('127.0.0.1');
 $server->background();
 
- 
+
 script_compiles('../../bin/dx_v2p.pl');
 
 script_runs(['../../bin/dx_v2p.pl', '-d', 'local', '-type','sybase','-timestamp','LATEST_SNAPSHOT','-sourcename','testsys','-dbname','tests','-environment','LINUXTARGET','-envinst','LINUXTARGET'] ,  "sybase v2p on timestamp");
