@@ -1,3 +1,11 @@
+## 2.3.8
+
+### Changed
+- dx_get_instance fix for PDB dSource
+- fixes for UTF8 support in names
+- elimination of replicated dSource from backup metadata
+- support for same user name in DOMAIN and SYSTEM namespace
+
 ## 2.3.7-rc1
 
 ### Added
@@ -12,7 +20,7 @@
 
 ### Changed
 - bugs fixed for held space and deleted objects in dx_get_capacity
-- dx_ctl_dSource fixed with new API of 5.2.5 
+- dx_ctl_dSource fixed with new API of 5.2.5
 
 
 ### Changed
