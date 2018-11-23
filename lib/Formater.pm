@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,8 +29,9 @@ use Date::Manip;
 use JSON;
 use Toolkit_helpers qw (logger);
 
+
 # constructor
-# parameters 
+# parameters
 # - debug - debug flag (debug on if defined)
 
 sub new {
@@ -43,14 +44,14 @@ sub new {
         _lines => \@lines,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
     return $self;
 }
 
 
 # procedure sortbycolumn
-# parameters 
+# parameters
 # - column number
 # Sort output by column
 
@@ -58,8 +59,8 @@ sub sortbynumcolumn {
 	my $self = shift;
 	my $columnno = shift;
   my $order = shift;
-  
-  logger($self->{_debug}, "Entering Formater::sortbynumcolumn",1);	
+
+  logger($self->{_debug}, "Entering Formater::sortbynumcolumn",1);
   my $oldlines = $self->{_lines};
   my @sortedlines = sort { Toolkit_helpers::sortcol_by_number($a, $b, $columnno, $order) } @{$oldlines};
 
@@ -68,7 +69,7 @@ sub sortbynumcolumn {
 }
 
 # procedure sortbytextcolumn
-# parameters 
+# parameters
 # - column number
 # Sort output by column
 
@@ -78,17 +79,17 @@ sub sortbytextcolumn {
 	my $columnno2 = shift;
 	my $columnno3 = shift;
 
-    logger($self->{_debug}, "Entering Formater::sortbytextcolumn",1);	
+    logger($self->{_debug}, "Entering Formater::sortbytextcolumn",1);
 
     my $oldlines = $self->{_lines};
     my @sortedlines;
 
     if ( defined($columnno1) && defined($columnno2) && defined($columnno3) ) {
     	@sortedlines = sort { ( $a->[$columnno1] . $a->[$columnno2] . $a->[$columnno3] ) cmp ( $b->[$columnno1] . $b->[$columnno2] . $b->[$columnno3] )  } @{$oldlines};
-    } 
+    }
     elsif ( defined($columnno1) && defined($columnno2) ) {
     	@sortedlines = sort { ( $a->[$columnno1] . $a->[$columnno2] ) cmp ( $b->[$columnno1] . $b->[$columnno2] )  } @{$oldlines};
-    } 
+    }
     else {
     	@sortedlines = sort { $a->[$columnno1] cmp $b->[$columnno1] } @{$oldlines};
     }
@@ -99,7 +100,7 @@ sub sortbytextcolumn {
 }
 
 # Procedure print
-# parameters: 
+# parameters:
 # -nohead - skip header
 # Print data into screen using formating defined in header
 
@@ -118,6 +119,8 @@ sub print {
         $FD = \*STDOUT;
     };
 
+    binmode($FD, ":encoding(UTF-8)");
+
     print $FD "\n";
 
     if ( ! defined($nohead) ) {
@@ -131,7 +134,7 @@ sub print {
 
 
 # Procedure savejson
-# parameters: 
+# parameters:
 # -nohead - skip header
 # Print data into screen using formating defined in header
 
@@ -149,8 +152,10 @@ sub savejson {
         $FD = \*STDOUT;
     };
 
+    binmode($FD, ":encoding(UTF-8)");
+
     my @results;
-            
+
 	for my $line ( @{$self->{_lines}} ) {
 		my %json_line;
 		for (my $i=0; $i < scalar(@{$line}); $i++) {
@@ -167,7 +172,7 @@ sub savejson {
 }
 
 # Procedure savecsv
-# parameters: 
+# parameters:
 # -nohead - skip header
 # Print data into screen using formating defined in header
 
@@ -185,8 +190,8 @@ sub savecsv {
     } else {
         $FD = \*STDOUT;
     };
-    
 
+    binmode($FD, ":encoding(UTF-8)");
 
     if ( ! defined($nohead) ) {
 		print $FD "#" . join(',',@{$self->{_header}});
@@ -210,7 +215,7 @@ sub sendtosyslog {
   logger($self->{_debug}, "Entering Formater::sendtosyslog",1);
   logger($self->{_debug}, "Format " .  $self->{_format},2);
   my $ret = 0;
-  
+
   my $json = new JSON();
   #this is for sort if necessary
   #$json->canonical();
@@ -229,38 +234,38 @@ sub sendtosyslog {
     if (!defined($timestamp)) {
       $timestamp = time;
     }
-    
+
 		my $json_data =  $json->encode( \%json_line );
     $handler->send($json_data, $timestamp);
   }
-  
+
   return $ret;
-  
+
 }
 
 
 # Procedure addLine
-# parameters: 
+# parameters:
 # - array of columns
 # Adding a line with columns defined in parameter to internal array
 
 sub addLine {
 	my $self = shift;
 	my @columns = @_;
-    logger($self->{_debug}, "Entering Formater::addLine",1);	
+    logger($self->{_debug}, "Entering Formater::addLine",1);
 
 	push(@{$self->{_lines}}, \@columns);
 }
 
 # Procedure addHeader
-# parameters: 
+# parameters:
 # - array of hashes { col_name : size }
 # Adding a header and format defined in parameter to internal array
 
 sub addHeader {
 	my $self = shift;
 	my @columns = @_;
-    logger($self->{_debug}, "Entering Formater::addHeader",1);		
+    logger($self->{_debug}, "Entering Formater::addHeader",1);
 	my $format = '';
 	my $sepline = '';
 	my @header;
@@ -282,12 +287,12 @@ sub addHeader {
 }
 
 # Procedure getHeaderSize
-# parameters: 
+# parameters:
 # Return a number of Header columns
 
 sub getHeaderSize {
  my $self = shift;
- logger($self->{_debug}, "Entering Formater::getHeaderSize",1);		
+ logger($self->{_debug}, "Entering Formater::getHeaderSize",1);
  return scalar(@{$self->{_header}});
 }
 

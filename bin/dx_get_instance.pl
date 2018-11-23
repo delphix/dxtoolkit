@@ -122,6 +122,18 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
+    my $dbname = $dbobj->getName();
+    my $dbtype = $dbobj->getType();
+
+    if (defined($dbobj->getCDBContainerRef())) {
+      # database has a CDB container so it's a PDB and there is no instance info
+      # dbobj will be switch to container to show data
+
+      #my $contsourceconfig = $databases->{_sourceconfigs}->getSourceConfig($dbobj->getCDBContainerRef());
+      #print Dumper $contsourceconfig;
+      my $contsource = $databases->{_source}->getSourceByConfig($dbobj->getCDBContainerRef());
+      $dbobj = $databases->getDB($contsource->{container});
+    }
 
     for my $inst ( @{$dbobj->getInstances()} ) {
       if (defined($instance) && ($inst->{instanceNumber} ne $instance)) {
@@ -136,9 +148,9 @@ for my $engine ( sort (@{$engine_list}) ) {
         $dbobj->getEnvironmentName(),
         $dbobj->getInstanceHost($inst->{instanceNumber}),
         $groups->getName($dbobj->getGroup()),
-        $dbobj->getName(),
+        $dbname,
         $inst->{instanceName},
-        $dbobj->getType(),
+        $dbtype,
         $dbobj->getInstanceStatus($inst->{instanceNumber})
       );
     }

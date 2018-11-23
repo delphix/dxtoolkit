@@ -31,6 +31,9 @@ use Pod::Usage;
 use FindBin;
 use Data::Dumper;
 use Try::Tiny;
+use open qw(:std :utf8);
+use Encode qw(decode_utf8);
+use Encode qw(encode_utf8);
 
 my $abspath = $FindBin::Bin;
 
@@ -180,6 +183,9 @@ if (defined($vcdbname) && (!( defined($vcdbdbname) ) ) ) {
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
+
+$targetname =  decode_utf8($targetname);
+
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work

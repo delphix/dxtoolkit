@@ -152,6 +152,8 @@ if (defined($backup)) {
       {'Paramters', 200}
   );
 
+  $primary = 1;
+
 } elsif (defined($config)) {
   $hostenv = 'e';
   $output->addHeader(
@@ -562,7 +564,7 @@ Columns description
 
 =item B<Group> - Group name
 
-=item B<Type> - Database type
+=item B<Type> - Database type: dSource | VDB | CDB (Oracle Container) | vCDB ( Oracle Virtual Container )
 
 =item B<SourceDB> - Parent name for VDB
 

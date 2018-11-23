@@ -192,7 +192,14 @@ sub process_user {
       $is_JS = '';
     }
 
-    my $user = $users_obj->getUserByName($username);
+    my $usertype = 'DOMAIN';
+
+    if ($is_admin eq 'S') {
+      $usertype = 'SYSTEM';
+    }
+
+    my $user = $users_obj->getUserByName($username, $usertype);
+
 
     if (lc $command eq 'c') {
 
@@ -225,17 +232,25 @@ sub process_user {
           $newuser->setSysadmin()
         }
 
-        if ($newuser->createUser($username)) {
+        if ($newuser->createUser($username, $usertype)) {
           $ret = $ret + 1;
         } else {
-          print "User $username created. ";
           $newuser->setAdmin(uc ($is_admin));
           $newuser->setJS(uc ($is_JS));
-          print "\n";
+          if ($usertype eq 'SYSTEM') {
+            print "User $username with sysadmin role created\n";
+          } else {
+            print "User $username created. \n";
+          }
         }
 
       } else {
-          print "User $username exist. Skipping \n";
+          if ($user->getUserType() eq 'SYSTEM') {
+            print "User $username with sysadmin role exist. Skipping \n";
+          } else {
+            print "User $username exist. Skipping \n";
+          }
+
       }
 
     }
@@ -293,7 +308,12 @@ sub process_user {
           print "Problem with delete. \n";
           $ret = $ret + 1;
         } else {
-          print "User $username deleted. \n";
+          if ($user->getUserType() eq 'SYSTEM') {
+            print "User $username with sysadmin role deleted\n";
+          } else {
+            print "User $username deleted. \n";
+          }
+          $users_obj->getUserList();
         }
 
       }
@@ -375,7 +395,7 @@ sub process_profile {
       next;
     }
 
-    my $user = $users_obj->getUserByName($username);
+    my $user = $users_obj->getUserByName($username, '');
 
     if (defined($user)) {
       if ($user->setProfile($target_type,$target_name,$role)) {

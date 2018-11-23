@@ -3,8 +3,8 @@ use Data::Dumper;
 use Test::More tests => 11;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/test/';
+use lib '../../lib/';
+use lib '../';
 use lib '.';
 use server;
 
@@ -15,7 +15,7 @@ my $server = server->new(8080);
 $server->host('127.0.0.1');
 $server->background();
 
- 
+
 script_compiles('../../bin/dx_get_js_bookmarks.pl');
 script_runs(['../../bin/dx_get_js_bookmarks.pl', '-d', 'local', '-format','csv'] ,  "all js bookmarks test");
 
