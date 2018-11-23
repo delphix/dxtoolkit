@@ -670,6 +670,14 @@ sub getVDBBackup
 
     $dbhostname = $self->getDatabaseName();
 
+    if ($parentname eq '') {
+      # is parent deleted ? can happen with replication
+      $parentname = "PARENTDELETED";
+      $parentgroup = "PARENTDELETED";
+      logger($self->{_debug}, "Parent deleted for VDB - replication ?",2);
+      print "There is no parent for VDB. It can happen if replicated objects are deleted. Parent name is set to PARENTDELETED\n";
+    }
+
     $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup";
     $restore_args = $restore_args . " -sourcename \"$parentname\"  -srcgroup \"$parentgroup\" -targetname \"$dbn\" ";
     $restore_args = $restore_args . " -dbname \"$dbhostname\" -environment \"" . $self->getEnvironmentName() . "\" ";
@@ -2412,7 +2420,7 @@ sub exportJSONHook {
     logger($self->{_debug}, "Entering VDB_obj::exportJSONHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
-
+    binmode($FD, ":encoding(UTF-8)");
     print $FD to_json($hook, {pretty => 1});
 
     close $FD;
@@ -2427,6 +2435,7 @@ sub exportHook {
     logger($self->{_debug}, "Entering VDB_obj::exportHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
+    binmode($FD, ":encoding(UTF-8)");
     print $FD $body;
     close $FD;
 
@@ -2454,7 +2463,7 @@ sub importDBHooks {
     my $loadedHook;
 
     open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-
+    binmode($FD, ":encoding(UTF-8)");
     local $/ = undef;
     my $json = JSON->new();
     $loadedHook = $json->decode(<$FD>);
