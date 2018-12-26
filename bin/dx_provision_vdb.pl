@@ -23,7 +23,7 @@
 
 
 use strict;
-use lib '/home/docker/delphix/dxtoolkit/lib/';
+use lib '../lib';
 use warnings;
 use JSON;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev); #avoids conflicts with ex host and help
