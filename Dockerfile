@@ -27,4 +27,8 @@ RUN mkdir -p /app/bin
 
 COPY --from=builder /app/bin /app/bin
 
-CMD ["/app/bin/gitlab_ci_cd_controller.sh"]
+ENV PATH=$PATH:/app/bin/
+
+WORKDIR /app/bin/
+
+CMD ["/bin/bash"]
