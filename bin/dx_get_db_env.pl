@@ -229,7 +229,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     $capacity = new Capacity_obj($engine_obj, $debug);
     $capacity->LoadDatabases();
-    $timeflows = new Timeflow_obj($engine_obj, $debug);
+    $timeflows = new Timeflow_obj($engine_obj, undef, $debug);
   }
 
   # filter implementation

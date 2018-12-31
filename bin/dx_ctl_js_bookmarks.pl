@@ -297,6 +297,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         if (defined($firstop)) {
           my $operations = new JS_operation_obj ( $engine_obj , $firstop, $debug);
+          $operations->loadJSOperationList();
 
           $bookmark_time = $operations->getEndTime($firstop);
 

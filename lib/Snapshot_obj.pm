@@ -535,48 +535,91 @@ sub findTimeflowforLocation {
 # Procedure findSnapshotforTimestamp
 # parameters:
 # - timestamp
-# Return timeflow for timestamp
+# if timestamp is without minutes only one snapshot per minute is allowed,
+# if there is more then one error will be displayed
+# Return snapshot for timestamp
 
 sub findSnapshotforTimestamp {
     my $self = shift;
     my $timestamp = shift;
+    my $timeflow = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);
 
     my %ret;
     #my $tz = new Date::Manip::TZ;
     #my $dt = ParseDate($timestamp);
 
+    my $seconds;
+
+    if ($timestamp =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d\d)$/) {
+      $seconds = 0;
+    } else {
+      $seconds = 1;
+    }
+
 
     my $match = 0;
-    for my $snapitem ( @{$self->getSnapshots()} ) {
+
+    my $snaplist;
+
+    if (!defined($timeflow)) {
+      $snaplist = $self->getSnapshots();
+    } else {
+      my @timeflowarray = grep { $self->{_snapshots}->{$_}->{timeflow} eq $timeflow } sort (@{$self->getSnapshots()});
+      $snaplist = \@timeflowarray;
+    }
+
+
+    for my $snapitem ( @{$snaplist} ) {
 
         #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
         #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
         my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
-        $sttz =~ s/\:\d\d$//;
+
+        if ($seconds == 0) {
+          # delete seconds from converted timestamp as input was given without seconds
+          $sttz =~ s/\:\d\d$//;
+        }
 
         my $snap_startpoint = $self->getStartPoint($snapitem);
         my $final_ts = $snap_startpoint;
         my $snap_endpoint = $self->getEndPoint($snapitem);
 
         $snap_startpoint =~ s/T/ /;
-        $snap_startpoint =~ s/\:\d\d\.\d\d\dZ$//;
         $snap_endpoint =~ s/T/ /;
-        $snap_endpoint =~ s/\:\d\d\.\d\d\dZ$//;
 
+        if ($seconds == 0) {
+          $snap_startpoint =~ s/\:\d\d\.\d\d\dZ$//;
+          $snap_endpoint =~ s/\:\d\d\.\d\d\dZ$//;
+        } else {
+          $snap_startpoint =~ s/.\d\d\dZ$//;
+          $snap_endpoint =~ s/.\d\d\dZ$//;
+        }
+
+        print Dumper " moj " . $sttz . " tf " . $timeflow;
+        print Dumper $snap_startpoint;
+        print Dumper $snap_endpoint;
+
+
+        # temporary ($snap_endpoint gt $sttz ) will be changed to ge
+        # it will require more tests -
+
+        # if not found run again with ge ?????
 
         if  ( ( ($snap_startpoint le $sttz) && ($snap_endpoint gt $sttz ) ) || ( ( $snap_startpoint eq $snap_endpoint ) && ($sttz eq $snap_startpoint) ) ) {
             $match = $match + 1;
             $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
             $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
             $ret{timestamp} = $final_ts;
+            $ret{snapshotref} = $snapitem ;
+            print Dumper "hit";
         }
 
     }
 
     if ($match gt 1) {
-        print "Timestamp in more than one snapshot. Exiting\n";
+        print "Timestamp in more than one snapshot. Add seconds to timestamp. Exiting\n";
         return undef;
     }
 

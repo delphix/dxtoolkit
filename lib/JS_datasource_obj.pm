@@ -222,6 +222,7 @@ sub checkTime {
     my $self = shift;
     my $reference = shift;
     my $time = shift;
+    my $noformat = shift;
 
     logger($self->{_debug}, "Entering JS_datasource_obj::checkTime",1);
 
@@ -252,13 +253,20 @@ sub checkTime {
         my $detz = $self->{_dlpxObject}->getTimezone();
         my %source_hash ;
         for my $t ( @{$result->{result} } ) {
-          $t->{timestamp} =~ s/\....Z//;
-          my $dt = ParseDate($t->{timestamp});
-          my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $detz);
-          %source_hash = (
-            'name' => $t->{name},
-            'timestamp' => sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev)
-          );
+          if (defined($noformat)) {
+            %source_hash = (
+              'name' => $t->{name},
+              'timestamp' => $t->{timestamp}
+            );
+          } else {
+            $t->{timestamp} =~ s/\....Z//;
+            my $dt = ParseDate($t->{timestamp});
+            my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $detz);
+            %source_hash = (
+              'name' => $t->{name},
+              'timestamp' => sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev)
+            );
+          }
           push(@source_time, \%source_hash);
         }
 
