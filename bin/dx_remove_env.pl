@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,13 +42,13 @@ use SourceConfig_obj;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name|n=s' => \(my $envname), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
   'parallel=n' => \(my $parallel),
   'skip' => \(my $skip),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -56,7 +56,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -68,7 +68,7 @@ if (defined($all) && defined($dx_host)) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 
@@ -79,13 +79,14 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
   # load objects for current engine
   my $environments = new Environment_obj( $engine_obj, $debug);
 
-  # filter implementation 
+  # filter implementation
 
   my @env_list;
   my @jobs;
@@ -121,7 +122,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Are you sure (y/(n)) - use -skip to skip this confirmation \n";
 
       my $ok = <STDIN>;
-      
+
       chomp $ok;
 
       if (($ok eq '') || (lc $ok ne 'y')) {
@@ -129,10 +130,10 @@ for my $engine ( sort (@{$engine_list}) ) {
         exit(1);
       }
 
-    }    
+    }
 
     $jobno = $environments->delete($envitem);
-      
+
     if (defined ($jobno) ) {
       print "Starting job $jobno for environment $env_name.\n";
       my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
@@ -152,15 +153,15 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + $pret;
       }
     }
-    undef $jobno;  
-    
+    undef $jobno;
+
   }
 
   if (defined($parallel) && (scalar(@jobs) > 0)) {
     while (scalar(@jobs) > 0) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
-      $ret = $ret + $pret; 
-    }   
+      $ret = $ret + $pret;
+    }
   }
 
 }
@@ -173,10 +174,10 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_remove_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-            -name env_name | -reference reference   
+            -name env_name | -reference reference
             [-skip]
             [-parallel no]
-            [-help|? ] 
+            [-help|? ]
             [-debug ]
 
 =head1 DESCRIPTION
@@ -213,7 +214,7 @@ Environment Name(s). Use "," to separate names.
 =item B<-skip>
 Skip confirmation
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -223,7 +224,7 @@ Turn on debugging
 
 =head1 EXAMPLES
 
-Remove environment 
+Remove environment
 
  dx_remove_env -d Landshark51 -name LINUXSOURCE
  Going to delete environment - LINUXSOURCE
@@ -245,6 +246,3 @@ Remove environments in parallel mode without confirmation
 
 
 =cut
-
-
-

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
 #
 # Program Name : dx_ctl_policy.pl
-# Description  : Import policy 
+# Description  : Import policy
 # Author       : Marcin Przepiorowski
 # Created      : 14 April 2015 (v2.1.0)
 
@@ -40,14 +40,14 @@ use Group_obj;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'filename|n=s' => \(my $filename), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'filename|n=s' => \(my $filename),
   'indir=s' => \(my $indir),
   'import' => \(my $import),
   'update' => \(my $update),
   'mapping=s' => \(my $mapping),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -56,7 +56,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -80,7 +80,7 @@ if ( ( ! defined($filename)  ) && ( ! defined($indir) ) && ( ! defined($mapping)
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -88,6 +88,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -109,7 +110,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           print "Problem with load policy from file $filename\n";
           exit 1;
         }
-      } elsif (defined($update)) {  
+      } elsif (defined($update)) {
         if ($policy->updatePolicy($filename)) {
           print "Problem with update policy from file $filename\n";
           exit 1;
@@ -127,12 +128,12 @@ for my $engine ( sort (@{$engine_list}) ) {
                 print "Problem with load policy from file $filename\n";
                 $ret = $ret + 1;
               }
-            } elsif (defined($update)) {  
+            } elsif (defined($update)) {
               if ($policy->updatePolicy($filename)) {
                 print "Problem with update policy from file $filename\n";
                 $ret = $ret + 1;
               }
-            }        
+            }
           }
       }
 
@@ -150,7 +151,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]-import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ] 
+ dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]-import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -175,13 +176,13 @@ A config file search order is as follow:
 - DXTOOLKIT_CONF variable
 - dxtools.conf from dxtoolkit location
 
-=item B<-import>                                                                                                                                            
+=item B<-import>
 Import policy from file or directory
 
-=item B<-update>                                                                                                                                            
+=item B<-update>
 Update policy from file or directory
 
-=item B<-mapping mapping_file>                                                                                                                                            
+=item B<-mapping mapping_file>
 Apply policy to databases / groups using mapping file mapping_file
 
 =back
@@ -194,11 +195,11 @@ Apply policy to databases / groups using mapping file mapping_file
 =item B<-filename>
 Template filename
 
-=item B<-indir>                                                                                                                                            
+=item B<-indir>
 Location of imported templates files
 
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -234,12 +235,9 @@ Apply polices to Delphix Engine objects using a mapping file
 
  dx_ctl_policy -d Landshark43 -mapping /tmp/policy/mapping.Landshark Database Masking in group Analytics doesn't exist. Skipping Database Masking in group Analytics doesn't exist. Skipping Database racdb in group Sources doesn't exist. Skipping
  Database racdb in group Sources doesn't exist. Skipping
- Applying policy Default Retention to database Employee Oracle 11G DB 
- Apply completed 
- Applying policy Default SnapSync to database Employee Oracle 11G DB 
+ Applying policy Default Retention to database Employee Oracle 11G DB
+ Apply completed
+ Applying policy Default SnapSync to database Employee Oracle 11G DB
  Apply completed
 
 =cut
-
-
-

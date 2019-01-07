@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,13 +41,13 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \( my$help), 
-  'd|engine=s' => \(my $dx_host), 
-  'debug:i' => \(my $debug), 
+  'help|?' => \( my$help),
+  'd|engine=s' => \(my $dx_host),
+  'debug:i' => \(my $debug),
   'all' => (\my $all),
   'type|t=s' => (\my $type),
   'action=s' => (\my $action),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'nohead' => \(my $nohead),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -55,7 +55,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 
@@ -89,7 +89,7 @@ if ( ( (lc $action eq 'create') || (lc $action eq 'delete') ) &&  ( ! ( (lc $typ
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
@@ -97,6 +97,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $engine\n\n";
+    $ret = $ret + 1;
     next;
   } else {
     print "Connected to Delphix Engine $engine (IP " . $engine_obj->getIP() .")\n\n";
@@ -109,18 +110,18 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ($analytic_list->create_analytic($type)) {
         $ret = $ret + 1;
         next;
-      }  
+      }
   } elsif ($action eq 'delete') {
       my $analytic = $analytic_list->getAnalyticByName($type);
       if (defined($analytic)) {
         if ($analytic->delete_analytic()) {
           $ret = $ret + 1;
-          next;         
+          next;
         }
       } else {
         print "Analytics $type not found\n";
         $ret = $ret + 1;
-        next;          
+        next;
       }
   } else {
 
@@ -151,7 +152,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (scalar(@analytic_array) < 1) {
         print "Can't find an analytic\n";
         $ret = $ret + 1;
-        next;        
+        next;
     }
 
 
@@ -207,7 +208,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_analytics      [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                       -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names> 
+                       -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names>
                        -action start|stop|restart|display|create|delete
                        [-format csv|json]
                        [-debug]
@@ -215,7 +216,7 @@ __DATA__
 =head1 DESCRIPTION
 
 Control analytics collector inside Delphix Engine
-  
+
 =head1 ARGUMENTS
 
 Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
@@ -251,7 +252,7 @@ ex.
 
 =item B<-t cpu,disk> - for cpu and disk
 
-=back 
+=back
 
 =item B<-action start|stop|restart|display|create|delete>
 
@@ -266,17 +267,17 @@ Custom analytics can be created or deleted using create or delete operation and 
 
 =over 4
 
-=item B<-format csv|json>                                                                                                                                            
+=item B<-format csv|json>
 Display output in csv or json format
 If not specified csv formatting is used.
 
 =item B<-nohead>
 Turn off header output
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
-=item B<-debug>          
+=item B<-debug>
 Turn on debugging
 
 =back
@@ -287,37 +288,37 @@ Restart all collectors
 
  dx_ctl_analytics -d Landshark5 -action restart -type all
  Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
- Analytic default.cpu has been stopped 
- Analytic default.cpu has been started 
- Analytic default.disk has been stopped 
- Analytic default.disk has been started 
- Analytic default.iscsi has been stopped 
- Analytic default.iscsi has been started 
- Analytic iscsi-by-client has been stopped 
- Analytic iscsi-by-client has been started 
- Analytic default.network has been stopped 
- Analytic default.network has been started 
- Analytic default.nfs has been stopped 
- Analytic default.nfs has been started 
- Analytic nfs-all has been stopped 
- Analytic nfs-all has been started 
- Analytic nfs-by-client has been stopped 
- Analytic nfs-by-client has been started 
- Analytic default.tcp has been stopped 
+ Analytic default.cpu has been stopped
+ Analytic default.cpu has been started
+ Analytic default.disk has been stopped
+ Analytic default.disk has been started
+ Analytic default.iscsi has been stopped
+ Analytic default.iscsi has been started
+ Analytic iscsi-by-client has been stopped
+ Analytic iscsi-by-client has been started
+ Analytic default.network has been stopped
+ Analytic default.network has been started
+ Analytic default.nfs has been stopped
+ Analytic default.nfs has been started
+ Analytic nfs-all has been stopped
+ Analytic nfs-all has been started
+ Analytic nfs-by-client has been stopped
+ Analytic nfs-by-client has been started
+ Analytic default.tcp has been stopped
  Analytic default.tcp has been started
- 
+
 Create new collector - nfs-all
 
- dx_ctl_analytics -d Landshark5 -action create -type nfs-all 
- Connected to Delphix Engine Landshark5 (IP 172.16.180.131) 
+ dx_ctl_analytics -d Landshark5 -action create -type nfs-all
+ Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
  New analytic nfs-all has been created
 
 
 Display collectors specified as a comma separated list
 
- dx_ctl_analytics -d Landshark5 -action display -type cpu,disk,nfs 
+ dx_ctl_analytics -d Landshark5 -action display -type cpu,disk,nfs
  Connected to Delphix Engine Landshark5 (IP 172.16.180.131)
- Engine         Analytic   State    Axes 
+ Engine         Analytic   State    Axes
  -------------- ---------- -------- -------------------------------------------------------
  Landshark5     cpu        RUNNING  idle,user,kernel
  Landshark5     disk       RUNNING  latency,avgLatency,throughput,count,op

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 # Created      : 30 Jan 2014 (v1.0.0)
 #
 # Modified     : 08 Jun 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use strict;
 use warnings;
@@ -42,12 +42,12 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'nohead' => \(my $nohead),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'details' => \(my $details),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -55,7 +55,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -67,7 +67,7 @@ if (defined($all) && defined($dx_host)) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
@@ -122,7 +122,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         "",
         "",
         "",
-        "" 
+        ""
       );
     } else {
       $output->addLine(
@@ -135,24 +135,24 @@ for my $engine ( sort (@{$engine_list}) ) {
         "",
         "",
         "",
-        "" 
+        ""
       );
     }
-    next;
     $ret = $ret + 1;
+    next;
   };
 
   # load objects for current engine
   my $system = new System_obj( $engine_obj, $debug);
   my $databases = new Databases( $engine_obj, $debug);
 
-  my @vdb = $databases->getDBByType('VDB'); 
-  my @dsource = $databases->getDBByType('dSource'); 
+  my @vdb = $databases->getDBByType('VDB');
+  my @dsource = $databases->getDBByType('dSource');
 
 
 
   my $storageinfo = $system->getStorage();
-  
+
   if (defined($details)) {
     $output->addLine(
       $engine,
@@ -167,7 +167,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       scalar(@dsource) +  scalar(@vdb),
       $system->getvCPU(),
       sprintf("%8.2f",$system->getvMem())
-    );    
+    );
   } else {
     $output->addLine(
       $engine,
@@ -182,7 +182,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       scalar(@dsource) +  scalar(@vdb)
     );
   }
-  
+
 }
 
 Toolkit_helpers::print_output($output, $format, $nohead);
@@ -194,9 +194,9 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_get_appliance [-d <delphix identifier> | -all ] 
-                 [-format csv|json ] 
-                 [-nohead ] 
+dx_get_appliance [-d <delphix identifier> | -all ]
+                 [-format csv|json ]
+                 [-nohead ]
                  [-details ]
                  [-help|? ]
 
@@ -233,9 +233,9 @@ Display output in csv or json format
 If not specified pretty formatting is used.
 
 =item B<-nohead>
-Turn off header 
+Turn off header
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -255,6 +255,3 @@ Display a Delphix Engine summary
 
 
 =cut
-
-
-
