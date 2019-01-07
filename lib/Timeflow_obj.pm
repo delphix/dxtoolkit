@@ -558,12 +558,10 @@ sub findParentTimeflow
     do {
       $parent = $hier->{$ref}->{parent};
 
-      # print Dumper "new parent " . $parent;
-
-      if (!defined($parent)) {
-        # for JS issue
+      if (!defined($parent) || ($parent eq 'deleted')) {
+        # for JS issue - ex. parent was deleted - can happen if container created from not refreshed VDB
         logger($self->{_debug}, "Parent not defined. Issue with JS", 2);
-        print Dumper "Parent not defined. Issue with JS";
+        # print Dumper "Parent not defined. Issue with JS";
         $parent = 'deleted';
         $stop = 1;
       } else {

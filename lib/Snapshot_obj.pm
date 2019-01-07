@@ -569,22 +569,27 @@ sub findSnapshotforTimestamp {
       $snaplist = \@timeflowarray;
     }
 
+    my $sttz;
+    my $snap_startpoint;
+    my $final_ts;
+    my $snap_endpoint;
+    my $snapitem;
 
-    for my $snapitem ( @{$snaplist} ) {
+    for $snapitem ( @{$snaplist} ) {
 
         #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
         #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
-        my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+        $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
 
         if ($seconds == 0) {
           # delete seconds from converted timestamp as input was given without seconds
           $sttz =~ s/\:\d\d$//;
         }
 
-        my $snap_startpoint = $self->getStartPoint($snapitem);
-        my $final_ts = $snap_startpoint;
-        my $snap_endpoint = $self->getEndPoint($snapitem);
+        $snap_startpoint = $self->getStartPoint($snapitem);
+        $final_ts = $snap_startpoint;
+        $snap_endpoint = $self->getEndPoint($snapitem);
 
         $snap_startpoint =~ s/T/ /;
         $snap_endpoint =~ s/T/ /;
@@ -619,6 +624,22 @@ sub findSnapshotforTimestamp {
     }
 
 
+    if ($match eq 0) {
+      logger($self->{_debug}, "checking for last snapshot with equal condition", 2);
+
+      $snapitem = @{$snaplist}[-1];
+      logger($self->{_debug}, "snapshot " . $snapitem , 2);
+
+      # if match is 0 for last snapshot run check again but end time is ge to requested timestamp
+      if  ( ( ($snap_startpoint le $sttz) && ($snap_endpoint ge $sttz ) ) || ( ( $snap_startpoint eq $snap_endpoint ) && ($sttz eq $snap_startpoint) ) ) {
+          $match = $match + 1;
+          $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
+          $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
+          $ret{timestamp} = $final_ts;
+          $ret{snapshotref} = $snapitem ;
+          logger($self->{_debug}, "hit for snapshot " . $snapitem,2);
+      }
+    }
 
 
     if ($match gt 1) {

@@ -89,14 +89,14 @@ my $output = new Formater();
 $output->addHeader(
     {'Appliance',             20},
     {'Bookmark/timeline',     50},
-    {'Template name',         30},
-    {'Container name',        30},
-    {'VDB name'   ,           30},
-    {'Branch name',           20},
+    {'Template name',         15},
+    {'Container name',        15},
+    {'VDB name'   ,           15},
+    {'Branch name',           15},
     {'Bookmark snapshot',     30},
-    {'Bookmark snap size',    30},
+    {'Bookmark snap size',    20},
     {'Parent snapshot',       30},
-    {'Parent snap size',      30}
+    {'Parent snap size',      20}
 );
 
 
@@ -197,7 +197,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           my $firstop = $operations->findOpAfterDataTime($optime[1] . ".000Z");
 
           if (!defined($firstop)) {
-            print "Looks like JS operation is running. Skiping some code\n";
+            print "Looks like JS operation is running. Skiping some operations\n";
             $ret = $ret + 1;
             next;
           }
@@ -209,29 +209,29 @@ for my $engine ( sort (@{$engine_list}) ) {
           $timeflowranges{$conttf}{sourceref} = $dbarray{$dbref};
 
           my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $conttf, $hier);
-
-
           my $optime = Toolkit_helpers::convert_from_utc($operations->getStartTime($firstop), $timezone, 1);
 
           my $branchname = $jsbranches->getName($operations->getBranch($firstop));
           my $snapref = $timeflows->getParentSnapshot($topchild);
           my $snapshotname = $snapshots->getSnapshotName($snapref);
 
+          my $snapsize;
+
           if (!defined($snapshotname)) {
             $snapshotname = "deleted";
-          }
-
-          my $snapsize;
-          if (!defined($snapshot_sizes{$snapref})) {
-            $snapsize = $snapshots->getSnapshotSize($snapref);
-            if (defined($snapsize)) {
-              $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
-            } else {
-              $snapsize = 'N/A';
-            }
-            $snapshot_sizes{$snapref} = $snapsize
+            $snapsize = 'N/A';
           } else {
-            $snapsize = $snapshot_sizes{$snapref};
+            if (!defined($snapshot_sizes{$snapref})) {
+              $snapsize = $snapshots->getSnapshotSize($snapref);
+              if (defined($snapsize)) {
+                $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
+              } else {
+                $snapsize = 'N/A';
+              }
+              $snapshot_sizes{$snapref} = $snapsize
+            } else {
+              $snapsize = $snapshot_sizes{$snapref};
+            }
           }
 
           $output->addLine(
@@ -251,13 +251,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         } else {
            # this is for container created without refresh
            # maybe not needed at all
-           print Dumper $operations->getName($opsforcont->[0]);
-           $tfrangearray = $timeflows->getTimeflowRange($conttf);
-           $timeflowranges{$conttf}{range} = $tfrangearray;
-           $timeflowranges{$conttf}{branch} = $operations->getBranch($opsforcont->[0]);
+           print Dumper $timeflows->getName($conttf);
+           print "Timestamp format not recognized. Please raise an issue when you will see this message.\n";
+           $ret = $ret + 1;
+           next;
         }
-
-
 
       }
 
@@ -325,6 +323,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $tf, $hier);
 
         # find a snapshot in container source timeflow used by bookmark
+
         my $snap = $cont_snapshots->findSnapshotforTimestamp($rtitem[0]->{timestamp}, $tf);
 
         # convert ref to names
@@ -332,21 +331,22 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $parentsnapshotref = $timeflows->getParentSnapshot($topchild);
         my $parentsnapshotname = $snapshots->getSnapshotName($parentsnapshotref);
         my $contsnapshotname = $cont_snapshots->getSnapshotName($snap->{snapshotref});
+        my $parentsnapsize;
         if (!defined($parentsnapshotname)) {
           $parentsnapshotname = "deleted";
-        }
-
-        my $parentsnapsize;
-        if (!defined($snapshot_sizes{$parentsnapshotref})) {
-          $parentsnapsize = $snapshots->getSnapshotSize($parentsnapshotref);
-          if (defined($parentsnapsize)) {
-            $parentsnapsize = sprintf("%12.2f", $parentsnapsize/1024/1024);
-          } else {
-            $parentsnapsize = 'N/A';
-          }
-          $snapshot_sizes{$snap->{snapshotref}} = $parentsnapsize;
+          $parentsnapsize = 'N/A';
         } else {
-          $parentsnapsize = $snapshot_sizes{$parentsnapshotref};
+          if (!defined($snapshot_sizes{$parentsnapshotref})) {
+            $parentsnapsize = $snapshots->getSnapshotSize($parentsnapshotref);
+            if (defined($parentsnapsize)) {
+              $parentsnapsize = sprintf("%12.2f", $parentsnapsize/1024/1024);
+            } else {
+              $parentsnapsize = 'N/A';
+            }
+            $snapshot_sizes{$snap->{snapshotref}} = $parentsnapsize;
+          } else {
+            $parentsnapsize = $snapshot_sizes{$parentsnapshotref};
+          }
         }
 
         my $snapsize;
@@ -408,7 +408,9 @@ __DATA__
 =head1 DESCRIPTION
 
 Display a snapshot information for timelines and bookmarks in Self service
-for particular container
+for particular container.
+
+Output column description:
 
 =head1 ARGUMENTS
 
@@ -460,15 +462,39 @@ Turn off header output
 
 List snapshots for all containers
 
- dx_get_js_snapshots -d Landshark5
+  dx_get_js_snapshots -d Landshark5
 
- Appliance            Bookmark/timeline                                  Template name                  Container name                 VDB name                       Branch name          Bookmark snapshot              Bookmark snap size             Parent snapshot                Parent snap size
- -------------------- -------------------------------------------------- ------------------------------ ------------------------------ ------------------------------ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------
- Landshark5           CREATE_BRANCH / 2019-01-07 12:59:56 GMT            tempdx                         con1                           con1                           default              N/A                            N/A                            @2018-12-27T11:30:04.663Z             14.77
- Landshark5           CREATE_BRANCH / 2019-01-07 13:39:01 GMT            tempdx                         con1                           con1                           version_2.3          N/A                            N/A                            @2018-12-27T11:30:04.663Z             14.77
- Landshark5           REFRESH / 2019-01-07 13:48:17 GMT                  tempdx                         con1                           con1                           default              N/A                            N/A                            @2019-01-07T12:59:11.417Z              4.68
- Landshark5           firstbook                                          tempdx                         con1                           con1                           default              @2019-01-07T13:38:50.118Z              0.67                   @2018-12-27T11:30:04.663Z             14.77
- Landshark5           beforerefresh                                      tempdx                         con1                           con1                           default              @2019-01-07T13:48:12.731Z              0.50                   @2018-12-27T11:30:04.663Z             14.77
- Landshark5           CREATE_BRANCH / 2019-01-07 13:08:14 GMT            tempdx                         con2                           con2                           default              N/A                            N/A                            @2019-01-07T12:59:11.417Z              4.68
+  Appliance            Bookmark/timeline                                  Template name   Container name  VDB name        Branch name     Bookmark snapshot              Bookmark snap size   Parent snapshot                Parent snap size
+  -------------------- -------------------------------------------------- --------------- --------------- --------------- --------------- ------------------------------ -------------------- ------------------------------ --------------------
+  Landshark5           CREATE_BRANCH / 2019-01-07 12:59:56 GMT            tempdx          con1            con1            default         N/A                            N/A                  @2018-12-27T11:30:04.663Z             14.77
+  Landshark5           CREATE_BRANCH / 2019-01-07 13:39:01 GMT            tempdx          con1            con1            version_2.3     N/A                            N/A                  @2018-12-27T11:30:04.663Z             14.77
+  Landshark5           REFRESH / 2019-01-07 13:48:17 GMT                  tempdx          con1            con1            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              4.90
+  Landshark5           firstbook                                          tempdx          con1            con1            default         @2019-01-07T13:38:50.118Z              0.67         @2018-12-27T11:30:04.663Z             14.77
+  Landshark5           beforerefresh                                      tempdx          con1            con1            default         @2019-01-07T13:48:12.731Z              0.50         @2018-12-27T11:30:04.663Z             14.77
+  Landshark5           CREATE_BRANCH / 2019-01-07 13:08:14 GMT            tempdx          con2            con2            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              4.90
+  Landshark5           con2_bookmark                                      tempdx          con2            con2            default         @2019-01-07T14:10:20.718Z              0.47         @2019-01-07T12:59:11.417Z              4.90
+
+List snapshots from container - con2
+
+  dx_get_js_snapshots -d Landshark5 -container_name con2
+
+  Appliance            Bookmark/timeline                                  Template name   Container name  VDB name        Branch name     Bookmark snapshot              Bookmark snap size   Parent snapshot                Parent snap size
+  -------------------- -------------------------------------------------- --------------- --------------- --------------- --------------- ------------------------------ -------------------- ------------------------------ --------------------
+  Landshark5           CREATE_BRANCH / 2019-01-07 13:08:14 GMT            tempdx          con2            con2            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              4.90
+  Landshark5           RESTORE / 2019-01-07 14:10:31 GMT                  tempdx          con2            con2            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              4.90
+  Landshark5           con2_bookmark                                      tempdx          con2            con2            default         @2019-01-07T14:10:20.718Z              0.47         @2019-01-07T12:59:11.417Z              4.90
+
+List snapshots for a container with two databases
+
+  dx_get_js_snapshots -d Landshark5 -container_name con_complex
+
+  Appliance            Bookmark/timeline                                  Template name   Container name  VDB name        Branch name     Bookmark snapshot              Bookmark snap size   Parent snapshot                Parent snap size
+  -------------------- -------------------------------------------------- --------------- --------------- --------------- --------------- ------------------------------ -------------------- ------------------------------ --------------------
+  Landshark5           CREATE_BRANCH / 2019-01-07 14:58:51 GMT            t2sources       con_complex     con1            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              9.53
+  Landshark5           RESTORE / 2019-01-07 15:03:53 GMT                  t2sources       con_complex     con1            default         N/A                            N/A                  @2019-01-07T12:59:11.417Z              9.53
+  Landshark5           b1_complex                                         t2sources       con_complex     con1            default         @2019-01-07T15:03:46.260Z              0.40         @2019-01-07T12:59:11.417Z              9.53
+  Landshark5           CREATE_BRANCH / 2019-01-07 14:58:51 GMT            t2sources       con_complex     Vpubs3AWL       default         N/A                            N/A                  @2019-01-02T13:50:00.000               0.03
+  Landshark5           RESTORE / 2019-01-07 15:03:53 GMT                  t2sources       con_complex     Vpubs3AWL       default         N/A                            N/A                  @2019-01-02T13:50:00.000               0.03
+  Landshark5           b1_complex                                         t2sources       con_complex     Vpubs3AWL       default         @2019-01-07T15:03:41.980               0.03         @2019-01-02T13:50:00.000               0.03
 
 =cut
