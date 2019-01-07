@@ -535,48 +535,115 @@ sub findTimeflowforLocation {
 # Procedure findSnapshotforTimestamp
 # parameters:
 # - timestamp
-# Return timeflow for timestamp
+# if timestamp is without minutes only one snapshot per minute is allowed,
+# if there is more then one error will be displayed
+# Return snapshot for timestamp
 
 sub findSnapshotforTimestamp {
     my $self = shift;
     my $timestamp = shift;
+    my $timeflow = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);
 
     my %ret;
     #my $tz = new Date::Manip::TZ;
     #my $dt = ParseDate($timestamp);
 
+    my $seconds;
+
+    if ($timestamp =~ /^(\d\d\d\d)-(\d\d)-(\d\d) (\d?\d):(\d\d)$/) {
+      $seconds = 0;
+    } else {
+      $seconds = 1;
+    }
+
 
     my $match = 0;
-    for my $snapitem ( @{$self->getSnapshots()} ) {
+
+    my $snaplist;
+
+    if (!defined($timeflow)) {
+      $snaplist = $self->getSnapshots();
+    } else {
+      my @timeflowarray = grep { $self->{_snapshots}->{$_}->{timeflow} eq $timeflow } sort (@{$self->getSnapshots()});
+      $snaplist = \@timeflowarray;
+    }
+
+    my $sttz;
+    my $snap_startpoint;
+    my $final_ts;
+    my $snap_endpoint;
+    my $snapitem;
+
+    for $snapitem ( @{$snaplist} ) {
 
         #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
         #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
-        my $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
-        $sttz =~ s/\:\d\d$//;
+        $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
 
-        my $snap_startpoint = $self->getStartPoint($snapitem);
-        my $final_ts = $snap_startpoint;
-        my $snap_endpoint = $self->getEndPoint($snapitem);
+        if ($seconds == 0) {
+          # delete seconds from converted timestamp as input was given without seconds
+          $sttz =~ s/\:\d\d$//;
+        }
+
+        $snap_startpoint = $self->getStartPoint($snapitem);
+        $final_ts = $snap_startpoint;
+        $snap_endpoint = $self->getEndPoint($snapitem);
 
         $snap_startpoint =~ s/T/ /;
-        $snap_startpoint =~ s/\:\d\d\.\d\d\dZ$//;
         $snap_endpoint =~ s/T/ /;
-        $snap_endpoint =~ s/\:\d\d\.\d\d\dZ$//;
 
+        if ($seconds == 0) {
+          $snap_startpoint =~ s/\:\d\d\.\d\d\dZ$//;
+          $snap_endpoint =~ s/\:\d\d\.\d\d\dZ$//;
+        } else {
+          $snap_startpoint =~ s/.\d\d\dZ$//;
+          $snap_endpoint =~ s/.\d\d\dZ$//;
+        }
+
+
+        logger($self->{_debug}, "entry ts " . $sttz . " tf " . $timeflow,2);
+        logger($self->{_debug}, "startsnap " . $snap_startpoint,2);
+        logger($self->{_debug}, "endsnap " . $snap_endpoint,2);
+
+        # temporary ($snap_endpoint gt $sttz ) will be changed to ge
+        # it will require more tests -
+
+        # if not found run again with ge ?????
 
         if  ( ( ($snap_startpoint le $sttz) && ($snap_endpoint gt $sttz ) ) || ( ( $snap_startpoint eq $snap_endpoint ) && ($sttz eq $snap_startpoint) ) ) {
             $match = $match + 1;
             $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
             $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
             $ret{timestamp} = $final_ts;
+            $ret{snapshotref} = $snapitem ;
+            logger($self->{_debug}, "hit for snapshot " . $snapitem,2);
         }
 
     }
 
+
+    if ($match eq 0) {
+      logger($self->{_debug}, "checking for last snapshot with equal condition", 2);
+
+      $snapitem = @{$snaplist}[-1];
+      logger($self->{_debug}, "snapshot " . $snapitem , 2);
+
+      # if match is 0 for last snapshot run check again but end time is ge to requested timestamp
+      if  ( ( ($snap_startpoint le $sttz) && ($snap_endpoint ge $sttz ) ) || ( ( $snap_startpoint eq $snap_endpoint ) && ($sttz eq $snap_startpoint) ) ) {
+          $match = $match + 1;
+          $ret{timeflow} = $self->getSnapshotTimeflow($snapitem);
+          $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
+          $ret{timestamp} = $final_ts;
+          $ret{snapshotref} = $snapitem ;
+          logger($self->{_debug}, "hit for snapshot " . $snapitem,2);
+      }
+    }
+
+
     if ($match gt 1) {
-        print "Timestamp in more than one snapshot. Exiting\n";
+        print "Timestamp in more than one snapshot. Add seconds to timestamp. Exiting\n";
         return undef;
     }
 
@@ -839,6 +906,36 @@ sub deleteSnapshot {
     } else {
         print "Snapshot not deleted due to error: " . $result->{error}->{details} . "\n" ;
         return 1;
+    }
+
+}
+
+# Procedure getSnapshotSize
+# parameters:
+# - ref
+# Return size of snapshot ref in bytes
+
+sub getSnapshotSize {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotSize",1);
+
+
+    my @snapshotarray = ( $reference );
+    my $operation = "resources/json/delphix/snapshot/space";
+    my %snapshot_hash = (
+      "type" => "SnapshotSpaceParameters",
+      "objectReferences" => \@snapshotarray
+    );
+    my $snapjson = to_json(\%snapshot_hash);
+
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $snapjson);
+
+    if ($result->{status} eq 'OK') {
+      return $result->{result}->{totalSize};
+    } else {
+      print "Snapshot not found " . $result->{error}->{details} . "\n" ;
+      return undef;
     }
 
 }

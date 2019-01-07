@@ -193,7 +193,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($size)) {
     $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
-    $timeflows = Timeflow_obj->new($engine_obj, $debug);
+    $timeflows = Timeflow_obj->new($engine_obj, undef, $debug);
   }
 
   # filter implementation

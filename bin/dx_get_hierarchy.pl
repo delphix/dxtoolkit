@@ -135,7 +135,7 @@ if (defined($parent_engine)) {
   $groups_parent = new Group_obj($engine_parent, $debug);
 
   $snapshots_parent = new Snapshot_obj($engine_parent, undef, undef, $debug);
-  $timeflows_parent = new Timeflow_obj($engine_parent, $debug);
+  $timeflows_parent = new Timeflow_obj($engine_parent, undef, $debug);
   $replication_parent = new Replication_obj ($engine_parent, $debug);
 }
 
@@ -153,7 +153,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $groups = new Group_obj($engine_obj, $debug);
 
   my $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
-  my $timeflows = new Timeflow_obj($engine_obj, $debug);
+  my $timeflows = new Timeflow_obj($engine_obj, undef, $debug);
 
 
   my $object_map;
