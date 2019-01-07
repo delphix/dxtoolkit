@@ -597,10 +597,10 @@ sub findSnapshotforTimestamp {
           $snap_endpoint =~ s/.\d\d\dZ$//;
         }
 
-        print Dumper " moj " . $sttz . " tf " . $timeflow;
-        print Dumper $snap_startpoint;
-        print Dumper $snap_endpoint;
 
+        logger($self->{_debug}, "entry ts " . $sttz . " tf " . $timeflow,2);
+        logger($self->{_debug}, "startsnap " . $snap_startpoint,2);
+        logger($self->{_debug}, "endsnap " . $snap_endpoint,2);
 
         # temporary ($snap_endpoint gt $sttz ) will be changed to ge
         # it will require more tests -
@@ -613,10 +613,13 @@ sub findSnapshotforTimestamp {
             $ret{timezone} = $self->getSnapshotTimeZone($snapitem);
             $ret{timestamp} = $final_ts;
             $ret{snapshotref} = $snapitem ;
-            print Dumper "hit";
+            logger($self->{_debug}, "hit for snapshot " . $snapitem,2);
         }
 
     }
+
+
+
 
     if ($match gt 1) {
         print "Timestamp in more than one snapshot. Add seconds to timestamp. Exiting\n";
@@ -882,6 +885,36 @@ sub deleteSnapshot {
     } else {
         print "Snapshot not deleted due to error: " . $result->{error}->{details} . "\n" ;
         return 1;
+    }
+
+}
+
+# Procedure getSnapshotSize
+# parameters:
+# - ref
+# Return size of snapshot ref in bytes
+
+sub getSnapshotSize {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotSize",1);
+
+
+    my @snapshotarray = ( $reference );
+    my $operation = "resources/json/delphix/snapshot/space";
+    my %snapshot_hash = (
+      "type" => "SnapshotSpaceParameters",
+      "objectReferences" => \@snapshotarray
+    );
+    my $snapjson = to_json(\%snapshot_hash);
+
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $snapjson);
+
+    if ($result->{status} eq 'OK') {
+      return $result->{result}->{totalSize};
+    } else {
+      print "Snapshot not found " . $result->{error}->{details} . "\n" ;
+      return undef;
     }
 
 }

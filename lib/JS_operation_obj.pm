@@ -135,6 +135,20 @@ sub getEndTime {
     return $jsoperations->{$reference}->{endTime};
 }
 
+# Procedure getStartTime
+# parameters:
+# - reference
+# Return JS operation starttime for specific operation reference
+
+sub getStartTime {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering JS_operation_obj::getStartTime",1);
+
+    my $jsoperations = $self->{_jsoperations};
+    return $jsoperations->{$reference}->{startTime};
+}
 
 # Procedure findOpAfterDataTime
 # parameters:
