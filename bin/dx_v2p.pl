@@ -122,6 +122,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -240,9 +241,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 }
 
 
-__DATA__
-
 exit $ret;
+
+__DATA__
 
 =head1 SYNOPSIS
 

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ $output->addHeader(
   {'parameter name',       30},
   {'value',                30}
 );
-  
+
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj, 'sysadmin');
@@ -87,16 +87,17 @@ for my $engine ( sort (@{$engine_list}) ) {
    # main loop for all work
    if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
    };
-   
+
    if (lc $engine_obj->getUsername() ne 'sysadmin') {
      print "User sysadmin is required for this script to run. Please check dxtools.conf entry for $engine\n";
      next;
    }
-  
+
    my $system = new System_obj ($engine_obj, $debug);
-   
+
    $output->addLine(
     $engine,
     'DNS server',
@@ -124,9 +125,9 @@ for my $engine ( sort (@{$engine_list}) ) {
    $output->addLine(
     $engine,
     'SNMP Severity',
-    $system->getSNMPSeverity() 
-   ); 
-   
+    $system->getSNMPSeverity()
+   );
+
    $output->addLine(
     $engine,
     'NTP Servers',
@@ -136,8 +137,8 @@ for my $engine ( sort (@{$engine_list}) ) {
    $output->addLine(
     $engine,
     'NTP Status',
-    $system->getNTPStatus() 
-   ); 
+    $system->getNTPStatus()
+   );
 
    my $smtpserver = $system->getSMTPServer() ? $system->getSMTPServer() : "N/A";
 
@@ -150,15 +151,15 @@ for my $engine ( sort (@{$engine_list}) ) {
    $output->addLine(
     $engine,
     'SMTP Status',
-    $system->getSMTPStatus() 
-   ); 
+    $system->getSMTPStatus()
+   );
 
    $output->addLine(
     $engine,
     'Syslog Status',
-    $system->getSyslogStatus() 
+    $system->getSyslogStatus()
    );
-   
+
    $output->addLine(
     $engine,
     'Syslog Servers',
@@ -168,17 +169,17 @@ for my $engine ( sort (@{$engine_list}) ) {
    $output->addLine(
     $engine,
     'Syslog severity',
-    $system->getSyslogSeverity() 
+    $system->getSyslogSeverity()
    );
 
    $output->addLine(
     $engine,
     'LDAP status',
-    $system->getLDAPStatus() 
+    $system->getLDAPStatus()
    );
-   
+
    my $n = 1;
-   
+
    for my $ser (@{$system->getLDAPServers()}) {
      my $servername='LDAP server ' . $n . ' ';
      $output->addLine(
@@ -203,7 +204,7 @@ for my $engine ( sort (@{$engine_list}) ) {
      );
      $n++;
    }
-   
+
 
 }
 
@@ -218,9 +219,9 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_config [-engine|d <delphix identifier> | -all ] 
-               [-format csv|json]  
-               [-help|? ] 
+ dx_get_config [-engine|d <delphix identifier> | -all ]
+               [-format csv|json]
+               [-help|? ]
                [-debug ]
 
 =head1 DESCRIPTION

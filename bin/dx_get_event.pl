@@ -87,11 +87,13 @@ $output->addHeader(
     {'Description',           50}
 );
 
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -142,6 +144,8 @@ if (defined($outdir)) {
   Toolkit_helpers::print_output($output, $format, $nohead);
 }
 
+
+exit $ret;
 
 
 __DATA__

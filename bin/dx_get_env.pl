@@ -2,9 +2,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 #
 #
 # Modified: 14 Mar 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use strict;
 use warnings;
@@ -82,11 +82,11 @@ my $output = new Formater();
 if (defined($backup)) {
   if (! -d $backup) {
     print "Path $backup is not a directory \n";
-    exit (1);  
+    exit (1);
   }
   if (! -w $backup) {
     print "Path $backup is not writtable \n";
-    exit (1);  
+    exit (1);
   }
 }
 
@@ -95,7 +95,7 @@ if (defined($userlist)) {
     {'Appliance', 20},
     {'Environment Name',   30},
     {'User name'       ,   30},
-    {'Auth Type',          30}    
+    {'Auth Type',          30}
   );
 } elsif (defined($replist)) {
   $output->addHeader(
@@ -116,8 +116,8 @@ if (defined($userlist)) {
 } elsif (defined($backup)) {
   $output->addHeader(
     {'Command',        200}
-  )  
-}  
+  )
+}
 else {
   $output->addHeader(
     {'Appliance', 20},
@@ -137,6 +137,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -204,32 +205,32 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $userauth = $environments->getPrimaryUserAuth($envitem);
       my $hostname;
       my $user = $environments->getPrimaryUserName($envitem);
-      
+
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
         $hostname = $host_obj->getHostAddr($host_ref);
       } else {
         my $clusenvnode = $environments->getClusterNode($envitem);
         $host_ref = $environments->getHost($clusenvnode);
         $hostname = $host_obj->getHostAddr($host_ref);
-      }  
-      
-      
+      }
+
+
 
       if (defined($backup)) {
-        
+
         my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
         $output->addLine(
           $backup
         );
-        
+
         #add users
-        
+
         $environments->getUsersBackup($envitem,$output,$engine);
-        
-      
-        
+
+
+
       } else {
-        
+
         $config = $environments->getConfig($envitem, $host_obj);
         $output->addLine(
          $engine,
@@ -243,7 +244,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       }
     } else {
-      
+
       my $host_ref = $environments->getHost($envitem);
       my $hostos;
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
@@ -252,8 +253,8 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $clusenvnode = $environments->getClusterNode($envitem);
         $host_ref = $environments->getHost($clusenvnode);
         $hostos = $host_obj->getOSVersion($host_ref);
-      }    
-      
+      }
+
       $output->addLine(
         $engine,
         $environments->getName($envitem),
@@ -280,7 +281,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 if (defined($backup)) {
   my $FD;
   my $filename = File::Spec->catfile($backup,'backup_env.txt');
-  
+
   if ( open($FD,'>', $filename) ) {
     $output->savecsv(1,$FD);
     print "Backup exported into $filename \n";
@@ -300,12 +301,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_env [-engine|d <delphix identifier> | -all ] 
-            [-name env_name | -reference reference ] 
-            [-backup] 
-            [-replist ] 
-            [-format csv|json ]  
-            [-help|? ] 
+ dx_get_env [-engine|d <delphix identifier> | -all ]
+            [-name env_name | -reference reference ]
+            [-backup]
+            [-replist ]
+            [-format csv|json ]
+            [-help|? ]
             [-debug ]
 
 =head1 DESCRIPTION
@@ -374,7 +375,7 @@ Turn on debugging
 Display all environments
 
  dx_get_env -d Landshark
- 
+
  Appliance            Reference                      Environment Name               Type                      Status
  -------------------- ------------------------------ ------------------------------ ------------------------- --------
  Landshark5           ORACLE_CLUSTER-11              racattack-cl                   rac                       enabled

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,13 +12,13 @@
 # limitations under the License.
 #
 # Copyright (c) 2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_set_envpass.pl
 # Description  : Set password for OS Delphix user or DB Delphix user
 # Author       : Marcin Przepiorowski
 # Created      : 29 Apr 2016 (v2.2.5)
 #
-# 
+#
 
 use strict;
 use warnings;
@@ -42,12 +42,12 @@ use Action_obj;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'envname=s' => \(my $envname), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'envname=s' => \(my $envname),
   'username=s' => \(my $username),
   'password=s' => \(my $password),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -55,7 +55,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -74,7 +74,7 @@ if (! (defined($username) && defined($password) ) ) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 my %restore_state;
@@ -86,6 +86,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -93,7 +94,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $environments = new Environment_obj( $engine_obj, $debug);
   my $hosts = new Host_obj ( $engine_obj, $debug );
 
-  # filter implementation 
+  # filter implementation
 
   my @env_list;
 
@@ -188,14 +189,14 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Run script on all engines
 
-=item B<-envname name> 
+=item B<-envname name>
 Specify an environment name
 
 =item B<-username user>
 Specify a user
 
 =item B<-password pass>
-Specify a password 
+Specify a password
 
 =back
 
@@ -203,7 +204,7 @@ Specify a password
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -222,6 +223,3 @@ Set a new environment password for environment LINUXSOURCE
 
 
 =cut
-
-
-

@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,24 +46,24 @@ my $version = $Toolkit_helpers::version;
 my $resolution = '3600';
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'format=s' => \(my $format), 
-  'debug:i' => \(my $debug), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'format=s' => \(my $format),
+  'debug:i' => \(my $debug),
   'all' => (\my $all),
   'type|t=s' => (\my $type),
-  'outdir=s' => \(my $outdir), 
-  'st=s' => \(my $st), 
-  'et=s' => \(my $et), 
+  'outdir=s' => \(my $outdir),
+  'st=s' => \(my $st),
+  'et=s' => \(my $et),
   'dever=s' => \(my $dever),
-  'interval|i=s' => \($resolution), 
+  'interval|i=s' => \($resolution),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -92,18 +92,18 @@ my %convertres = (
         );
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 if (! defined($type) ) {
   print "Parameter type is required \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 if (! defined($outdir) ) {
   print "Parameter outdir is required \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 if (! defined( $allowedres{$resolution} ) ) {
@@ -118,6 +118,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $engine\n\n";
+    $ret = $ret + 1;
     next;
   } else {
     print "Connected to Delphix Engine $engine (IP " . $engine_obj->getIP() .")\n\n";
@@ -128,7 +129,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj))) {
     print "Wrong start time (st) format. Use 'yyyy-mm-dd [hh24:mi:ss]' or -Xmin or -Xdays\n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);  
+    exit (1);
   }
 
   my $et_timestamp;
@@ -136,7 +137,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($et) && (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj)))) {
     print "Wrong end time (et) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);  
+    exit (1);
   }
 
   my $analytic_list = new Analytics($engine_obj, $debug);
@@ -173,8 +174,8 @@ __DATA__
   dx_get_analytics      [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                         -type <cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names>
                         -outdir <output dir>
-                        [-i interval ] 
-                        [-st <start_time> ]  
+                        [-i interval ]
+                        [-st <start_time> ]
                         [-et <end_time> ]
                         -format csv|json
                         -debug
@@ -230,14 +231,14 @@ Output directory
 
 =over 4
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified csv formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
-=item B<-debug>          
+=item B<-debug>
 Turn on debugging
 
 =back
@@ -246,18 +247,18 @@ Turn on debugging
 
 Export 1 hour data for all collectors for last 7 days into /tmp directory
 
- dx_get_analytics -d Landshark -i 3600 -t standard -outdir /tmp 
+ dx_get_analytics -d Landshark -i 3600 -t standard -outdir /tmp
  Connected to Delphix Engine Landshark (IP delphix42)
  Generating cpu raw report file /tmp/Landshark-analytics-cpu-raw.csv
- Generating cpu aggregated report file /tmp/Landshark-analytics-cpu-aggregated.csv 
+ Generating cpu aggregated report file /tmp/Landshark-analytics-cpu-aggregated.csv
  Generating disk raw report file /tmp/Landshark-analytics-disk-raw.csv
- Generating disk aggregated report file /tmp/Landshark-analytics-disk-aggregated.csv 
+ Generating disk aggregated report file /tmp/Landshark-analytics-disk-aggregated.csv
  Generating iscsi raw report file /tmp/Landshark-analytics-iscsi-raw.csv
- Generating iscsi aggregated report file /tmp/Landshark-analytics-iscsi-aggregated.csv 
+ Generating iscsi aggregated report file /tmp/Landshark-analytics-iscsi-aggregated.csv
  Generating network raw report file /tmp/Landshark-analytics-network-raw.csv
- Generating network aggregated report file /tmp/Landshark-analytics-network-aggregated.csv 
+ Generating network aggregated report file /tmp/Landshark-analytics-network-aggregated.csv
  Generating nfs raw report file /tmp/Landshark-analytics-nfs-raw.csv
- Generating nfs aggregated report file /tmp/Landshark-analytics-nfs-aggregated.csv 
+ Generating nfs aggregated report file /tmp/Landshark-analytics-nfs-aggregated.csv
 
 
 =cut
