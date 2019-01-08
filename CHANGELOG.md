@@ -1,10 +1,18 @@
-## 2.3.8
+## 2.3.8.1
 
 ### Changed
+- dx_get_capacity fixed
 - dx_get_instance fix for PDB dSource
 - fixes for UTF8 support in names
 - elimination of replicated dSource from backup metadata
 - support for same user name in DOMAIN and SYSTEM namespace
+
+## 2.3.7
+
+### Changed
+- changes in API version check to make it compatible with 5.3
+- various fixes for 5.3 support
+- fix for importing VDB templates
 
 ## 2.3.7-rc1
 

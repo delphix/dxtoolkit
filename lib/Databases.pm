@@ -40,6 +40,7 @@ use OracleVDB_obj;
 use MSSQLVDB_obj;
 use SybaseVDB_obj;
 use AppDataVDB_obj;
+use DB2VDB_obj;
 use Toolkit_helpers qw (logger);
 use Encode qw(decode_utf8);
 
