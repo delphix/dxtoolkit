@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,9 +48,9 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->LoadSystem();
     return $self;
 }
@@ -60,7 +60,7 @@ sub new {
 # parameters: none
 # Return an Engine SSH key
 
-sub getSSHPublicKey 
+sub getSSHPublicKey
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSSHPublicKey",1);
@@ -71,7 +71,7 @@ sub getSSHPublicKey
 # parameters: none
 # Return an Engine storage hash (Used, Free, Total, pct used) GB
 
-sub getStorage 
+sub getStorage
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getStorage",1);
@@ -79,7 +79,7 @@ sub getStorage
         Total => sprintf("%2.2f",$self->{_system}->{storageTotal}/1024/1024/1024),
         Used => sprintf("%2.2f",$self->{_system}->{storageUsed}/1024/1024/1024),
         Free => sprintf("%2.2f",($self->{_system}->{storageTotal} - $self->{_system}->{storageUsed})/1024/1024/1024),
-        pctused => sprintf("%2.2f",$self->{_system}->{storageUsed} / $self->{_system}->{storageTotal})
+        pctused => sprintf("%2.2f",$self->{_system}->{storageUsed} / $self->{_system}->{storageTotal} * 100)
     );
     return \%stor;
 }
@@ -88,7 +88,7 @@ sub getStorage
 # parameters: none
 # Return an Engine version
 
-sub getVersion 
+sub getVersion
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getVersion",1);
@@ -135,7 +135,7 @@ sub getvMem {
 # parameters: none
 # Load a list of System objects from Delphix Engine
 
-sub LoadSystem 
+sub LoadSystem
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::LoadSystem",1);
@@ -146,7 +146,7 @@ sub LoadSystem
       $self->{_system} = $result->{result};
     } else {
       print "No data returned for $operation. Try to increase timeout \n";
-    }    
+    }
 }
 
 # Procedure getDNS
@@ -157,22 +157,22 @@ sub getDNS
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getDNS",1);
-    
+
     if (!defined($self->{_dns})) {
-    
+
       my $operation = "resources/json/delphix/service/dns";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_dns} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_dns};
-    
+
 }
 
 # Procedure getDNSServers
@@ -207,22 +207,22 @@ sub getSNMP
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSNMP",1);
-    
+
     if (!defined($self->{_snmp})) {
-    
+
       my $operation = "resources/json/delphix/service/snmp";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_snmp} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_snmp};
-    
+
 }
 
 # Procedure getSNMPStatus
@@ -257,21 +257,21 @@ sub getSNMPManager
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSNMPManager",1);
-    
+
     if (!defined($self->{_snmpmanager})) {
-    
+
       my $operation = "resources/json/delphix/service/snmp/manager";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_snmpmanager} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
-    return $self->{_snmpmanager};    
+    return $self->{_snmpmanager};
 }
 
 # Procedure getSNMPStatus
@@ -290,7 +290,7 @@ sub getSNMPServers
       $serhash{communityString} = $seritem->{communityString};
       push(@retarray, \%serhash);
     }
-    
+
     return \@retarray;
 }
 
@@ -302,22 +302,22 @@ sub getNTP
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getNTP",1);
-    
+
     if (!defined($self->{_time})) {
-    
+
       my $operation = "resources/json/delphix/service/time";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_time} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_time};
-    
+
 }
 
 # Procedure getNTPServer
@@ -352,22 +352,22 @@ sub getSMTP
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSMTP",1);
-    
+
     if (!defined($self->{_smtp})) {
-    
+
       my $operation = "resources/json/delphix/service/smtp";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_smtp} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_smtp};
-    
+
 }
 
 # Procedure getSMTPServer
@@ -402,22 +402,22 @@ sub getSyslog
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSyslog",1);
-    
+
     if (!defined($self->{_syslog})) {
-    
+
       my $operation = "resources/json/delphix/service/syslog";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_syslog} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_syslog};
-    
+
 }
 
 # Procedure getSyslogServers
@@ -464,22 +464,22 @@ sub getLDAP
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getLDAP",1);
-    
+
     if (!defined($self->{_ldap})) {
-    
+
       my $operation = "resources/json/delphix/service/ldap";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_ldap} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
 
     return $self->{_ldap};
-    
+
 }
 
 # Procedure getLDAPStatus
@@ -502,22 +502,22 @@ sub getLDAPServerConf
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getLDAPServerConf",1);
-    
+
     if (!defined($self->{_ldapserver})) {
-    
+
       my $operation = "resources/json/delphix/service/ldap/server";
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-      
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_ldapserver} = $result->{result};
       } else {
         print "No data returned for $operation. Try to increase timeout \n";
       }
-      
+
     }
-    
+
     return $self->{_ldapserver};
-    
+
 }
 
 # Procedure getLDAPServers
@@ -530,16 +530,16 @@ sub getLDAPServers
     logger($self->{_debug}, "Entering System_obj::getLDAPServers",1);
     my $servers = $self->getLDAPServerConf();
     my @retarray;
-    # it's one server for now 
+    # it's one server for now
     for my $seritem (@{$servers}) {
       my %serhash;
       $serhash{address} = $seritem->{host};
       $serhash{port} = $seritem->{port};
       $serhash{authMethod} = $seritem->{authMethod};
-      $serhash{useSSL} = $seritem->{useSSL};      
+      $serhash{useSSL} = $seritem->{useSSL};
       push(@retarray, \%serhash);
     }
-    
+
     return \@retarray;
 }
 
