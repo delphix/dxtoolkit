@@ -1,3 +1,18 @@
+## 2.3.9-rc2
+
+### Added
+- DB2 support added
+
+
+## 2.3.9-rc1
+
+### Added
+- dx_get_js_snapshot - list a Self service bookmarks and timelines with corresponding parent snapshots
+
+### Changed
+- fix for #68 - dx_get_appliance utilization column was not displaying a percentage but raw value
+- fix for #69 - rc should be 0 when engine name not found
+
 ## 2.3.8.1
 
 ### Changed
