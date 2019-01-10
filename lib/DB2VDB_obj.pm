@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2018,2019 by Delphix. All rights reserved.
+# Copyright (c) 2019 by Delphix. All rights reserved.
 
 #
 # Program Name : DB2VDB_obj.pm
@@ -403,13 +403,9 @@ sub addSource {
     my $inst = shift;
     my $stage_osuser = shift;
     my $backup_dir = shift;
-    my $dumppwd = shift;
-    my $validatedSyncMode = shift;
-    my $delphixmanaged = shift;
-    my $compression = shift;
+    my $hadr = shift;
 
     logger($self->{_debug}, "Entering DB2VDB_obj::addSource",1);
-    print Dumper "dupa";
 
     my $config = $self->setConfig($source, $inst, $env);
 
@@ -418,10 +414,10 @@ sub addSource {
         return undef;
     }
 
-    print Dumper "config";
-    print Dumper $dsource_name;
-    print Dumper $source;
-    print Dumper $config->{reference};
+    if ( $self->setGroup($group) ) {
+        print "Group $group not found. dSource won't be created\n";
+        return undef;
+    }
 
     if ( $self->setEnvironment($env) ) {
         print "Staging environment $env not found. dSource won't be created\n";
@@ -440,10 +436,6 @@ sub addSource {
         return undef;
     }
 
-    print Dumper $self->{'_newenv'};
-    print Dumper $stage_osuser_ref;
-    print Dumper $backup_dir;
-
     my @configset;
 
     my %dsource_params = (
@@ -453,7 +445,7 @@ sub addSource {
       "linkData" => {
           "type" => "AppDataStagedLinkData",
           "config" => $config->{reference},
-          "environmentUser" => $source_os_ref,
+          "environmentUser" => $stage_osuser_ref,
           "stagingEnvironment" => $self->{'_newenv'},
           "stagingEnvironmentUser" => $stage_osuser_ref,
           "parameters" => {
@@ -466,9 +458,36 @@ sub addSource {
       }
     );
 
-    print Dumper \%dsource_params;
 
-    exit;
+
+    if (defined($hadr)) {
+      # hadr is defined - it can be used as general parameter parser
+      # if hadr is enabled look for these parameters
+      my %hadrhash = (
+        "hadrPrimarySVC" => 'm',
+        "hadrPrimaryHostname" => 'm',
+        "hadrStandbySVC" => 'm',
+        "hadrTargetList" => 'o',
+      );
+
+
+      my @hadrarray = split(",", $hadr);
+
+      for my $l (@hadrarray) {
+        my @line = split(":", $l, 2);
+        if (defined($line[0]) && defined($hadrhash{$line[0]}) ) {
+          $dsource_params{linkData}{parameters}{$line[0]} = $line[1];
+        }
+      }
+
+      $dsource_params{linkData}{parameters}{monitorHADR} = JSON::true;
+
+      if (scalar(grep { ($hadrhash{$_} eq 'm') && defined($dsource_params{linkData}{parameters}{$_})  } keys (%hadrhash)) < 3) {
+        print "Please provide all HADR mandatory parameters\n";
+        return undef;
+      }
+
+    }
 
     my $operation = 'resources/json/delphix/database/link';
     my $json_data = to_json(\%dsource_params, {pretty=>1});
@@ -480,26 +499,6 @@ sub addSource {
 
   }
 
-  # === POST /resources/json/delphix/database/link ===
-  # {
-  #     "type": "LinkParameters",
-  #     "name": "R74D105E",
-  #     "group": "GROUP-1",
-  #     "linkData": {
-  #         "type": "AppDataStagedLinkData",
-  #         "config": "APPDATA_STAGED_SOURCE_CONFIG-13",
-  #         "environmentUser": "HOST_USER-10",
-  #         "parameters": {
-  #             "monitorHADR": false,
-  #             "toolkitHookFlag": false,
-  #             "config_settings_stg": [],
-  #             "dbName": "R74D105E",
-  #             "backupPath": "/db2backup"
-  #         },
-  #         "stagingEnvironment": "UNIX_HOST_ENVIRONMENT-7",
-  #         "stagingEnvironmentUser": "HOST_USER-10"
-  #     }
-  # }
 
 # Procedure setName
 # parameters:
