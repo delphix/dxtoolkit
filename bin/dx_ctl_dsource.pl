@@ -338,7 +338,7 @@ A config file search order is as follow:
 =over 1
 
 =item B<-type>
-Type (oracle|sybase)
+Type (oracle|sybase|mssql|db2|vfiles)
 
 =item B<-action>
 Action - create, attach, detach
@@ -407,6 +407,14 @@ Oracle only - CDB password for a PDB dSource
 
 =item B<-creategroup>
 Create a Delphix group if it doesn't exist
+
+=item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
+Add DB2 dSource with HADR support
+Parameter hadrTargetList is optional.
+
+ex.
+hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001
+
 
 =back
 
@@ -482,6 +490,20 @@ Adding an Oracle PDB dSource
                               -dsourcename PDB1 -cdbcont test122 -cdbuser c##delphixdb -cdbpass delphixdb
  Setting credential for CDB test122 sucessful.
  Waiting for all actions to complete. Parent action is ACTION-13947
+ Action completed with success
+
+Adding a DB2 dSource without HADR
+ dx_ctl_dsource -d 531 -stage_os_user auto1052 -stageenv marcindb2tgt -stageinst "auto1052 - 10.5.0.5 - db2aese" -action create -type db2  \
+                       -sourcename R74D105D -dsourcename dsourceR74D105D -group Untitled -backup_dir "/db2backup"
+ Waiting for all actions to complete. Parent action is ACTION-1870
+ Action completed with success
+
+Adding a DB2 dSource with HADR
+
+ dx_ctl_dsource -d 531 -stage_os_user auto1052 -stageenv marcindb2tgt -stageinst "auto1052 - 10.5.0.5 - db2aese" -action create -type db2 \
+                       -sourcename R74D105E  -dsourcename R74D105E -group Untitled -backup_dir "/db2backup" \
+                       -hadr "hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001"
+ Waiting for all actions to complete. Parent action is ACTION-1879
  Action completed with success
 
 =cut
