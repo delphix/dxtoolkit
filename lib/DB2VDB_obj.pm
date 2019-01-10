@@ -11,16 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2015,2016 by Delphix. All rights reserved.
+# Copyright (c) 2018,2019 by Delphix. All rights reserved.
+
 #
-# Program Name : OracleVDB_obj.pm
-# Description  : Delphix Engine Database objects
-# It's include the following classes:
-# - DB2VDB_obj - vFiles VDB
-#
-# Author       : Marcin Przepiorowski
-# Created      : 13 Apr 2015 (v2.0.0)
-#
+# Program Name : DB2VDB_obj.pm
+# Description  : Delphix Engine DB2 Database objects
+
 
 # class DB2VDB_obj - is a child class of VDB_obj
 
@@ -80,7 +76,7 @@ sub new {
         },
     );
     $self->{"NEWDB"} = \%prov;
-    $self->{_dbtype} = 'vFiles';
+    $self->{_dbtype} = 'db2';
     return $self;
 }
 
@@ -239,26 +235,23 @@ sub getConfig
 
 # Procedure snapshot
 # parameters:
-# - frombackup - yes/no
+# - resync - yes/no
 # Run snapshot
 # Return job number if job started or undef otherwise
 
 sub snapshot
 {
     my $self = shift;
-    my $frombackup = shift;
+    my $resync = shift;
     logger($self->{_debug}, "Entering DB2VDB_obj::snapshot",1);
 
-    if (! defined ($frombackup) ) {
-        return undef;
-    };
-
-    my %snapshot_type;
-
-    %snapshot_type = (
-            "type" => "DB2SyncParameters",
-            "resync" => JSON::false
+    my %snapshot_type = (
+            "type" => "AppDataSyncParameters"
     );
+
+    if (defined ($resync) ) {
+        $snapshot_type{"resync"} = JSON::true;
+    };
 
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
@@ -395,7 +388,118 @@ sub createVDB {
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
 # Return job number if provisioning has been started, otherwise return undef
 
-# TBD
+sub addSource {
+    my $self = shift;
+    my $source = shift;
+    my $source_inst = shift;
+    my $source_env = shift;
+    my $source_osuser = shift;
+    my $dbuser = shift;
+    my $password = shift;
+    my $dsource_name = shift;
+    my $group = shift;
+    my $logsync = shift;
+    my $env = shift;
+    my $inst = shift;
+    my $stage_osuser = shift;
+    my $backup_dir = shift;
+    my $dumppwd = shift;
+    my $validatedSyncMode = shift;
+    my $delphixmanaged = shift;
+    my $compression = shift;
+
+    logger($self->{_debug}, "Entering DB2VDB_obj::addSource",1);
+    print Dumper "dupa";
+
+    my $config = $self->setConfig($source, $inst, $env);
+
+    if (! defined($config)) {
+        print "Source database $source not found\n";
+        return undef;
+    }
+
+    print Dumper "config";
+    print Dumper $dsource_name;
+    print Dumper $source;
+    print Dumper $config->{reference};
+
+    if ( $self->setEnvironment($env) ) {
+        print "Staging environment $env not found. dSource won't be created\n";
+        return undef;
+    }
+
+    if ( $self->setHome($inst) ) {
+        print "Staging instance $inst in environment $env not found. dSource won't be created\n";
+        return undef;
+    }
+
+    my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
+
+    if (!defined($stage_osuser_ref)) {
+        print "Source OS user $stage_osuser not found\n";
+        return undef;
+    }
+
+    print Dumper $self->{'_newenv'};
+    print Dumper $stage_osuser_ref;
+    print Dumper $backup_dir;
+
+    my @configset;
+
+    my %dsource_params = (
+      "type" => "LinkParameters",
+      "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+      "name" => $dsource_name,
+      "linkData" => {
+          "type" => "AppDataStagedLinkData",
+          "config" => $config->{reference},
+          "environmentUser" => $source_os_ref,
+          "stagingEnvironment" => $self->{'_newenv'},
+          "stagingEnvironmentUser" => $stage_osuser_ref,
+          "parameters" => {
+              "monitorHADR" => JSON::false,
+              "toolkitHookFlag" => JSON::false,
+              "config_settings_stg" => \@configset,
+              "dbName" => $source,
+              "backupPath" => $backup_dir
+          }
+      }
+    );
+
+    print Dumper \%dsource_params;
+
+    exit;
+
+    my $operation = 'resources/json/delphix/database/link';
+    my $json_data = to_json(\%dsource_params, {pretty=>1});
+    #my $json_data = encode_json(\%dsource_params, pretty=>1);
+
+    logger($self->{_debug}, $json_data, 1);
+
+    return $self->runJobOperation($operation,$json_data, 'ACTION');
+
+  }
+
+  # === POST /resources/json/delphix/database/link ===
+  # {
+  #     "type": "LinkParameters",
+  #     "name": "R74D105E",
+  #     "group": "GROUP-1",
+  #     "linkData": {
+  #         "type": "AppDataStagedLinkData",
+  #         "config": "APPDATA_STAGED_SOURCE_CONFIG-13",
+  #         "environmentUser": "HOST_USER-10",
+  #         "parameters": {
+  #             "monitorHADR": false,
+  #             "toolkitHookFlag": false,
+  #             "config_settings_stg": [],
+  #             "dbName": "R74D105E",
+  #             "backupPath": "/db2backup"
+  #         },
+  #         "stagingEnvironment": "UNIX_HOST_ENVIRONMENT-7",
+  #         "stagingEnvironmentUser": "HOST_USER-10"
+  #     }
+  # }
 
 # Procedure setName
 # parameters:
@@ -535,6 +639,29 @@ sub setSource {
     } else {
         return 1;
     }
+
+}
+
+# Procedure getVersion
+# parameters:
+# Return db version
+
+sub getVersion {
+    my $self = shift;
+    logger($self->{_debug}, "Entering DB2VDB_obj::getVersion",1);
+
+    my $version;
+    if ( defined($self->{"repository"}) && ( $self->{"repository"} ne 'NA' ) ) {
+        if  (defined($self->{"repository"}->{parameters}) && defined($self->{"repository"}->{parameters}->{version})) {
+          $version = $self->{"repository"}->{parameters}->{version};
+        } else {
+          $version = 'N/A';
+        }
+    } else {
+        $version = 'N/A';
+    }
+
+    return $version;
 
 }
 

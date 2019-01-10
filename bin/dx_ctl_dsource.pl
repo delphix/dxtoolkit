@@ -111,7 +111,7 @@ if ($action ne 'detach') {
   }
 
 
-  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') ) ) ) {
+  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') || ( lc $type eq 'db2') ) ) ) {
     print "Option -type has invalid parameter - $type \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
@@ -128,11 +128,12 @@ if ($action ne 'detach') {
     exit (1);
   }
 
-  if (( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
-    print "Options -dbuser and -password are required for non vFiles dsources. \n";
-    pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);
-  }
+
+  # if (( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
+  #   print "Options -dbuser and -password are required for non vFiles dsources. \n";
+  #   pod2usage(-verbose => 1,  -input=>\*DATA);
+  #   exit (1);
+  # }
 
   if (( lc $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
     print "Options -stage_os_user, -stageinst, -stageenv, -sourceinst, -sourceenv and -backup_dir are required. \n";
@@ -257,7 +258,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group);
     }
-
+    elsif ($type eq 'db2') {
+      my $db = new DB2VDB_obj($engine_obj,$debug);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression);
+    }
 
   }
 
