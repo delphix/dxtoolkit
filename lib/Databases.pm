@@ -41,6 +41,7 @@ use MSSQLVDB_obj;
 use SybaseVDB_obj;
 use AppDataVDB_obj;
 use DB2VDB_obj;
+use Toolkit_obj;
 use Toolkit_helpers qw (logger);
 use Encode qw(decode_utf8);
 
@@ -98,6 +99,9 @@ sub LoadDBList
     my $self = shift;
     logger($self->{_debug}, "Entering Databases::LoadDBList",1);
 
+
+    my $toolkits = new Toolkit_obj($self->{_dlpxObject}, $self->{_debug});
+
     my $operation = "resources/json/delphix/database";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
@@ -146,7 +150,15 @@ sub LoadDBList
         }
         elsif ($dbitem->{type} eq 'AppDataContainer' )
         {
-            $db = AppDataVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+            if (defined($dbitem->{toolkit}) && defined($toolkits->getName($dbitem->{toolkit})) ) {
+                if ($toolkits->getName($dbitem->{toolkit}) eq 'db2db') {
+                  $db = DB2VDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+                } else {
+                  $db = AppDataVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+                }
+            } else {
+                $db = AppDataVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+            }
         }
         else
         {

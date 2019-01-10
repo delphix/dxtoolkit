@@ -53,6 +53,7 @@ GetOptions(
   'backupuuid=s' => \(my $backupuuid),
   'fullbackup' => \(my $fullbackup),
   'doublesync' => \(my $doublesync),
+  'resync' => \(my $resync),
   'backupfileslist=s' => \(my $backupfileslist),
   'backupfilesfile=s' => \(my $backupfilesfile),
   'debug:n' => \(my $debug),
@@ -143,7 +144,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       $jobno = $dbobj->snapshot($usebackup, $backupuuid);
     } elsif ( $dbobj->getDBType() eq 'oracle') {
       $jobno = $dbobj->snapshot($fullbackup, $doublesync);
-    } else {
+    } elsif ( $dbobj->getDBType() eq 'db2') {
+      $jobno = $dbobj->snapshot($resync);
+    }else {
       $jobno = $dbobj->snapshot($usebackup);
     }
 

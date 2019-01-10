@@ -191,12 +191,8 @@ $targetname =  decode_utf8($targetname);
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
-<<<<<<< HEAD
     print "Can't connect to Dephix Engine $dx_host\n\n";
     $ret = $ret + 1;
-=======
-    print "Can't connect to Dephix Engine \n\n";
->>>>>>> 4aaf24258136bd686901347ef3870695c9c60f73
     next;
   };
 

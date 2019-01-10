@@ -603,7 +603,7 @@ sub findSnapshotforTimestamp {
         }
 
 
-        logger($self->{_debug}, "entry ts " . $sttz . " tf " . $timeflow,2);
+        logger($self->{_debug}, "entry ts " . $sttz . " tf " . Dumper $timeflow,2);
         logger($self->{_debug}, "startsnap " . $snap_startpoint,2);
         logger($self->{_debug}, "endsnap " . $snap_endpoint,2);
 

@@ -69,6 +69,7 @@ GetOptions(
   'logsync=s' => \($logsync),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
+  'hadr=s' => \(my $hadr),
   'compression=s' => \($compression),
   'type=s' => \(my $type),
   'dever=s' => \(my $dever),
@@ -110,25 +111,31 @@ if ($action ne 'detach') {
     exit (1);
   }
 
+  if (!defined($type)) {
+    print "Option -type is required for this action \n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
 
-  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') ) ) ) {
+  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') || ( lc $type eq 'db2') ) ) ) {
     print "Option -type has invalid parameter - $type \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
-  if ((lc $type eq 'vfiles') && (lc $action eq 'attach')) {
-    print "Can't attach Application dSource\n";
+  if (((lc $type eq 'vfiles') || (lc $type eq 'db2')) && (lc $action eq 'attach')) {
+    print "Can't attach $type dSource\n";
     exit (1);
   }
 
-  if ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) {
-    print "Options -type, -sourcename, -dsourcename, -group, -source_os_user are required. \n";
+  if ( ( lc $type ne 'db2' ) && ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) )  {
+    print "Options -sourcename, -dsourcename, -group, -source_os_user are required. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
-  if (( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
+
+  if (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
     print "Options -dbuser and -password are required for non vFiles dsources. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
@@ -148,8 +155,8 @@ if ($action ne 'detach') {
 
 
 } else {
-  if (defined ($type) && (lc $type eq 'vfiles') && (lc $action eq 'detach')) {
-    print "Can't deattach Application dSource\n";
+  if (defined ($type) && ((lc $type eq 'vfiles') || (lc $type eq 'db2') ) && (lc $action eq 'detach')) {
+    print "Can't deattach $type dSource\n";
     exit (1);
   }
 
@@ -257,11 +264,14 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group);
     }
-
+    elsif ($type eq 'db2') {
+      my $db = new DB2VDB_obj($engine_obj,$debug);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr);
+    }
 
   }
 
-  $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource creation");
+  $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
 
 }
 
