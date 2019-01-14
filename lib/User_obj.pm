@@ -159,7 +159,7 @@ sub setTimeout {
 
 
     logger($self->{_debug}, "Entering User_obj::setTimeout",1);
-
+    $self->{_new}->{sessionTimeout} = $timeout + 0;
     return 0;
 
 }

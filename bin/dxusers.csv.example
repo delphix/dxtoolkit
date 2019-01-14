@@ -1,6 +1,6 @@
-#operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user
+#operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user,timeout
 # comment - create a new user with Delphix authentication
-C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y
+C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y,60
 # comment - create a new user with LDAP
 C,testuser2,Test,User2,test.user@test.mail.com,555-111-111,555-222-222,555-333-333,LDAP,"testuser@test.domain.com",,Y
 # update existing user - non-empty values will be updated, password can't be modified in this version

@@ -53,6 +53,7 @@ GetOptions(
   'action=s'  => \($action),
   'username=s' => \(my $username),
   'password=s' => \(my $password),
+  'timeout=n'  => \(my $timeout),
   'force' => \(my $force),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -89,7 +90,7 @@ if (lc $action eq 'import') {
     exit (1);
   }
 
-} elsif ((lc $action eq 'lock') || (lc $action eq 'unlock') || (lc $action eq 'password')) {
+} elsif ((lc $action eq 'lock') || (lc $action eq 'unlock') || (lc $action eq 'password')  || (lc $action eq 'timeout')) {
 
   if (!defined($username)) {
     print "Parameter -username is required for action $action\n";
@@ -97,16 +98,10 @@ if (lc $action eq 'import') {
     exit (1);
   }
 
-  if (lc $action eq 'lock') {
-    $line = 'L,' . $username;
-  } elsif (lc $action eq 'unlock') {
-    $line = 'E,' . $username;
-  } elsif (lc $action eq 'password') {
-    if (!defined($password)) {
-      $password = $engine_obj->read_password();
-      print "\n";
-    }
-    $line = 'U,' . $username . ',,,,,,,,,' . $password . ',,';
+  if ((lc $action eq 'timeout') && !defined($timeout)) {
+    print "Parameter -timeout is required for action $action\n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
   }
 
 } else {
@@ -138,10 +133,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $jscontainers = new JS_container_obj ( $engine_obj, undef, $debug);
   }
 
-
-  if (defined($file) || defined($line)) {
-    $ret = $ret + process_user($engine_obj, $file, $line, $jscontainers);
-  }
+  $ret = $ret + process_user($engine_obj, $file, $action, $username, $jscontainers, $timeout);
 
   if (defined($profile)) {
     process_profile($engine_obj, $profile);
@@ -158,23 +150,55 @@ exit $ret;
 sub process_user {
   my $engine_obj = shift;
   my $file = shift;
-  my $inputline = shift;
+  my $action = shift;
+  my $username = shift;
   my $jscontainers = shift;
+  my $timeout = shift;
 
   my @csv;
 
   my $ret=0;
+
+
+
+  # load objects for current engine
+  my $users_obj = new Users ($engine_obj, undef, $debug);
+
 
   if (defined($file)) {
     open($FD,$file) or die("Can't open file $file $!" );
     @csv = <$FD>;
     close $FD;
   } else {
-    push(@csv, $inputline);
+
+    my @userarray;
+
+    if (lc $username eq 'all') {
+      @userarray = map { $users_obj->getUser($_)->getName() } $users_obj->getEditableUsers();
+    } else {
+      push(@userarray, $username);
+    }
+
+    for my $useritem (@userarray) {
+      my $line;
+      if (lc $action eq 'lock') {
+        $line = 'L,' . $useritem;
+      } elsif (lc $action eq 'unlock') {
+        $line = 'E,' . $useritem;
+      } elsif (lc $action eq 'password') {
+        if (!defined($password)) {
+          $password = $engine_obj->read_password();
+          print "\n";
+        }
+        $line = 'U,' . $useritem . ',,,,,,,,,' . $password . ',,';
+      } elsif (lc $action eq 'timeout') {
+        $line = 'U,' . $useritem . ',,,,,,,,,,,,' . $timeout;
+      }
+      push(@csv, $line);
+    }
   }
 
-  # load objects for current engine
-  my $users_obj = new Users ($engine_obj, undef, $debug);
+
 
   my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
@@ -184,10 +208,10 @@ sub process_user {
       next;
     }
 
-    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS);
+    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
 
     if ($csv_obj->parse($line)) {
-      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS) = $csv_obj->fields();
+      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout) = $csv_obj->fields();
     } else {
       print "Can't parse line : $line \n";
       $ret = $ret + 1;
@@ -202,25 +226,33 @@ sub process_user {
       $is_JS = '';
     }
 
-    my $usertype = 'DOMAIN';
+    my $usertype;
+    my $loginuser = $users_obj->getCurrentUser();
 
-    if ($is_admin eq 'S') {
+    if ((uc $is_admin eq 'Y') || (uc $is_admin eq 'N')) {
+      $usertype = 'DOMAIN';
+    } elsif ($is_admin eq 'S') {
       $usertype = 'SYSTEM';
     }
 
 
+    if (defined($usertype) && ($usertype ne $loginuser->{userType})) {
+      print "User $username domain $usertype is differtent than login user domain " . $loginuser->{userType} . ". Skipping\n";
+      $ret = $ret + 1;
+      next;
+    }
 
-    # my $loginuser = $users_obj->getCurrentUser();
-    # print Dumper $loginuser;
 
     if (lc $command eq 'c') {
-      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS);
+      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
     }
 
     if (lc $command eq 'u') {
-      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS);
+      $usertype = $loginuser->{userType};
+      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
     }
     if (lc $command eq 'd') {
+      $usertype = $loginuser->{userType};
       if (defined($jscontainers)) {
         # remove JS container ownership
 
@@ -316,7 +348,10 @@ __DATA__
 
  dx_ctl_users    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                  [-action import] <-file filename | -profile filename >
-                 -action lock|unlock|password -username name [-password password]
+                 -action lock|unlock|password|timeout
+                 -username name|all
+                 [-password password]
+                 [-timeout timeout]
                  [-help|?]
                  [-debug]
 
@@ -357,12 +392,17 @@ Actions:
  - lock - disable (lock) user account
  - unlock - enable (unlock) user account
  - password - change user password
+ - timeout - change user timeout
 
-=item B<-username user>
-Username for action
+=item B<-username user|all>
+Username for particular action.
+If word 'all' is specified action will run for all users from same domain as username defined in configuration file
 
 =item B<-password pass>
 New password for user. If not specified prompt will be displayed.
+
+=item B<-timeout time>
+Update a timeout for an user. Timeout is set in minutes
 
 =item B<-file filename>
 CSV file name with user definition and actions. Field list as follow:
@@ -479,10 +519,20 @@ Example csv profile file:
   dx_ctl_users -d Landshark5 -action unlock -username testuser
   User testuser unlocked(enabled).
 
-  Change user password
+Change user password
 
   dx_ctl_users -d Landshark5 -action password -username testuser
   Password:
   User testuser updated. Password for user testuser updated.
+
+Setting timeout for all users
+
+  dx_ctl_users -d Landshark5 -action timeout -username all -timeout 30
+  User delphix_admin updated.
+  User dev updated.
+  User user updated.
+  User testuser updated.
+  User js updated.
+
 
 =cut
