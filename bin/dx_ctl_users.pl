@@ -53,6 +53,7 @@ GetOptions(
   'action=s'  => \($action),
   'username=s' => \(my $username),
   'password=s' => \(my $password),
+  'force' => \(my $force),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -130,8 +131,16 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
+  my $jscontainers;
+
+  if (defined($force)) {
+    # remove JS container ownership
+    $jscontainers = new JS_container_obj ( $engine_obj, undef, $debug);
+  }
+
+
   if (defined($file) || defined($line)) {
-    $ret = $ret + process_user($engine_obj, $file, $line);
+    $ret = $ret + process_user($engine_obj, $file, $line, $jscontainers);
   }
 
   if (defined($profile)) {
@@ -150,6 +159,7 @@ sub process_user {
   my $engine_obj = shift;
   my $file = shift;
   my $inputline = shift;
+  my $jscontainers = shift;
 
   my @csv;
 
@@ -198,161 +208,43 @@ sub process_user {
       $usertype = 'SYSTEM';
     }
 
-    my $user = $users_obj->getUserByName($username, $usertype);
 
+
+    # my $loginuser = $users_obj->getCurrentUser();
+    # print Dumper $loginuser;
 
     if (lc $command eq 'c') {
-
-      if ( ! defined($user) ) {
-
-        if (((uc $is_admin eq 'Y') || (uc $is_admin eq 'S')) && (uc $is_JS eq 'Y')) {
-          print "User $username can't be Delphix Admin/sysadmin and Jet Stream user only at same time. Skipping \n";
-          $ret = $ret + 1;
-          next;
-        }
-
-        if ( (! defined($email) ) || ( $email  eq '') ) {
-            print "Email address is required fpr user $username\n";
-            $ret = $ret + 1;
-            next;
-        }
-
-        my $newuser = new User_obj($engine_obj, $users_obj, $debug);
-        $newuser->setNames($firstname, $lastname);
-
-        $newuser->setContact($email, $workphone, $homephone, $mobilephone);
-        if (lc $authtype eq 'native') {
-          $newuser->setAuthentication('NATIVE',$password);
-        }
-        if (lc $authtype eq 'ldap') {
-          $newuser->setAuthentication('LDAP',$principal);
-        }
-
-        if (uc $is_admin eq 'S') {
-          $newuser->setSysadmin()
-        }
-
-        if ($newuser->createUser($username, $usertype)) {
-          $ret = $ret + 1;
-        } else {
-          $newuser->setAdmin(uc ($is_admin));
-          $newuser->setJS(uc ($is_JS));
-          if ($usertype eq 'SYSTEM') {
-            print "User $username with sysadmin role created\n";
-          } else {
-            print "User $username created. \n";
-          }
-        }
-
-      } else {
-          if ($user->getUserType() eq 'SYSTEM') {
-            print "User $username with sysadmin role exist. Skipping \n";
-          } else {
-            print "User $username exist. Skipping \n";
-          }
-
-      }
-
+      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS);
     }
 
     if (lc $command eq 'u') {
-      if (defined($user) ) {
-
-        if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
-          print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
-          $ret = $ret + 1;
-          next;
-        }
-
-        $user->setNames($firstname, $lastname);
-        $user->setContact($email, $workphone, $homephone, $mobilephone);
-
-        my $isadminYN = $user->isAdmin();
-
-
-        if ( ($is_admin ne '') && ($isadminYN ne (uc $is_admin)) ) {
-          print "Set Delphix Admin to $is_admin .";
-          $user->setAdmin(uc ($is_admin));
-        }
-
-        my $isJSYN = $user->isJS() ? 'Y' : 'N';
-
-        if ( ($is_JS ne '') && ($isJSYN ne (uc $is_JS))) {
-          print "Set Jet Stream user to $is_JS .";
-          $user->setJS(uc ($is_JS));
-        }
-
-        if ($user->updateUser() ) {
-          print "Problem with update. \n";
-          $ret = $ret + 1;
-        } else {
-          print "User $username updated. ";
-        }
-        if ($password ne '') {
-          if ($user->updatePassword($password)) {
-            print "Problem with password update. \n";
-            $ret = $ret + 1;
-          } else {
-            print "Password for user $username updated. ";
-          }
-        }
-        print "\n";
-      } else {
-        print "User $username doens't exist. Can't update\n";
-        $ret = $ret + 1;
-      }
+      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS);
     }
     if (lc $command eq 'd') {
-      if (defined($user) ) {
-        if ($user->deleteUser() ) {
-          print "Problem with delete. \n";
-          $ret = $ret + 1;
-        } else {
-          if ($user->getUserType() eq 'SYSTEM') {
-            print "User $username with sysadmin role deleted\n";
-          } else {
-            print "User $username deleted. \n";
-          }
-          $users_obj->getUserList();
+      if (defined($jscontainers)) {
+        # remove JS container ownership
+
+        my $object_list = $users_obj->getDatabasesByUser($username, $usertype);
+
+        my @contlist = grep { $_->{obj_ref} =~ /JS_DATA_CONTAINER/ } @{$object_list};
+
+        my $jobno;
+
+        for my $con (@contlist) {
+          $jobno = $jscontainers->removeOwner($con->{obj_ref}, $con->{userref});
+          Toolkit_helpers::waitForAction($engine_obj, $jobno, "Owner $username removed", "There were problems with removing owner");
         }
 
       }
-      else {
-        print "User $username doesn't exist. Can't delete\n";
-        $ret = $ret + 1;
-      }
+      $ret = $ret + $users_obj->deleteUser($username, $usertype);
     }
 
     if (lc $command eq 'l') {
-      if (defined($user) ) {
-        if ($user->disableUser() ) {
-          print "Problem with lock(disable). \n";
-          $ret = $ret + 1;
-        } else {
-          print "User $username locked(disabled). \n";
-        }
-
-      }
-      else {
-        print "User $username doesn't exist. Can't locked(disabled)\n";
-        $ret = $ret + 1;
-      }
+      $ret = $ret + $users_obj->lockUser($username, $usertype);
     }
 
     if (lc $command eq 'e') {
-      if (defined($user) ) {
-        if ($user->enableUser() ) {
-          print "Problem with unlock(enable). \n";
-          $ret = $ret + 1;
-        } else {
-          print "User $username unlocked(enabled). \n";
-        }
-
-      }
-      else {
-        print "User $username doesn't exist. Can't unlock(enable)\n";
-        $ret = $ret + 1;
-      }
+      $ret = $ret + $users_obj->unlockUser($username, $usertype);
     }
 
   }
@@ -475,7 +367,7 @@ New password for user. If not specified prompt will be displayed.
 =item B<-file filename>
 CSV file name with user definition and actions. Field list as follow:
 
-command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, is_admin
+command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, admin_priv, js_user, timeout
 
 Allowed command values:
 
@@ -484,6 +376,18 @@ Allowed command values:
  U - update user
  L - lock user
  E - enable user
+
+Allowed admin_priv values:
+
+ Y - Delphix admin user
+ N - Standard User
+ S - Sysadmin user
+
+Allowed js_user values:
+
+  Y - Self service (Jet Stream) user
+  N - Standard User
+
 
 =item B<-profile filename>
 CSV file name with user profile definition. It can be generated using dx_get_users profile option.
