@@ -133,7 +133,9 @@ for my $engine ( sort (@{$engine_list}) ) {
     $jscontainers = new JS_container_obj ( $engine_obj, undef, $debug);
   }
 
-  $ret = $ret + process_user($engine_obj, $file, $action, $username, $jscontainers, $timeout);
+  if (defined($file) || defined($username)) {
+    $ret = $ret + process_user($engine_obj, $file, $action, $username, $jscontainers, $timeout);
+  }
 
   if (defined($profile)) {
     process_profile($engine_obj, $profile);
@@ -298,7 +300,7 @@ sub process_profile {
   }
 
   # load objects for current engine
-  my $users_obj = new Users ($engine_obj);
+  my $users_obj = new Users ($engine_obj, undef, $debug);
 
   my $csv_obj = Text::CSV->new({sep_char=>',', allow_whitespace => 1});
 
@@ -319,7 +321,7 @@ sub process_profile {
       next;
     }
 
-    my $user = $users_obj->getUserByName($username, '');
+    my $user = $users_obj->getUserByName($username);
 
     if (defined($user)) {
       if ($user->setProfile($target_type,$target_name,$role)) {
@@ -534,5 +536,17 @@ Setting timeout for all users
   User testuser updated.
   User js updated.
 
+Force delete example - JS user own container
+
+  dx_ctl_users -d Landshark5 -file /tmp/js.csv
+  Cannot delete user "js" because that user is the owner of a Jet Stream data container.
+  Problem with delete.
+  User js exist. Skipping
+
+  dx_ctl_users -d Landshark5 -file /tmp/js.csv -force
+  Waiting for all actions to complete. Parent action is ACTION-20156
+  Owner js removed
+  User js deleted.
+  User js created.
 
 =cut
