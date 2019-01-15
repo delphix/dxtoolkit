@@ -2,6 +2,11 @@
 
 ### Added
 - DB2 support added
+- dx_ctl_dsource - action update added to allows change of backup_path and validated sync mode for an Oracle and Sybase
+- dx_ctl_user - added possibility to set timeout for one or all users, option force added to remove a JS container ownership and delete user
+
+### Changed
+- dx_ctl_user - is running actions for users in same domain as user used for connection
 
 
 ## 2.3.9-rc1
