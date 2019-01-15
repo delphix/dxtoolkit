@@ -96,14 +96,14 @@ if (defined($all) && defined($dx_host)) {
 }
 
 
-if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'attach') || ( $action eq 'detach') ) ) ) {
+if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'attach') || ( $action eq 'detach') || ( $action eq 'update') ) ) ) {
   print "Option -action not defined or has invalid parameter - $action \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
 
-if ($action ne 'detach') {
+if (! (($action eq 'detach') || ($action eq 'update')) )  {
 
   if (defined($cdbcont) && ((!defined($cdbpass)) || (!defined($cdbuser)))) {
     print "Option -cdbcont required a cdbpass and cdbuser to be defined \n";
@@ -161,7 +161,7 @@ if ($action ne 'detach') {
   }
 
   if ( ! ( defined($dsourcename)  ) ) {
-    print "Options  -dsourcename is required to detach. \n";
+    print "Options  -dsourcename is required to detach or update. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
@@ -205,7 +205,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   }
 
-  if (($action eq 'attach') || ($action eq 'detach'))  {
+  if (($action eq 'attach') || ($action eq 'detach') || ($action eq 'update'))  {
     my $databases = new Databases($engine_obj,$debug);
 
     my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
@@ -234,8 +234,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
         $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression);
       }
-    } else {
+    } elsif ($action eq 'detach')  {
       $jobno = $source->detach_dsource();
+    } elsif ($action eq 'update') {
+      $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
     }
 
   } elsif ($action eq 'create') {
@@ -341,7 +343,9 @@ A config file search order is as follow:
 Type (oracle|sybase|mssql|db2|vfiles)
 
 =item B<-action>
-Action - create, attach, detach
+Action - create, attach, detach, update
+
+Update action can change a backup path and validated sync mode for MS SQL and Sybase dsources
 
 =item B<-group>
 Source Group Name
@@ -378,7 +382,8 @@ Staging database environment
 Staging database os user
 
 =item B<-backup_dir backup_dir>
-Backup location
+Backup location. From Delphix 5.2.3 multiple backup locations with comma separation can be specified
+for MS SQL dSource.
 
 =item B<-logsync yes/no>
 Enable or no LogSync for dSource. Default LogSync is disabled.
@@ -390,8 +395,13 @@ Password for backup used to create dsource
 For Sybase only - mount point for staging server
 
 =item B<-validatedsync mode>
-Set validated sync mode for MS SQL. Allowed values
-TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL
+Set validated sync mode.
+
+Allowed values for MS SQL:
+TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL, NONE
+
+Allowed values for Sybase:
+NONE, ENABLED
 
 =item B<-delphixmanaged yes/no>
 Use Delphix Manage backup mode for MS SQL
@@ -505,5 +515,17 @@ Adding a DB2 dSource with HADR
                        -hadr "hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001"
  Waiting for all actions to complete. Parent action is ACTION-1879
  Action completed with success
+
+Updating a backup path and validated sync mode for Sybase
+
+ dx_ctl_dsource -d Landshark5 -action update -validatedsync ENABLED -backup_dir "/u02/sybase_back" -dsourcename pubs3
+ Waiting for all actions to complete. Parent action is ACTION-20194
+ Action completed with success
+
+ Updating a backup path and validated sync mode for MS SQL
+
+  dx_ctl_dsource -d Landshark5 -action update -validatedsync FULL -backup_dir "\\\\172.16.180.10\\loc1,\\\\172.16.180.10\\loc2" -dsourcename AdventureWorks2012
+  Waiting for all actions to complete. Parent action is ACTION-20190
+  Action completed with success
 
 =cut
