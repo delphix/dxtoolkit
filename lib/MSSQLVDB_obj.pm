@@ -842,6 +842,28 @@ sub getBackupPath {
     return $ret;
 }
 
+# Procedure setBackupPath
+# parameters:
+# - source - source hash
+# - path - path to set
+# Return backup path
+
+sub setBackupPath {
+    my $self = shift;
+    my $sourcehash = shift;
+    my $path = shift;
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setBackupPath",1);
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      $sourcehash->{sharedBackupLocation} = $path;
+    } else {
+      # 5.2.5 and above
+      my @backup_loc = split(',', $path);
+      $sourcehash->{sharedBackupLocations} = \@backup_loc;
+    }
+
+}
+
 # Procedure setRecoveryModel
 # parameters:
 # Return recovery mode
@@ -897,6 +919,50 @@ sub getValidatedMode {
     return $ret;
 
 }
+
+# Procedure setValidatedMode
+# parameters:
+# source - source hash
+# vsm - value of vsm
+
+
+sub setValidatedMode {
+    my $self = shift;
+    my $source = shift;
+    my $vsm = shift;
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setValidatedMode",1);
+    my $ret;
+
+    $vsm = uc $vsm;
+
+    my %vsmvalid = (
+      'TRANSACTION_LOG'=>1,
+      'FULL'=>1,
+      'FULL_OR_DIFFERENTIAL'=>1,
+      'NONE'=>1
+    );
+
+    if (!defined($vsmvalid{$vsm})) {
+      print "Validated sync mode is invalid for MS SQL\n";
+      return 1;
+    }
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      $source->{validatedSyncMode} = $vsm;
+    } else {
+      if ($vsm ne 'NONE') {
+        $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
+        $source->{ingestionStrategy}->{validatedSyncMode} = $vsm;
+      } else {
+        $source->{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+      }
+    }
+
+    return 0;
+
+}
+
 
 # Procedure getDelphixManaged
 # parameters:
