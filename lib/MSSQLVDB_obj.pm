@@ -1182,13 +1182,13 @@ sub attach_dsource
           }
 
           if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
-            $source->{validatedSyncMode} = $vsm;
+            $attach_data{"attachData"}{validatedSyncMode} = $vsm;
           } else {
             if ($vsm ne 'NONE') {
-              $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
-              $source->{ingestionStrategy}->{validatedSyncMode} = $vsm;
+              $attach_data{"attachData"}{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
+              $attach_data{"attachData"}{ingestionStrategy}->{validatedSyncMode} = $vsm;
             } else {
-              $source->{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+              $attach_data{"attachData"}{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
             }
           }
         }
