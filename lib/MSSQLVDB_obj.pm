@@ -436,6 +436,7 @@ sub addSource {
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
 
     if (!defined($source_os_ref)) {
+        logger($self->{_debug}, "Source OS user $source_osuser not found",2);
         print "Source OS user $source_osuser not found\n";
         return undef;
     }
@@ -443,7 +444,8 @@ sub addSource {
     my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
 
     if (!defined($stage_osuser_ref)) {
-        print "Source OS user $stage_osuser not found\n";
+        logger($self->{_debug}, "Stage OS user $source_osuser not found",2);
+        print "Stage OS user $stage_osuser not found\n";
         return undef;
     }
 

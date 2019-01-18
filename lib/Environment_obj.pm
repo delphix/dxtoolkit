@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -107,7 +107,7 @@ sub getEnvironmentUsers {
     logger($self->{_debug}, "Entering Environment_obj::getEnvironmentUsers",1);
 
     my $envusers = $self->{_envusers};
-        
+
     return $envusers->{$reference};
 }
 
@@ -142,14 +142,14 @@ sub getPrimaryUser {
 
     my $environments = $self->{_environments};
     my $ret;
-    
+
     if (defined($environments->{$reference})) {
       $ret = $environments->{$reference}->{primaryUser};
-      
+
     } else {
       $ret = 'N/A';
     }
-    
+
     return $ret;
 }
 
@@ -168,7 +168,7 @@ sub getPrimaryUserName {
 
     #my $username = $self->{_envusers}->{name};
     my $ret;
-    
+
     if (defined($environments->{$reference}->{_primaryUserName})) {
       $ret = $environments->{$reference}->{_primaryUserName};
     } else {
@@ -202,9 +202,9 @@ sub getEnvironmentUserAuth {
         $ret = 'password';
       } elsif ($auth eq 'KeyPairCredential') {
         $ret = 'systemkey';
-      }    
+      }
     }
-        
+
     return $ret;
 }
 
@@ -219,20 +219,20 @@ sub getPrimaryUserAuth {
     my $reference = shift;
 
     logger($self->{_debug}, "Entering Environment_obj::getPrimaryUserAuth",1);
-    
+
     return $self->getEnvironmentUserAuth($reference, $self->getPrimaryUser($reference));
 
     # my $environments = $self->{_environments};
-    # 
+    #
     # #my $username = $self->{_envusers}->{name};
-    # 
+    #
     # my $ret = $environments->{$reference}->{_primaryUserAuth};
     # if ($ret eq 'PasswordCredential') {
     #   $ret = 'password';
     # } elsif ($ret eq 'KeyPairCredential') {
     #   $ret = 'systemkey';
     # }
-    # 
+    #
     # return $ret;
 }
 
@@ -248,40 +248,40 @@ sub getEnvironmentNotPrimaryUsers {
 
     my $primaryUser = $self->getPrimaryUser($envitem);
     my @users_withoutprim = grep { $_ ne $primaryUser  } keys %{$self->{_envusers}->{$envitem}};
-    
+
     return \@users_withoutprim;
-  
+
 }
 
 
 # Procedure getConfig
 # parameters:
 # - reference
-# Return environment metadata 
+# Return environment metadata
 
 sub getConfig {
     my $self = shift;
     my $envitem = shift;
     my $host_obj = shift;
     my $backup = shift;
-    
+
     logger($self->{_debug}, "Entering Environment_obj::getConfig",1);
-    
+
     my $config = '';
     my $joinsep;
-    
+
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
       $joinsep = ',';
     }
-    
+
     my $envtype = $self->getType($envitem);
     my $host_ref = $self->getHost($envitem);
     if ($envtype eq 'rac') {
       my $clusenvnode = $self->getClusterNode($envitem);
       $host_ref = $self->getHost($clusenvnode);
-    } 
+    }
 
     my $toolkit = $host_obj->getToolkitpath($host_ref);
     if (!defined($toolkit)) {
@@ -300,26 +300,26 @@ sub getConfig {
     } else {
       $config = join($joinsep,($config, "-toolkitdir \"$toolkit\""));
     }
-    
+
     if ($envtype eq 'rac') {
       my $clusloc = $self->getClusterloc($envitem);
       my $clustname = $self->getClusterName($envitem);
       $config = join($joinsep,($config, "-clusterloc $clusloc -clustername $clustname "));
     }
-    
+
     my $asedbuser =  $self->getASEUser($envitem);
     if ($asedbuser ne 'N/A') {
       $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass ChangeMeDB"));
     }
-    
+
     my $rest;
-    
-    if ( ( $rest = $config ) =~ /^,(.*)/ )   {    
+
+    if ( ( $rest = $config ) =~ /^,(.*)/ )   {
       $config = $1;
     }
 
     return $config;
-  
+
 }
 
 
@@ -343,13 +343,13 @@ sub getBackup {
     logger($self->{_debug}, "Entering Environment_obj::getBackup",1);
 
     my $suffix = '';
-    if ( $^O eq 'MSWin32' ) { 
+    if ( $^O eq 'MSWin32' ) {
       $suffix = '.exe';
     }
-    
+
     my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password ChangeMe ";
     $backup = $backup . $self->getConfig($envitem, $host_obj, 1);
-    
+
     return $backup;
 
 }
@@ -364,13 +364,13 @@ sub getUsersBackup {
    my $envitem = shift;
    my $output = shift;
    my $engine = shift;
-   
+
    my $backup;
 
    logger($self->{_debug}, "Entering Environment_obj::getUserBackup",1);
-   
+
    my $suffix = '';
-   if ( $^O eq 'MSWin32' ) { 
+   if ( $^O eq 'MSWin32' ) {
      $suffix = '.exe';
    }
 
@@ -378,7 +378,7 @@ sub getUsersBackup {
    my $auth;
 
    for my $useritem (@{$self->getEnvironmentNotPrimaryUsers($envitem)}) {
-     
+
      $backup = "dx_ctl_env$suffix -d $engine -envname " . $name . " -action adduser -username \"" .$self->getEnvironmentUserNamebyRef($envitem,$useritem) . "\"";
      $auth = $self->getEnvironmentUserAuth($envitem,$useritem);
      if ($auth eq 'password') {
@@ -386,13 +386,13 @@ sub getUsersBackup {
      } else {
        $backup = $backup . " -authtype systemkey";
      }
-     
+
      $output->addLine(
       $backup
      );
-   }   
+   }
 
-}  
+}
 
 
 # Procedure getName
@@ -435,11 +435,11 @@ sub getType {
     my $reference = shift;
 
     logger($self->{_debug}, "Entering Environment_obj::getType",1);
-    
+
 
     my $environments = $self->{_environments};
     my $ret = $environments->{$reference}->{'type'};
-    
+
     if ($ret eq 'UnixHostEnvironment') {
       $ret = 'unix';
     } elsif ($ret eq 'WindowsHostEnvironment') {
@@ -510,7 +510,7 @@ sub getClusterNode {
 
     my $environments = $self->{_environments};
     my $ret;
-        
+
     if (($environments->{$reference}->{'type'} eq 'OracleCluster') || ($environments->{$reference}->{'type'} eq 'WindowsCluster')) {
       my @nodes = grep { defined($environments->{$_}->{cluster}) && ( $environments->{$_}->{cluster} eq $reference ) } sort (keys %{$environments} );
       $ret = $nodes[0];
@@ -622,7 +622,7 @@ sub getEnvironmentUserNamebyRef {
           $ret = 'N/A';
         }
     }
-    
+
     return $ret;
 }
 
@@ -644,28 +644,32 @@ sub getEnvironmentUserByName {
     if (defined($self->{_environments}->{$name})) {
         # is this a environment refrerence
         my $users = $self->getEnvironmentUsers($name);
-        
+        logger($self->{_debug}, "Environment ref ". Dumper $name , 2);
+        logger($self->{_debug}, "Environment users ". Dumper $users , 2);
+        logger($self->{_debug}, "Looking for user ". Dumper $username , 2);
         my @t = grep { $users->{$_}->{name} eq $username } keys %{$users};
+        logger($self->{_debug}, "matching users ". Dumper \@t , 2);
         # if (defined($users->{$username})) {
         #     $ret = $users->{$username}->{reference};
         # }
-        
+
         if (scalar(@t) > 1) {
           print "Too many users found\n";
         } else {
           $ret = $t[-1];
         }
-        
+
     } else {
 
         for my $envitem ( sort ( keys %{$self->{_environments}} ) ) {
 
             if ( $self->getName($envitem) eq $name) {
                 my $users = $self->getEnvironmentUsers($envitem);
-                # if (defined($users->{$username})) {
-                #     $ret = $users->{$username}->{reference};
-                # }
+                logger($self->{_debug}, "Environment name ". Dumper $name , 2);
+                logger($self->{_debug}, "Environment users ". Dumper $users , 2);
+                logger($self->{_debug}, "Looking for user ". Dumper $username , 2);
                 my @t = grep { $users->{$_}->{name} eq $username } keys %{$users};
+                logger($self->{_debug}, "matching users ". Dumper \@t , 2);
                 if (scalar(@t) > 1) {
                   print "Too many users found\n";
                 } else {
@@ -738,9 +742,9 @@ sub getEnvironmentList
         for my $envitem (@res) {
             $environments->{$envitem->{reference}} = $envitem;
         }
-        
+
     }
-    
+
     $operation = "resources/json/delphix/environment/windows/clusternode";
     ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
@@ -750,7 +754,7 @@ sub getEnvironmentList
         for my $envitem (@res) {
             $environments->{$envitem->{reference}} = $envitem;
         }
-        
+
     }
 
 
@@ -777,7 +781,7 @@ sub listEnvironmentUsers
               next;
             }
             $envusers->{$envuser->{environment}}->{$envuser->{reference}} = $envuser;
-                        
+
             if ($self->getPrimaryUser($envuser->{environment}) eq $envuser->{reference} ) {
               $self->{_environments}->{$envuser->{environment}}->{_primaryUserName} = $envuser->{name};
               $self->{_environments}->{$envuser->{environment}}->{_primaryUserAuth} = $envuser->{credential}->{type};
@@ -825,7 +829,7 @@ sub getEnvironmentListenerPorts {
 
 
 #procedure getListenerByName
-#parameters: 
+#parameters:
 # - env refrence
 # - list name
 #return listener refrence for name
@@ -836,23 +840,23 @@ sub getListenerByName {
     my $listname = shift;
     logger($self->{_debug}, "Entering Environment_obj::getListenerByName",1);
     my $envlisteners = $self->{_envlisteners};
-    
+
     my $ret;
-    
+
     my @listref = grep { lc $envlisteners->{$envref}->{$_}->{name} eq lc $listname } keys %{$envlisteners->{$envref}};
-    
+
     if (scalar(@listref) eq 1) {
       $ret = $listref[-1];
     };
-    
+
     return $ret;
-  
+
 }
 
 
 
 #procedure getListenerName
-#parameters: 
+#parameters:
 # - env refrence
 # - list reference
 #return listener name for refrence
@@ -863,17 +867,17 @@ sub getListenerName {
     my $listref = shift;
     logger($self->{_debug}, "Entering Environment_obj::getListenerName",1);
     my $envlisteners = $self->{_envlisteners};
-    
+
     my $ret;
-      
+
     if (defined($envlisteners->{$envref}->{$listref})) {
       $ret = $envlisteners->{$envref}->{$listref}->{name};
     } else {
       $ret = 'N/A';
     }
-    
+
     return $ret;
-  
+
 }
 
 
@@ -1010,15 +1014,15 @@ sub createEnv
             "name" => $username
         }
     );
-    
-    
+
+
     my %host;
     if (($type eq 'unix') || ($type eq 'rac')) {
-      
+
       if (!defined($sshport)) {
         $sshport = 22;
       }
-      
+
       %host = (
         "type" => "UnixHostCreateParameters",
         "host" => {
@@ -1028,7 +1032,7 @@ sub createEnv
             "toolkitPath" => $toolkit_path
         }
       );
-    } else {  
+    } else {
       %host = (
         "type" => "WindowsHostCreateParameters",
         "host" => {
@@ -1036,62 +1040,62 @@ sub createEnv
             "connectorPort" => 9100,
             "address" => $host
         }
-      );    
-      
+      );
+
       if (defined($toolkit_path)) {
         $host{"host"}{"toolkitPath"} = $toolkit_path;
       }
       if (defined($proxy)) {
         delete $host{"host"}{"connectorPort"};
-      }  
+      }
     }
-    
-    
+
+
     if ($type eq 'unix') {
         $env{"type"} = "HostEnvironmentCreateParameters";
         $env{"hostEnvironment"}{"type"} = "UnixHostEnvironment";
-        $env{"hostEnvironment"}{"name"} = $name;      
+        $env{"hostEnvironment"}{"name"} = $name;
         $env{"hostParameters"} = \%host;
-        
+
         if (defined($asedbuser) )  {
-          
+
           $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"type"} = "ASEHostEnvironmentParameters";
           $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"dbUser"} = $asedbuser;
           $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"credentials"}{"type"} = "PasswordCredential";
           $env{"hostEnvironment"}{"aseHostEnvironmentParameters"}{"credentials"}{"password"} = $asedbpass;
 
         }
-        
+
     } elsif ($type eq 'windows') {
         $env{"type"} = "HostEnvironmentCreateParameters";
         $env{"hostEnvironment"}{"type"} = "WindowsHostEnvironment";
-        $env{"hostEnvironment"}{"name"} = $name;  
+        $env{"hostEnvironment"}{"name"} = $name;
 
         if (defined($proxy)) {
           $env{"hostEnvironment"}{"proxy"} = $proxy;
-        }  
-        
+        }
+
         $env{"hostParameters"} = \%host;
-    } elsif ($type eq 'rac') { 
+    } elsif ($type eq 'rac') {
       $env{"type"} = "OracleClusterCreateParameters";
       $env{"cluster"}{"type"} = "OracleCluster";
       $env{"cluster"}{"crsClusterName"} = $crsname;
       $env{"cluster"}{"crsClusterHome"} = $crsloc;
-      
+
       my @nodes;
-      
+
       my %node1 = (
         "type" => "OracleClusterNodeCreateParameters",
         "hostParameters" => \%host
       );
-      
+
       push (@nodes, \%node1);
       $env{"nodes"} = \@nodes;
-            
+
     } else {
         return undef;
     }
-    
+
 
     # {
     #     "type": "WindowsClusterCreateParameters",
@@ -1269,7 +1273,7 @@ sub changeASEPassword
     my $operation = "resources/json/delphix/environment/" . $reference;
     my %pass_data = (
         "type" => "UnixHostEnvironment",
-        "aseHostEnvironmentParameters" => { 
+        "aseHostEnvironmentParameters" => {
             type => "ASEHostEnvironmentParameters",
             "credentials" => {
               "password" => $password,
@@ -1290,7 +1294,7 @@ sub changeASEPassword
 # - authtype
 # - password - password
 # Create environment user
-# Return 0 if OK 
+# Return 0 if OK
 
 sub createEnvUser
 {
@@ -1315,7 +1319,7 @@ sub createEnvUser
             "password" => $password
         );
 
-    } 
+    }
 
     my $operation = "resources/json/delphix/environment/user/";
     my %pass_data = (
@@ -1350,7 +1354,7 @@ sub createEnvUser
 # - reference - env reference
 # - username - username
 # Delete environent user
-# Return 0 if OK 
+# Return 0 if OK
 
 sub deleteEnvUser
 {
@@ -1361,7 +1365,7 @@ sub deleteEnvUser
 
 
     my $userref = $self->getEnvironmentUserByName($reference, $username);
-    
+
     if (!defined($userref)) {
       print "Username $username not found \n";
       return 1;
@@ -1401,7 +1405,7 @@ sub deleteEnvUser
 # - listenername - name of listener
 # - endpoint - array of end points
 # Create listener
-# Return 0 if OK 
+# Return 0 if OK
 
 sub createListener
 {
@@ -1414,20 +1418,20 @@ sub createListener
 
     my $operation = "resources/json/delphix/environment/oracle/listener";
     my $env = $self->getEnvironment($reference);
-    
+
     if (!defined($env->{host})) {
       print "RAC environment is not supported now\n";
       return 1;
     }
-    
+
     my @badendpoint = grep { scalar(split(':',$_)) ne 2 } @{$endpoint};
-    
+
     if (scalar(@badendpoint)>0) {
       print "Endpoint definition doesn't match hostname:port \n";
       return 1;
     }
-    
-    
+
+
     my %listener_hash = (
         "type" => "OracleNodeListener",
         "name" => $listenername,
@@ -1438,10 +1442,10 @@ sub createListener
 
     my $json_data = to_json(\%listener_hash, {pretty=>1});
     logger($self->{_debug}, $json_data, 2);
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
     my $ret;
-    
+
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
       print "Listener $listenername created \n";
       $ret = 0;
@@ -1460,10 +1464,10 @@ sub createListener
 # Procedure deleteListener
 # parameters:
 # - reference - env reference
-# - listenername 
+# - listenername
 
 # Delete listener by name
-# Return 0 if OK 
+# Return 0 if OK
 
 sub deleteListener
 {
@@ -1473,17 +1477,17 @@ sub deleteListener
     logger($self->{_debug}, "Entering Environment_obj::deleteListener",1);
 
     my $listref = $self->getListenerByName($reference,$listenername);
-    
+
     if (!defined($listref)) {
       print "Listener $listenername not found\n";
       return 1;
     }
 
     my $operation = "resources/json/delphix/environment/oracle/listener/" . $listref . "/delete";
-    
+
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
     my $ret;
-    
+
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
       print "Listener $listenername deleted \n";
       $ret = 0;
