@@ -1167,8 +1167,30 @@ sub attach_dsource
         $attach_data{"attachData"}{"ingestionStrategy"}{"compressionEnabled"} = $compression_json;
       } else {
         if (defined($vsm)) {
-          $attach_data{"attachData"}{"ingestionStrategy"}{"type"} = "ExternalBackupIngestionStrategy";
-          $attach_data{"attachData"}{"ingestionStrategy"}{"validatedSyncMode"} = $vsm;
+          $vsm = uc $vsm;
+
+          my %vsmvalid = (
+            'TRANSACTION_LOG'=>1,
+            'FULL'=>1,
+            'FULL_OR_DIFFERENTIAL'=>1,
+            'NONE'=>1
+          );
+
+          if (!defined($vsmvalid{$vsm})) {
+            print "Validated sync mode is invalid for MS SQL\n";
+            return undef;
+          }
+
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+            $source->{validatedSyncMode} = $vsm;
+          } else {
+            if ($vsm ne 'NONE') {
+              $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
+              $source->{ingestionStrategy}->{validatedSyncMode} = $vsm;
+            } else {
+              $source->{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+            }
+          }
         }
       }
 
