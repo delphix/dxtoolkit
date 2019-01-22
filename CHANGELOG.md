@@ -1,3 +1,8 @@
+## 2.3.9
+
+### Changed
+- small bug fixes
+
 ## 2.3.9-rc2
 
 ### Added
