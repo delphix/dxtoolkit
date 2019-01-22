@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,7 +79,7 @@ if (defined($iorc) && defined($details)) {
 if ( ! ( ( lc $gradeonly eq 'yes') || (lc $gradeonly eq 'no' ) ) ) {
    print "Option -gradeonly has a wrong value - $gradeonly \n";
    pod2usage(-verbose => 1,  -input=>\*DATA);
-   exit (1);   
+   exit (1);
 }
 
 
@@ -92,7 +92,7 @@ if (defined($details)) {
       {'engine name',          35},
       {'test id',              15},
       {'test name',            30},
-      {'IOPS',                 10}, 
+      {'IOPS',                 10},
       {'Throughput',           15},
       {'Grade',                 7},
       {'average',              10},
@@ -101,7 +101,7 @@ if (defined($details)) {
       {'maximum',              10},
       {'stddev',               10}
   );
-  
+
 } else {
   $output->addHeader(
       {'engine name',          35},
@@ -112,53 +112,53 @@ if (defined($details)) {
 }
 
 my @fulltests = (
-"Random 4K Read w/ 8 jobs",    
-"Random 4K Read w/ 16 jobs",   
-"Random 4K Read w/ 32 jobs",   
-"Random 4K Read w/ 64 jobs",   
-"Random 8K Read w/ 8 jobs",    
-"Random 8K Read w/ 16 jobs",   
-"Random 8K Read w/ 32 jobs",   
-"Random 8K Read w/ 64 jobs",   
-"Sequential 1K Write w/ 4 jobs",    
-"Sequential 4K Write w/ 4 jobs",    
-"Sequential 8K Write w/ 4 jobs",    
-"Sequential 16K Write w/ 4 jobs",   
-"Sequential 32K Write w/ 4 jobs",   
-"Sequential 64K Write w/ 4 jobs",   
-"Sequential 128K Write w/ 4 jobs",  
-"Sequential 1M Write w/ 4 jobs",    
-"Sequential 1K Write w/ 16 jobs",   
-"Sequential 4K Write w/ 16 jobs",   
-"Sequential 8K Write w/ 16 jobs",   
-"Sequential 16K Write w/ 16 jobs",  
-"Sequential 32K Write w/ 16 jobs",  
-"Sequential 64K Write w/ 16 jobs",  
-"Sequential 128K Write w/ 16 jobs", 
-"Sequential 1M Write w/ 16 jobs",   
-"Sequential 64K Read w/ 4 jobs",    
-"Sequential 64K Read w/ 8 jobs",    
-"Sequential 64K Read w/ 16 jobs",   
-"Sequential 64K Read w/ 32 jobs",   
-"Sequential 64K Read w/ 64 jobs",   
-"Sequential 128K Read w/ 4 jobs",   
-"Sequential 128K Read w/ 8 jobs",   
-"Sequential 128K Read w/ 16 jobs",  
-"Sequential 128K Read w/ 32 jobs",  
-"Sequential 128K Read w/ 64 jobs",  
-"Sequential 1M Read w/ 4 jobs",     
-"Sequential 1M Read w/ 8 jobs",     
-"Sequential 1M Read w/ 16 jobs",    
-"Sequential 1M Read w/ 32 jobs",    
-"Sequential 1M Read w/ 64 jobs"    
+"Random 4K Read w/ 8 jobs",
+"Random 4K Read w/ 16 jobs",
+"Random 4K Read w/ 32 jobs",
+"Random 4K Read w/ 64 jobs",
+"Random 8K Read w/ 8 jobs",
+"Random 8K Read w/ 16 jobs",
+"Random 8K Read w/ 32 jobs",
+"Random 8K Read w/ 64 jobs",
+"Sequential 1K Write w/ 4 jobs",
+"Sequential 4K Write w/ 4 jobs",
+"Sequential 8K Write w/ 4 jobs",
+"Sequential 16K Write w/ 4 jobs",
+"Sequential 32K Write w/ 4 jobs",
+"Sequential 64K Write w/ 4 jobs",
+"Sequential 128K Write w/ 4 jobs",
+"Sequential 1M Write w/ 4 jobs",
+"Sequential 1K Write w/ 16 jobs",
+"Sequential 4K Write w/ 16 jobs",
+"Sequential 8K Write w/ 16 jobs",
+"Sequential 16K Write w/ 16 jobs",
+"Sequential 32K Write w/ 16 jobs",
+"Sequential 64K Write w/ 16 jobs",
+"Sequential 128K Write w/ 16 jobs",
+"Sequential 1M Write w/ 16 jobs",
+"Sequential 64K Read w/ 4 jobs",
+"Sequential 64K Read w/ 8 jobs",
+"Sequential 64K Read w/ 16 jobs",
+"Sequential 64K Read w/ 32 jobs",
+"Sequential 64K Read w/ 64 jobs",
+"Sequential 128K Read w/ 4 jobs",
+"Sequential 128K Read w/ 8 jobs",
+"Sequential 128K Read w/ 16 jobs",
+"Sequential 128K Read w/ 32 jobs",
+"Sequential 128K Read w/ 64 jobs",
+"Sequential 1M Read w/ 4 jobs",
+"Sequential 1M Read w/ 8 jobs",
+"Sequential 1M Read w/ 16 jobs",
+"Sequential 1M Read w/ 32 jobs",
+"Sequential 1M Read w/ 64 jobs"
 );
 
-my @gradetests = (   
-"Random 4K Read w/ 16 jobs",       
-"Random 8K Read w/ 16 jobs",     
-"Sequential 1K Write w/ 4 jobs",      
-"Sequential 128K Write w/ 4 jobs",      
-"Sequential 1M Read w/ 4 jobs",     
+my @gradetests = (
+"Random 4K Read w/ 16 jobs",
+"Random 8K Read w/ 16 jobs",
+"Sequential 1K Write w/ 4 jobs",
+"Sequential 128K Write w/ 4 jobs",
+"Sequential 1M Read w/ 4 jobs",
 );
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -170,18 +170,19 @@ for my $engine ( sort (@{$engine_list}) ) {
    # main loop for all work
    if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
    };
-   
+
    if (lc $engine_obj->getUsername() ne 'sysadmin') {
      print "User sysadmin is required for this script to run. Please check dxtools.conf entry for $engine\n";
      next;
    }
-  
+
    my $st = new Storage_obj ($engine_obj, $debug);
-   
+
    my @testidloop;
-   
+
    if (defined($testid)) {
      if (lc $testid eq 'last') {
        my @testlist = @{$st->getTestList()};
@@ -190,7 +191,7 @@ for my $engine ( sort (@{$engine_list}) ) {
        } else {
          print "Can't find storage test on engine $engine\n";
          $ret = $ret + 1;
-         next;       
+         next;
        }
      } else {
        if (defined($st->isTestExist($testid))) {
@@ -204,7 +205,7 @@ for my $engine ( sort (@{$engine_list}) ) {
    } else {
      @testidloop = @{$st->getTestList()};
    }
-   
+
    for my $testiditem ( @testidloop ) {
 
      if (defined($details)) {
@@ -235,16 +236,16 @@ for my $engine ( sort (@{$engine_list}) ) {
        } else {
          print "Test id - $testiditem is not completed on $engine\n";
          $ret = $ret + 1;
-         next;       
+         next;
        }
      } elsif (defined($iorc)) {
        if ($st->getState($testiditem) eq 'COMPLETED') {
          if (! -d $iorc) {
            print "$iorc is not a directory \n";
          }
-           
+
          if ( -w $iorc ) {
-           my $filename =  File::Spec->catfile($iorc, $engine . "_IORC_" . $testiditem . ".txt"); 
+           my $filename =  File::Spec->catfile($iorc, $engine . "_IORC_" . $testiditem . ".txt");
            if ($st->generateIORC($testiditem, $filename)) {
              print "Problem with generating a IORC $filename \n";
              $ret = $ret + 1;
@@ -260,7 +261,7 @@ for my $engine ( sort (@{$engine_list}) ) {
        } else {
          print "Test id - $testiditem is not completed on $engine\n";
          $ret = $ret + 1;
-         next;       
+         next;
        }
      } else {
        $output->addLine(
@@ -285,12 +286,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_storage_tests    [-engine|d <delphix identifier> | -all ] 
+ dx_get_storage_tests    [-engine|d <delphix identifier> | -all ]
                          [-iorc path]
-                         [-testid ref] 
-                         [-details] 
+                         [-testid ref]
+                         [-details]
                          [-gradeonly yes/no]
-                         [-format csv|json]  
+                         [-format csv|json]
                          [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -326,7 +327,7 @@ A config file search order is as follow:
 Limit displayed tests to ref
 
 =item B<-iorc path>
-Extract IORC card into path 
+Extract IORC card into path
 
 =item B<-details>
 Display details for storage test
@@ -351,16 +352,16 @@ Turn on debugging
 Display a list of storage tests
 
  dx_get_storage_tests -d Delphix35
- 
+
  engine name                         test id         start time                     status
  ----------------------------------- --------------- ------------------------------ ----------
  Delphix35                           STORAGE_TEST-5  2016-09-07 12:15:09 IST        COMPLETED
 
 
-Display a results of last storage test 
+Display a results of last storage test
 
  dx_get_storage_tests -d Delphix35 -details -testid last
- 
+
  engine name                         test id         test name                      IOPS       Throughput      Grade   average    95pct      minimum    maximum    stddev
  ----------------------------------- --------------- ------------------------------ ---------- --------------- ------- ---------- ---------- ---------- ---------- ----------
  Delphix35                           STORAGE_TEST-5  Random 4K Read w/ 16 jobs      492              1.92      D       32.365     100.86     0.098      1526.1     53.673

@@ -436,6 +436,7 @@ sub addSource {
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
 
     if (!defined($source_os_ref)) {
+        logger($self->{_debug}, "Source OS user $source_osuser not found",2);
         print "Source OS user $source_osuser not found\n";
         return undef;
     }
@@ -443,7 +444,8 @@ sub addSource {
     my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
 
     if (!defined($stage_osuser_ref)) {
-        print "Source OS user $stage_osuser not found\n";
+        logger($self->{_debug}, "Stage OS user $source_osuser not found",2);
+        print "Stage OS user $stage_osuser not found\n";
         return undef;
     }
 
@@ -842,6 +844,28 @@ sub getBackupPath {
     return $ret;
 }
 
+# Procedure setBackupPath
+# parameters:
+# - source - source hash
+# - path - path to set
+# Return backup path
+
+sub setBackupPath {
+    my $self = shift;
+    my $sourcehash = shift;
+    my $path = shift;
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setBackupPath",1);
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      $sourcehash->{sharedBackupLocation} = $path;
+    } else {
+      # 5.2.5 and above
+      my @backup_loc = split(',', $path);
+      $sourcehash->{sharedBackupLocations} = \@backup_loc;
+    }
+
+}
+
 # Procedure setRecoveryModel
 # parameters:
 # Return recovery mode
@@ -897,6 +921,50 @@ sub getValidatedMode {
     return $ret;
 
 }
+
+# Procedure setValidatedMode
+# parameters:
+# source - source hash
+# vsm - value of vsm
+
+
+sub setValidatedMode {
+    my $self = shift;
+    my $source = shift;
+    my $vsm = shift;
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setValidatedMode",1);
+    my $ret;
+
+    $vsm = uc $vsm;
+
+    my %vsmvalid = (
+      'TRANSACTION_LOG'=>1,
+      'FULL'=>1,
+      'FULL_OR_DIFFERENTIAL'=>1,
+      'NONE'=>1
+    );
+
+    if (!defined($vsmvalid{$vsm})) {
+      print "Validated sync mode is invalid for MS SQL\n";
+      return 1;
+    }
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      $source->{validatedSyncMode} = $vsm;
+    } else {
+      if ($vsm ne 'NONE') {
+        $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
+        $source->{ingestionStrategy}->{validatedSyncMode} = $vsm;
+      } else {
+        $source->{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+      }
+    }
+
+    return 0;
+
+}
+
 
 # Procedure getDelphixManaged
 # parameters:
@@ -1099,8 +1167,30 @@ sub attach_dsource
         $attach_data{"attachData"}{"ingestionStrategy"}{"compressionEnabled"} = $compression_json;
       } else {
         if (defined($vsm)) {
-          $attach_data{"attachData"}{"ingestionStrategy"}{"type"} = "ExternalBackupIngestionStrategy";
-          $attach_data{"attachData"}{"ingestionStrategy"}{"validatedSyncMode"} = $vsm;
+          $vsm = uc $vsm;
+
+          my %vsmvalid = (
+            'TRANSACTION_LOG'=>1,
+            'FULL'=>1,
+            'FULL_OR_DIFFERENTIAL'=>1,
+            'NONE'=>1
+          );
+
+          if (!defined($vsmvalid{$vsm})) {
+            print "Validated sync mode is invalid for MS SQL\n";
+            return undef;
+          }
+
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+            $attach_data{"attachData"}{validatedSyncMode} = $vsm;
+          } else {
+            if ($vsm ne 'NONE') {
+              $attach_data{"attachData"}{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
+              $attach_data{"attachData"}{ingestionStrategy}->{validatedSyncMode} = $vsm;
+            } else {
+              $attach_data{"attachData"}{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+            }
+          }
         }
       }
 

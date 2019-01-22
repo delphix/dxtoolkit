@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,13 +12,13 @@
 # limitations under the License.
 #
 # Copyright (c) 2016 by Delphix. All rights reserved.
-#       
+#
 # Program Name : dx_get_network_tests.pl
 # Description  : Get network test
 # Author       : Marcin Przepiorowski
 # Created      : 11 Aug 2016 (v2.0.0)
 #
-# 
+#
 
 use strict;
 use warnings;
@@ -71,7 +71,7 @@ if (defined($all) && defined($dx_host)) {
 if ((defined($last) && (! defined($remoteaddr)))) {
    print "Option -last require remoteaddr to be defined \n";
    pod2usage(-verbose => 1,  -input=>\*DATA);
-   exit (1);   
+   exit (1);
 }
 
 if (! defined($type)) {
@@ -90,7 +90,7 @@ if (lc $type eq 'latency') {
       {'engine',               20},
       {'name',                 35},
       {'remote host',          15},
-      {'VDB found',            10}, 
+      {'VDB found',            10},
       {'state',                15},
       {'average',              10},
       {'minimum',              10},
@@ -104,8 +104,8 @@ if (lc $type eq 'latency') {
   $output->addHeader(
       {'engine',               20},
       {'name',                 35},
-      {'remote host',          15}, 
-      {'VDB found',            10}, 
+      {'remote host',          15},
+      {'VDB found',            10},
       {'state',                15},
       {'direction',            15},
       {'no of conn',           10},
@@ -116,7 +116,7 @@ if (lc $type eq 'latency') {
   $output->addHeader(
       {'engine',               20},
       {'name',                 35},
-      {'remote host',          15},  
+      {'remote host',          15},
       {'state',                15},
       {'direction',            15},
       {'no of conn',           10},
@@ -127,7 +127,7 @@ if (lc $type eq 'latency') {
   print "Option type has unknown value - $type \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
-}  
+}
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -138,13 +138,14 @@ for my $engine ( sort (@{$engine_list}) ) {
    # main loop for all work
    if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
    };
-  
+
    my $net  = new Network_obj ( $engine_obj, $debug );
    my $hosts = new Host_obj    ( $engine_obj, $debug );
    my $databases = new Databases ( $engine_obj, $debug);
-   
+
    my $testlist;
 
    if (defined($remoteaddr)) {
@@ -160,12 +161,12 @@ for my $engine ( sort (@{$engine_list}) ) {
              $ret=$ret+1;
              next;
           }
-          push(@hostlist,$hostref);          
+          push(@hostlist,$hostref);
         }
       }
-      
-      
-      #my @hostlist 
+
+
+      #my @hostlist
       for my $hostitem (sort @hostlist) {
          my $testref;
          if (defined($last)) {
@@ -205,9 +206,9 @@ for my $engine ( sort (@{$engine_list}) ) {
          }
       }
       $testlist = \@templist;
-      
-      
-      
+
+
+
    } else {
       if (lc $type eq 'latency') {
          $testlist = $net->getLatencyTestsList();
@@ -217,9 +218,9 @@ for my $engine ( sort (@{$engine_list}) ) {
          $testlist = $net->getDSPTestsList();
       }
    }
-   
+
    for my $netitem (@{$testlist}) {
-     
+
 
       my $hostname;
       my $hostref = $net->getHost($netitem);
@@ -229,12 +230,12 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
          $hostname = 'N/A';
       }
-      
+
       my @dblist = $databases->getDBForHost($hostname);
-      
-      my $dbtype = grep { ($databases->getDB($_))->getType() eq 'VDB' } @dblist ; 
-      my $dbtype_disp = $dbtype > 0 ? 'YES' : 'NO'; 
-      
+
+      my $dbtype = grep { ($databases->getDB($_))->getType() eq 'VDB' } @dblist ;
+      my $dbtype_disp = $dbtype > 0 ? 'YES' : 'NO';
+
       if (lc $type eq 'latency') {
          $output->addLine(
           $engine,
@@ -288,9 +289,9 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_network_tests    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]-type latency|throughput
-                         [ -remoteaddr env_ip ] 
-                         [ -last]  
-                         [ -format csv|json ]  
+                         [ -remoteaddr env_ip ]
+                         [ -last]
+                         [ -format csv|json ]
                          [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -349,7 +350,7 @@ Turn on debugging
 Display a latency test results for all targets
 
  dx_get_network_tests -d Landshark -type latency
- 
+
  engine               name                                remote host     VDB found  state           average    minimum    maximum    stddev     count      size       loss
  -------------------- ----------------------------------- --------------- ---------- --------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
  Landshark            192.168.166.11-2016-11-11T14:42:55. 192.168.166.11  NO         COMPLETED       424        288        549        51         60         8192       0
@@ -391,7 +392,7 @@ Display a throughput tests results for all hosts
 Display a last throughput test results for all hosts
 
  dx_get_network_tests -d DE001 -type throughput -remoteaddr all -last
- 
+
  engine               name                                remote host     VDB found  state           direction       no of conn throughput block size
  -------------------- ----------------------------------- --------------- ---------- --------------- --------------- ---------- ---------- ----------
  DE001                192.168.166.24-2016-11-07T14:42:40. 192.168.166.24  YES        COMPLETED       TRANSMIT        1             9391.31 131072

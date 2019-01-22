@@ -35,6 +35,7 @@ use Group_obj;
 use Databases;
 use warnings;
 use strict;
+use JS_container_obj;
 
 # constructor
 # parameters
@@ -144,6 +145,23 @@ sub getContact {
     my $home_phone = $self->{_user}->{homePhoneNumber} ? $self->{_user}->{homePhoneNumber} : '';
     my $cell_phone = $self->{_user}->{mobilePhoneNumber} ? $self->{_user}->{mobilePhoneNumber} : '';
     return $email_address, $work_phone, $home_phone, $cell_phone;
+}
+
+
+# Procedure setTimeout
+# parameters:
+# - timeout
+#return 0 if OK
+
+sub setTimeout {
+    my $self = shift;
+    my $timeout = shift;
+
+
+    logger($self->{_debug}, "Entering User_obj::setTimeout",1);
+    $self->{_new}->{sessionTimeout} = $timeout + 0;
+    return 0;
+
 }
 
 
@@ -296,6 +314,7 @@ sub deleteUser {
         $self->{_user_list}->getUserList();
         return 0;
     } else {
+        print $result->{error}->{details} . "\n";
         return 1;
     }
 }

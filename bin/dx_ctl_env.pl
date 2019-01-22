@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 # Author       : Edward de los Santos
 # Created      : 30 Jan 2014 (v1.0.0)
 # Modified     : 14 Mar 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 
 use strict;
 use warnings;
@@ -43,9 +43,9 @@ use SourceConfig_obj;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
-  'name|n=s' => \(my $envname), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
+  'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
   'action=s' => \(my $action),
   'username=s' => \(my $username),
@@ -58,13 +58,13 @@ GetOptions(
   'uniquename=s' => \(my $uniquename),
   'instancename=s' => \(my $instancename),
   'jdbc=s'     => \(my $jdbc),
-  'listenername=s' => \(my $listenername), 
+  'listenername=s' => \(my $listenername),
   'endpoint=s@' => \(my $endpoint),
   'bits=n' => \(my $bits),
-  'ohversion=s' => \(my $ohversion), 
+  'ohversion=s' => \(my $ohversion),
   'oraclebase=s' => \(my $oraclebase),
   'parallel=n' => \(my $parallel),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'restore=s' => \(my $restore),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -73,7 +73,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -85,7 +85,7 @@ if (defined($all) && defined($dx_host)) {
 }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 
 if (!defined($action)) {
@@ -95,16 +95,16 @@ if (!defined($action)) {
 }
 
 if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq 'disable') ||
-    (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') || 
-    (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') || 
+    (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') ||
+    (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') ||
     (lc $action eq 'addlistener') || (lc $action eq 'deletelistener') ||
     (lc $action eq 'adduser') || (lc $action eq 'deleteuser')
-    )) 
+    ))
     {
       print "Unknown action $action\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1);
-} 
+}
 
 if (lc $action eq 'addrepo') {
   if (!defined($repotype)) {
@@ -192,13 +192,14 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
   # load objects for current engine
   my $environments = new Environment_obj( $engine_obj, $debug);
 
-  # filter implementation 
+  # filter implementation
 
   my @env_list;
   my @jobs;
@@ -225,7 +226,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $envitem ( @env_list ) {
 
     my $env_name = $environments->getName($envitem);
-    
+
     if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh')) {
 
       if ( $action eq 'enable' ) {
@@ -272,9 +273,9 @@ for my $engine ( sort (@{$engine_list}) ) {
           $ret = $ret + $pret;
         }
       }
-      undef $jobno;  
+      undef $jobno;
     }
-    
+
     if ( lc $action eq 'adduser' ) {
       print "Adding user to environment $env_name \n";
       if ($environments->createEnvUser($envitem, $username, $authtype, $password)) {
@@ -299,7 +300,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
       }
     }
-    
+
     if ( lc $action eq 'deleterepo' ) {
       print "Deleting repository $repopath from environment $env_name \n";
       my $repository_obj = new Repository_obj($engine_obj, $debug);
@@ -308,11 +309,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
       }
     }
-    
+
     if ( lc $action eq 'adddatabase' ) {
-      
+
       my $repository_obj = new Repository_obj($engine_obj, $debug);
-      
+
       my $repo;
       if (lc $repotype eq 'vfiles') {
         print "Adding vfiles $vfilepath as $dbname into environment $env_name \n";
@@ -321,35 +322,35 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Adding database $dbname into $repopath on environment $env_name \n";
         $repo = $repository_obj->getRepositoryByNameForEnv($repopath, $envitem);
       }
-      
+
       if (defined($repo->{reference})) {
         my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
-        
+
         if (lc $repotype eq 'oracle') {
           if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
             print "Can't add database $dbname \n";
             $ret = $ret + 1;
           } else {
             print "Database $dbname added into $repopath\n";
-          }          
+          }
         } elsif (lc $repotype eq 'vfiles') {
           if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, undef, undef, undef, $vfilepath)) {
             print "Can't add directory $vfilepath as $dbname \n";
             $ret = $ret + 1;
           } else {
             print "vFiles source $vfilepath added into environment $env_name\n";
-          } 
+          }
         }
-        
+
 
       } else {
         print "Can't find repository path $repopath \n";
         $ret = $ret + 1;
       }
     }
-    
+
     if ( lc $action eq 'deletedatabase' ) {
-      my $repository_obj = new Repository_obj($engine_obj, $debug); 
+      my $repository_obj = new Repository_obj($engine_obj, $debug);
       my $repo;
       if (lc $repotype eq 'vfiles') {
         print "Deleting vfiles $dbname from environment $env_name \n";
@@ -372,10 +373,10 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Repository $repopath not found\n";
         $ret = $ret + 1;
       }
-      
-         
+
+
     }
-    
+
     if ( lc $action eq 'addlistener' ) {
       print "Adding listener to environment $env_name \n";
       if ($environments->createListener($envitem, $listenername, $endpoint)) {
@@ -397,8 +398,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($parallel) && (scalar(@jobs) > 0)) {
     while (scalar(@jobs) > 0) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
-      $ret = $ret + $pret; 
-    }   
+      $ret = $ret + $pret;
+    }
   }
 
 }
@@ -411,20 +412,20 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-            [ -name env_name | -reference reference ]  
+            [ -name env_name | -reference reference ]
             -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
             [-dbname dbname]
             [-instancename instancename]
             [-uniquename db_unique_name]
             [-jdbc jdbc_connection_string]
             [-listenername listenername]
-            [-endpoint ip:port] 
+            [-endpoint ip:port]
             [-username name]
             [-authtype password|systemkey]
             [-password password]
             [-repotype oracle|vfiles]
             [-repopath ORACLE_HOME]
-            [-help|? ] 
+            [-help|? ]
             [-debug ]
 
 =head1 DESCRIPTION
@@ -508,15 +509,15 @@ Repository type to add (only Oracle and vFiles support for now - use with addrep
 Oracle Home to add (use with addrepo)
 
 =item B<-bits 32|64>
-Oracle Home binary bit version (32/64) 
+Oracle Home binary bit version (32/64)
 
 =item B<-ohversion x.x.x.x>
 Oracle Home version ex. 11.2.0.4 or 12.1.0.2
- 
+
 =item B<-oraclebase path>
 Oracle Base path
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -526,14 +527,14 @@ Turn on debugging
 
 =head1 EXAMPLES
 
-Disabling environmanet 
+Disabling environmanet
 
  dx_ctl_env -d Landshark -name LINUXTARGET -action disable Disabling environment LINUXTARGET
  Disabling environment LINUXTARGET
 
 Enabling environment
 
- dx_ctl_env -d Landshark -name LINUXTARGET -action enable 
+ dx_ctl_env -d Landshark -name LINUXTARGET -action enable
  Enabling environment LINUXTARGET
  Starting job JOB-234 for environment LINUXTARGET.
  0 - 100
@@ -546,56 +547,56 @@ Refreshing environment
  Starting job JOB-7544 for environment LINUXTARGET.
  0 - 40 - 100
  Job JOB-7544 finished with state: COMPLETED
- 
-Adding an Oracle Home not discovered automatically 
+
+Adding an Oracle Home not discovered automatically
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action addrepo -repotype oracle -repopath /u01/app/oracle/121_64 -bits 64 -ohversion 12.1.0.2 -oraclebase /u01/app/oracle
  Adding repository /u01/app/oracle/121_64 to environment LINUXTARGET
  Repository /u01/app/oracle/121_64 created
- 
-Deleteing an Oracle Home 
+
+Deleteing an Oracle Home
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action deleterepo  -repopath /u01/app/oracle/121_64
  Deleting repository /u01/app/oracle/121_64 from environment LINUXTARGET
  Repository /u01/app/oracle/121_64 deleted
- 
+
 Adding an additional user to environment
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action adduser -username www-data -authtype password -password delphix
  Adding user to environment LINUXTARGET
  User www-data created
- 
-Deleting an additional user from environment 
+
+Deleting an additional user from environment
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action deleteuser -username www-data
  Deleting user from environment LINUXTARGET
  User www-data deleted
- 
+
 Adding an additional listener called ADDLIS
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action addlistener -listenername ADDLIS -endpoint 127.0.0.1:1522
  Adding listener to environment LINUXTARGET
- Listener ADDLIS created 
- 
+ Listener ADDLIS created
+
 Deleting an additional listener called ADDLIS
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action deletelistener -listenername ADDLIS
  Adding listener to environment LINUXTARGET
  Listener ADDLIS deleted
- 
+
 Adding an Oracle database rmantest into environment
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action adddatabase -dbname rmantest -instancename rmantest -uniquename rmantest -jdbc 172.16.111.222:1521:rmantest -repopath "/u01/app/oracle/12.1.0.2/rachome1"
  Adding database rmantest into /u01/app/oracle/12.1.0.2/rachome1 on environment LINUXTARGET
- Database rmantest added into /u01/app/oracle/12.1.0.2/rachome1 
+ Database rmantest added into /u01/app/oracle/12.1.0.2/rachome1
 
 Deleting an Oracle database rmantest from environment
 
  dx_ctl_env -d Landshark51 -name LINUXTARGET -action deletedatabase -dbname rmantest -repopath "/u01/app/oracle/12.1.0.2/rachome1"
  Deleting database rmantest from /u01/app/oracle/12.1.0.2/rachome1 on environment LINUXTARGET
  Database rmantest deleted from /u01/app/oracle/12.1.0.2/rachome1
- 
-Adding a vfiles into environment 
+
+Adding a vfiles into environment
 
  dx_ctl_env -d Landshark51 -name LINUXSOURCE -action adddatabase -dbname swingbench -repotype vfiles -vfilepath "/home/delphix/swingbench"
  Adding vfiles /home/delphix/swingbench as swingbench into environment LINUXSOURCE
@@ -608,6 +609,3 @@ Delete a vfiles from environment
  Database swingbench deleted from Unstructured Files
 
 =cut
-
-
-

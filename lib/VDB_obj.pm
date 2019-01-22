@@ -922,6 +922,76 @@ sub return_currentobj
     return $self->{_currentobj};
 }
 
+# Procedure update_dsource
+# parameters:
+#
+# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
+# Return job number if provisioning has been started, otherwise return undef
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+
+    logger($self->{_debug}, "Entering VDB_obj::update_dsource",1);
+
+    my %source_hash;
+    my $jobno;
+
+    my $dbtype = $self->getDBType();
+
+    if ( ($dbtype eq 'mssql') || ($dbtype eq 'sybase') ) {
+
+      %source_hash = (
+          "type" => $self->{source}->{type}
+      );
+
+
+      if (defined($backup_dir)) {
+        $self->setBackupPath(\%source_hash, $backup_dir);
+      }
+
+      if (defined($validatedsync)) {
+        if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
+          return undef;
+        }
+      }
+
+
+      my $json_data = to_json(\%source_hash);
+
+      logger($self->{_debug}, $json_data ,2);
+
+      my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
+      my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+
+      if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{action};
+      } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+      }
+
+    }
+
+
+
+
+
+    return $jobno;
+
+}
+
+
 
 # Procedure runJobOperation
 # parameters:

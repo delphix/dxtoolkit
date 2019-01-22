@@ -58,6 +58,8 @@ sub new {
 
     $self->{_authorizations} = $authorizations;
 
+    $self->{_currentuser} = '';
+
     $self->getUserList($debug);
     return $self;
 }
@@ -76,21 +78,17 @@ sub getUserByName {
     my $ret;
 
     if (!defined($usertype)) {
-      $usertype = '';
+      my $loginuser = $self->getCurrentUser();
+      $usertype = $loginuser->{userType};
     }
 
-    for my $useritem ( sort ( keys %{$self->{_users}} ) ) {
+    my @userpertype = grep { $self->{_users}->{$_}->{_user}->{userType} eq $usertype  } sort ( keys %{$self->{_users} } );
+
+    for my $useritem ( @userpertype )  {
         my $user = $self->{_users}->{$useritem};
         if ( $user->getName() eq $name) {
-          if ($usertype eq 'SYSTEM') {
-            if ($user->getUserType() eq 'SYSTEM') {
-              $ret = $user;
-            }
-          } else {
-            if ($user->getUserType() eq 'DOMAIN') {
-              $ret = $user;
-            }
-          }
+          $ret = $user;
+          next;
         }
     }
 
@@ -141,6 +139,18 @@ sub getUsers {
     return sort (keys %{$self->{_users}});
 }
 
+# Procedure getEditableUsers
+# parameters:
+# Return list of users from same domain as login user
+
+sub getEditableUsers {
+    my $self = shift;
+    logger($self->{_debug}, "Entering Users::getEditableUsers",1);
+    my $loginuser = $self->getCurrentUser();
+    my $usertype = $loginuser->{userType};
+    return grep { $self->{_users}->{$_}->{_user}->{userType} eq $usertype  } sort ( keys %{$self->{_users} } );;
+}
+
 
 # Procedure getJSUsers
 # parameters:
@@ -170,6 +180,60 @@ sub getUsersByTarget {
     logger($self->{_debug}, "Entering Users::getUsersByTarget",1);
 
     return $self->{_authorizations}->getUsersByTarget($target_ref);
+}
+
+
+
+
+# Procedure getDatabasesByUser
+# parameters:
+# - user ref
+# Return list of objects per user
+
+sub getDatabasesByUser {
+    my $self = shift;
+    my $username = shift;
+    my $usertype = shift;
+
+    logger($self->{_debug}, "Entering Users::getDatabasesByUser",1);
+    my $user = $self->getUserByName($username, $usertype);
+    if (defined($user)) {
+      my $userref = $user->getReference();
+      return $self->{_authorizations}->getDatabasesByUser($userref);
+    } else {
+      return undef;
+    }
+}
+
+
+# Procedure getCurrentUser
+# parameters:
+# Return current logged user
+
+sub getCurrentUser {
+    my $self = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering Users::getCurrentUser",1);
+
+    if ($self->{_currentuser} eq '') {
+
+      my $operation = "resources/json/delphix/user/current";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          $ret = $result->{result};
+          $self->{_currentuser} = $ret;
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+      }
+
+    } else {
+      $ret = $self->{_currentuser};
+    }
+
+    return $ret;
+
 }
 
 # Procedure getUserList
@@ -207,6 +271,251 @@ sub getUserList
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
+}
+
+
+sub addUser
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+  my $firstname = shift;
+  my $lastname = shift;
+  my $email = shift;
+  my $workphone = shift;
+  my $homephone = shift;
+  my $mobilephone  = shift;
+  my $authtype = shift;
+  my $principal = shift;
+  my $password = shift;
+  my $is_admin = shift;
+  my $is_JS = shift;
+  my $timeout = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  if ( ! defined($user) ) {
+
+    if (((uc $is_admin eq 'Y') || (uc $is_admin eq 'S')) && (uc $is_JS eq 'Y')) {
+      print "User $username can't be Delphix Admin/sysadmin and Jet Stream user only at same time. Skipping \n";
+      return 1;
+    }
+
+    if ( (! defined($email) ) || ( $email  eq '') ) {
+        print "Email address is required fpr user $username\n";
+        return 1;
+    }
+
+    my $newuser = new User_obj($self->{_dlpxObject}, $self, $self->{_debug});
+    $newuser->setNames($firstname, $lastname);
+
+    $newuser->setContact($email, $workphone, $homephone, $mobilephone);
+    if (lc $authtype eq 'native') {
+      $newuser->setAuthentication('NATIVE',$password);
+    }
+    if (lc $authtype eq 'ldap') {
+      $newuser->setAuthentication('LDAP',$principal);
+    }
+
+    if (defined($timeout)) {
+      $newuser->setTimeout($timeout);
+    }
+
+    if (uc $is_admin eq 'S') {
+      $newuser->setSysadmin()
+    }
+
+    if ($newuser->createUser($username, $usertype)) {
+      $ret = $ret + 1;
+    } else {
+      $newuser->setAdmin(uc ($is_admin));
+      $newuser->setJS(uc ($is_JS));
+      if ($usertype eq 'SYSTEM') {
+        print "User $username with sysadmin role created\n";
+      } else {
+        print "User $username created. \n";
+      }
+    }
+
+  } else {
+      if ($user->getUserType() eq 'SYSTEM') {
+        print "User $username with sysadmin role exist. Skipping \n";
+      } else {
+        print "User $username exist. Skipping \n";
+      }
+
+  }
+
+  return $ret;
+
+}
+
+
+sub updateUser
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+  my $firstname = shift;
+  my $lastname = shift;
+  my $email = shift;
+  my $workphone = shift;
+  my $homephone = shift;
+  my $mobilephone  = shift;
+  my $authtype = shift;
+  my $principal = shift;
+  my $password = shift;
+  my $is_admin = shift;
+  my $is_JS = shift;
+  my $timeout = shift;
+
+  my $ret = 0;
+
+  my $user = $self->getUserByName($username, $usertype);
+
+  if (defined($user) ) {
+
+    if ((uc $is_admin eq 'Y') && (uc $is_JS eq 'Y')) {
+      print "User $username can't be Delphix Admin and Jet Stream user only at same time. Skipping \n";
+      $ret = $ret + 1;
+      next;
+    }
+
+    if (defined($timeout)) {
+      $user->setTimeout($timeout);
+    }
+
+    $user->setNames($firstname, $lastname);
+    $user->setContact($email, $workphone, $homephone, $mobilephone);
+
+    my $isadminYN = $user->isAdmin();
+
+
+    if ( ($is_admin ne '') && ($isadminYN ne (uc $is_admin)) ) {
+      print "Set Delphix Admin to $is_admin .";
+      $user->setAdmin(uc ($is_admin));
+    }
+
+    my $isJSYN = $user->isJS() ? 'Y' : 'N';
+
+    if ( ($is_JS ne '') && ($isJSYN ne (uc $is_JS))) {
+      print "Set Jet Stream user to $is_JS .";
+      $user->setJS(uc ($is_JS));
+    }
+
+    if ($user->updateUser() ) {
+      print "Problem with update. \n";
+      $ret = $ret + 1;
+    } else {
+      print "User $username updated. ";
+    }
+    if ($password ne '') {
+      if ($user->updatePassword($password)) {
+        print "Problem with password update. \n";
+        $ret = $ret + 1;
+      } else {
+        print "Password for user $username updated. ";
+      }
+    }
+    print "\n";
+  } else {
+    print "User $username doens't exist. Can't update\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
+}
+
+sub deleteUser
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  if (defined($user) ) {
+    if ($user->deleteUser() ) {
+      print "Problem with delete. \n";
+      $ret = $ret + 1;
+    } else {
+      if ($user->getUserType() eq 'SYSTEM') {
+        print "User $username with sysadmin role deleted\n";
+      } else {
+        print "User $username deleted. \n";
+      }
+      $self->getUserList();
+    }
+
+  }
+  else {
+    print "User $username doesn't exist in domain $usertype. Can't delete\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
+}
+
+sub lockUser
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  my $loginuser = $self->getCurrentUser();
+
+  if ( $user->getReference() eq $loginuser->{reference} ) {
+    # to avoid locking last user with access - GUI have same check
+    print "You can't lock user you are using to log in. Skipping user $username \n";
+    return 1;
+  };
+
+  if (defined($user) ) {
+    if ($user->disableUser() ) {
+      print "Problem with lock(disable). \n";
+      $ret = $ret + 1;
+    } else {
+      print "User $username locked(disabled). \n";
+    }
+
+  }
+  else {
+    print "User $username doesn't exist. Can't locked(disabled)\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
+}
+
+sub unlockUser
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  if (defined($user) ) {
+    if ($user->enableUser() ) {
+      print "Problem with unlock(enable). \n";
+      $ret = $ret + 1;
+    } else {
+      print "User $username unlocked(enabled). \n";
+    }
+
+  }
+  else {
+    print "User $username doesn't exist. Can't unlock(enable)\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
 }
 
 1;

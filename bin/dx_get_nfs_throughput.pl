@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,12 +12,12 @@
 # limitations under the License.
 #
 # Copyright (c) 2014,2016 by Delphix. All rights reserved.
-#  
+#
 # Program Name : dx_get_nfs_throughput.pl
 # Description  : Get nfs throughput
 #
 # Modified     : 04 Jun 2015 (v2.0.0) Marcin Przepiorowski
-# 
+#
 #
 
 use strict;
@@ -46,27 +46,27 @@ my $warn = 100;
 my $crit = 300;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'all' => \(my $all),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'read' => \(my $read),
   'write' => \(my $write),
-  'st=s' => \(my $st), 
-  'et=s' => \(my $et), 
+  'st=s' => \(my $st),
+  'et=s' => \(my $et),
   'w=i' => \($warn),
   'c=i' => \($crit),
   'opname=s' => \(my $opname),
   'raw' => \(my $raw),
   'dever=s' => \(my $dever),
-  'interval|i=s' => \($resolution), 
+  'interval|i=s' => \($resolution),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -86,13 +86,13 @@ my %allowedres = (
 if (!defined( $allowedres{$resolution} )) {
   print "Wrong interval \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (3);    
+  exit (3);
 }
 
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 if (scalar(@{$engine_list}) > 1) {
   print "More than one engine is default. Use -d parameter\n";
@@ -101,12 +101,15 @@ if (scalar(@{$engine_list}) > 1) {
 
 # End of script parametes checks
 
+my $ret = 0;
+
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $engine\n\n";
-    exit(3);
-  } 
+    $ret = $ret + 1;
+    next;
+  }
 
   my $st_timestamp;
 
@@ -118,7 +121,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st,$engine_obj))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (3);  
+    exit (3);
   }
 
   my $et_timestamp;
@@ -126,16 +129,16 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($et) && (! defined($et_timestamp = Toolkit_helpers::timestamp($et,$engine_obj)))) {
     print "Wrong end time (et) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (3);  
+    exit (3);
   }
 
   my $analytic_list = new Analytics($engine_obj, $debug);
   my $name = "nfs";
   my $metric;
-  
+
   if (lc $opname eq 'w') {
     $metric = "throughput_w";
-  } 
+  }
   elsif (lc $opname eq 'r') {
     $metric = "throughput_r";
   } else {
@@ -145,12 +148,12 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $arguments = "&resolution=$resolution&numberofDatapoints=10000&startTime=$st_timestamp";
   my $endTime = $et_timestamp ? "&endTime=$et_timestamp" : "";
   $arguments = $arguments . $endTime;
-  
+
   Toolkit_helpers::nagios_check($engine, $analytic_list, $name, $metric, $arguments, $allowedres{$resolution}, $raw, $crit, $warn);
 
 }
 
-
+exit $ret;
 
 
 
@@ -161,15 +164,15 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_nfs_throughput  [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                        [ -w <warning mb/s>] 
-                        [ -i time_interval] 
-                        [ -c <critical mb/s>] 
-                        [ -opname operation] 
-                        [ -read | -write] 
-                        [ -raw ] 
-                        [ -st \"DD-MON-YYYY [HH24:MI:SS]\" ] 
-                        [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ] 
-                        [ -debug ] 
+                        [ -w <warning mb/s>]
+                        [ -i time_interval]
+                        [ -c <critical mb/s>]
+                        [ -opname operation]
+                        [ -read | -write]
+                        [ -raw ]
+                        [ -st \"DD-MON-YYYY [HH24:MI:SS]\" ]
+                        [ -et \"DD-MON-YYYY [HH24:MI:SS]\" ]
+                        [ -debug ]
                         [ -help|-? ]
 
 =head1 ARGUMENTS
@@ -228,10 +231,10 @@ Show Raw Data, instead of average
 
 =over 4
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
-=item B<-debug>          
+=item B<-debug>
 Turn on debugging
 
 =back
@@ -243,10 +246,9 @@ Average NFS read and write throughput for a last 5 minutes using 1-second sample
  dx_get_nfs_throughput -d DE1
  WARNING: pioro nfs throughput MB/s 111.37
 
-Average disk read and write throughput for a last 5 minutes using 1-second sample and warning set to 500 MB/s 
+Average disk read and write throughput for a last 5 minutes using 1-second sample and warning set to 500 MB/s
 
- dx_get_nfs_throughput -d DE1 -w 500 
+ dx_get_nfs_throughput -d DE1 -w 500
  OK: pioro nfs throughput MB/s 236.25
 
 =cut
-

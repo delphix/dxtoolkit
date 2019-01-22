@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,13 +12,13 @@
 # limitations under the License.
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
-# 
+#
 # Program Name : dx_logout.pl
 # Description  : Logout session from cookie file
 # Author       : Marcin Przepiorowski
 # Created      : 14 Sep 2015 (v2.0.0)
 #
-# 
+#
 
 use strict;
 use warnings;
@@ -41,17 +41,17 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'all' => \(my $all),
-  'debug:i' => \(my $debug), 
+  'debug:i' => \(my $debug),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
@@ -63,17 +63,18 @@ my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
-my $ret;
+my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
 
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $engine\n\n";
-    exit(1);
-  } 
+    $ret = $ret + 1;
+    next;
+  }
 
 
 
@@ -84,7 +85,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     print "Session logged out from $engine \n";
     $ret = 0;
   }
- 
+
 
 }
 
@@ -125,7 +126,7 @@ A config file search order is as follow:
 
 =over 4
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -141,6 +142,3 @@ Logout a Delphix Engine session
  Session logged out from DE001
 
 =cut
-
-
-

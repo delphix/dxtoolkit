@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -90,22 +90,22 @@ if ( lc $direction eq 'both' ) {
    push (@directions, 'RECEIVE');
 }
 elsif ( lc $direction eq 'receive') {
-   push (@directions, 'RECEIVE');   
+   push (@directions, 'RECEIVE');
 }
 elsif ( lc $direction eq 'transmit') {
-   push (@directions, 'TRANSMIT');   
+   push (@directions, 'TRANSMIT');
 } else {
   print "Option direction has unknown value - $direction \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
-} 
+}
 
 
 if ( ! ( (lc $type eq 'latency') || (lc $type eq 'throughput') || (lc $type eq 'dsp') ) ) {
   print "Option type has unknown value - $type \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
-}  
+}
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -117,17 +117,18 @@ for my $engine ( sort (@{$engine_list}) ) {
    # main loop for all work
    if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
    };
-  
+
    my $net  = new Network_obj ( $engine_obj, $debug );
    my $hosts = new Host_obj    ( $engine_obj, $debug );
-   
+
    my $testlist;
 
    if (defined($remoteaddr)) {
       my @templist;
-      
+
       if (lc $remoteaddr eq 'all') {
          @templist = $hosts->getAllHosts();
       } else {
@@ -147,7 +148,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $testlist = \@templist;
 
    }
-   
+
    for my $netitem (@{$testlist}) {
 
       my $hostname;
@@ -158,9 +159,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
          $hostname = 'N/A';
       }
-      
+
       my $jobno;
-      
+
       if (lc $type eq 'latency') {
          $jobno = $net->runLatencyTest($netitem, $size, $duration);
          if (defined ($jobno) ) {
@@ -185,12 +186,12 @@ for my $engine ( sort (@{$engine_list}) ) {
               my $job = new Jobs_obj($engine_obj, $jobno, 'true', undef);
               $job->waitForJob();
             }
-         }      
+         }
       }
-      
-      
 
-      
+
+
+
    }
 
 }
@@ -202,13 +203,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_network_tests    [-engine|d <delphix identifier> | -all ] 
+ dx_ctl_network_tests    [-engine|d <delphix identifier> | -all ]
                          -type latency|throughput|dsp
-                         [-remoteaddr env_ip|all|env_ip1,env_ip2 ] 
-                         [-size bytes]  
+                         [-remoteaddr env_ip|all|env_ip1,env_ip2 ]
+                         [-size bytes]
                          [-duration sec]
                          [-direction both|transmit|receive]
-                         [-numconn no_of_connections]  
+                         [-numconn no_of_connections]
                          [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION

@@ -2,9 +2,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,12 +41,12 @@ my $version = $Toolkit_helpers::version;
 
 
 GetOptions(
-  'help|?' => \(my $help), 
-  'd|engine=s' => \(my $dx_host), 
+  'help|?' => \(my $help),
+  'd|engine=s' => \(my $dx_host),
   'template_name=s' => \(my $template_name),
   'property_name=s' => \(my $property_name),
   'properties' => \(my $properties),
-  'format=s' => \(my $format), 
+  'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'dever=s' => \(my $dever),
@@ -56,7 +56,7 @@ GetOptions(
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;   
+die  "$version\n" if $print_version;
 
 my $engine_obj = new Engine ($dever, $debug);
 $engine_obj->load_config($config_file);
@@ -70,21 +70,21 @@ if (defined($all) && defined($dx_host)) {
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj); 
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
 
 if (defined($properties) || defined($property_name)) {
   $output->addHeader(
       {'Appliance',       20},
-      {'Template name',   20}, 
+      {'Template name',   20},
       {'Property name',  20},
       {'Property value', 20},
   );
 } else {
   $output->addHeader(
       {'Appliance',   20},
-      {'Template name', 20},   
+      {'Template name', 20},
   );
 }
 
@@ -94,6 +94,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -132,8 +133,8 @@ for my $engine ( sort (@{$engine_list}) ) {
               $jstemplates->getName($jstitem),
               $property_name,
               $prophash{$property_name}
-            ); 
-        } 
+            );
+        }
 
       } else {
 
@@ -143,7 +144,7 @@ for my $engine ( sort (@{$engine_list}) ) {
               $jstemplates->getName($jstitem),
               $propitem,
               $prophash{$propitem}
-            );                 
+            );
         }
 
       }
@@ -152,7 +153,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $output->addLine(
           $engine,
           $jstemplates->getName($jstitem)
-        );  
+        );
     }
 
   }
@@ -167,7 +168,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_templates    [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-properties] [-property_name property_name] 
+ dx_get_js_templates    [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-properties] [-property_name property_name]
                         [ -format csv|json ]  [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -203,10 +204,10 @@ A config file search order is as follow:
 Display template with a template_name
 
 =item B<-properties>
-Display properties from templates 
+Display properties from templates
 
 =item B<-property_name property_name>
-Display property property_name from template 
+Display property property_name from template
 
 =back
 
@@ -214,11 +215,11 @@ Display property property_name from template
 
 =over 3
 
-=item B<-format>                                                                                                                                            
+=item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -234,7 +235,7 @@ Turn off header output
 List templates
 
  dx_get_js_templates -d Landshark5
- 
+
  Appliance            Template name
  -------------------- --------------------
  Landshark5           test
@@ -242,7 +243,7 @@ List templates
 List templates with properties
 
  dx_get_js_templates -d Landshark5 -properties
- 
+
  Appliance            Template name        Property name        Property value
  -------------------- -------------------- -------------------- --------------------
  Landshark5           test                 prop1                value
@@ -250,6 +251,3 @@ List templates with properties
 
 
 =cut
-
-
-

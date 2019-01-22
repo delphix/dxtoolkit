@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -104,13 +104,13 @@ if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtyp
 if ((lc $envtype eq 'rac' ) && ((!defined($crsname)) || (!defined($crshome))) ) {
   print "Type RAC required clustername and cluserloc to be defined \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
-  exit (1);   
+  exit (1);
 }
 
 if ( defined($asedbuser) xor defined($asedbpass) ) {
   print "Option -asedbuser and -asedbpass are required \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
-  exit (1);  
+  exit (1);
 }
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -127,6 +127,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -171,9 +172,9 @@ exit $ret;
 __DATA__
 =head1 SYNOPSIS
 
- dx_create_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ] -envname environmentname -envtype unix | windows -host hostname 
+ dx_create_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ] -envname environmentname -envtype unix | windows -host hostname
                    -toolkitdir toolkit_directory | -proxy proxy
-                   -username user_name -authtype password | systemkey [ -password password ] 
+                   -username user_name -authtype password | systemkey [ -password password ]
                    [-clustername name]
                    [-clusterloc loc]
                    [-sshport port]
@@ -215,11 +216,11 @@ Environment type - windows or unix
 Host name / IP of server being added to Delphix Engine
 
 =item B<-toolkitdir toolkit_directory>
-Location for toolkit directory for Unix/Linux 
+Location for toolkit directory for Unix/Linux
 or location of Delphix Connector directory for Windows
 
 =item B<-proxy proxy>
-Proxy server used to access dSource 
+Proxy server used to access dSource
 
 =item B<-username user_name>
 Server user name
@@ -255,7 +256,7 @@ ASE DB password for source detection
 
 
 =item B<-help>
-Print usage information 
+Print usage information
 
 =item B<-debug>
 Turn on debugging
@@ -276,14 +277,14 @@ Adding Unix/Linux environment without ASE discovery
  Job JOB-785 finised with state: COMPLETED Environment job finished with COMPLETED status.
 
 Adding Unix/Linux environment with ASE discovery
- 
+
  dx_create_env -d Landshark5 -envname LINUXSOURCE -envtype unix -host linuxsource -username "delphix" -authtype password -password xxxxx -toolkitdir "/u01/app/toolkit" -asedbuser sa -asedbpass ChangeMeDB
  Starting adding environment job - JOB-1023
  0 - 6 - 8 - 12 - 100
  Job JOB-1023 finised with state: COMPLETED Environment job finished with COMPLETED status.
 
 Adding Unix/Linux environment with Oracle RAC
- 
+
  dx_create_env -d Landshark5 -envname racattack-cl -envtype rac -host 172.16.180.61 -username "oracle" -authtype password -password xxxxxx -toolkitdir "/home/oracle/toolkit" -clusterloc /u01/app/12.1.0.2/grid/ -clustername racattack-cl
  Starting adding environment job - JOB-1024
  0 - 6 - 8 - 12 - 100

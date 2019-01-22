@@ -23,6 +23,7 @@
 
 
 use strict;
+use lib '../lib';
 use warnings;
 use JSON;
 use Getopt::Long qw(:config no_ignore_case no_auto_abbrev); #avoids conflicts with ex host and help
@@ -156,7 +157,7 @@ if ( defined($archivelog) && (! ( ( $archivelog eq 'yes') || ( $archivelog eq 'n
 }
 
 
-if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') || ( $type eq 'mysql') || ( $type eq 'vFiles') ) )  {
+if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') || ( $type eq 'mysql') ||( $type eq 'db2') || ( $type eq 'vFiles') ) )  {
   print "Option -type has invalid parameter - $type \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
@@ -191,6 +192,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -254,6 +256,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db = new SybaseVDB_obj($engine_obj,$debug);
   } elsif ($type eq 'mysql') {
     $db = new MySQLVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'db2') {
+    $db = new DB2VDB_obj($engine_obj,$debug);
   } elsif ($type eq 'vFiles') {
     $db = new AppDataVDB_obj($engine_obj,$debug);
   }
@@ -577,7 +581,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst,$port, $mntpoint);
-  } elsif ($type eq 'vFiles') {
+  } elsif ($type eq 'vFiles' || $type eq 'db2') {
     if (defined($additionalMount)) {
       if ($db->setAdditionalMountpoints($additionalMount)) {
         print "Problem with additional mount points. VDB won't be created.\n";
@@ -600,7 +604,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Problem with applying retention policy - $retentionpolicy \n";
     }
   }
-
+  #print $engine_obj;
   $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "VDB created.","Problem with VDB creation");
 
 }
@@ -696,7 +700,7 @@ A config file search order is as follow:
 =over 1
 
 =item B<-type type>
-Type (oracle|mssql|sybase|vFiles)
+Type (oracle|mssql|sybase|db2|vFiles)
 
 =item B<-group name>
 Group Name
@@ -921,28 +925,31 @@ Provision a Sybase VDB using a snapshot name "@2015-09-08T08:46:47.000" (to list
  0 - 11 - 15 - 63 - 100
  Job JOB-158153 finised with state: COMPLETED VDB created.
 
-Privision a vFiles using a latest snapshot
+Provision a vFiles using a latest snapshot
 
  dx_provision_vdb -d Landshark43 -group Analytics -sourcename "files" -targetname autofs -path /mnt/provision/home/delphix -environment LINUXTARGET -type vFiles
  Starting provisioning job - JOB-798
  0 - 7 - 11 - 75 - 100
  Job JOB-798 finised with state: COMPLETED VDB created.
 
-Privision a empty vFiles
+Provision a empty vFiles
 
  dx_provision_vdb -d Landshark5 -type vFiles -group "Test" -creategroup -empty -targetname "vFiles" -dbname "/home/delphix/de_mount" -environment "LINUXTARGET" -envinst "Unstructured Files"  -envUser "delphix"
  Starting provisioning job - JOB-900
  0 - 7 - 11 - 75 - 100
  Job JOB-900 finised with state: COMPLETED VDB created.
 
-Privision a MS SQL using a latest snapshot
+Provision a DB2 VDB using a latest snapshot
+ dx_provision_vdb -group "test" -sourcename employees -targetname v_employees -dbname v_employees -environment "db2-target-host" -type db2 -envinst "db2inst1 - 10.5.0.8 - db2ese"
+
+Provision a MS SQL using a latest snapshot
 
  dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER
  Starting provisioning job - JOB-158159
  0 - 3 - 11 - 18 - 75 - 100
  Job JOB-158159 finised with state: COMPLETED VDB created.
 
-Privision a MS SQL using a snapshot from "2015-09-23 10:23"
+Provision a MS SQL using a snapshot from "2015-09-23 10:23"
 
  dx_provision_vdb -d Landshark -group Analytics -sourcename AdventureWorksLT2008R2 -targetname autotest - dbname autotest -environment WINDOWSTARGET -type mssql -envinst MSSQLSERVER -timestamp "2015-09-23 10:23"
  Starting provisioning job - JOB-158167

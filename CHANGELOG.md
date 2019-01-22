@@ -1,3 +1,23 @@
+## 2.3.9-rc2
+
+### Added
+- DB2 support added
+- dx_ctl_dsource - action update added to allows change of backup_path and validated sync mode for an Oracle and Sybase
+- dx_ctl_user - added possibility to set timeout for one or all users, option force added to remove a JS container ownership and delete user
+
+### Changed
+- dx_ctl_user - is running actions for users in same domain as user used for connection
+
+
+## 2.3.9-rc1
+
+### Added
+- dx_get_js_snapshot - list a Self service bookmarks and timelines with corresponding parent snapshots
+
+### Changed
+- fix for #68 - dx_get_appliance utilization column was not displaying a percentage but raw value
+- fix for #69 - rc should be 0 when engine name not found
+
 ## 2.3.8.1
 
 ### Changed

@@ -101,9 +101,57 @@ sub getBackupPath {
 
     logger($self->{_debug}, "Entering SybaseVDB_obj::loadBackupPath",1);
     return $self->{source}->{loadBackupPath};
+}
+
+# Procedure setBackupPath
+# parameters:
+# - source - source hash
+# - path - path to set
+# Return backup path
+
+sub setBackupPath {
+    my $self = shift;
+    my $sourcehash = shift;
+    my $path = shift;
+
+    logger($self->{_debug}, "Entering SybaseVDB_obj::setBackupPath",1);
+    $sourcehash->{loadBackupPath} = $path;
 
 }
 
+# Procedure setValidatedMode
+# parameters:
+# source - source hash
+# vsm - value of vsm
+
+
+sub setValidatedMode {
+    my $self = shift;
+    my $source = shift;
+    my $vsm = shift;
+
+    logger($self->{_debug}, "Entering SybaseVDB_obj::setValidatedMode",1);
+    my $ret;
+
+    $vsm = uc $vsm;
+
+    my %vsmvalid = (
+      'ENABLED'=>1,
+      'DISABLED'=>1
+    );
+
+    if (!defined($vsmvalid{$vsm})) {
+      print "Validated sync mode is invalid for Sybase\n";
+      return 1;
+    }
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
+      $source->{validatedSyncMode} = $vsm;
+    } 
+
+    return 0;
+
+}
 
 # Procedure getConfig
 # parameters: none
@@ -345,6 +393,7 @@ sub setMountPoint {
 
 
 }
+
 
 
 

@@ -182,6 +182,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $dx_host\n\n";
+    $ret = $ret + 1;
     next;
   };
 
@@ -193,7 +194,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($size)) {
     $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
-    $timeflows = Timeflow_obj->new($engine_obj, $debug);
+    $timeflows = Timeflow_obj->new($engine_obj, undef, $debug);
   }
 
   # filter implementation

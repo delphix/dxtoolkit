@@ -134,6 +134,7 @@ sub getDatabasesByUser {
                 $db_hash{'obj_ref'} = $local_auth->{target};
                 $db_hash{'name'} = $self->{_roles}->getName($local_auth->{role});
                 $db_hash{'authref'} = $local_auth->{reference};
+                $db_hash{'userref'} = $user_ref;
                 push(@retarray, \%db_hash);
             }
         }

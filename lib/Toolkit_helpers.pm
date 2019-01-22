@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.3.8.1';
+our $version = '2.3.9';
 
 sub logger {
 	my $debug = shift;
@@ -394,7 +394,6 @@ sub get_engine_list {
 	  #load default engine(s)
 	  @engine_list = $engine_obj->getDefaultEngines();
 	}
-
 
 	if ( scalar(@engine_list) < 1 ) {
 	  print "There is no engine selected to process. \n";
