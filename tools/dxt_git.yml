@@ -55,8 +55,11 @@
      - name: put password
        synchronize: src=../lib/dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
 
+     #- name: remove script
+     #  file: name="{{ dxloc }}/bin/compile.sh"
+
      - name: create script
-       template: src=compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755
+       template: src=compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755 force=yes
      
      - name: compile
        shell: "bash -x {{dxloc}}/bin/compile.sh {{ temp }} > /tmp/compile.log" 

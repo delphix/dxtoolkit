@@ -39,6 +39,8 @@ if [[ "$VER" == "HEAD" ]]; then
  VER=`cat ../lib/Toolkit_helpers.pm | grep -e 'our $version' | perl -pe "s/.*(\d\.\d\.\d).*/\1/"`
 fi
 
+rm -rf /tmp/par-*
+
 cd $DXLOC
 
 for i in $DXLOC/dx_* ; do
@@ -50,6 +52,7 @@ for i in $DXLOC/dx_* ; do
 		echo ERROR
 		exit
 	fi
+	rm -rf /tmp/par-*
 done 
 
 
