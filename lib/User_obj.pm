@@ -517,14 +517,20 @@ sub setJS {
 
     if ( uc $flag eq 'Y' ) {
         if ( defined($current_state) ) {
-            logger($self->{_debug}, "User is already Jet Stream User. ",0);
-            return 0;
+          logger($self->{_debug}, "User is already Jet Stream User. ",0);
+          return 0;
         } else {
-            if ( $authorizations->setAuthorisation($reference,'Jet Stream User',$reference) ) {
-                return 1;
-            } else {
-                return 0;
-            }
+          my $rolename;
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse("1.10.0")) {
+            $rolename = 'Jet Stream User';
+          } else {
+            $rolename = 'Self-Service User';
+          }
+          if ( $authorizations->setAuthorisation($reference, $rolename, $reference) ) {
+              return 1;
+          } else {
+              return 0;
+          }
 
         }
     }
