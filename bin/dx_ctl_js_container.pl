@@ -52,6 +52,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'container_name=s' => \(my $container_name),
   'template_name=s' => \(my $template_name),
+  'branch_name=s' => \(my $branch_name),
   'container_def=s@' => \(my $container_def),
   'container_owner=s@' => \(my $container_owners),
   'timestamp=s' => \(my $timestamp),
@@ -142,6 +143,10 @@ for my $engine ( sort (@{$engine_list}) ) {
     } elsif (lc $action eq 'refresh') {
       $jobno = $jscontainers->refreshContainer($jscontainer_ref);
     } elsif (lc $action eq 'restore') {
+      if (!defined($timestamp)) {
+        print "Timestamp is required\n";
+        exit(1);
+      }
       my $branch_ref;
       if (defined($fromtemplate)) {
         if (!defined($template_ref)) {
@@ -150,11 +155,15 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
         my $branch_obj = new JS_branch_obj ( $engine_obj, $template_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('master');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref->[0], $timestamp, $template_ref);
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);
       } else {
-        my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
-        $branch_ref = $branch_obj->getJSBranchByName('default');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref->[0], $timestamp, $jscontainer_ref);
+        if (defined($branch_name)) {
+          my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
+          $branch_ref = $branch_obj->getJSBranchByName($branch_name);
+        } else {
+          $branch_ref = $jscontainers->getJSActiveBranch($jscontainer_ref);
+        }
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $jscontainer_ref);
       }
     } elsif (lc $action eq 'delete') {
       if (!defined($dropvdb) || ( ! ( ( lc $dropvdb eq 'yes' ) || (lc $dropvdb eq 'no' ) ) ) ) {
@@ -351,13 +360,14 @@ __DATA__
                         [-container_owner username]
                         [-template_name template_name]
                         [-timestamp timestamp]
+                        [-branch_name branch_name]
                         [-dropvdb yes|no]
                         [-dontrefresh]
                         [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
-Run a action on the JetStream container
+Run a action on the JetStream container. If branch is not specified
 
 =head1 ARGUMENTS
 
@@ -411,6 +421,9 @@ Name of container to run action on
 
 =item B<-template_name template_name>
 Name of container's templates
+
+=item B<-branch_name branch_name>
+Container branch name for action - default branch name is "default"
 
 =back
 
