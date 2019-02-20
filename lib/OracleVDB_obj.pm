@@ -1175,14 +1175,22 @@ sub attach_dsource
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
-
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+    my $authtype = $self->{_environment}->getEnvironmentUserAuth($source_env_ref, $source_os_ref);
+
+    if ($authtype ne 'kerberos') {
+      # assuming we have kerberos and no dbuser is enabled
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+          print "Username or password is invalid.\n";
+          return undef;
+      }
+    }
+
+
+
 
     if (!defined($source_os_ref)) {
         print "Source OS user $source_osuser not found\n";
@@ -1228,6 +1236,10 @@ sub attach_dsource
                 "environmentUser" => $source_os_ref
           }
       );
+    }
+
+    if ($config->{type} eq 'OraclePDBConfig') {
+      $attach_data{"attachData"}{"type"} = "OraclePDBAttachData";
     }
 
     my $operation = 'resources/json/delphix/database/'. $self->{container}->{reference} .'/attachSource' ;
