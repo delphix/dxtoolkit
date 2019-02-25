@@ -145,9 +145,8 @@ sub setValidatedMode {
       return 1;
     }
 
-    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
-      $source->{validatedSyncMode} = $vsm;
-    } 
+
+    $source->{validatedSyncMode} = $vsm;
 
     return 0;
 
