@@ -442,10 +442,12 @@ sub getCDBContainerRef
 
     my $ret;
 
-    if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
-      my $cdbref = $self->{sourceConfig}->{cdbConfig};
-      $ret = $cdbref;
-    };
+    if ($self->{sourceConfig} ne 'NA') {
+      if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
+        my $cdbref = $self->{sourceConfig}->{cdbConfig};
+        $ret = $cdbref;
+      };
+    }
 
     return $ret;
 }
@@ -988,6 +990,70 @@ sub setNoOpen {
     $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
 }
 
+# Procedure setLogSync
+# parameters:
+# - logsync - yes/no
+# Enable of Log Sync
+
+sub setLogSync
+{
+    my $self = shift;
+    my $logsync = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setLogSync",1);
+
+    my %logsynchash = (
+        "type"=> "OracleDatabaseContainer",
+        "sourcingPolicy"=> {
+            "type"=> "OracleSourcingPolicy"
+        }
+    );
+
+    if (lc $logsync eq 'yes') {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+    } else {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
+    }
+
+
+    my $ref;
+
+    if (defined($self->{cdb})) {
+      $ref = $self->{cdb};
+    } else {
+      $ref = $self->{container}->{reference};
+    }
+
+    my $operation = "resources/json/delphix/database/" . $ref;
+    my $payload = to_json(\%logsynchash);
+
+    return $self->runJobOperation($operation,$payload,'ACTION');
+}
+
+# Procedure update_dsource
+# parameters:
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+    my $jobno;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::update_dsource",1);
+
+    if (defined($logsync)) {
+      $jobno = $self->setLogSync($logsync);
+    } else {
+      print "Nothing to update\n";
+    }
+
+    return $jobno;
+}
+
 # Procedure setDSP
 # parameters:
 #  - numConnections: 1 (*)
@@ -1004,7 +1070,7 @@ sub setDSP
     my $encryption = shift;
     my $bandwidthLimit = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::setDSP",1);
+    logger($self->{_debug}, "Entering OracleVDB_obj::setDSP",1);
 
     if (!defined($numConnections)) {
       $numConnections = 1;
