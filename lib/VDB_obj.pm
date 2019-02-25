@@ -924,9 +924,9 @@ sub return_currentobj
 
 # Procedure update_dsource
 # parameters:
-#
-# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
 
 sub update_dsource {
     my $self = shift;
@@ -940,52 +940,38 @@ sub update_dsource {
     my %source_hash;
     my $jobno;
 
+    my $update = 0;
     my $dbtype = $self->getDBType();
+
+    %source_hash = (
+        "type" => $self->{source}->{type}
+    );
 
     if ( ($dbtype eq 'mssql') || ($dbtype eq 'sybase') ) {
 
-      %source_hash = (
-          "type" => $self->{source}->{type}
-      );
-
-
       if (defined($backup_dir)) {
         $self->setBackupPath(\%source_hash, $backup_dir);
+        $update = 1;
       }
 
       if (defined($validatedsync)) {
         if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
           return undef;
         }
+        $update = 1;
       }
+    }
 
-
+    if ($update eq 1) {
       my $json_data = to_json(\%source_hash);
 
       logger($self->{_debug}, $json_data ,2);
 
       my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
-      my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
-
-      if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-        $jobno = $result->{action};
-      } else {
-        if (defined($result->{error})) {
-            print "Problem with starting job\n";
-            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-            logger($self->{_debug}, "Can't submit job for operation $operation",1);
-            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-            logger($self->{_debug}, $result->{error}->{action} ,1);
-        } else {
-            print "Unknown error. Try with debug flag\n";
-        }
-      }
-
+      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
+    } else {
+      print "Nothing to update\n";
     }
-
-
-
-
 
     return $jobno;
 

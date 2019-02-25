@@ -73,7 +73,7 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-my @hooksTypeArray = ('configureClone','preRefresh','postRefresh','preRollback','postRollback','preSnapshot','postSnapshot','preStart','postStart','preStop','postStop');
+my @hooksTypeArray = ('configureClone','preRefresh','postRefresh','preRollback','postRollback','preSync','postSync','preSnapshot','postSnapshot','preStart','postStart','preStop','postStop');
 
 my @hookLoopArray;
 
@@ -117,7 +117,6 @@ if (lc $action ne 'load') {
 }
 
 
-Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, undef);
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -200,6 +199,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     closedir($DIRG);
   } else {
+    Toolkit_helpers::check_filer_options (1, $type, $group, $host, $dbname, undef);
     my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
     if (! defined($db_list)) {
       print "There is no DB selected to process on $engine . Please check filter definitions. \n";

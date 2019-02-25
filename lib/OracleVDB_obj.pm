@@ -442,10 +442,12 @@ sub getCDBContainerRef
 
     my $ret;
 
-    if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
-      my $cdbref = $self->{sourceConfig}->{cdbConfig};
-      $ret = $cdbref;
-    };
+    if ($self->{sourceConfig} ne 'NA') {
+      if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
+        my $cdbref = $self->{sourceConfig}->{cdbConfig};
+        $ret = $cdbref;
+      };
+    }
 
     return $ret;
 }
@@ -988,6 +990,70 @@ sub setNoOpen {
     $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
 }
 
+# Procedure setLogSync
+# parameters:
+# - logsync - yes/no
+# Enable of Log Sync
+
+sub setLogSync
+{
+    my $self = shift;
+    my $logsync = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setLogSync",1);
+
+    my %logsynchash = (
+        "type"=> "OracleDatabaseContainer",
+        "sourcingPolicy"=> {
+            "type"=> "OracleSourcingPolicy"
+        }
+    );
+
+    if (lc $logsync eq 'yes') {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+    } else {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
+    }
+
+
+    my $ref;
+
+    if (defined($self->{cdb})) {
+      $ref = $self->{cdb};
+    } else {
+      $ref = $self->{container}->{reference};
+    }
+
+    my $operation = "resources/json/delphix/database/" . $ref;
+    my $payload = to_json(\%logsynchash);
+
+    return $self->runJobOperation($operation,$payload,'ACTION');
+}
+
+# Procedure update_dsource
+# parameters:
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+    my $jobno;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::update_dsource",1);
+
+    if (defined($logsync)) {
+      $jobno = $self->setLogSync($logsync);
+    } else {
+      print "Nothing to update\n";
+    }
+
+    return $jobno;
+}
+
 # Procedure setDSP
 # parameters:
 #  - numConnections: 1 (*)
@@ -1004,7 +1070,7 @@ sub setDSP
     my $encryption = shift;
     my $bandwidthLimit = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::setDSP",1);
+    logger($self->{_debug}, "Entering OracleVDB_obj::setDSP",1);
 
     if (!defined($numConnections)) {
       $numConnections = 1;
@@ -1175,14 +1241,22 @@ sub attach_dsource
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
-
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+    my $authtype = $self->{_environment}->getEnvironmentUserAuth($source_env_ref, $source_os_ref);
+
+    if ($authtype ne 'kerberos') {
+      # assuming we have kerberos and no dbuser is enabled
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+          print "Username or password is invalid.\n";
+          return undef;
+      }
+    }
+
+
+
 
     if (!defined($source_os_ref)) {
         print "Source OS user $source_osuser not found\n";
@@ -1228,6 +1302,10 @@ sub attach_dsource
                 "environmentUser" => $source_os_ref
           }
       );
+    }
+
+    if ($config->{type} eq 'OraclePDBConfig') {
+      $attach_data{"attachData"}{"type"} = "OraclePDBAttachData";
     }
 
     my $operation = 'resources/json/delphix/database/'. $self->{container}->{reference} .'/attachSource' ;
