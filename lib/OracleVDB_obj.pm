@@ -755,13 +755,48 @@ sub setName {
         $instance_name = $dbname;
     }
 
-    print $contname . "\n";
-
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"} = $unique_name;
     $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"} = $instance_name;
 
+}
+
+# Procedure getRuntimeStatus
+# parameters: none
+# Return database runtime status
+
+sub getRuntimeStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getRuntimeStatus",1);
+
+    my $ret;
+
+    my $cdbref = $self->getCDBContainerRef();
+
+    if (defined($cdbref)) {
+      #vPDB - API is showing uknown for PDB status if vCDB is used
+      # this is a workaround for it
+
+      my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
+      if (defined($sourceobj) && defined($sourceobj->{runtime})) {
+          $ret = $sourceobj->{runtime}->{status};
+      } else {
+          $ret = 'NA';
+      }
+
+    } else {
+      if (defined($self->{source}->{runtime})) {
+          $ret = $self->{source}->{runtime}->{status};
+      } else {
+          $ret = 'NA';
+      }
+    }
+
+
+
+    return $ret;
 }
 
 # Procedure getTemplateRef
@@ -1415,6 +1450,8 @@ sub discoverPDB {
     my $ret;
     logger($self->{_debug}, "Entering OracleVDB_obj::discoverPDB",1);
 
+
+
     my $cdb = $self->setConfig($cdbname, $source_inst, $source_env);
 
     if (! defined($cdb)) {
@@ -1613,14 +1650,8 @@ sub addSource {
 
 # Procedure findCDBonEnvironment
 # parameters:
-# - group - new DB group
-# - env - new DB environment
-# - home - new DB home
-# - rac
-# - instance array
-# Start job to create Single Instance Oracle VDB
-# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef
+# - cdbname
+# return sourceconfig ref for CDB name
 
 sub findCDBonEnvironment {
     my $self = shift;
@@ -1633,9 +1664,13 @@ sub findCDBonEnvironment {
     if (defined($cdbname)) {
       my $cdbobj = $sourceconfig->getSourceConfigByName($cdbname);
       if (defined($cdbobj)) {
+        if ($cdbobj->{cdbType} ne 'ROOT_CDB') {
+          print("Database is found but this is not discovered as CDB container. Please add cdbuser/cdbpass to run discovery during provision\n");
+          return undef;
+        }
         $cdbconf = $cdbobj->{reference};
       } else {
-        print "CDB named $cdbname not found in Oracle Home and envitonment\n";
+        print "CDB named $cdbname not found in Oracle Home and environment\n";
       }
     } else {
       my $list = $sourceconfig->getSourceConfigsListForRepo($self->{"NEWDB"}->{"sourceConfig"}->{"repository"});
@@ -1771,9 +1806,9 @@ sub createVDB {
         # provision to existing CDB
         my $cdbconf = $self->findCDBonEnvironment($cdbname);
         if (!(defined($cdbconf))) {
-          print "Container name $cdbname not found. VDB won't be created\n";
           return undef;
         }
+
         $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
       } else {
         # creating a vCDB

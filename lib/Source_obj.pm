@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,30 +48,30 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->getSourceList($debug);
     return $self;
 }
 
 # Procedure getSource
-# parameters: 
+# parameters:
 # - reference
 # Return source hash for specific source reference
 
 sub getSource {
     my $self = shift;
     my $container = shift;
-    
-    logger($self->{_debug}, "Entering Source_obj::getSource",1);   
+
+    logger($self->{_debug}, "Entering Source_obj::getSource",1);
 
     my $sources = $self->{_sources};
     return $sources->{$container};
 }
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return source name for specific source reference
 
@@ -79,14 +79,14 @@ sub getName {
     my $self = shift;
     my $container = shift;
 
-    logger($self->{_debug}, "Entering Source_obj::getName",1);   
+    logger($self->{_debug}, "Entering Source_obj::getName",1);
 
     my $sources = $self->{_sources};
     return $sources->{$container}->{name};
 }
 
 # Procedure getSourceByName
-# parameters: 
+# parameters:
 # - name
 # Return source hash for specific source name
 
@@ -94,13 +94,13 @@ sub getSourceByName {
     my $self = shift;
     my $name = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Source_obj::getSourceByName",1);  
+
+    logger($self->{_debug}, "Entering Source_obj::getSourceByName",1);
 
     for my $sourceitem ( sort ( keys %{$self->{_sources}} ) ) {
 
         if ( $self->getName($sourceitem) eq $name) {
-            $ret = $self->getSource($sourceitem); 
+            $ret = $self->getSource($sourceitem);
         }
     }
 
@@ -109,7 +109,7 @@ sub getSourceByName {
 
 
 # Procedure getSourceByConfig
-# parameters: 
+# parameters:
 # - config ref
 # Return source ref for specific sourceconfig ref
 
@@ -117,13 +117,11 @@ sub getSourceByConfig {
     my $self = shift;
     my $config = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Source_obj::getSourceByConfig",1);  
 
+    logger($self->{_debug}, "Entering Source_obj::getSourceByConfig",1);
     for my $sourceitem ( sort ( keys %{$self->{_sources}} ) ) {
-
-        if ( $self->getSourceConfig($sourceitem) eq $config) {
-            $ret = $self->getSource($sourceitem); 
+        if ( defined($self->getSourceConfig($sourceitem)) && ($self->getSourceConfig($sourceitem) eq $config)) {
+            $ret = $self->getSource($sourceitem);
         }
     }
 
@@ -132,16 +130,15 @@ sub getSourceByConfig {
 
 
 # Procedure getSourceConfig
-# parameters: 
-# - container 
+# parameters:
+# - container
 # Return source config reference for specific cointainer in source
 
 sub getSourceConfig {
     my $self = shift;
     my $container = shift;
-    
-    logger($self->{_debug}, "Entering Source_obj::getSourceConfig",1); 
 
+    logger($self->{_debug}, "Entering Source_obj::getSourceConfig",1);
     my $sources = $self->{_sources};
     my $ret;
     if (defined($sources->{$container})) {
@@ -154,15 +151,15 @@ sub getSourceConfig {
 }
 
 # Procedure getStaging
-# parameters: 
-# - container 
+# parameters:
+# - container
 # Return staging source reference for specific cointainer in source
 
 sub getStaging {
     my $self = shift;
     my $container = shift;
 
-    logger($self->{_debug}, "Entering Source_obj::getStaging",1); 
+    logger($self->{_debug}, "Entering Source_obj::getStaging",1);
     my $sources = $self->{_sources};
     return $sources->{$container}->{stagingSource};
 }
@@ -170,15 +167,15 @@ sub getStaging {
 
 # Procedure getSourceList
 # parameters: - none
-# Load list of sources from Delphix Engine 
+# Load list of sources from Delphix Engine
 # using source container as hash key for non-staging sources
 # using source reference as hash key for staging sources
 
-sub getSourceList 
+sub getSourceList
 {
     my $self = shift;
 
-    logger($self->{_debug}, "Entering Source_obj::getSourceList",1); 
+    logger($self->{_debug}, "Entering Source_obj::getSourceList",1);
 
     my $operation = "resources/json/delphix/source";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -191,9 +188,9 @@ sub getSourceList
         for my $source (@res) {
             $localsources{$source->{reference}} = $source;
         }
-        
+
         my $sources = $self->{_sources};
-        
+
         for my $source ( keys %localsources ) {
             if ( $localsources{$source}{type} =~ /StagingSource/ ) {
                 $sources->{$localsources{$source}{reference}} = $localsources{$source};
@@ -209,7 +206,7 @@ sub getSourceList
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
-    
+
 }
 
 # refreshSource
@@ -220,7 +217,7 @@ sub refreshSource {
   my $self = shift;
   my $reference = shift;
 
-  logger($self->{_debug}, "Entering Source_obj::getSourceList",1); 
+  logger($self->{_debug}, "Entering Source_obj::getSourceList",1);
 
   my $operation = "resources/json/delphix/source/" . $reference;
   my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -233,7 +230,7 @@ sub refreshSource {
   } else {
       print "No data returned for $operation. Try to increase timeout \n";
   }
-  
+
   return $ret;
 }
 
