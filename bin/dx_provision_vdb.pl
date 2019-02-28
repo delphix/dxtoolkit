@@ -70,6 +70,8 @@ GetOptions(
   'srcgroup=s' => \(my $srcgroup),
   'envinst=s' => \(my $envinst),
   'cdb=s' => \(my $cdb),
+  'cdbuser=s' => \(my $cdbuser),
+  'cdbpass=s' => \(my $cdbpass),
   'template=s' => \(my $template),
   'mapfile=s' =>\(my $map_file),
   'port=n' =>\(my $port),
@@ -524,7 +526,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
+
+
     $db->setName($targetname,$dbname, $uniqname, $instname);
+
 
     if (defined($listeners)) {
       if ( $db->setListener($listeners) ) {
@@ -534,8 +539,20 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
+
+
     if (defined($vcdbname)) {
       $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate);
+    }
+
+
+
+    if (defined($cdbuser)) {
+      if ($db->discoverPDB($envinst, $environment, $cdb, $cdbuser, $cdbpass)) {
+        print "Issue with CDB discovery\n";
+        $ret = $ret + 1;
+        next;
+      }
     }
 
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance, $cdb);
@@ -633,6 +650,8 @@ __DATA__
                   [-uniqname db_unique_name]
                   [-mntpoint mount_point ]
                   [-cdb container_name]
+                  [-cdbuser username]
+                  [-cdbpass password]
                   [-noopen]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
@@ -763,6 +782,12 @@ Set a mount point for VDB (for Oracle and Sybase)
 
 =item B<-cdb container_name>
 Set a target container database for vPDB
+
+=item B<-cdbuser username>
+User to discover CDB container in Delphix - it should be c## user
+
+=item B<-cdbpass pass>
+Password for cdbuser to discover CDB container 
 
 =item B<-vcdbname name>
 Set a virtual CDB name for vPDB
