@@ -53,6 +53,8 @@ use File::Spec;
 use Try::Tiny;
 use Term::ReadKey;
 use dbutils;
+use Digest::MD5;
+use Sys::Hostname;
 use open qw(:std :utf8);
 
 use LWP::Protocol::http;
@@ -76,15 +78,12 @@ sub new
    $ua->agent("Delphix Perl Agent/0.1");
    $ua->ssl_opts( verify_hostname => 0 );
    $ua->timeout(15);
-   #$ua->cookie_jar( {} );
-
-
-
 
    my $self = {
       _debug => $debug,
       _ua => $ua,
-      _dever => $dever
+      _dever => $dever,
+      _currentuser => ''
    };
 
    bless $self, $class;
@@ -100,6 +99,7 @@ sub new
 sub load_config {
    my $self = shift;
    my $fn = shift;
+   my $nodecrypt = shift;
    logger($self->{_debug}, "Entering Engine::load_config",1);
 
    my $data;
@@ -141,10 +141,10 @@ sub load_config {
       $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
-      if ($engines{$name}{encrypted} eq "true") {
-         if ($engines{$name}{password} =~ /^#/ ) { # check if password if really encrypted
+      if (!defined($nodecrypt)) {
+        if ($engines{$name}{encrypted} eq "true") {
             $engines{$name}{password} = $self->decrypt($engines{$name});
-         }
+        }
       }
    }
 
@@ -157,11 +157,13 @@ sub load_config {
 # Procedure encrypt_config
 # parameters:
 # - fn - configuration file name
+# - shared - not use hostname in password encryption
 # save configuration file (dxtools.conf) from internal structure
 
 sub encrypt_config {
    my $self = shift;
    my $fn = shift;
+   my $shared = shift;
    logger($self->{_debug}, "Entering Engine::encrypt_config",1);
 
    my $engines = $self->{_engines};
@@ -169,7 +171,7 @@ sub encrypt_config {
 
    for my $eng ( keys %{$engines} ) {
       if ($engines->{$eng}->{encrypted} eq 'true') {
-         $engines->{$eng}->{password} = '#' . $self->encrypt($engines->{$eng});
+         $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared);
       }
       $engines->{$eng}->{hostname} = $eng;
       push (@engine_list, $engines->{$eng});
@@ -195,8 +197,17 @@ sub encrypt_config {
 sub encrypt {
    my $self = shift;
    my $engine = shift;
+   my $shared = shift;
    logger($self->{_debug}, "Entering Engine::encrypt",1);
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $key;
+
+   if (defined($shared)) {
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   } else {
+     my $host = hostname;
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+   }
+
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
@@ -204,7 +215,10 @@ sub encrypt {
       -header=>'none'
    );
 
-   my $ciphertext = $cipher->encrypt_hex($engine->{password});
+   my $passmd5 = Digest::MD5::md5_hex($engine->{password});
+   my $wholeenc = $engine->{password} . $passmd5;
+
+   my $ciphertext = $cipher->encrypt_hex($wholeenc);
    return $ciphertext;
 }
 
@@ -218,8 +232,53 @@ sub decrypt {
    my $engine = shift;
    logger($self->{_debug}, "Entering Engine::decrypt",1);
 
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $host = hostname;
+
+   # decrypt with crc and hostname
+
+   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
    my $cipher = Crypt::CBC->new(
+      -key    => $key,
+      -cipher => 'Blowfish',
+      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -header=>'none'
+   );
+
+   my $fulldecrypt  = $cipher->decrypt_hex($engine->{password});
+   my $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
+   my $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
+   my $afterdecrypt = Digest::MD5::md5_hex($plainpass);
+
+   if ($afterdecrypt eq $checksum) {
+     return $plainpass;
+   } else {
+     logger($self->{_debug}, "Decryption with host name doesn't work - moving forward",2);
+   }
+
+   # decrypt with crc and no hostname
+
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $cipher_nohost = Crypt::CBC->new(
+      -key    => $key,
+      -cipher => 'Blowfish',
+      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -header=>'none'
+   );
+
+   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{password});
+   $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
+   $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
+   $afterdecrypt = Digest::MD5::md5_hex($plainpass);
+
+   if ($afterdecrypt eq $checksum) {
+     return $plainpass;
+   } else {
+     logger($self->{_debug}, "Decryption without host name doesn't work - moving forward to old method",2);
+   }
+
+   # old method decryption
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
       -iv => substr($engine->{ip_address} . $engine->{username},0,8),
@@ -351,7 +410,8 @@ sub dlpx_connect {
                     '4.3' => '1.6.0',
                     '5.0' => '1.7.0',
                     '5.1' => '1.8.0',
-                    '5.2' => '1.9.0'
+                    '5.2' => '1.9.0',
+                    '5.3' => '1.10.0'
                   );
 
    my $engine_config = $self->{_engines}->{$engine};
@@ -406,10 +466,10 @@ sub dlpx_connect {
    }
 
    if ($ses_status) {
-
+      # there is no session in cookie
+      # new session needs to be established
 
       if (defined($self->{_dever})) {
-
             if (defined($api_list{$self->{_dever}})) {
                $ses_version = $api_list{$self->{_dever}};
                logger($self->{_debug}, "Using Delphix Engine version defined by user " . $self->{_dever} . " . API " . $ses_version , 2);
@@ -434,21 +494,18 @@ sub dlpx_connect {
 
          }
 
-
-
+         # create a session first
          if ( $self->session($ses_version) ) {
             logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
             $rc = 1;
-         }
-         else {
-
+         } else {
+           # session is established - now login
            if ($self->{_password} eq '') {
              # if no password provided and there is no open session
              $self->{_password} = $self->read_password();
            }
            if ( $self->login() ) {
                print "login to " . $self->{_host} . "  failed. \n";
-               #logger($self->{_debug}, "login to " . $self->{_host} . "  failed.");
                $cookie_jar->clear();
                $rc = 1;
            } else {
@@ -457,9 +514,17 @@ sub dlpx_connect {
            }
          }
    } else {
+      # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
-      $self->{_api} = $ses_version;
-      $rc = 0;
+      # check if session user is same like config user or someone is messing around
+      if ( $self->getCurrentUser() eq $self->getUsername() ) {
+        $self->{_api} = $ses_version;
+        $rc = 0;
+      } else {
+        logger($self->{_debug}, "Something is wrong. Session from cookie doesn't match config file");
+        print "Something is wrong. Session from cookie doesn't match config file\n";
+        $rc = 1;
+      }
    }
 
    $self->{_ua}->timeout($engine_config->{timeout});
@@ -522,7 +587,7 @@ sub session {
 
 # procedure getSession
 # parameters: none
-# check if there is a session
+# check if there is still a session saved in cookies file
 # return 0 if OK, 1 if failed
 
 sub getSession {
@@ -542,6 +607,35 @@ sub getSession {
    }
 
    return ($ret, $ver_api);
+
+}
+
+
+# Procedure getCurrentUser
+# parameters:
+# Return current logged user
+
+sub getCurrentUser {
+    my $self = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering Engine::getCurrentUser",1);
+
+    if ($self->{_currentuser} eq '') {
+
+      my $operation = "resources/json/delphix/user/current";
+      my ($result, $result_fmt) = $self->getJSONResult($operation);
+
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          $ret = $result->{result};
+          $self->{_currentuser} = $ret->{name};
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+      }
+
+    }
+
+    return $self->{_currentuser};
 
 }
 
@@ -749,8 +843,10 @@ sub checkSSHconnectivity {
 
 # Procedure checkConnectorconnectivity
 # parameters:
-# - minus - date current date minus minus minutes
-# return timezone of Delphix engine
+# - username
+# - password
+# - host
+# return 0 if credentials are OK
 
 sub checkConnectorconnectivity {
    my $self = shift;
@@ -792,7 +888,7 @@ sub checkConnectorconnectivity {
 # username
 # password
 # jdbc string
-# return timezone of Delphix engine
+# return 0 if credentials are OK
 
 sub checkJDBCconnectivity {
    my $self = shift;
