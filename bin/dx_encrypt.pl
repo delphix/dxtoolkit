@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,16 +41,17 @@ my $host_exists;
 
 
 GetOptions(
-'help|?' => \( my$help), 
-'debug:n' => \(my $debug), 
+'help|?' => \( my$help),
+'debug:n' => \(my $debug),
 'plainconfig|p=s' => \(my $plainconfig),
+'shared' => \(my $shared),
 'encryptedconfig|e=s' => \(my $encryptedconfig),
-'version|v' => \(my $print_version)   
+'version|v' => \(my $print_version)
 ) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
 
 pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
-die  "$version\n" if $print_version;  
+die  "$version\n" if $print_version;
 
 
 if (! ( defined ($plainconfig) && defined($encryptedconfig) ) ) {
@@ -60,8 +61,8 @@ if (! ( defined ($plainconfig) && defined($encryptedconfig) ) ) {
 }
 
 my ($dlpxObject,$rc) = new Engine ('1.4',$debug);
-$dlpxObject->load_config($plainconfig);
-$dlpxObject->encrypt_config($encryptedconfig);
+$dlpxObject->load_config($plainconfig, 1);
+$dlpxObject->encrypt_config($encryptedconfig, $shared);
 
 
 
@@ -91,6 +92,8 @@ Non encrypted config file
 =item B<-encryptedconfig|e file>
 Encrypted config file
 
+=item B<-shared>
+Encryption is done without hostname - config file can be shared between different hosts
 
 =back
 
@@ -99,7 +102,7 @@ Encrypted config file
 
 =over 2
 
-=item B<-help>          
+=item B<-help>
 Print this screen
 
 =item B<-debug>
@@ -111,23 +114,24 @@ Turn on debugging
 
 Encrypt password in dxtools.conf.plain file and generate encrypted file dxtools.conf.enc
 
- $ cat dxtools.conf.plain 
+ $ cat dxtools.conf.plain
    {
       "data" : [ {
-                  "protocol" : "http", 
-									"hostname" : "Landshark2", 
+                  "protocol" : "http",
+									"hostname" : "Landshark2",
                   "default" : "true",
                   "port" : "80",
-                  "username" : "delphix_admin", 
-                  "encrypted" : "true", 
+                  "username" : "delphix_admin",
+                  "encrypted" : "true",
                   "password" : "password",
                   "ip_address" : "delphix02"
       } ]
    }
-	 
- dx_encrypt -plainconfig dxtools.conf.plain -encryptedconfig dxtools.conf.enc New config file dxtools.conf.enc created.
 
- $ cat dxtools.conf 
+ dx_encrypt -plainconfig dxtools.conf.plain -encryptedconfig dxtools.conf.enc
+ New config file dxtools.conf.enc created.
+
+ $ cat dxtools.conf
    {
       "data" : [ {
                   "protocol" : "http",
@@ -136,9 +140,15 @@ Encrypt password in dxtools.conf.plain file and generate encrypted file dxtools.
                   "port" : "80",
                   "username" : "delphix_admin",
                   "encrypted" : "true",
-                  "password" : "#dde3243453531432f015dwadw301fe7aba75", 
+                  "password" : "818bd243bee573105b258c36489f351b806ee890eeba928ddb4d704f6e797bb6c1ac057e84c851f2",
                   "ip_address" : "delphix02"
       }]
    }
-	 
+
+
+ Encrypt password in dxtools.conf.plain file and generate encrypted file dxtools.conf.enc for shared config file
+
+ dx_encrypt -plainconfig dxtools.conf.plain -encryptedconfig dxtools.conf -shared
+ New config file dxtools.conf created.
+
 =cut
