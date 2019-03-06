@@ -53,6 +53,7 @@ GetOptions(
   'container_name=s' => \(my $container_name),
   'template_name=s' => \(my $template_name),
   'branch_name=s' => \(my $branch_name),
+  'full_branchname=s' => \(my $full_branchname),
   'container_def=s@' => \(my $container_def),
   'container_owner=s@' => \(my $container_owners),
   'timestamp=s' => \(my $timestamp),
@@ -155,7 +156,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
         my $branch_obj = new JS_branch_obj ( $engine_obj, $template_ref, $debug);
         $branch_ref = $branch_obj->getJSBranchByName('master');
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref);
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $template_ref, $full_branchname);
       } else {
         if (defined($branch_name)) {
           my $branch_obj = new JS_branch_obj ( $engine_obj, $jscontainer_ref, $debug);
@@ -163,7 +164,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         } else {
           $branch_ref = $jscontainers->getJSActiveBranch($jscontainer_ref);
         }
-        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $jscontainer_ref);
+        $jobno = $jscontainers->restoreContainer($jscontainer_ref, $branch_ref, $timestamp, $jscontainer_ref, $full_branchname);
       }
     } elsif (lc $action eq 'delete') {
       if (!defined($dropvdb) || ( ! ( ( lc $dropvdb eq 'yes' ) || (lc $dropvdb eq 'no' ) ) ) ) {

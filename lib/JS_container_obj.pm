@@ -236,6 +236,7 @@ sub loadJSContainerList
 # - branchref
 # - timestamp
 # - $dataobj_ref (if restore in 5.0 or lower)
+# - full branch name is timestamp is bookmark name
 # recover container
 # return job reference
 
@@ -245,6 +246,7 @@ sub restoreContainer {
     my $branchref = shift;
     my $timestamp = shift;
     my $dataobj_ref = shift;
+    my $full_branchname = shift;
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::restoreContainer",1);
 
@@ -286,7 +288,7 @@ sub restoreContainer {
     } else {
         # maybe it's bookmark name
         my $bookmarks = new JS_bookmark_obj ( $self->{_dlpxObject}, undef, undef, $self->{_debug} );
-        my $bookmark_ref = $bookmarks->getJSBookmarkByName($timestamp);
+        my $bookmark_ref = $bookmarks->getJSBookmarkByName($timestamp, $full_branchname);
 
         if (defined($bookmark_ref)) {
             %timelineHash = (
@@ -294,7 +296,6 @@ sub restoreContainer {
                 "bookmark" => $bookmark_ref
             );
         } else {
-            print "Timestamp doesn't match a required format nor any bookmark name - $timestamp \n";
             return undef;
         }
 

@@ -229,6 +229,9 @@ Name of container to run action on
 =item B<-template_name template_name>
 Name of container's templates
 
+=item B<-branch_name branch_name>
+Name of new branch
+
 =back
 
 =head1 OPTIONS

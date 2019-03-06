@@ -29,6 +29,7 @@ use Date::Manip;
 use JSON;
 use version;
 use Toolkit_helpers qw (logger);
+use JS_branch_obj;
 
 # constructor
 # parameters
@@ -62,24 +63,76 @@ sub new {
 # Procedure getJSBookmarkByName
 # parameters:
 # - name
-# Return bookmark reference for particular name
+# - branch fullname
+# Return bookmark reference for particular name and branch full name if provided
+# if there is more bookmarks with same name - undef is returned
 
 sub getJSBookmarkByName {
     my $self = shift;
     my $name = shift;
+    my $fullname = shift;
     logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkByName",1);
     my $ret;
 
-    #print Dumper $$config;
+    my @bookmarkarray;
+    my $jsbranches = new JS_branch_obj ( $self->{_dlpxObject}, undef, $self->{_debug} );
+
+    if (defined($fullname)) {
+
+      my @temparray = grep { ($self->getName($_) eq $name) } ( sort ( keys %{$self->{_jsbookmarks}} ) );
+      my $bookbranch;
+      my $branchfull;
+      for my $book (@temparray) {
+        $bookbranch = $self->getJSBookmarkBranch($book);
+        $branchfull = $jsbranches->getFullname($bookbranch);
+        if ($branchfull eq $fullname) {
+          push(@bookmarkarray, $book);
+        }
+      }
+
+    } else {
+      @bookmarkarray = grep { $self->getName($_) eq $name } ( sort ( keys %{$self->{_jsbookmarks}} ) );
+    }
+
+    if (scalar(@bookmarkarray)>1) {
+      print "Bookmark name is not unique.\n";
+      for my $book (@bookmarkarray) {
+        print $jsbranches->getFullname($self->getJSBookmarkBranch($book)) . "\n";
+      }
+      print "Please add a full branch name to limit list of bookmarks\n";
+      return undef;
+    }
+
+    if (scalar(@bookmarkarray)<1) {
+      print "Bookmark name not found\n";
+      return undef;
+    }
+
+    return $bookmarkarray[-1];
+}
+
+# Procedure getAllJSBookmarkByName
+# parameters:
+# - name
+# Return array of bookmark reference for particular name
+
+sub getAllJSBookmarkByName {
+    my $self = shift;
+    my $name = shift;
+    my $branchfull = shift;
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::getJSBookmarkByName",1);
+    my $ret;
+
+    my @bookarrach;
 
     for my $bookitem ( sort ( keys %{$self->{_jsbookmarks}} ) ) {
-
         if ( $self->getName($bookitem) eq $name) {
-            $ret = $bookitem;
+            push(@bookarrach, $bookitem);
         }
     }
 
-    return $ret;
+    return \@bookarrach;
 }
 
 # Procedure getBookmark
@@ -160,15 +213,14 @@ sub getJSBookmarkBranch {
 sub getJSBookmarkTemplate {
     my $self = shift;
     my $reference = shift;
-    my $native = shift;
 
     logger($self->{_debug}, "Entering JS_bookmark_obj::getBookmarkTemplate",1);
 
     my $jsbookmarks = $self->{_jsbookmarks};
 
-    my $branch = $jsbookmarks->{$reference}->{template};
+    my $template = $jsbookmarks->{$reference}->{template};
 
-    return $branch;
+    return $template;
 }
 
 

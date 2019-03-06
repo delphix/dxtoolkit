@@ -27,6 +27,8 @@ use strict;
 use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
+use JS_template_obj;
+use JS_container_obj;
 
 # constructor
 # parameters
@@ -49,6 +51,12 @@ sub new {
     };
 
     bless($self,$classname);
+
+    my $templates = new JS_template_obj($dlpxObject, $debug);
+    $self->{_templates} = $templates;
+    my $containers = new JS_container_obj($dlpxObject, undef, $debug);
+    $self->{_containers} = $containers;
+
 
     $self->loadJSBranchList($template, $debug);
     return $self;
@@ -100,6 +108,31 @@ sub getBranch {
     return $jsbranches->{$reference};
 }
 
+
+# Procedure getFullname
+# parameters:
+# - reference
+# Return branch full name for particular ref
+
+sub getFullname {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering JS_branch_obj::getFullname",1);
+
+    my $dataobj = $self->getDataobj($reference);
+    my $printtemplate = $self->{_templates}->getName($dataobj);
+    my $fullname;
+    if ($printtemplate eq 'N/A') {
+      # it's not template
+      my $printcontainer = $self->{_containers}->getName($dataobj);
+      $fullname = $printcontainer . '/' . $self->getName($reference);
+    } else {
+      $fullname = $printtemplate . '/' . $self->getName($reference);
+    }
+    return $fullname;
+
+}
 
 # Procedure getJSTemplateList
 # parameters:
