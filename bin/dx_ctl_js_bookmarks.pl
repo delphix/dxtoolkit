@@ -58,6 +58,7 @@ GetOptions(
   'container_name=s' => \(my $container_name),
   'bookmark_name=s' => \(my $bookmark_name),
   'branch_name=s' => \(my $branch_name),
+  'full_branchname=s' => \(my $full_branchname),
   'bookmark_time=s' => \(my $bookmark_time),
   'container_only' => \(my $container_only),
   'snapshots=s' => \(my $snapshots),
@@ -345,12 +346,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     my @bookmark_array;
 
     if (defined($bookmark_name)) {
-      my $book_ref = $bookmarks->getJSBookmarkByName($bookmark_name);
+      my $book_ref = $bookmarks->getJSBookmarkByName($bookmark_name, $full_branchname);
       if (defined($book_ref)) {
         push(@bookmark_array, $book_ref);
       } else {
-        print "Can't find bookmark name $bookmark_name \n";
-        exit 1;
+        $ret = $ret + 1;
+        next;
       }
     } else {
       @bookmark_array = @{$bookmarks->getJSBookmarkList($container_only)};
