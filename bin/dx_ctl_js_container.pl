@@ -53,7 +53,7 @@ GetOptions(
   'container_name=s' => \(my $container_name),
   'template_name=s' => \(my $template_name),
   'branch_name=s' => \(my $branch_name),
-  'full_branchname=s' => \(my $full_branchname),
+  'bookmark_branchname=s' => \(my $full_branchname),
   'container_def=s@' => \(my $container_def),
   'container_owner=s@' => \(my $container_owners),
   'timestamp=s' => \(my $timestamp),
@@ -361,6 +361,7 @@ __DATA__
                         [-container_owner username]
                         [-template_name template_name]
                         [-timestamp timestamp]
+                        [-bookmark_branchname bookmark_branch_name]
                         [-branch_name branch_name]
                         [-dropvdb yes|no]
                         [-dontrefresh]
@@ -442,6 +443,18 @@ This parameter can be repeated if more than one owner is required.
 
 =item B<-timestamp "YYYY-MM-DD HH24:MI:SS" or bookmark name >
 Use timestamp or bookmark name to restore container
+
+=item B<-bookmark_branchname bookmark_branch_name>
+If bookmark name is used as timestamp for restore action,
+and bookmark name is not unique, this option allows to specify a branch name
+which will unequally identify bookmark.
+
+Full name format for template bookmarks is:
+templatename/master
+
+Full name format for container bookmarks is:
+templatename/containername/branchname
+
 
 =item B<-dropvdb yes|no>
 Drop VDB when deleteing container

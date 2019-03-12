@@ -126,7 +126,9 @@ sub getFullname {
     if ($printtemplate eq 'N/A') {
       # it's not template
       my $printcontainer = $self->{_containers}->getName($dataobj);
-      $fullname = $printcontainer . '/' . $self->getName($reference);
+      my $tempref = $self->{_containers}->getJSContainerTemplate($dataobj);
+      $printtemplate = $self->{_templates}->getName($tempref);
+      $fullname = $printtemplate . '/' . $printcontainer . '/' . $self->getName($reference);
     } else {
       $fullname = $printtemplate . '/' . $self->getName($reference);
     }

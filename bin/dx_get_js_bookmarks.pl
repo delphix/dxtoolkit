@@ -130,23 +130,33 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $bookmarks;
   my $template_ref;
+  my $container_ref;
 
 
   if (defined($template_name)) {
     my $templates = new JS_template_obj ( $engine_obj, $debug );
     $template_ref = $templates->getJSTemplateByName($template_name);
-
-    if (defined($container_name)) {
-      my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
-      my $container_ref = $container->getJSContainerByName($container_name);
-      $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
-    } else {
-      $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+    if (!defined($template_ref)) {
+      print "Template $template_name not found\n";
+      $ret = $ret + 1;
+      next;
     }
   }
 
+  if (defined($container_name)) {
+    my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
+    $container_ref = $container->getJSContainerByName($container_name);
+    if (!defined($container_ref)) {
+      $ret = $ret + 1;
+      next;
+    }
+  }
 
-  if (!defined($bookmarks)) {
+  if (defined($container_ref)) {
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
+  } elsif (defined($template_ref)) {
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+  } else {
     $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
   }
 

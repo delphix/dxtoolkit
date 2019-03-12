@@ -166,7 +166,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $printcontainer = $jscontainers->getName($dataobj);
       my $tempref =$jscontainers->getJSContainerTemplate($dataobj);
       $printtemplate = $jstemplates->getName($tempref);
-      $fullname = $printcontainer . '/' . $jsbranches->getName($branch);
+      $fullname = $printtemplate . '/' . $printcontainer . '/' . $jsbranches->getName($branch);
     } else {
       # it's template
       $printcontainer = 'N/A';
