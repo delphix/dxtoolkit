@@ -73,7 +73,10 @@ sub new {
                     }
             },
             "source" => {
-                    "type" => "MSSqlVirtualSource"
+                    "type" => "MSSqlVirtualSource",
+                    "operations" => {
+                        "type" => "VirtualSourceOperations"
+                    }
             },
             "timeflowPointParameters" => {
                 "type" => "TimeflowPointSemantic",
