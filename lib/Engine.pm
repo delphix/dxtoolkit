@@ -522,7 +522,9 @@ sub dlpx_connect {
         $rc = 0;
       } else {
         logger($self->{_debug}, "Something is wrong. Session from cookie doesn't match config file");
-        print "Something is wrong. Session from cookie doesn't match config file\n";
+        print "Something is wrong. Session from cookie doesn't match config file. Clearing cookie file\n";
+        my $cookie_jar = $self->{_ua}->cookie_jar;
+        $cookie_jar->clear();
         $rc = 1;
       }
    }
@@ -693,7 +695,6 @@ sub login {
 
    my $operation = "resources/json/delphix/login";
    my $json_data = encode_json($mylogin{'user'});
-   logger($self->{_debug}, $json_data ,2);
    ($result,$result_fmt, $retcode) = $self->postJSONData($operation,$json_data);
 
    my $ret;
@@ -733,6 +734,8 @@ sub logout {
       $ret = 0;
    }
 
+   my $cookie_jar = $self->{_ua}->cookie_jar;
+   $cookie_jar->clear();
    return $ret;
 
 
@@ -1133,7 +1136,18 @@ sub postJSONData {
       $request->content($post_data);
    }
 
-   logger($self->{_debug}, $post_data, 1);
+   my $post_data_logger;
+
+   if ( $post_data =~ /password/ ) {
+     $post_data_logger = $post_data;
+     $post_data_logger =~ s/"password":"(.*)"/"password":"xxxxx"/;
+   } else {
+     $post_data_logger = $post_data;
+   }
+
+   logger($self->{_debug}, $post_data_logger, 1);
+
+
 
    my $response = $self->{_ua}->request($request);
 
@@ -1197,7 +1211,7 @@ sub postJSONData {
       $filename =~ s|\:|_|g;
       #print Dumper $filename;
       open ($fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
-      print $fh $post_data;
+      print $fh $post_data_logger;
       close $fh;
 
    }
