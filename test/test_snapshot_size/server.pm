@@ -28,7 +28,6 @@ sub handle_request {
 
   $path =~ s|/resources/json/delphix/||;
   $path =~ s|/resources/json/service/||;
-
   my @path_components = split('/', $path);
   my $endfile;
 
@@ -46,7 +45,7 @@ sub handle_request {
     for my $parm (@params) {
       if (($parm eq "pageSize") && ($cgi->param($parm)) != 1) {
         next;
-      }
+      }           
       if ($endfile ne "_") {
         $endfile = $endfile . "_";
       }
@@ -61,7 +60,7 @@ sub handle_request {
   my $filename = $path . $endfile;
   $filename =~ s|\?|_|;
   $filename =~ s|\&|_|g;
-  $filename =~ s|\:|_|g;
+  $filename =~ s|\:|%3A|g;
 
   if ($filename && $cgi->request_method eq 'GET') {
     $self->readfile($cgi, $filename);
