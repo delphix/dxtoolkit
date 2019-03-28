@@ -1130,10 +1130,6 @@ sub createEnv
 
     $env{"primaryUser"}{"credential"} = \%cred;
 
-
-    print Dumper \%env;
-    exit;
-
     my $json_data = encode_json(\%env);
 
     return $self->runJobOperation($operation, $json_data);
