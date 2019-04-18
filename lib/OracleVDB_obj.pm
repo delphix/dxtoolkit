@@ -780,11 +780,22 @@ sub getRuntimeStatus
       # this is a workaround for it
 
       my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
-      if (defined($sourceobj) && defined($sourceobj->{runtime})) {
-          $ret = $sourceobj->{runtime}->{status};
+
+      if (defined($sourceobj) && ($sourceobj->{type} eq 'OracleVirtualSource')) {
+        if (defined($sourceobj) && defined($sourceobj->{runtime})) {
+            $ret = $sourceobj->{runtime}->{status};
+        } else {
+            $ret = 'NA';
+        }
       } else {
-          $ret = 'NA';
+        if (defined($self->{source}->{runtime})) {
+            $ret = $self->{source}->{runtime}->{status};
+        } else {
+            $ret = 'NA';
+        }
       }
+
+
 
     } else {
       if (defined($self->{source}->{runtime})) {
