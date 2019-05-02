@@ -50,12 +50,16 @@ use Crypt::CBC;
 use Date::Manip;
 use FindBin;
 use File::Spec;
+use File::Basename;
 use Try::Tiny;
 use Term::ReadKey;
 use dbutils;
 use Digest::MD5;
 use Sys::Hostname;
 use open qw(:std :utf8);
+use HTTP::Request::Common;
+
+
 
 use LWP::Protocol::http;
 push(@LWP::Protocol::http::EXTRA_SOCK_OPTS, MaxLineLength => 0);
@@ -631,6 +635,7 @@ sub getCurrentUser {
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
           $ret = $result->{result};
           $self->{_currentuser} = $ret->{name};
+          $self->{_currentusertype} = $ret->{userType};
       } else {
           print "No data returned for $operation. Try to increase timeout \n";
       }
@@ -640,6 +645,24 @@ sub getCurrentUser {
     return $self->{_currentuser};
 
 }
+
+
+# Procedure getCurrentUserType
+# parameters:
+# Return current logged user type
+
+sub getCurrentUserType {
+    my $self = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering Engine::getCurrentUserType",1);
+
+    $self->getCurrentUser();
+
+    return $self->{_currentusertype};
+
+}
+
 
 
 # Procedure session
@@ -1025,15 +1048,15 @@ sub generateSupportBundle {
   #  }
 
 
-  # my %bundle_hash = (
-  #   "type" => "SupportBundleGenerateParameters",
-  #   "bundleType" => "MASKING"
-  # );
-  #
-  # my $json = to_json(\%bundle_hash);
+  my %bundle_hash = (
+    "type" => "SupportBundleGenerateParameters",
+    "bundleType" => "MASKING"
+  );
+
+  my $json = to_json(\%bundle_hash);
 
    my $operation = "resources/json/delphix/service/support/bundle/generate";
-   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation,'{}');
+   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation,$json);
 
    my $ret;
    my $token;
@@ -1229,7 +1252,269 @@ sub read_password {
     return $pass;
 }
 
+# Procedure getOSversionList
+# parameters:
+# Return an array of hash with of OS version deployed
 
+sub getOSversions {
+    my $self = shift;
+
+    logger($self->{_debug}, "Entering Engine::getOSversions",1);
+
+    my %res;
+
+    my $operation = "resources/json/delphix/system/version";
+    my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        for my $osver (@{$result->{result}}) {
+          $res{$osver->{name}} = $osver;
+        }
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+
+
+    return \%res;
+
+}
+
+
+# Procedure verifyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub verifyOSversion {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Engine::verifyOSversion",1);
+
+    my $versions = $self->getOSversions();
+
+    if (!defined($versions->{$name})) {
+      print "Version with osname $name not found in Delphix Engine. No verification will be performed\n";
+      return undef;
+    };
+
+    my $osref = $versions->{$name}->{reference};
+    my $operation = 'resources/json/delphix/system/version/' . $osref . '/verify';
+    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{job};
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
+
+# Procedure applyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub applyOSversion {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Engine::applyOSversion",1);
+
+    my $versions = $self->getOSversions();
+
+    if (!defined($versions->{$name})) {
+      print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+      return undef;
+    };
+
+    my $osref = $versions->{$name}->{reference};
+    my $operation = 'resources/json/delphix/system/version/' . $osref . '/apply';
+    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{job};
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
+
+
+# Procedure uploadupdate
+# parameters:
+# - filename
+# return result of upload
+# 0 is all OK
+
+sub uploadupdate {
+    my $self = shift;
+    my $filename = shift;
+
+    logger($self->{_debug}, "Entering Engine::uploadupdate",1);
+    #local $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
+
+    my $url = $self->{_protocol} . '://' . $self->{_host} ;
+    my $api_url = "$url/resources/json/system/uploadUpgrade";
+
+    #$filename = '/mnt/c/temp/delphix_5.3.3.0_2019-03-30-02-01.upgrade.tar.gz';
+    #$filename = '/mnt/c/temp/zdjecia1.zip';
+
+    my $size = -s $filename;
+    my $boundary = HTTP::Request::Common::boundary(10);
+
+
+    $size = $size + (length $boundary) + 6 + (length $filename) + 500;
+
+    my $h = HTTP::Headers->new(
+      Content_Length      => $size,
+      Content_Type        => 'multipart/form-data; boundary=' . $boundary
+    );
+
+    my $request = HTTP::Request->new(
+      POST => $api_url, $h
+    );
+
+
+    print Dumper $request;
+
+
+    # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
+    # without loading all in memory but it's very slow as it's using 2k chunks
+    # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
+    # and it's providing a content of multipart/form-data request
+    # it's simple implementation and probably not a best one
+
+
+
+    my $content_provider_ref = &content_provider($filename, $size, $boundary);
+    $request->content($content_provider_ref);
+
+
+
+    sub content_provider {
+      my $filename = shift;
+      my $size = shift;
+      my $boundary = shift;
+      # we need to send 4 parts - a boundary start, content description, file content, boundary end
+      my @content_part = ( 'b', 'c', 'f', 'e' );
+      my $total = 0;
+      my $report = 0;
+      my $end = 0;
+      $| = 1;
+
+      my $fh;
+      open $fh, $filename;
+      binmode $fh;
+
+      return sub {
+        my $buf;
+
+        # print Dumper $content_part[0];
+        # print Dumper "----";
+        # print Dumper $total;
+
+        if (!defined($content_part[0])) {
+          if ($end eq 0) {
+            printf "%5.1f \n\n", 100;
+          }
+          return undef;
+        }
+
+        if ($content_part[0] eq 'e') {
+          $buf = "\r\n--" . $boundary . "--\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'b') {
+          $buf = "--" . $boundary . "\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'c') {
+          $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'f') {
+          my $rc = sysread($fh, $buf, 1048576);
+          $total = $total + length $buf;
+          # print Dumper $rc;
+          if (($total / $size * 100) > $report) {
+            if (($total / $size * 100) eq 100) {
+              printf "%5.1f\n\n ", 100;
+              $end = 1;
+            } else {
+              printf "%5.1f - ", $total / $size * 100;
+              $report = $report + 10;
+            }
+
+          }
+          if ($rc ne 1048576) {
+            shift @content_part;
+          }
+
+          #print Dumper $buf;
+        }
+
+        return $buf;
+      }
+    }
+
+
+    my $response = $self->{_ua}->request($request);
+
+
+    my $decoded_response;
+    my $result_fmt;
+    my $retcode;
+    my $result;
+
+    #print Dumper $response;
+
+    if ( $response->is_success ) {
+
+       $decoded_response = $response->decoded_content;
+       $result = decode_json($decoded_response);
+       $result_fmt = to_json($result, {pretty=>1});
+       print Dumper $result_fmt;
+       logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+         print "File upload completed without issues.\n";
+         $retcode = 0;
+       } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
+         print "\nFile upload issues\n";
+         print "Try the operation again. If the problem persists, contact Delphix support.\n";
+         $retcode = 1;
+       }
+
+
+    }
+    else {
+       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+       $retcode = 1;
+    }
+
+}
 
 # End of package
 1;
