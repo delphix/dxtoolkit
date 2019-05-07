@@ -1,0 +1,4 @@
+---
+
+   - name: create dxtoolkit configuration
+     template: src=dxtools.conf.j2 dest="{{ DXLOC }}/dxtools.conf" mode=755

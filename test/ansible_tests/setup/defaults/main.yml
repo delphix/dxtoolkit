@@ -1,0 +1,38 @@
+DXLOC: "/home/mprzepiorowski/dxtoolkit2"
+dxtoolkit: False
+VDBDSOURCE_LIST: [ {"dsource": "ds", "vdb": "slonik"} ]
+DELPHIX_ENGINE_IP: 172.16.180.136
+DELPHIX_USER: admin
+DELPHIX_PASSWORD: delphix
+
+DELPHIX_GROUP_NAME: "Sources"
+# name of database to add as dsource
+DELPHIX_SOURCE_DB_NAME: "ds"
+DELPHIX_SOURCEENV_NAME: "oracle18"
+DELPHIX_SOURCEENVUSER_NAME: "postgres"
+DELPHIX_STG_MOUNTBASE: "//var//lib//pgsql//staging"
+DELPHIX_DSOURCE_PARAMETERS: {
+      "delphixInitiatedBackupFlag": true,
+      "keepStagingInSync": false,
+      "postgresPort": 5433,
+      "externalBackup": [],
+      "delphixInitiatedBackup": [
+        {
+          "userName": "delphix",
+          "postgresSourcePort": 5432,
+          "userPass": "delphix",
+          "sourceHostAddress": "172.16.180.129"
+        }
+      ],
+      "configSettingsStg": []
+}
+
+DELPHIX_TARGETENV_NAME: "oracle18"
+DELPHIX_TARGETENVUSER_NAME: "postgres"
+DELPHIX_VDB_MOUNTBASE: "/mnt/provision/"
+DELPHIX_VDB_REPO_NAME: "Postgres vFiles (9.6)"
+DELPHIX_VDB_SOURCE_PARAMETERS: {
+      "postgresPort": 6666,
+      "configSettingsStg": []
+}
+DELPHIX_VDB_SOURCECONFIG_PARAMETERS: {}
