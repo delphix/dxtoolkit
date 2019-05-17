@@ -1,3 +1,27 @@
+## 2.4.0
+
+### Changed
+- [fix for #63](https://github.com/delphix/dxtoolkit/issues/63)
+- [fix for #65](https://github.com/delphix/dxtoolkit/issues/65)
+- [fix for #66](https://github.com/delphix/dxtoolkit/issues/66) - dx_get_osversions and dx_ctl_engine_upgrade scripts added
+- [fix for #72](https://github.com/delphix/dxtoolkit/issues/72) - possibility to add Windows cluster environment
+- [fix for #73](https://github.com/delphix/dxtoolkit/issues/73) - filter by rdbms in dx_get_db_env
+- [fix for #76](https://github.com/delphix/dxtoolkit/issues/76)
+- [fix for #77](https://github.com/delphix/dxtoolkit/issues/77)
+- [fix for #79](https://github.com/delphix/dxtoolkit/issues/79)
+- [fix for #80](https://github.com/delphix/dxtoolkit/issues/80) - branch selection improvement
+- [fix for #88](https://github.com/delphix/dxtoolkit/issues/88)
+- update a validated mode sync mode. log sync and backup path using dx_ctl_dsource
+- fix for logsync support for non-MT and MT Oracle dSource
+- fix for MS SQL hooks (PR-2)
+- Encryption changes:
+ - checksum is added to encrypted password
+ - old way decryption is still enabled
+ - shared parameter added to dx_encrypt to enable encryption without host name for shared configs
+- security fix - dxtoolkit is checking if cookie is set for user declared in configuration file
+- dx_get_vdbthroughput fix plus documentation fix
+- fix for PDB status with physical CDB
+
 ## 2.3.9.1
 
 ### Changed
