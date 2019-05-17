@@ -297,7 +297,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if ( $db->setEnvironment($environment,$envUser) ) {
-      print "Environment $environment or user user not found. VDB won't be created\n";
+      print "Environment $environment or user $envUser not found. VDB won't be created\n";
       $ret = $ret + 1;
       next;
   }
@@ -787,7 +787,7 @@ Set a target container database for vPDB
 User to discover CDB container in Delphix - it should be c## user
 
 =item B<-cdbpass pass>
-Password for cdbuser to discover CDB container 
+Password for cdbuser to discover CDB container
 
 =item B<-vcdbname name>
 Set a virtual CDB name for vPDB

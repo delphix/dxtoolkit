@@ -53,6 +53,7 @@ GetOptions(
   'instname=s'  => \(my $instname),
   'uniqname=s'  => \(my $uniqname),
   'environment=s' => \(my $environment),
+  'envUser=s' => \(my $envUser),
   'type=s' => \(my $type),
   'envinst=s' => \(my $envinst),
   'template=s' => \(my $template),
@@ -175,6 +176,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   $db->setName($dbname, $dbname);
 
+  if ( $db->setEnvironment($environment, $envUser) ) {
+    print "Environment $environment or user $envUser not found. VDB won't be created\n";
+    $ret = $ret + 1;
+    next;
+  }
+
 
   if ( $type eq 'oracle' ) {
 
@@ -184,7 +191,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if ( defined($template) ) {
-      if ( $db->setTemplate($template) ) {
+      if ( $db->setTemplateV2P($template) ) {
         print  "Template $template not found. V2P process won't be created\n";
         exit(1);
       }
@@ -254,6 +261,7 @@ __DATA__
             -type oracle|mssql|sybase
             -envinst OracleHome/MSSQLinstance/SybaseInstance
           [ -targetDirectory target_directory ]
+          [-envUser username]
           [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp ]
           [ -template template_name ]
           [ -mapfile mapping_file ]
@@ -320,6 +328,9 @@ Default is LATEST_SNAPSHOT
 
 =item B<-environment>
 Target environment name
+
+=item B<-envUser username>
+Use an environment user "username" for provisioning database
 
 =item B<-envinst>
 Target environment Oracle Home or MS SQL server instance
