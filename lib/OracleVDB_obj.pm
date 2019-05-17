@@ -876,7 +876,30 @@ sub setTemplate {
     } else {
         return 1;
     }
+}
 
+
+# Procedure setTemplateV2P
+# parameters:
+# - name - template name
+# Set template reference by name for v2p db.
+# Return 0 if success, 1 if not found
+
+sub setTemplateV2P {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::setTemplateV2P",1);
+
+    my $templateitem = $self->getTemplate($name);
+
+    if (defined ($templateitem)) {
+        $self->{"NEWDB"}->{"configParams"} = $self->{_templates}->getTemplateParameters($templateitem);
+        delete $self->{"NEWDB"}->{"source"}->{"configParams"};
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 # Procedure getMountPoint
@@ -1922,11 +1945,6 @@ sub v2pSI {
 
     logger($self->{_debug}, "Entering OracleVDB_obj::v2pSI",1);
 
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. V2P won't be created\n";
-        return undef;
-    }
-
     if ( $self->setHome($home) ) {
         print "Home $home in environment $env not found. V2P won't be created\n";
         return undef;
@@ -1941,6 +1959,7 @@ sub v2pSI {
         print "Target directory not set. V2P won't be created\n";
         return undef;
     }
+
 
     $self->{"NEWDB"}->{"type"} = "OracleExportParameters";
     $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"} = JSON::true;

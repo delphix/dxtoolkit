@@ -593,11 +593,6 @@ sub v2p {
     logger($self->{_debug}, "Entering SybaseVDB_obj::v2p",1);
 
 
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. VDB won't be created\n";
-        return undef;
-    }
-
     if ( $self->setHome($inst) ) {
         print "Instance $inst in environment $env not found. VDB won't be created\n";
         return undef;

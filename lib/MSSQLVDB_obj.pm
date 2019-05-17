@@ -744,11 +744,6 @@ sub v2p {
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::v2p",1);
 
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. V2P won't be created\n";
-        return undef;
-    }
-
     if ( $self->setHome($home) ) {
         print "Home $home in environment $env not found. V2P won't be created\n";
         return undef;
