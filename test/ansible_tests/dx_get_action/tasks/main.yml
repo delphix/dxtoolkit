@@ -1,0 +1,31 @@
+---
+
+   - name: Check engine
+     delegate_to: 127.0.0.1
+     shell: '"{{ DXLOC }}/dx_get_appliance"'
+
+   - name: Lougout from engine
+     delegate_to: 127.0.0.1
+     shell: '"{{ DXLOC }}/dx_logout" > /dev/null'
+
+   - name: Check audit for last 1 min
+     delegate_to: 127.0.0.1
+     shell: "{{ DXLOC }}/dx_get_audit -nohead -format csv -st \"-1min\""
+     register: auditoutput
+     failed_when: not (auditoutput.stdout | join('') is search('USER_LOGOUT'))
+
+   - name: Lougout from engine
+     delegate_to: 127.0.0.1
+     shell: '"{{ DXLOC }}/dx_logout" > /dev/null'
+
+   - name: Check audit for last 1 min for particular user
+     delegate_to: 127.0.0.1
+     shell: "{{ DXLOC }}/dx_get_audit -username {{ DELPHIX_USER }} -nohead -format csv -st \"-1min\""
+     register: auditoutput
+     failed_when: not (auditoutput.stdout | join('') is search('USER_LOGOUT'))
+
+   - name: Check audit for last 1 min for sysadmin - this should be empty output
+     delegate_to: 127.0.0.1
+     shell: "{{ DXLOC }}/dx_get_audit -username sysadmin -nohead -format csv -st \"-1min\""
+     register: auditoutput
+     failed_when: auditoutput.stdout | join('') is search('USER_LOGOUT')
