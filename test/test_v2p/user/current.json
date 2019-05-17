@@ -1,0 +1,30 @@
+{
+   "action" : null,
+   "job" : null,
+   "status" : "OK",
+   "type" : "OKResult",
+   "result" : {
+      "isDefault" : true,
+      "mobilePhoneNumber" : null,
+      "enabled" : true,
+      "workPhoneNumber" : null,
+      "locale" : "en-US",
+      "userType" : "DOMAIN",
+      "credential" : null,
+      "authenticationType" : "NATIVE",
+      "type" : "User",
+      "reference" : "USER-2",
+      "firstName" : null,
+      "namespace" : null,
+      "name" : "delphix_admin",
+      "emailAddress" : "test@delphix.com",
+      "lastName" : null,
+      "homePhoneNumber" : null,
+      "publicKey" : [
+         "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2qyKqlHwkN7saIjGbH+9HZbn4ub2qPqaKxEbSDxWAbm+S+6sI3g8ZNKkaKln4CrtoUuh8EJmeLMx7GN7hNmDBNAYFtU/s6ND852HziqjhiJAU9wq4arHDHwwsv9P1EHqxfpYRU+Ww2lu9ulwlw8khjZp0MTZZcKbLQjjjujX3SQmbfTbAFflI2+OiHXqlmr38ApXnBxrHBwQzZYeShrdX8slk73zb5ls1cWvWYNG+AFWeaePT1rG1z+0L9Vyq5ezVyieSFL8a/im+5T6MiCXJH452v6L1l8yzFc05oiGInW65BVxGVgcdFdEfWxIGCqU/bsrH9DQmO0EMzuxNgY5f mprzepiorowski@pioropc"
+      ],
+      "passwordUpdateRequest" : "NONE",
+      "sessionTimeout" : 30,
+      "principal" : "admin"
+   }
+}
