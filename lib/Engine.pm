@@ -50,10 +50,16 @@ use Crypt::CBC;
 use Date::Manip;
 use FindBin;
 use File::Spec;
+use File::Basename;
 use Try::Tiny;
 use Term::ReadKey;
 use dbutils;
+use Digest::MD5;
+use Sys::Hostname;
 use open qw(:std :utf8);
+use HTTP::Request::Common;
+
+
 
 use LWP::Protocol::http;
 push(@LWP::Protocol::http::EXTRA_SOCK_OPTS, MaxLineLength => 0);
@@ -76,15 +82,12 @@ sub new
    $ua->agent("Delphix Perl Agent/0.1");
    $ua->ssl_opts( verify_hostname => 0 );
    $ua->timeout(15);
-   #$ua->cookie_jar( {} );
-
-
-
 
    my $self = {
       _debug => $debug,
       _ua => $ua,
-      _dever => $dever
+      _dever => $dever,
+      _currentuser => ''
    };
 
    bless $self, $class;
@@ -100,6 +103,7 @@ sub new
 sub load_config {
    my $self = shift;
    my $fn = shift;
+   my $nodecrypt = shift;
    logger($self->{_debug}, "Entering Engine::load_config",1);
 
    my $data;
@@ -141,10 +145,10 @@ sub load_config {
       $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
-      if ($engines{$name}{encrypted} eq "true") {
-         if ($engines{$name}{password} =~ /^#/ ) { # check if password if really encrypted
+      if (!defined($nodecrypt)) {
+        if ($engines{$name}{encrypted} eq "true") {
             $engines{$name}{password} = $self->decrypt($engines{$name});
-         }
+        }
       }
    }
 
@@ -157,11 +161,13 @@ sub load_config {
 # Procedure encrypt_config
 # parameters:
 # - fn - configuration file name
+# - shared - not use hostname in password encryption
 # save configuration file (dxtools.conf) from internal structure
 
 sub encrypt_config {
    my $self = shift;
    my $fn = shift;
+   my $shared = shift;
    logger($self->{_debug}, "Entering Engine::encrypt_config",1);
 
    my $engines = $self->{_engines};
@@ -169,7 +175,7 @@ sub encrypt_config {
 
    for my $eng ( keys %{$engines} ) {
       if ($engines->{$eng}->{encrypted} eq 'true') {
-         $engines->{$eng}->{password} = '#' . $self->encrypt($engines->{$eng});
+         $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared);
       }
       $engines->{$eng}->{hostname} = $eng;
       push (@engine_list, $engines->{$eng});
@@ -195,8 +201,17 @@ sub encrypt_config {
 sub encrypt {
    my $self = shift;
    my $engine = shift;
+   my $shared = shift;
    logger($self->{_debug}, "Entering Engine::encrypt",1);
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $key;
+
+   if (defined($shared)) {
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   } else {
+     my $host = hostname;
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+   }
+
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
@@ -204,7 +219,10 @@ sub encrypt {
       -header=>'none'
    );
 
-   my $ciphertext = $cipher->encrypt_hex($engine->{password});
+   my $passmd5 = Digest::MD5::md5_hex($engine->{password});
+   my $wholeenc = $engine->{password} . $passmd5;
+
+   my $ciphertext = $cipher->encrypt_hex($wholeenc);
    return $ciphertext;
 }
 
@@ -218,8 +236,53 @@ sub decrypt {
    my $engine = shift;
    logger($self->{_debug}, "Entering Engine::decrypt",1);
 
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $host = hostname;
+
+   # decrypt with crc and hostname
+
+   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
    my $cipher = Crypt::CBC->new(
+      -key    => $key,
+      -cipher => 'Blowfish',
+      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -header=>'none'
+   );
+
+   my $fulldecrypt  = $cipher->decrypt_hex($engine->{password});
+   my $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
+   my $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
+   my $afterdecrypt = Digest::MD5::md5_hex($plainpass);
+
+   if ($afterdecrypt eq $checksum) {
+     return $plainpass;
+   } else {
+     logger($self->{_debug}, "Decryption with host name doesn't work - moving forward",2);
+   }
+
+   # decrypt with crc and no hostname
+
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   my $cipher_nohost = Crypt::CBC->new(
+      -key    => $key,
+      -cipher => 'Blowfish',
+      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -header=>'none'
+   );
+
+   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{password});
+   $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
+   $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
+   $afterdecrypt = Digest::MD5::md5_hex($plainpass);
+
+   if ($afterdecrypt eq $checksum) {
+     return $plainpass;
+   } else {
+     logger($self->{_debug}, "Decryption without host name doesn't work - moving forward to old method",2);
+   }
+
+   # old method decryption
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
       -iv => substr($engine->{ip_address} . $engine->{username},0,8),
@@ -351,7 +414,8 @@ sub dlpx_connect {
                     '4.3' => '1.6.0',
                     '5.0' => '1.7.0',
                     '5.1' => '1.8.0',
-                    '5.2' => '1.9.0'
+                    '5.2' => '1.9.0',
+                    '5.3' => '1.10.0'
                   );
 
    my $engine_config = $self->{_engines}->{$engine};
@@ -406,10 +470,10 @@ sub dlpx_connect {
    }
 
    if ($ses_status) {
-
+      # there is no session in cookie
+      # new session needs to be established
 
       if (defined($self->{_dever})) {
-
             if (defined($api_list{$self->{_dever}})) {
                $ses_version = $api_list{$self->{_dever}};
                logger($self->{_debug}, "Using Delphix Engine version defined by user " . $self->{_dever} . " . API " . $ses_version , 2);
@@ -434,21 +498,18 @@ sub dlpx_connect {
 
          }
 
-
-
+         # create a session first
          if ( $self->session($ses_version) ) {
             logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
             $rc = 1;
-         }
-         else {
-
+         } else {
+           # session is established - now login
            if ($self->{_password} eq '') {
              # if no password provided and there is no open session
              $self->{_password} = $self->read_password();
            }
            if ( $self->login() ) {
                print "login to " . $self->{_host} . "  failed. \n";
-               #logger($self->{_debug}, "login to " . $self->{_host} . "  failed.");
                $cookie_jar->clear();
                $rc = 1;
            } else {
@@ -457,9 +518,19 @@ sub dlpx_connect {
            }
          }
    } else {
+      # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
-      $self->{_api} = $ses_version;
-      $rc = 0;
+      # check if session user is same like config user or someone is messing around
+      if ( $self->getCurrentUser() eq $self->getUsername() ) {
+        $self->{_api} = $ses_version;
+        $rc = 0;
+      } else {
+        logger($self->{_debug}, "Something is wrong. Session from cookie doesn't match config file");
+        print "Something is wrong. Session from cookie doesn't match config file. Clearing cookie file\n";
+        my $cookie_jar = $self->{_ua}->cookie_jar;
+        $cookie_jar->clear();
+        $rc = 1;
+      }
    }
 
    $self->{_ua}->timeout($engine_config->{timeout});
@@ -522,7 +593,7 @@ sub session {
 
 # procedure getSession
 # parameters: none
-# check if there is a session
+# check if there is still a session saved in cookies file
 # return 0 if OK, 1 if failed
 
 sub getSession {
@@ -544,6 +615,54 @@ sub getSession {
    return ($ret, $ver_api);
 
 }
+
+
+# Procedure getCurrentUser
+# parameters:
+# Return current logged user
+
+sub getCurrentUser {
+    my $self = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering Engine::getCurrentUser",1);
+
+    if ($self->{_currentuser} eq '') {
+
+      my $operation = "resources/json/delphix/user/current";
+      my ($result, $result_fmt) = $self->getJSONResult($operation);
+
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          $ret = $result->{result};
+          $self->{_currentuser} = $ret->{name};
+          $self->{_currentusertype} = $ret->{userType};
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+      }
+
+    }
+
+    return $self->{_currentuser};
+
+}
+
+
+# Procedure getCurrentUserType
+# parameters:
+# Return current logged user type
+
+sub getCurrentUserType {
+    my $self = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering Engine::getCurrentUserType",1);
+
+    $self->getCurrentUser();
+
+    return $self->{_currentusertype};
+
+}
+
 
 
 # Procedure session
@@ -599,7 +718,6 @@ sub login {
 
    my $operation = "resources/json/delphix/login";
    my $json_data = encode_json($mylogin{'user'});
-   logger($self->{_debug}, $json_data ,2);
    ($result,$result_fmt, $retcode) = $self->postJSONData($operation,$json_data);
 
    my $ret;
@@ -639,6 +757,8 @@ sub logout {
       $ret = 0;
    }
 
+   my $cookie_jar = $self->{_ua}->cookie_jar;
+   $cookie_jar->clear();
    return $ret;
 
 
@@ -749,8 +869,10 @@ sub checkSSHconnectivity {
 
 # Procedure checkConnectorconnectivity
 # parameters:
-# - minus - date current date minus minus minutes
-# return timezone of Delphix engine
+# - username
+# - password
+# - host
+# return 0 if credentials are OK
 
 sub checkConnectorconnectivity {
    my $self = shift;
@@ -792,7 +914,7 @@ sub checkConnectorconnectivity {
 # username
 # password
 # jdbc string
-# return timezone of Delphix engine
+# return 0 if credentials are OK
 
 sub checkJDBCconnectivity {
    my $self = shift;
@@ -926,15 +1048,15 @@ sub generateSupportBundle {
   #  }
 
 
-  # my %bundle_hash = (
-  #   "type" => "SupportBundleGenerateParameters",
-  #   "bundleType" => "MASKING"
-  # );
-  #
-  # my $json = to_json(\%bundle_hash);
+  my %bundle_hash = (
+    "type" => "SupportBundleGenerateParameters",
+    "bundleType" => "MASKING"
+  );
+
+  my $json = to_json(\%bundle_hash);
 
    my $operation = "resources/json/delphix/service/support/bundle/generate";
-   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation,'{}');
+   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation,$json);
 
    my $ret;
    my $token;
@@ -1037,7 +1159,18 @@ sub postJSONData {
       $request->content($post_data);
    }
 
-   logger($self->{_debug}, $post_data, 1);
+   my $post_data_logger;
+
+   if ( $post_data =~ /password/ ) {
+     $post_data_logger = $post_data;
+     $post_data_logger =~ s/"password":"(.*)"/"password":"xxxxx"/;
+   } else {
+     $post_data_logger = $post_data;
+   }
+
+   logger($self->{_debug}, $post_data_logger, 1);
+
+
 
    my $response = $self->{_ua}->request($request);
 
@@ -1101,7 +1234,7 @@ sub postJSONData {
       $filename =~ s|\:|_|g;
       #print Dumper $filename;
       open ($fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
-      print $fh $post_data;
+      print $fh $post_data_logger;
       close $fh;
 
    }
@@ -1119,7 +1252,269 @@ sub read_password {
     return $pass;
 }
 
+# Procedure getOSversionList
+# parameters:
+# Return an array of hash with of OS version deployed
 
+sub getOSversions {
+    my $self = shift;
+
+    logger($self->{_debug}, "Entering Engine::getOSversions",1);
+
+    my %res;
+
+    my $operation = "resources/json/delphix/system/version";
+    my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        for my $osver (@{$result->{result}}) {
+          $res{$osver->{name}} = $osver;
+        }
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+
+
+    return \%res;
+
+}
+
+
+# Procedure verifyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub verifyOSversion {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Engine::verifyOSversion",1);
+
+    my $versions = $self->getOSversions();
+
+    if (!defined($versions->{$name})) {
+      print "Version with osname $name not found in Delphix Engine. No verification will be performed\n";
+      return undef;
+    };
+
+    my $osref = $versions->{$name}->{reference};
+    my $operation = 'resources/json/delphix/system/version/' . $osref . '/verify';
+    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{job};
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
+
+# Procedure applyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub applyOSversion {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Engine::applyOSversion",1);
+
+    my $versions = $self->getOSversions();
+
+    if (!defined($versions->{$name})) {
+      print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+      return undef;
+    };
+
+    my $osref = $versions->{$name}->{reference};
+    my $operation = 'resources/json/delphix/system/version/' . $osref . '/apply';
+    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{job};
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
+
+
+# Procedure uploadupdate
+# parameters:
+# - filename
+# return result of upload
+# 0 is all OK
+
+sub uploadupdate {
+    my $self = shift;
+    my $filename = shift;
+
+    logger($self->{_debug}, "Entering Engine::uploadupdate",1);
+    #local $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
+
+    my $url = $self->{_protocol} . '://' . $self->{_host} ;
+    my $api_url = "$url/resources/json/system/uploadUpgrade";
+
+    #$filename = '/mnt/c/temp/delphix_5.3.3.0_2019-03-30-02-01.upgrade.tar.gz';
+    #$filename = '/mnt/c/temp/zdjecia1.zip';
+
+    my $size = -s $filename;
+    my $boundary = HTTP::Request::Common::boundary(10);
+
+
+    $size = $size + (length $boundary) + 6 + (length $filename) + 500;
+
+    my $h = HTTP::Headers->new(
+      Content_Length      => $size,
+      Content_Type        => 'multipart/form-data; boundary=' . $boundary
+    );
+
+    my $request = HTTP::Request->new(
+      POST => $api_url, $h
+    );
+
+
+    print Dumper $request;
+
+
+    # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
+    # without loading all in memory but it's very slow as it's using 2k chunks
+    # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
+    # and it's providing a content of multipart/form-data request
+    # it's simple implementation and probably not a best one
+
+
+
+    my $content_provider_ref = &content_provider($filename, $size, $boundary);
+    $request->content($content_provider_ref);
+
+
+
+    sub content_provider {
+      my $filename = shift;
+      my $size = shift;
+      my $boundary = shift;
+      # we need to send 4 parts - a boundary start, content description, file content, boundary end
+      my @content_part = ( 'b', 'c', 'f', 'e' );
+      my $total = 0;
+      my $report = 0;
+      my $end = 0;
+      $| = 1;
+
+      my $fh;
+      open $fh, $filename;
+      binmode $fh;
+
+      return sub {
+        my $buf;
+
+        # print Dumper $content_part[0];
+        # print Dumper "----";
+        # print Dumper $total;
+
+        if (!defined($content_part[0])) {
+          if ($end eq 0) {
+            printf "%5.1f \n\n", 100;
+          }
+          return undef;
+        }
+
+        if ($content_part[0] eq 'e') {
+          $buf = "\r\n--" . $boundary . "--\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'b') {
+          $buf = "--" . $boundary . "\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'c') {
+          $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
+          shift @content_part;
+          # print Dumper $buf;
+        } elsif ($content_part[0] eq 'f') {
+          my $rc = sysread($fh, $buf, 1048576);
+          $total = $total + length $buf;
+          # print Dumper $rc;
+          if (($total / $size * 100) > $report) {
+            if (($total / $size * 100) eq 100) {
+              printf "%5.1f\n\n ", 100;
+              $end = 1;
+            } else {
+              printf "%5.1f - ", $total / $size * 100;
+              $report = $report + 10;
+            }
+
+          }
+          if ($rc ne 1048576) {
+            shift @content_part;
+          }
+
+          #print Dumper $buf;
+        }
+
+        return $buf;
+      }
+    }
+
+
+    my $response = $self->{_ua}->request($request);
+
+
+    my $decoded_response;
+    my $result_fmt;
+    my $retcode;
+    my $result;
+
+    #print Dumper $response;
+
+    if ( $response->is_success ) {
+
+       $decoded_response = $response->decoded_content;
+       $result = decode_json($decoded_response);
+       $result_fmt = to_json($result, {pretty=>1});
+       print Dumper $result_fmt;
+       logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+         print "File upload completed without issues.\n";
+         $retcode = 0;
+       } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
+         print "\nFile upload issues\n";
+         print "Try the operation again. If the problem persists, contact Delphix support.\n";
+         $retcode = 1;
+       }
+
+
+    }
+    else {
+       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+       $retcode = 1;
+    }
+
+}
 
 # End of package
 1;

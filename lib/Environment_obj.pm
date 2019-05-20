@@ -202,6 +202,8 @@ sub getEnvironmentUserAuth {
         $ret = 'password';
       } elsif ($auth eq 'KeyPairCredential') {
         $ret = 'systemkey';
+      } elsif ($auth eq 'KerberosCredential') {
+        $ret = 'kerberos';
       }
     }
 
@@ -998,7 +1000,7 @@ sub createEnv
     my $proxy = shift;
     my $crsname = shift;
     my $crsloc = shift;
-    my $sshport = shift;
+    my $port = shift;
     my $asedbuser = shift;
     my $asedbpass = shift;
     logger($self->{_debug}, "Entering Environment_obj::createEnv",1);
@@ -1019,8 +1021,8 @@ sub createEnv
     my %host;
     if (($type eq 'unix') || ($type eq 'rac')) {
 
-      if (!defined($sshport)) {
-        $sshport = 22;
+      if (!defined($port)) {
+        $port = 22;
       }
 
       %host = (
@@ -1028,16 +1030,21 @@ sub createEnv
         "host" => {
             "type" => "UnixHost",
             "address" => $host,
-            "sshPort" => $sshport,
+            "sshPort" => $port,
             "toolkitPath" => $toolkit_path
         }
       );
-    } else {
+    } elsif ($type eq 'windows') {
+
+      if (!defined($port)) {
+        $port = 9100;
+      }
+
       %host = (
         "type" => "WindowsHostCreateParameters",
         "host" => {
             "type" => "WindowsHost",
-            "connectorPort" => 9100,
+            "connectorPort" => $port,
             "address" => $host
         }
       );
@@ -1092,29 +1099,15 @@ sub createEnv
       push (@nodes, \%node1);
       $env{"nodes"} = \@nodes;
 
+    } elsif ($type eq 'wincluster') {
+      $env{"type"} = "WindowsClusterCreateParameters";
+      $env{"cluster"}{"type"} = "WindowsCluster";
+      $env{"cluster"}{"name"} = $name;
+      $env{"cluster"}{"proxy"} = $proxy;
+      $env{"cluster"}{"address"} = $host;
     } else {
         return undef;
     }
-
-
-    # {
-    #     "type": "WindowsClusterCreateParameters",
-    #     "primaryUser": {
-    #         "type": "EnvironmentUser",
-    #         "name": "DELPHIX\\delphix_admin",
-    #         "credential": {
-    #             "type": "PasswordCredential",
-    #             "password": "delphix"
-    #         }
-    #     },
-    #     "cluster": {
-    #         "type": "WindowsCluster",
-    #         "name": "CLU2012",
-    #         "address": "192.168.1.170",
-    #         "proxy": "WINDOWS_HOST-266774"
-    #     }
-    # }
-
 
     my %cred;
 

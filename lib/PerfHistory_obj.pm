@@ -134,6 +134,7 @@ sub getPerformance
     my $deltadate;
     my $localstartdate;
     my $stop = 0;
+    my $oldstartdate;
 
     # 26 hours check
     my $maxstartdate = Toolkit_helpers::convert_to_utc($self->{_dlpxObject}->getTime(1560),'UTC',undef,1);
@@ -143,6 +144,7 @@ sub getPerformance
     } else {
       $localstartdate = $startDate;
     }
+
 
     # looping through data
     while ($stop == 0) {
@@ -154,11 +156,20 @@ sub getPerformance
         $stop = 1;
       }
 
+      # this is protection if engine was stopped / freezed and results are odd
+      # basically if localstartdate is not moving forward we shoud stop a loop
+      if (!defined($oldstartdate)) {
+        $oldstartdate = $localstartdate;
+      } elsif ($localstartdate eq $oldstartdate ) {
+        $stop = 1;
+      }
+
       $operation = "resources/json/delphix/database/performanceHistory?fromDate=" . $localstartdate . "&toDate=" . $localenddate;
       $operation = $operation . $interval;
 
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
       my $allpoints = 0;
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         my @res = @{$result->{result}};
         my %cp;
@@ -180,9 +191,11 @@ sub getPerformance
           # last data point can be below $localenddate
           # and to keep all seconds we need to change $localstartdate
           # to a real max returned timestamp
+          $oldstartdate = $localstartdate;
           $localstartdate = (sort(keys(%{$timehash})))[-1];
         } else {
           # to data returned - moving startdate to calculated enddate
+          $oldstartdate = $localstartdate;
           $localstartdate = $localenddate;
         }
 

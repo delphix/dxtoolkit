@@ -442,10 +442,12 @@ sub getCDBContainerRef
 
     my $ret;
 
-    if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
-      my $cdbref = $self->{sourceConfig}->{cdbConfig};
-      $ret = $cdbref;
-    };
+    if ($self->{sourceConfig} ne 'NA') {
+      if ($self->{sourceConfig}->{type} eq 'OraclePDBConfig') {
+        my $cdbref = $self->{sourceConfig}->{cdbConfig};
+        $ret = $cdbref;
+      };
+    }
 
     return $ret;
 }
@@ -753,13 +755,59 @@ sub setName {
         $instance_name = $dbname;
     }
 
-    print $contname . "\n";
-
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"} = $unique_name;
     $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"} = $instance_name;
 
+}
+
+# Procedure getRuntimeStatus
+# parameters: none
+# Return database runtime status
+
+sub getRuntimeStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getRuntimeStatus",1);
+
+    my $ret;
+
+    my $cdbref = $self->getCDBContainerRef();
+
+    if (defined($cdbref)) {
+      #vPDB - API is showing uknown for PDB status if vCDB is used
+      # this is a workaround for it
+
+      my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
+
+      if (defined($sourceobj) && ($sourceobj->{type} eq 'OracleVirtualSource')) {
+        if (defined($sourceobj) && defined($sourceobj->{runtime})) {
+            $ret = $sourceobj->{runtime}->{status};
+        } else {
+            $ret = 'NA';
+        }
+      } else {
+        if (defined($self->{source}->{runtime})) {
+            $ret = $self->{source}->{runtime}->{status};
+        } else {
+            $ret = 'NA';
+        }
+      }
+
+
+
+    } else {
+      if (defined($self->{source}->{runtime})) {
+          $ret = $self->{source}->{runtime}->{status};
+      } else {
+          $ret = 'NA';
+      }
+    }
+
+
+
+    return $ret;
 }
 
 # Procedure getTemplateRef
@@ -828,7 +876,30 @@ sub setTemplate {
     } else {
         return 1;
     }
+}
 
+
+# Procedure setTemplateV2P
+# parameters:
+# - name - template name
+# Set template reference by name for v2p db.
+# Return 0 if success, 1 if not found
+
+sub setTemplateV2P {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::setTemplateV2P",1);
+
+    my $templateitem = $self->getTemplate($name);
+
+    if (defined ($templateitem)) {
+        $self->{"NEWDB"}->{"configParams"} = $self->{_templates}->getTemplateParameters($templateitem);
+        delete $self->{"NEWDB"}->{"source"}->{"configParams"};
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 # Procedure getMountPoint
@@ -988,6 +1059,70 @@ sub setNoOpen {
     $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
 }
 
+# Procedure setLogSync
+# parameters:
+# - logsync - yes/no
+# Enable of Log Sync
+
+sub setLogSync
+{
+    my $self = shift;
+    my $logsync = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setLogSync",1);
+
+    my %logsynchash = (
+        "type"=> "OracleDatabaseContainer",
+        "sourcingPolicy"=> {
+            "type"=> "OracleSourcingPolicy"
+        }
+    );
+
+    if (lc $logsync eq 'yes') {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+    } else {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
+    }
+
+
+    my $ref;
+
+    if (defined($self->{cdb})) {
+      $ref = $self->{cdb};
+    } else {
+      $ref = $self->{container}->{reference};
+    }
+
+    my $operation = "resources/json/delphix/database/" . $ref;
+    my $payload = to_json(\%logsynchash);
+
+    return $self->runJobOperation($operation,$payload,'ACTION');
+}
+
+# Procedure update_dsource
+# parameters:
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+    my $jobno;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::update_dsource",1);
+
+    if (defined($logsync)) {
+      $jobno = $self->setLogSync($logsync);
+    } else {
+      print "Nothing to update\n";
+    }
+
+    return $jobno;
+}
+
 # Procedure setDSP
 # parameters:
 #  - numConnections: 1 (*)
@@ -1004,7 +1139,7 @@ sub setDSP
     my $encryption = shift;
     my $bandwidthLimit = shift;
 
-    logger($self->{_debug}, "Entering VDB_obj::setDSP",1);
+    logger($self->{_debug}, "Entering OracleVDB_obj::setDSP",1);
 
     if (!defined($numConnections)) {
       $numConnections = 1;
@@ -1175,14 +1310,22 @@ sub attach_dsource
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
-
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+    my $authtype = $self->{_environment}->getEnvironmentUserAuth($source_env_ref, $source_os_ref);
+
+    if ($authtype ne 'kerberos') {
+      # assuming we have kerberos and no dbuser is enabled
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+          print "Username or password is invalid.\n";
+          return undef;
+      }
+    }
+
+
+
 
     if (!defined($source_os_ref)) {
         print "Source OS user $source_osuser not found\n";
@@ -1228,6 +1371,10 @@ sub attach_dsource
                 "environmentUser" => $source_os_ref
           }
       );
+    }
+
+    if ($config->{type} eq 'OraclePDBConfig') {
+      $attach_data{"attachData"}{"type"} = "OraclePDBAttachData";
     }
 
     my $operation = 'resources/json/delphix/database/'. $self->{container}->{reference} .'/attachSource' ;
@@ -1336,6 +1483,8 @@ sub discoverPDB {
     my $cdbpass = shift;
     my $ret;
     logger($self->{_debug}, "Entering OracleVDB_obj::discoverPDB",1);
+
+
 
     my $cdb = $self->setConfig($cdbname, $source_inst, $source_env);
 
@@ -1535,14 +1684,8 @@ sub addSource {
 
 # Procedure findCDBonEnvironment
 # parameters:
-# - group - new DB group
-# - env - new DB environment
-# - home - new DB home
-# - rac
-# - instance array
-# Start job to create Single Instance Oracle VDB
-# all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
-# Return job number if provisioning has been started, otherwise return undef
+# - cdbname
+# return sourceconfig ref for CDB name
 
 sub findCDBonEnvironment {
     my $self = shift;
@@ -1555,9 +1698,13 @@ sub findCDBonEnvironment {
     if (defined($cdbname)) {
       my $cdbobj = $sourceconfig->getSourceConfigByName($cdbname);
       if (defined($cdbobj)) {
+        if ($cdbobj->{cdbType} ne 'ROOT_CDB') {
+          print("Database is found but this is not discovered as CDB container. Please add cdbuser/cdbpass to run discovery during provision\n");
+          return undef;
+        }
         $cdbconf = $cdbobj->{reference};
       } else {
-        print "CDB named $cdbname not found in Oracle Home and envitonment\n";
+        print "CDB named $cdbname not found in Oracle Home and environment\n";
       }
     } else {
       my $list = $sourceconfig->getSourceConfigsListForRepo($self->{"NEWDB"}->{"sourceConfig"}->{"repository"});
@@ -1693,9 +1840,9 @@ sub createVDB {
         # provision to existing CDB
         my $cdbconf = $self->findCDBonEnvironment($cdbname);
         if (!(defined($cdbconf))) {
-          print "Container name $cdbname not found. VDB won't be created\n";
           return undef;
         }
+
         $self->{"NEWDB"}->{"sourceConfig"}->{"cdbConfig"} = $cdbconf;
       } else {
         # creating a vCDB
@@ -1798,11 +1945,6 @@ sub v2pSI {
 
     logger($self->{_debug}, "Entering OracleVDB_obj::v2pSI",1);
 
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. V2P won't be created\n";
-        return undef;
-    }
-
     if ( $self->setHome($home) ) {
         print "Home $home in environment $env not found. V2P won't be created\n";
         return undef;
@@ -1817,6 +1959,7 @@ sub v2pSI {
         print "Target directory not set. V2P won't be created\n";
         return undef;
     }
+
 
     $self->{"NEWDB"}->{"type"} = "OracleExportParameters";
     $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"} = JSON::true;

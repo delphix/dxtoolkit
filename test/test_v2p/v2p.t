@@ -8,7 +8,8 @@ use lib '../';
 use lib '.';
 use server;
 
-system("cp -r database.sybase/ database");
+system("cp database.sybase/export.json.req database/");
+system("cp database.sybase/export.json database/");
 
 
 my $server = server->new(8080);
@@ -21,7 +22,7 @@ script_compiles('../../bin/dx_v2p.pl');
 script_runs(['../../bin/dx_v2p.pl', '-d', 'local', '-type','sybase','-timestamp','LATEST_SNAPSHOT','-sourcename','testsys','-dbname','tests','-environment','LINUXTARGET','-envinst','LINUXTARGET'] ,  "sybase v2p on timestamp");
 
 my $expected_stdout = <<EOF;
-Starting provisioning job - JOB-5032
+Starting job - JOB-5032
 100
 Job JOB-5032 finished with state: COMPLETED
 V2P finished..
@@ -29,12 +30,13 @@ EOF
 
 script_stdout_is $expected_stdout, "sybase v2p on timestamp results compare";
 
-system("cp -r database.oracle/ database");
+system("cp database.oracle/export.json.req database/");
+system("cp database.oracle/export.json database/");
 
 script_runs(['../../bin/dx_v2p.pl', '-d', 'local', '-type','oracle','-timestamp','LATEST_SNAPSHOT','-sourcename','si4rac','-dbname','si','-environment','LINUXTARGET','-envinst','/u01/app/oracle/12.1.0.2/rachome1','-targetDirectory','/u02/backup/'] ,  "oracle v2p on timestamp");
 
 my $expected_stdout = <<EOF;
-Starting provisioning job - JOB-5033
+Starting job - JOB-5033
 100
 Job JOB-5033 finished with state: COMPLETED
 V2P finished..

@@ -145,9 +145,8 @@ sub setValidatedMode {
       return 1;
     }
 
-    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
-      $source->{validatedSyncMode} = $vsm;
-    } 
+
+    $source->{validatedSyncMode} = $vsm;
 
     return 0;
 
@@ -593,11 +592,6 @@ sub v2p {
 
     logger($self->{_debug}, "Entering SybaseVDB_obj::v2p",1);
 
-
-    if ( $self->setEnvironment($env) ) {
-        print "Environment $env not found. VDB won't be created\n";
-        return undef;
-    }
 
     if ( $self->setHome($inst) ) {
         print "Instance $inst in environment $env not found. VDB won't be created\n";

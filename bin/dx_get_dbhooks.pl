@@ -87,7 +87,7 @@ if ( defined($save)  && ( ! defined($outdir) ) ) {
 
 Toolkit_helpers::check_filer_options (undef, $type, $group, $host, $dbname, undef);
 
-my @hooksTypeArray = ('configureClone','preRefresh','postRefresh','preRollback','postRollback','preSnapshot','postSnapshot','preStart','postStart','preStop','postStop');
+my @hooksTypeArray = ('preSync','postSync','configureClone','preRefresh','postRefresh','preRollback','postRollback','preSnapshot','postSnapshot','preStart','postStart','preStop','postStop');
 
 my @hookLoopArray;
 
@@ -162,7 +162,6 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $hookfound = 0;
         for my $hookitem (@hookLoopArray) {
           my $array = $dbobj->getHook($hookitem, $save);
-
           if (scalar(@{$array})>0) {
 
             for my $h (@{$array}) {
@@ -197,7 +196,7 @@ for my $engine ( sort (@{$engine_list}) ) {
               }
             }
           }
-          if (!$hookfound && (!defined($save))) {
+          if (defined($hookname) && !$hookfound && (!defined($save))) {
             print "Hook $hookitem with name $hookname not found in database $dbname\n";
             $ret = $ret + 1;
           }

@@ -81,7 +81,8 @@ $output->addHeader(
     {'Appliance'     , 20},
     {'Container name', 20},
     {'Template name' , 20},
-    {'Branch name'   , 20}
+    {'Branch name'   , 20},
+    {'Full name'     , 30}
 );
 # }
 
@@ -155,6 +156,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     @branchlist = @{$jsbranches->getJSBranchList()};
   }
 
+  my $fullname;
+
   for my $branch (@branchlist) {
     $dataobj = $jsbranches->getDataobj($branch);
     $printtemplate = $jstemplates->getName($dataobj);
@@ -163,15 +166,18 @@ for my $engine ( sort (@{$engine_list}) ) {
       $printcontainer = $jscontainers->getName($dataobj);
       my $tempref =$jscontainers->getJSContainerTemplate($dataobj);
       $printtemplate = $jstemplates->getName($tempref);
+      $fullname = $printtemplate . '/' . $printcontainer . '/' . $jsbranches->getName($branch);
     } else {
       # it's template
       $printcontainer = 'N/A';
+      $fullname = $printtemplate . '/' . $jsbranches->getName($branch);
     }
     $output->addLine(
       $engine,
       $printcontainer,
       $printtemplate,
-      $jsbranches->getName($branch)
+      $jsbranches->getName($branch),
+      $fullname
     );
   }
 

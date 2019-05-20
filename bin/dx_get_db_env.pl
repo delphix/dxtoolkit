@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2014,2016 by Delphix. All rights reserved.
+# Copyright (c) 2014,2019 by Delphix. All rights reserved.
 #
 # Program Name : dx_get_db_env.pl
 # Description  : Get database and host information
@@ -60,6 +60,7 @@ GetOptions(
   'name=s' => \(my $dbname),
   'format=s' => \(my $format),
   'type=s' => \(my $type),
+  'rdbms=s' => \(my $rdbms),
   'group=s' => \(my $group),
   'host=s' => \(my $host),
   'dsource=s' => \(my $dsource),
@@ -130,6 +131,23 @@ if (lc $hostenv eq 'h') {
   print "Option hostenv has a wrong argument\n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
+}
+
+if (defined($rdbms)) {
+  my %allowed_rdbms = (
+    "oracle" => 1,
+    "sybase" => 1,
+    "mssql"  => 1,
+    "db2"    => 1,
+    "vFiles" => 1
+  );
+
+  if (!defined($allowed_rdbms{$rdbms})) {
+   print "Option rdbms has a wrong argument - $rdbms\n";
+   pod2usage(-verbose => 1,  -input=>\*DATA);
+   exit (1);
+  }
+
 }
 
 if (defined($backup)) {
@@ -248,9 +266,33 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   }
 
+  # filter based on rdbms type works only in dx_get_db_env
+
+  my @db_display_list;
+
+  if (defined($rdbms)) {
+    for my $dbitem ( @{$db_list} ) {
+      my $dbobj = $databases->getDB($dbitem);
+      if ($dbobj->getDBType() ne $rdbms) {
+        next;
+      } else {
+        push(@db_display_list, $dbitem);
+      }
+    }
+
+    if (scalar(@db_display_list)<1) {
+      print "There is no DB selected to process on $engine . Please check filter definitions. \n";
+      $ret = $ret + 1;
+      next;
+    }
+
+  } else {
+    @db_display_list = @{$db_list};
+  }
+
 
   # for filtered databases on current engine - display status
-  for my $dbitem ( @{$db_list} ) {
+  for my $dbitem ( @db_display_list ) {
     my $dbobj = $databases->getDB($dbitem);
 
     my $parentsnap;
@@ -261,6 +303,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $parentgroup;
     my $uniquename;
     my $parenttime;
+
 
     if ($dbobj->getDBType() eq 'oracle') {
       $uniquename = $dbobj->getUniqueName();
@@ -432,6 +475,7 @@ __DATA__
 
  dx_get_db_env    [-engine|d <delphix identifier> | -all ]
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date]
+                  [-rdbms oracle|sybase|db2|mssql|vFiles ]
                   [-save]
                   [-masking]
                   [-parentlast l|p]
@@ -492,6 +536,9 @@ Dsource name
 
 =item B<-instancename instname>
 Instance name
+
+=item B<-rdbms oracle|sybase|db2|mssql|vFiles>
+Filter by RDBMS type - this filter is implemented only in dx_get_db_env
 
 =back
 

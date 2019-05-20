@@ -226,6 +226,7 @@ sub LoadDBList
             $db->{"host"}  = $self->{_hosts}->getHost($host);
         }
 
+
         # for oracle load instances
 
         if ($db->getDBType eq 'oracle') {
@@ -249,6 +250,13 @@ sub LoadDBList
 
                 $db->{instances} = \%orainst;
 
+            }
+
+            # pdb check
+            my $cdb = $db->getCDBContainerRef();
+
+            if (defined($cdb)) {
+              $db->{"cdb"} = $self->{_source}->getSourceByConfig($cdb)->{container};
             }
 
         }

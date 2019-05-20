@@ -109,7 +109,8 @@ if (defined($realtime)) {
       {'Bookmark time',     30},
       {'Template name',     30},
       {'Container name',    30},
-      {'Branch name',       20}
+      {'Branch name',       20},
+      {'Branch full name',  30}
   );
 }
 
@@ -129,23 +130,33 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $bookmarks;
   my $template_ref;
+  my $container_ref;
 
 
   if (defined($template_name)) {
-    my $datalayout = new JS_template_obj ( $engine_obj, $debug );
-    $template_ref = $datalayout->getJSTemplateByName($template_name);
-
-    if (defined($container_name)) {
-      my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
-      my $container_ref = $container->getJSContainerByName($container_name);
-      $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
-    } else {
-      $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+    my $templates = new JS_template_obj ( $engine_obj, $debug );
+    $template_ref = $templates->getJSTemplateByName($template_name);
+    if (!defined($template_ref)) {
+      print "Template $template_name not found\n";
+      $ret = $ret + 1;
+      next;
     }
   }
 
+  if (defined($container_name)) {
+    my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
+    $container_ref = $container->getJSContainerByName($container_name);
+    if (!defined($container_ref)) {
+      $ret = $ret + 1;
+      next;
+    }
+  }
 
-  if (!defined($bookmarks)) {
+  if (defined($container_ref)) {
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
+  } elsif (defined($template_ref)) {
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+  } else {
     $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
   }
 
@@ -160,9 +171,9 @@ for my $engine ( sort (@{$engine_list}) ) {
   my @bookmark_array;
 
   if (defined($bookmark_name)) {
-    my $book_ref = $bookmarks->getJSBookmarkByName($bookmark_name);
+    my $book_ref = $bookmarks->getAllJSBookmarkByName($bookmark_name);
     if (defined($book_ref)) {
-      push(@bookmark_array, $book_ref);
+      push(@bookmark_array, @{$book_ref});
     } else {
       print "Can't find bookmark name $bookmark_name \n";
       $ret = $ret + 1;
@@ -229,7 +240,8 @@ for my $engine ( sort (@{$engine_list}) ) {
         $bookmark_time,
         $bookmarks->getJSBookmarkTemplateName($bookmarkitem),
         $bookmarks->getJSBookmarkContainerName($bookmarkitem),
-        $branchs->getName($bookmarks->getJSBookmarkBranch($bookmarkitem))
+        $branchs->getName($bookmarks->getJSBookmarkBranch($bookmarkitem)),
+        $branchs->getFullname($bookmarks->getJSBookmarkBranch($bookmarkitem))
       );
     }
 

@@ -1,0 +1,1 @@
+{"type":"ASEExportParameters","sourceConfig":{"instance":{"host":"UNIX_HOST-15","type":"ASEInstanceConfig"},"databaseName":"tests","repository":"ASE_INSTANCE-8","type":"ASESIConfig"},"timeflowPointParameters":{"container":"ASE_DB_CONTAINER-320","type":"TimeflowPointSemantic","location":"LATEST_SNAPSHOT"}}

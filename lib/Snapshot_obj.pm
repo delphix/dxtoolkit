@@ -951,7 +951,7 @@ sub getSnapshotList
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList",1);
     my $operation = "resources/json/delphix/snapshot";
 
-
+    my $operationroot;
 
     if (defined($self->{_container})) {
         if (defined($self->{_traverseTimeflows})) {
@@ -978,20 +978,18 @@ sub getSnapshotList
         }
 
         if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
-
             my $startDate = Toolkit_helpers::convert_to_utc($self->{_startDate}, $self->{_timezone},0,1);
-
             if (defined($startDate)) {
                 $operation = $operation . "&fromDate=" . $startDate;
             } else {
                 print "Can't parse or convert start date to GMT\n";
                 exit 1;
             }
-
         }
 
-        if (defined($self->{_endDate}) && defined($self->{_timezone}) ) {
+        $operationroot = $operation;
 
+        if (defined($self->{_endDate}) && defined($self->{_timezone}) ) {
             my $endDate = Toolkit_helpers::convert_to_utc($self->{_endDate}, $self->{_timezone},0,1);
             if (defined($endDate)) {
                 $operation = $operation . "&toDate=" . $endDate
@@ -999,32 +997,64 @@ sub getSnapshotList
                 print "Can't convert end date to GMT\n";
                 exit 1;
             }
-
         }
+
+    } else {
+      $operation = $operation . "?";
+      $operationroot = $operation;
     }
 
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+    # start pagination
 
-    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+    my $pagesize = 100;
+    my $total;
+    my $sofar = 0;
+    my $pageoffset;
 
-        if ( scalar(@{$result->{result}}) ) {
+    my @snapshot_order;
+    my $pageloop = 1;
 
-            my @res = @{$result->{result}};
+    while ( $pageloop ) {
 
-            my $snapshots = $self->{_snapshots};
+      if ($sofar == 0) {
+        $operation = $operation . "&pageSize=" . $pagesize;
+      } else {
+        $operation = $operationroot . "&pageSize=" . $pagesize . "&toDate=" . $pageoffset;
+      }
 
-            my @snapshot_order;
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      $total = $result->{total};
 
-            for my $snapitem (@res) {
-                $snapshots->{$snapitem->{reference}} = $snapitem;
-                push(@snapshot_order, $snapitem->{reference});
-            }
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          # total is not workig like expected with filters
+          # this will stop loop if page is not returning pagesize objects
+          if (scalar(@{$result->{result}}) == $pagesize) {
+            $sofar = $sofar + scalar(@{$result->{result}});
+          } else {
+            $sofar = $sofar + scalar(@{$result->{result}});
+            $pageloop = 0;
+          }
 
-            $self->{_snapshot_list} = \@snapshot_order;
-        }
-    } else {
-        print "No data returned for $operation. Try to increase timeout \n";
-        exit 1;
+          if ( scalar(@{$result->{result}}) ) {
+
+              my @res = @{$result->{result}};
+
+              my $snapshots = $self->{_snapshots};
+
+              for my $snapitem (@res) {
+                  $snapshots->{$snapitem->{reference}} = $snapitem;
+                  push(@snapshot_order, $snapitem->{reference});
+              }
+
+              $pageoffset = $self->{_snapshots}->{$snapshot_order[-1]}->{latestChangePoint}->{timestamp};
+
+              $self->{_snapshot_list} = \@snapshot_order;
+              $self->{_snapshots} = $snapshots;
+          }
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+          exit 1;
+      }
     }
 }
 

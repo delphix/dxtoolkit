@@ -138,6 +138,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $perfdata = $perfhist->returndata();
 
+
   # check if no data returned
   my $firstts = (keys(%{$perfdata}))[0];
 
@@ -215,22 +216,6 @@ A config file search order is as follow:
 
 =back
 
-=head2 Filters
-
-Filter faults using one of the following filters
-
-=over 4
-
-=item B<-state>
-Action state - COMPLETED / WAITING / FAILED
-
-=item B<-type>
-Action type ex. HOST_UPDATE, SOURCES_DISABLE, etc,
-
-=item B<-username>
-Display only action performed by user
-
-=back
 
 =head1 OPTIONS
 
@@ -238,18 +223,17 @@ Display only action performed by user
 
 
 =item B<-st timestamp>
-Start time for faults list - default value is 7 days
+Start time for performance data - default value is -1 day
 
 =item B<-et timestamp>
-End time for faults list
-
-=item B<-format>
-Display output in csv or json format
-If not specified pretty formatting is used.
+End time for peformance data - default is now
 
 =item B<-outdir path>
 Write output into a directory specified by path.
-Files names will include a timestamp and type name
+
+=item B<-i interval>
+Use the specified interval for export. Allowed values are:
+1, 60, 3600
 
 =item B<-help>
 Print this screen
@@ -264,26 +248,19 @@ Turn off header output
 
 =head1 EXAMPLES
 
-Display audit logs
+Export last 60 min of data using 60 sec interval
 
- dx_get_audit -d Landshark5
+ dx_get_vdbthroughput -d 53 -outdir /tmp/ -st -60mins
+ Data exported into /tmp/53-vdbthroughput-20190320-12-48-25.csv
 
- Appliance            StartTime                      State        User                 Type                 Details
- -------------------- ------------------------------ ------------ -------------------- -------------------- --------------------------------------------------------------------------------
- Landshark5           2016-11-08 12:27:35 GMT        COMPLETED    delphix_admin        USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
- Landshark5           2016-11-08 12:27:42 GMT        COMPLETED    delphix_admin        MASKINGJOB_FETCH     Fetching all Masking Jobs from the local Delphix Masking Engine instance.
- Landshark5           2016-11-08 12:28:49 GMT        CANCELED     delphix_admin        DB_PROVISION         Provision virtual database "VOra_744".
- Landshark5           2016-11-08 12:28:53 GMT        COMPLETED    delphix_admin        POLICY_APPLY         Apply policy "sss/log" on target "VOra_744".
- Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    delphix_admin        JOB_CANCEL           Cancel job "Provision virtual database "VOra_744".".
- Landshark5           2016-11-08 12:29:03 GMT        COMPLETED    delphix_admin        SOURCE_DISABLE       Disable dataset "VOra_744".
- Landshark5           2016-11-08 12:29:07 GMT        COMPLETED    delphix_admin        SOURCE_STOP          Stop dataset "VOra_744".
- Landshark5           2016-11-08 12:32:21 GMT        COMPLETED    delphix_admin        DB_DELETE            Delete dataset "VOra_744".
- Landshark5           2016-11-08 12:32:22 GMT        COMPLETED    delphix_admin        CAPACITY_RECLAMATION Space is being reclaimed.
- Landshark5           2016-11-08 12:39:17 GMT        COMPLETED    delphix_admin        USER_LOGIN           Log in as user "delphix_admin" from IP "172.16.180.1".
+Export all possible data using a 60 sec interval
 
-Extract audit to file
+  dx_get_vdbthroughput -d 53 -outdir /tmp/
+  Data exported into /tmp/53-vdbthroughput-20190320-12-48-33.csv
 
- dx_get_audit -d Landshark5 -outdir /tmp
- Data exported into /tmp/audit-20161108-15-00-28.txt
+Export last 60 min of data using 1 sec interval
+
+ dx_get_vdbthroughput -d 53 -outdir /tmp/ -st -60mins -i 1
+ Data exported into /tmp/53-vdbthroughput-20190320-12-52-05.csv
 
 =cut

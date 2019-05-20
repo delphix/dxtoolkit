@@ -55,7 +55,7 @@ GetOptions(
   'proxy=s' => \(my $proxy),
   'clustername=s' => \(my $crsname),
   'clusterloc=s' => \(my $crshome),
-  'sshport=n' => \(my $sshport),
+  'port=n' => \(my $port),
   'asedbuser=s' => \(my $asedbuser),
   'asedbpass=s' => \(my $asedbpass),
   'debug:n' => \(my $debug),
@@ -95,7 +95,7 @@ if ( ! ( ( $authtype eq 'password') || ( $authtype eq 'systemkey') ) )  {
   exit (1);
 }
 
-if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtype eq 'rac') ) )  {
+if ( ! ( ( lc $envtype eq 'unix') || ( lc $envtype eq 'windows') || ( lc $envtype eq 'rac') || ( lc $envtype eq 'wincluster') ) )  {
   print "Option -envtype has invalid parameter - $envtype \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
@@ -109,6 +109,12 @@ if ((lc $envtype eq 'rac' ) && ((!defined($crsname)) || (!defined($crshome))) ) 
 
 if ( defined($asedbuser) xor defined($asedbpass) ) {
   print "Option -asedbuser and -asedbpass are required \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
+
+if ( ( lc $envtype eq 'wincluster') && (!defined($proxy)) ) {
+  print "Option -proxy is required for wincluster. \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
@@ -145,7 +151,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $jobno;
 
   my $env = new Environment_obj ($engine_obj);
-  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref, $crsname, $crshome, $sshport, $asedbuser, $asedbpass);
+  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref, $crsname, $crshome, $port, $asedbuser, $asedbpass);
 
 
   if (defined($jobno)) {
@@ -172,15 +178,20 @@ exit $ret;
 __DATA__
 =head1 SYNOPSIS
 
- dx_create_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ] -envname environmentname -envtype unix | windows -host hostname
+     dx_create_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
+                   -envname environmentname
+                   -envtype unix | windows | rac | wincluster
+                   -host hostname
                    -toolkitdir toolkit_directory | -proxy proxy
                    -username user_name -authtype password | systemkey [ -password password ]
                    [-clustername name]
                    [-clusterloc loc]
-                   [-sshport port]
+                   [-port port]
                    [-asedbuser user]
                    [-asedbpass password]
-                   [ -version ] [ -help ] [ -debug ]
+                   [-version ]
+                   [-help ]
+                   [-debug ]
 
 
 =head1 DESCRIPTION
@@ -209,18 +220,24 @@ A config file search order is as follow:
 =item B<-envname environmentname>
 Environment name
 
-=item B<-envtype type>
-Environment type - windows or unix
+=item B<-envtype unix|rac|windows|wincluster>
+Environment types:
+
+ - unix - for Unix/Linux
+ - rac - for Oracle RAC
+ - windows - for Windows
+ - wincluster - for Windows Clusters
 
 =item B<-host hostname>
-Host name / IP of server being added to Delphix Engine
+Host name / IP of server being added to Delphix Engine.
+Cluster IP for windows clusters
 
 =item B<-toolkitdir toolkit_directory>
 Location for toolkit directory for Unix/Linux
 or location of Delphix Connector directory for Windows
 
 =item B<-proxy proxy>
-Proxy server used to access dSource
+Connector host used for dSource or windows cluster
 
 =item B<-username user_name>
 Server user name
@@ -237,8 +254,9 @@ Cluser name (CRS name for RAC)
 =item B<-clusterloc loc>
 Cluser location (CRS home for RAC)
 
-=item B<-sshport port>
-SSH port
+=item B<-port port>
+SSH port for Unix based environments or connector port for Windows ones
+Default is 22 for Unix and 9100 for Windows environments
 
 =item B<-asedbuser user>
 ASE DB user for source detection

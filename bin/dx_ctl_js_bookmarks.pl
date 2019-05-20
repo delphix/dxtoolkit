@@ -58,6 +58,7 @@ GetOptions(
   'container_name=s' => \(my $container_name),
   'bookmark_name=s' => \(my $bookmark_name),
   'branch_name=s' => \(my $branch_name),
+  'bookmark_branchname=s' => \(my $full_branchname),
   'bookmark_time=s' => \(my $bookmark_time),
   'container_only' => \(my $container_only),
   'snapshots=s' => \(my $snapshots),
@@ -136,14 +137,15 @@ if (lc $action eq 'create') {
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
-
-} elsif (lc $action eq 'remove') {
-  if (!defined($template_name)) {
-    print "Options template_name is required \n";
-    pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);
-  }
 }
+
+#  elsif (lc $action eq 'remove') {
+#   if (!defined($template_name)) {
+#     print "Options template_name is required \n";
+#     pod2usage(-verbose => 1,  -input=>\*DATA);
+#     exit (1);
+#   }
+# }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -159,47 +161,48 @@ for my $engine ( sort (@{$engine_list}) ) {
   };
 
 
-  my $datalayout;
-  my $datalayout_ref;
-  my $bookmarks;
+  if (lc $action eq 'create') {
+    # this is for creating a new bookmark
 
-  if (defined($template_name)) {
-    $datalayout = new JS_template_obj ( $engine_obj, $debug );
-    $datalayout_ref = $datalayout->getJSTemplateByName($template_name);
+    my $datalayout;
+    my $datalayout_ref;
+    my $bookmarks;
 
-    if (defined($container_name)) {
-      $datalayout = new JS_container_obj ( $engine_obj, $datalayout_ref, $debug );
-      $datalayout_ref = $datalayout->getJSContainerByName($container_name);
+    if (defined($template_name)) {
+      $datalayout = new JS_template_obj ( $engine_obj, $debug );
+      $datalayout_ref = $datalayout->getJSTemplateByName($template_name);
+
+      if (defined($container_name)) {
+        $datalayout = new JS_container_obj ( $engine_obj, $datalayout_ref, $debug );
+        $datalayout_ref = $datalayout->getJSContainerByName($container_name);
+      }
     }
-  }
 
-  $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
-
-
-  if (!defined($datalayout_ref)) {
-    print "Can't find template with a name $template_name on engine $engine \n";
-    $ret = $ret + 1;
-    next;
-  }
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
 
 
-  my $branchs = new JS_branch_obj ( $engine_obj, $datalayout_ref, $debug );
-
-  my $active_branch;
-
-  if (defined($branch_name)) {
-    $active_branch = $branchs->getJSBranchByName($branch_name);
-    if (!defined($active_branch)) {
-      print "Can't find branch with a name $branch_name in template $template_name on engine $engine \n";
+    if (!defined($datalayout_ref)) {
+      print "Can't find template with a name $template_name on engine $engine \n";
       $ret = $ret + 1;
       next;
     }
-  } else {
-    $active_branch =  $datalayout->getJSActiveBranch($datalayout_ref);
-  }
 
 
-  if (lc $action eq 'create') {
+    my $branchs = new JS_branch_obj ( $engine_obj, $datalayout_ref, $debug );
+
+    my $active_branch;
+
+    if (defined($branch_name)) {
+      $active_branch = $branchs->getJSBranchByName($branch_name);
+      if (!defined($active_branch)) {
+        print "Can't find branch with a name $branch_name in template $template_name on engine $engine \n";
+        $ret = $ret + 1;
+        next;
+      }
+    } else {
+      $active_branch =  $datalayout->getJSActiveBranch($datalayout_ref);
+    }
+
 
     my $datasources = new JS_datasource_obj ( $engine_obj, $datalayout_ref, undef, undef );
 
@@ -319,25 +322,37 @@ for my $engine ( sort (@{$engine_list}) ) {
       create($bookmarks, $engine_obj, $debug, $bookmark_name, $active_branch, $datalayout_ref, $bookmark_time, $zulu, $expireat);
     }
   } else {
+
+    # this is for creating deleting bookmark(s)
     my $bookmarks;
     my $template_ref;
+    my $container_ref;
 
 
     if (defined($template_name)) {
-      my $datalayout = new JS_template_obj ( $engine_obj, $debug );
-      $template_ref = $datalayout->getJSTemplateByName($template_name);
-
-      if (defined($container_name)) {
-        my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
-        my $container_ref = $container->getJSContainerByName($container_name);
-        $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
-      } else {
-        $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+      my $templates = new JS_template_obj ( $engine_obj, $debug );
+      $template_ref = $templates->getJSTemplateByName($template_name);
+      if (!defined($template_ref)) {
+        print "Template $template_name not found\n";
+        $ret = $ret + 1;
+        next;
       }
     }
 
+    if (defined($container_name)) {
+      my $container = new JS_container_obj ( $engine_obj, $template_ref, $debug );
+      $container_ref = $container->getJSContainerByName($container_name);
+      if (!defined($container_ref)) {
+        $ret = $ret + 1;
+        next;
+      }
+    }
 
-    if (!defined($bookmarks)) {
+    if (defined($container_ref)) {
+      $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $container_ref, $debug );
+    } elsif (defined($template_ref)) {
+      $bookmarks = new JS_bookmark_obj ( $engine_obj, $template_ref, undef, $debug );
+    } else {
       $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
     }
 
@@ -345,12 +360,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     my @bookmark_array;
 
     if (defined($bookmark_name)) {
-      my $book_ref = $bookmarks->getJSBookmarkByName($bookmark_name);
+      my $book_ref = $bookmarks->getJSBookmarkByName($bookmark_name, $full_branchname);
       if (defined($book_ref)) {
         push(@bookmark_array, $book_ref);
       } else {
-        print "Can't find bookmark name $bookmark_name \n";
-        exit 1;
+        $ret = $ret + 1;
+        next;
       }
     } else {
       @bookmark_array = @{$bookmarks->getJSBookmarkList($container_only)};
@@ -423,6 +438,7 @@ __DATA__
                          -container_name container_name
                          -bookmark_name bookmark_name
                         [-bookmark_time "YYYY-MM-DD HH24:MI:SS" | first | latest ]
+                        [-bookmark_branchname bookmark_branch_name]
                         [-snapshots first | last | both | all]
                         [-source source_name]
                         [-container_name container_name]
@@ -482,6 +498,16 @@ Set bookmark time. Allowed values:
 - first - use a branch creation time for bookmark (for template or container)
 
 - latest - use latest possible time from container or template (now)
+
+=item B<-bookmark_branchname bookmark_branch_name>
+If bookmark name is used and bookmark name is not unique, this option allows to specify a branch name
+which will unequally identify bookmark.
+
+Full name format for template bookmarks is:
+templatename/master
+
+Full name format for container bookmarks is:
+templatename/containername/branchname
 
 =item B<-source source_name>
 Set source name used for snapshot based bookmark creation

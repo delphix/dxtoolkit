@@ -189,7 +189,7 @@ Specify a profile name to run
 =over 3
 
 =item B<-nowait>
-Don't wait for a replication job to complete. Job will be running in backgroud.
+Don't wait for a replication job to complete. Job will be running in background.
 
 =item B<-safe>
 Enable "safe" replication. If there was a VDB/dSource deletion operation
