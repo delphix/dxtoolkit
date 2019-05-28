@@ -47,6 +47,9 @@
          state: absent     
          path: "{{ dxloc }}/bin/dx_syslog.pl" 
 
+     - name: put password
+       synchronize: src=dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+
      - name: create script
        template: src=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755
 
