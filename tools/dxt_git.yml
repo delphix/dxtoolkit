@@ -51,9 +51,15 @@
          clone: yes 
          version: "{{ gittag }}" 
          force: yes
+
+     - name: no dx_syslog support
+       when: no_dx_syslog == True
+       file:
+         state: absent
+         path: "{{ dxloc }}/bin/dx_syslog.pl"
     
      - name: put password
-       synchronize: src=../lib/dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+       synchronize: src=dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
 
      #- name: remove script
      #  file: name="{{ dxloc }}/bin/compile.sh"
