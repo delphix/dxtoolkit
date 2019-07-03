@@ -173,10 +173,15 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $tfrangearray;
     my %timeflowranges;
 
+    my $firstop = $operations->getDataTime($opsforcont->[0]);
+
     for my $dbref (keys %dbarray) {
 
       # load all timeflows for particular database in container
-      my $conttimeflows = $timeflows->getTimeflowsForContainer($dbref);
+      my $conttimeflows = $timeflows->getTimeflowsForSelfServiceContainer($dbref, $firstop);
+      $operations->madelink($conttimeflows, $timeflows);
+
+      exit;
 
       # load database snapshots for parent
       my $dbobj = $databases->getDB($dbref);
@@ -185,16 +190,32 @@ for my $engine ( sort (@{$engine_list}) ) {
       # for all timeflows generate timeflow range for bookmarks,
       # find a matching operation from container based on name of timeflow
       #
-      for my $conttf (sort (@{$conttimeflows})) {
+      for my $conttf (sort { Toolkit_helpers::sort_by_number($a, $b) } (@{$conttimeflows})) {
         my @optime = split("@", $timeflows->getName($conttf));
 
+        print Dumper \@optime;
+        print Dumper $conttf;
+
         if (scalar(@optime) > 1) {
+          # fix timezone
+
+
+          my $detz = $engine_obj->getTimezone();
+          print Dumper $detz;
+          my $optime_zulu = Toolkit_helpers::convert_to_utc($optime[1],$detz,undef,1);
+
+          print Dumper $optime_zulu;
+
           # timeflow already in container
           $tfrangearray = $timeflows->getTimeflowRange($conttf);
           # my $timestart = $tfrangearray->[0]->{startPoint}->{timestamp};
 
+          print Dumper $tfrangearray;
+
           # find a first operation based on timeflow name
-          my $firstop = $operations->findOpAfterDataTime($optime[1] . ".000Z");
+          my $firstop = $operations->findOpAfterDataTime($optime_zulu);
+
+          print Dumper $firstop;
 
           if (!defined($firstop)) {
             print "Looks like JS operation is running. Skiping some operations\n";
@@ -263,6 +284,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       my $realtime;
 
+      print Dumper "BOOKMARKS";
+
+      print Dumper $dbref;
+
       # load container database snapshots
       my $cont_snapshots = new Snapshot_obj( $engine_obj, $dbref, undef, $debug);
       #
@@ -275,12 +300,16 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $booktime = $bookmarks->getJSBookmarkTime($book, 1);
         my $bookbranch = $bookmarks->getJSBookmarkBranch($book);
 
+        print Dumper $booktime;
+
         # convert bookmark time into database time
         if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
           $realtime = $datasources->checkTime($container_ref, $booktime, 1);
         } else {
           $realtime = $datasources->checkTime($bookbranch, $booktime, 1);
         }
+
+        print Dumper $realtime;
 
         # rtitem is a table which should have only 1 row
         my @rtitem = grep { $_->{dsref} eq $dbarray{$dbref} }  @{$realtime};
@@ -319,12 +348,18 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         }
 
+        print Dumper $tf;
+
         # find parent timeflow for timeflow where bookmark exist
         my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $tf, $hier);
 
         # find a snapshot in container source timeflow used by bookmark
+        # rtitem is on ZULU already so switch search in zulu time
 
-        my $snap = $cont_snapshots->findSnapshotforTimestamp($rtitem[0]->{timestamp}, $tf);
+        my $snap = $cont_snapshots->findSnapshotforTimestamp($rtitem[0]->{timestamp}, $tf, 1);
+
+        print Dumper $rtitem[0]->{timestamp};
+        print Dumper $snap;
 
         # convert ref to names
         my $branchname = $jsbranches->getName($bookbranch);
