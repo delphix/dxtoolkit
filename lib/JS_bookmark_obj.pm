@@ -331,17 +331,10 @@ sub getJSBookmarkTimeWithTimestamp {
     my $jsbookmarks = $self->{_jsbookmarks};
     my $zulutime = $jsbookmarks->{$reference}->{timestamp};
 
-    my $tz = new Date::Manip::TZ;
-    my $dt = ParseDate($zulutime);
+    my $ret = Toolkit_helpers::convert_from_utc($zulutime, $detz, 1);
 
-    my $ret;
-
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $detz);
-
-    if (! $err) {
-        $ret = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-    } else {
-        $ret = 'N/A';
+    if (!defined($ret)) {
+      $ret = 'N/A';
     }
 
     return $ret;
