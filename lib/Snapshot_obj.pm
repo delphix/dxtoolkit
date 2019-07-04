@@ -535,14 +535,19 @@ sub findTimeflowforLocation {
 # Procedure findSnapshotforTimestamp
 # parameters:
 # - timestamp
+# - timeflow
+# - utc_timestamp
 # if timestamp is without minutes only one snapshot per minute is allowed,
 # if there is more then one error will be displayed
+# timeflow will limit search for particular timeflow only
+# utc_timestamp will skip conversion of timestamp
 # Return snapshot for timestamp
 
 sub findSnapshotforTimestamp {
     my $self = shift;
     my $timestamp = shift;
     my $timeflow = shift;
+    my $utc_timestamp = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);
 
     my %ret;
@@ -580,7 +585,12 @@ sub findSnapshotforTimestamp {
         #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
         #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
-        $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+
+        if (defined($utc_timestamp)) {
+          $sttz = Toolkit_helpers::convert_to_utc($timestamp, 'UTC', undef, undef);
+        } else {
+          $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+        }
 
         if ($seconds == 0) {
           # delete seconds from converted timestamp as input was given without seconds

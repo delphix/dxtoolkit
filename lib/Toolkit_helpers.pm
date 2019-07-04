@@ -642,8 +642,8 @@ sub sort_by_number {
 	my $a = shift;
 	my $b = shift;
 
-  my ( $anum ) = $a =~ /(\d+[.]?\d+)/;
-  my ( $bnum ) = $b =~ /(\d+[.]?\d+)/;
+  my ( $anum ) = $a =~ /(\d+[.]?\d?)/;
+  my ( $bnum ) = $b =~ /(\d+[.]?\d?)/;
   return ( $anum || 0 ) <=> ( $bnum || 0 );
 }
 
