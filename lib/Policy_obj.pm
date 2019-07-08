@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -47,9 +47,9 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->loadPolicyList($debug);
     return $self;
 }
@@ -58,7 +58,7 @@ sub new {
 
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return template name for specific template reference
 
@@ -66,8 +66,8 @@ sub getName {
     my $self = shift;
     my $reference = shift;
     my $isInherited = shift;
-    
-    logger($self->{_debug}, "Entering Policy_obj::getName",1);   
+
+    logger($self->{_debug}, "Entering Policy_obj::getName",1);
 
     my $policies = $self->{_policies};
 
@@ -95,15 +95,15 @@ sub getName {
 
 
 # Procedure getSchedule
-# parameters: 
+# parameters:
 # - reference
-# Return schedule / retention as a single line 
+# Return schedule / retention as a single line
 
 sub getSchedule {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Policy_obj::getSchedule",1);   
+
+    logger($self->{_debug}, "Entering Policy_obj::getSchedule",1);
 
     my $policy = $self->{_policies}->{$reference};
 
@@ -113,7 +113,7 @@ sub getSchedule {
 
         if ($policy->{type} eq 'RetentionPolicy') {
 
-            $ret = "Logs " . $policy->{logDuration} . " " . lc $policy->{logUnit} . "(s), Snapshots " . $policy->{dataDuration} . " " . lc $policy->{dataUnit} . "(s)" ; 
+            $ret = "Logs " . $policy->{logDuration} . " " . lc $policy->{logUnit} . "(s), Snapshots " . $policy->{dataDuration} . " " . lc $policy->{dataUnit} . "(s)" ;
 
             if ($policy->{numOfDaily}) {
                 $ret = $ret . ", no of Daily " . $policy->{numOfDaily};
@@ -132,7 +132,7 @@ sub getSchedule {
             }
 
         } else {
-            
+
             if (defined($policy->{scheduleList}) && (scalar(@{$policy->{scheduleList}}) > 0)) {
 
                 my @sorted = sort { (split (' ',$a->{cronString}))[5] <=> (split (' ',$b->{cronString}))[5]  } @{ $policy->{scheduleList} };
@@ -150,7 +150,7 @@ sub getSchedule {
                 $ret = 'N/A';
             }
 
-        } 
+        }
     } else {
         $ret = 'N/A';
     }
@@ -160,46 +160,46 @@ sub getSchedule {
 
 
 # Procedure getCustomized
-# parameters: 
+# parameters:
 # - reference
 # Return customized
 
 sub getCustomized {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getCustomized",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getCustomized",1);
 
     return $self->{_policies}->{$reference}->{customized};
 }
 
 # Procedure getType
-# parameters: 
+# parameters:
 # - reference
 # Return customized
 
 sub getType {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getType",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getType",1);
 
     return $self->{_policies}->{$reference}->{type};
 }
 
 
 # Procedure getPolicyList
-# parameters: 
+# parameters:
 # Return array of policy refernces
 
 sub getPolicyList {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getPolicyList",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getPolicyList",1);
 
     return sort ( keys %{$self->{_policies}} );
 }
 
 # Procedure isInherited
-# parameters: 
+# parameters:
 # - reference
 # Return customized
 
@@ -208,7 +208,7 @@ sub isInherited {
     my $reference = shift;
     my $container = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::isInherited",1);   
+    logger($self->{_debug}, "Entering Policy_obj::isInherited",1);
     my $ret;
 
     if ($reference ne 'N/A') {
@@ -232,7 +232,7 @@ sub isInherited {
 }
 
 # Procedure getSnapSync
-# parameters: 
+# parameters:
 # - container
 # - type
 # Return SnapSync policy reference for container
@@ -241,22 +241,21 @@ sub getSnapSync {
     my $self = shift;
     my $container = shift;
     my $type = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getSnapSync",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getSnapSync",1);
 
     my $ret;
 
-    if ($type eq 'VDB') {
-        $ret = 'N/A';
+    if ($type eq 'dSource') {
+        $ret = $self->{_mapping}->{$container}->{SyncPolicy}->{ref};
     } else {
-        $ret = $self->{_mapping}->{$container}->{SyncPolicy}->{ref}; 
+        $ret = 'N/A';
     }
-
     return $ret;
 }
 
 
 # Procedure getSnapshot
-# parameters: 
+# parameters:
 # - container
 # - type
 # Return SnapSync policy reference for container
@@ -265,20 +264,20 @@ sub getSnapshot {
     my $self = shift;
     my $container = shift;
     my $type = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getSnapshot",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getSnapshot",1);
 
     my $ret;
 
-    if ($type eq 'dSource') {
-        $ret = 'N/A';
+    if ($type eq 'VDB') {
+        $ret = $self->{_mapping}->{$container}->{SnapshotPolicy}->{ref};
     } else {
-        $ret = $self->{_mapping}->{$container}->{SnapshotPolicy}->{ref}; 
+        $ret = 'N/A';
     }
     return $ret;
 }
 
 # Procedure getRetention
-# parameters: 
+# parameters:
 # - container
 # - type
 # Return SnapSync policy reference for container
@@ -286,14 +285,14 @@ sub getSnapshot {
 sub getRetention {
     my $self = shift;
     my $container = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getRetention",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getRetention",1);
 
-    my $ret = $self->{_mapping}->{$container}->{RetentionPolicy}->{ref}; 
+    my $ret = $self->{_mapping}->{$container}->{RetentionPolicy}->{ref};
     return $ret;
 }
 
 # Procedure getRefresh
-# parameters: 
+# parameters:
 # - container
 # - type
 # Return SnapSync policy reference for container
@@ -302,7 +301,7 @@ sub getRefresh {
     my $self = shift;
     my $container = shift;
     my $type = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getRefresh",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getRefresh",1);
 
     my $ret;
 
@@ -310,7 +309,7 @@ sub getRefresh {
         $ret = 'N/A';
     } else {
         if (defined($self->{_mapping}->{$container}->{RefreshPolicy}->{ref})) {
-            $ret = $self->{_mapping}->{$container}->{RefreshPolicy}->{ref}; 
+            $ret = $self->{_mapping}->{$container}->{RefreshPolicy}->{ref};
         } else {
             $ret = $self->getPolicyByName('None:RefreshPolicy');
         }
@@ -320,7 +319,7 @@ sub getRefresh {
 
 
 # Procedure exportPolicy
-# parameters: 
+# parameters:
 # - reference
 # - location - directory
 # Return 0 if no errors
@@ -330,14 +329,14 @@ sub exportPolicy {
     my $reference = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::exportPolicy",1);   
+    logger($self->{_debug}, "Entering Policy_obj::exportPolicy",1);
 
     my $name = $self->getName($reference);
 
     if (($name eq 'Customized') || ($name eq 'None') || ($name eq 'N/A')) {
         return 1;
     }
-    
+
     $name =~ s/\//_/g;
     $name =~ s/\\/_/g;
 
@@ -358,7 +357,7 @@ sub exportPolicy {
 
 
 # Procedure exportMapping
-# parameters: 
+# parameters:
 # - location - directory
 # Return 0 if no errors
 
@@ -368,7 +367,7 @@ sub exportMapping {
     my $groups = shift;
     my $databases = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::exportMapping",1);   
+    logger($self->{_debug}, "Entering Policy_obj::exportMapping",1);
 
     my %exportmapping;
 
@@ -412,7 +411,7 @@ sub exportMapping {
 }
 
 # Procedure applyMapping
-# parameters: 
+# parameters:
 # - location - file
 # Return 0 if no errors
 
@@ -422,7 +421,7 @@ sub applyMapping {
     my $groups = shift;
     my $databases = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::applyMapping",1);   
+    logger($self->{_debug}, "Entering Policy_obj::applyMapping",1);
 
     my $loadedMapping;
 
@@ -431,7 +430,7 @@ sub applyMapping {
     local $/ = undef;
     my $json = JSON->new();
     $loadedMapping = $json->decode(<$FD>);
-    
+
     close $FD;
 
     for my $groupname ( keys %{$loadedMapping} ) {
@@ -500,7 +499,7 @@ sub applyMapping {
 
 
 # Procedure applyPolicy
-# parameters: 
+# parameters:
 # - ref
 # - target
 # Return 0 if no errors
@@ -510,18 +509,18 @@ sub applyPolicy {
     my $ref = shift;
     my $target = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::applyPolicy",1);   
+    logger($self->{_debug}, "Entering Policy_obj::applyPolicy",1);
 
     my %applypolicy = (
         type => 'PolicyApplyTargetParameters',
-        target => $target 
+        target => $target
     );
 
     my $json_data = to_json(\%applypolicy);
 
     my $operation = 'resources/json/delphix/policy/' . $ref . '/apply';
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print "Apply completed\n";
@@ -534,7 +533,7 @@ sub applyPolicy {
 
 
 # Procedure importPolicy
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -542,7 +541,7 @@ sub importPolicy {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::importPolicy",1);   
+    logger($self->{_debug}, "Entering Policy_obj::importPolicy",1);
 
     my $filename =  $location;
 
@@ -553,7 +552,7 @@ sub importPolicy {
     local $/ = undef;
     my $json = JSON->new();
     $loadedPolicy = $json->decode(<$FD>);
-    
+
     close $FD;
 
 
@@ -576,7 +575,7 @@ sub importPolicy {
 
     my $operation = 'resources/json/delphix/policy';
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Import completed\n";
@@ -589,7 +588,7 @@ sub importPolicy {
 
 
 # Procedure updatePolicy
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -597,7 +596,7 @@ sub updatePolicy {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Policy_obj::updatePolicy",1);   
+    logger($self->{_debug}, "Entering Policy_obj::updatePolicy",1);
 
     my $filename =  $location;
 
@@ -608,7 +607,7 @@ sub updatePolicy {
     local $/ = undef;
     my $json = JSON->new();
     $loadedPolicy = $json->decode(<$FD>);
-    
+
     close $FD;
 
     delete $loadedPolicy->{reference};
@@ -618,13 +617,16 @@ sub updatePolicy {
     delete $loadedPolicy->{customized};
     delete $loadedPolicy->{timezone}->{offset};
 
+    if (defined($loadedPolicy->{timezone}->{offsetString})) {
+      delete $loadedPolicy->{timezone}->{offsetString};
+    }
 
     $self->loadPolicyList();
 
     if (! defined($self->getPolicyByName($loadedPolicy->{name}))) {
         print "Policy " . $loadedPolicy->{name} . " from file $filename doesn't exist. Can't update.\n";
         return 1;
-    } 
+    }
 
     my $reference = $self->getPolicyByName($loadedPolicy->{name});
 
@@ -634,7 +636,7 @@ sub updatePolicy {
 
     my $operation = 'resources/json/delphix/policy/' . $reference;
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Update completed\n";
@@ -646,15 +648,15 @@ sub updatePolicy {
 }
 
 # Procedure loadPolicyMapping
-# parameters: 
+# parameters:
 # - containers - list of references
 # Create a mapping of policy for conteiners
 
-sub loadPolicyMapping 
+sub loadPolicyMapping
 {
     my $self = shift;
     my $conteiners = shift;
-    logger($self->{_debug}, "Entering Policy_obj::loadPolicyMapping",1);   
+    logger($self->{_debug}, "Entering Policy_obj::loadPolicyMapping",1);
 
     for my $contitem ( @{$conteiners} ) {
         my $operation = "resources/json/delphix/policy?effective=true&target=" . $contitem;
@@ -676,11 +678,11 @@ sub loadPolicyMapping
                 } elsif ($policyitem->{type} eq 'RefreshPolicy') {
                     $self->{_mapping}->{$contitem}->{RefreshPolicy}->{ref} = $policyitem->{reference};
                     $self->{_mapping}->{$contitem}->{RefreshPolicy}->{inherited} = $policyitem->{effectiveType};
-                } 
+                }
             }
         } else {
             print "No data returned for $operation. Try to increase timeout \n";
-        } 
+        }
 
     }
 
@@ -688,15 +690,15 @@ sub loadPolicyMapping
 
 
 # Procedure getPolicyByName
-# parameters: 
+# parameters:
 # - name
 # Return a policy ref for policy name
 
-sub getPolicyByName 
+sub getPolicyByName
 {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Policy_obj::getPolicyByName",1);   
+    logger($self->{_debug}, "Entering Policy_obj::getPolicyByName",1);
 
     my $ret;
     my $policies = $self->{_policies};
@@ -715,10 +717,10 @@ sub getPolicyByName
 # parameters: none
 # Load a list of policies objects from Delphix Engine
 
-sub loadPolicyList 
+sub loadPolicyList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Policy_obj::loadPolicyList",1);   
+    logger($self->{_debug}, "Entering Policy_obj::loadPolicyList",1);
 
     my $operation = "resources/json/delphix/policy";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -728,7 +730,7 @@ sub loadPolicyList
 
         for my $policyitem (@res) {
             $policies->{$policyitem->{reference}} = $policyitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
