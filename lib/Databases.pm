@@ -564,8 +564,15 @@ sub getDBByCreationTime
     logger($self->{_debug}, "Entering Databases::getDBByCreationTime",1);
     for my $dbname ( $self->getDBList() ) {
         my $dbobj = $self->getDB($dbname);
-        if ( $dbobj->getCreationTime() lt $creationtime ) {
-            push (@dbs, $dbname)
+        my $crtime = $dbobj->getCreationTime();
+        if (defined($crtime)) {
+          if ( $crtime lt $creationtime ) {
+              push (@dbs, $dbname);
+          }
+        } else {
+          logger($self->{_debug}, $dbobj->getName() . " doesn't have a creation time. Adding to list");
+          print $dbobj->getName() . " doesn't have a creation time. Adding to output as exception\n";
+          push (@dbs, $dbname);
         }
     }
 

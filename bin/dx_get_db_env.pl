@@ -380,6 +380,13 @@ for my $engine ( sort (@{$engine_list}) ) {
         $parenttime = 'N/A';
       }
 
+      my $crtime;
+
+      if (defined($dbobj->getCreationTime())) {
+        $crtime = Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $engine_obj->getTimezone())
+      } else {
+        $crtime = 'N/A';
+      }
 
 
       if (defined($masking)) {
@@ -416,7 +423,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $dbobj->getEnabled(),
           $uniquename,
           $parenttime,
-          Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $engine_obj->getTimezone())
+          $crtime
         );
       }
 
