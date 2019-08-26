@@ -804,16 +804,31 @@ sub getTime {
 
    logger($self->{_debug}, "Entering Engine::getTime",1);
    my $time;
-   my $operation = "resources/json/service/configure/currentSystemTime";
+   my $operation = "resources/json/delphix/service/time";
    my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-   if ($result->{result} eq "ok") {
-      $time = $result->{systemTime}->{localTime};
+   if ($result->{status} eq "OK") {
+      $time = $result->{result}->{currentTime};
+      my $tz = $result->{result}->{systemTimeZone};
 
-      $time =~ s/\s[A-Z]{1,3}$//;
+      $time = Toolkit_helpers::convert_from_utc($time, $tz);
 
       if (defined($minus)) {
+        my $date = new Date::Manip::Date;
 
-         $time = DateCalc(ParseDate($time), ParseDateDelta('- ' . $minus . ' minutes'));
+        if ($date->parse($time)) {
+          print "Date parsing error\n";
+          return 'N/A';
+        }
+
+
+        my $delta = $date->new_delta();
+        my $deltastr = $minus . ' minutes ago';
+        if ($delta->parse($deltastr)) {
+          print "Delta time parsing error\n";
+          return 'N/A';
+        }
+        my $d = $date->calc($delta);
+        $time = $d->printf("%Y-%m-%d %H:%M:%S");
 
       }
 
