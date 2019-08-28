@@ -451,25 +451,11 @@ sub createBookmark {
 
         my $zulutime;
 
-        # print Dumper $time;
-        # print Dumper $zulu;
-
         if (defined($zulu)) {
             $zulutime = $time;
         } else {
-            my $tz = new Date::Manip::TZ;
-            my $dt = ParseDate($time);
             my $detz = $self->{_dlpxObject}->getTimezone();
-
-            my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
-
-            if (! $err) {
-                $zulutime = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
-            } else {
-                print "Error in timestamp convertion to GMT. \n";
-                return undef;
-            }
-
+            $zulutime = Toolkit_helpers::convert_to_utc($time, $detz, undef, 1);
         }
 
         if ( $self->existJSBookmarkTimeForBranch($zulutime, $branch) ) {
@@ -549,6 +535,60 @@ sub deleteBookmark {
     return $self->runJobOperation($operation, '{}');
 
 }
+
+
+# Procedure shareBookmark
+# parameters:
+# - reference
+# Share bookmark
+# return 0 if OK
+
+sub shareBookmark {
+    my $self = shift;
+    my $reference = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::shareBookmark",1);
+
+    my $operation = "resources/json/delphix/jetstream/bookmark/" . $reference . "/share";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      $ret = 0;
+    } else {
+      $ret = 1;
+    }
+
+    return $ret;
+
+}
+
+# Procedure unshareBookmark
+# parameters:
+# - reference
+# Unshare bookmark
+# return 0 if OK
+
+sub unshareBookmark {
+    my $self = shift;
+    my $reference = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering JS_bookmark_obj::shareBookmark",1);
+
+    my $operation = "resources/json/delphix/jetstream/bookmark/" . $reference . "/unshare";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+      $ret = 0;
+    } else {
+      $ret = 1;
+    }
+
+    return $ret;
+}
+
+
 
 # Procedure runJobOperation
 # parameters:
