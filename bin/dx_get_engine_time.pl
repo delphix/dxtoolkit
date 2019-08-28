@@ -72,7 +72,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if ($engine_obj->dlpx_connect($engine)) {
     print "Can't connect to Dephix Engine $engine\n\n";
-    $ret = $ret + 1;;
+    $ret = $ret + 1;
+    next;
   }
 
   my $time = $engine_obj->getTime();
