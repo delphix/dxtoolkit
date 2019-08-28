@@ -372,7 +372,12 @@ sub getIP {
 sub getEngineName {
    my $self = shift;
    logger($self->{_debug}, "Entering Engine::getEngineName",1);
-   return $self->{_enginename};
+   if (defined($self->{_enginename})) {
+     return $self->{_enginename};
+   } else {
+     return "unknown";
+   }
+
 }
 
 
@@ -1178,14 +1183,13 @@ sub postJSONData {
 
    if ( $post_data =~ /password/ ) {
      $post_data_logger = $post_data;
-     $post_data_logger =~ s/"password":"(.*)"/"password":"xxxxx"/;
+     $post_data_logger =~ s/"password":"(.*?)"/"password":"xxxxx"/;
    } else {
      $post_data_logger = $post_data;
    }
 
+
    logger($self->{_debug}, $post_data_logger, 1);
-
-
 
    my $response = $self->{_ua}->request($request);
 
@@ -1199,6 +1203,10 @@ sub postJSONData {
    else {
       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+      if (($response->code == 401) || ($response->code == 403)) {
+        my $cookie_jar = $self->{_ua}->cookie_jar;
+        $cookie_jar->clear();
+      }
       $retcode = 1;
    }
 
@@ -1238,7 +1246,9 @@ sub postJSONData {
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
       $filename =~ s|\:|_|g;
-      #print Dumper $filename;
+      if (!defined($result)) {
+        $result = {};
+      }
       open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
       print $fh to_json($result, {pretty=>1});
       close $fh;
