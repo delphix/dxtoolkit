@@ -388,7 +388,13 @@ sub getEngineName {
 sub getUsername {
    my $self = shift;
    logger($self->{_debug}, "Entering Engine::getUsername",1);
-   return $self->{_user};
+   my $ret;
+   if ($self->{_user} =~ /@/) {
+     ($ret) = ($self->{_user} =~ /(.*?)@.*/);
+   } else {
+     $ret = $self->{_user};
+   }
+   return $ret;
 }
 
 # Procedure getApi
