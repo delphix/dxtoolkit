@@ -1,3 +1,19 @@
+## 2.4.1
+
+Configuration files with an encrypted passwords has to be regenerated due
+to changes with encryption keys and adding a checksum to password encryption.
+
+### Added
+
+- dx_get_engine_time script to display an engine time using a time zone defined in Delphix Engine
+- [fix for #84](https://github.com/delphix/dxtoolkit/issues/84) - shared / unshare action added to dx_ctl_js_bookmarks
+- [fix for #94](https://github.com/delphix/dxtoolkit/issues/94) - shared / unshare action added to dx_ctl_js_bookmarks
+
+### Changed
+- better support for log in errors ( cookie clean up )
+- dx_get_js_snapshots will skip a template bookmarks
+- [fix for #98](https://github.com/delphix/dxtoolkit/issues/98)fix for session user check if user has a domain specified
+
 ## 2.4.0
 
 Configuration files with an encrypted passwords has to be regenerated due
