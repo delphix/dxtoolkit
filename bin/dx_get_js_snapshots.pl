@@ -154,6 +154,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $workcon (@contlist) {
     logger($debug, "processing container " . $workcon, 2);
 
+
     my $datasources = new JS_datasource_obj ( $engine_obj, undef, undef, $debug );
     my $jsbranches = new JS_branch_obj ( $engine_obj, $workcon, $debug );
 
@@ -278,6 +279,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $booktime = $bookmarks->getJSBookmarkTime($book, 1);
         my $bookbranch = $bookmarks->getJSBookmarkBranch($book);
 
+        if (!defined($jsbranches->getName($bookbranch))) {
+          # this is a template bookmarks, we need to skip it
+          # print Dumper "Skipping " . $bookmarks->getName($book);
+          next;
+        }
+
         # convert bookmark time into database time
         if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
           $realtime = $datasources->checkTime($container_ref, $booktime, 1);
@@ -322,8 +329,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         }
 
+
         # find parent timeflow for timeflow where bookmark exist
         my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $tf, $hier);
+
 
         # find a snapshot in container source timeflow used by bookmark
         # rtitem is on ZULU already so switch search in zulu time
