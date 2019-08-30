@@ -78,7 +78,8 @@ sub new
 
    logger($debug,"Dxtoolkit version " . $Toolkit_helpers::version);
    logger($debug,"Entering Engine::constructor",1);
-   $ua = LWP::UserAgent->new;
+   #$ua = LWP::UserAgent->new;
+   $ua = LWP::UserAgent->new(keep_alive => 1);
    $ua->agent("Delphix Perl Agent/0.1");
    $ua->ssl_opts( verify_hostname => 0 );
    $ua->timeout(15);
@@ -1418,17 +1419,20 @@ sub uploadupdate {
 
     $size = $size + (length $boundary) + 6 + (length $filename) + 500;
 
+    # my $h = HTTP::Headers->new(
+    #   Content_Length      => $size,
+    #   Content_Type        => 'multipart/form-data; boundary=' . $boundary
+    # );
+
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
+      Connection          => 'keep-alive',
       Content_Type        => 'multipart/form-data; boundary=' . $boundary
     );
 
     my $request = HTTP::Request->new(
       POST => $api_url, $h
     );
-
-
-    print Dumper $request;
 
 
     # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
@@ -1439,7 +1443,7 @@ sub uploadupdate {
 
 
 
-    my $content_provider_ref = &content_provider($filename, $size, $boundary);
+    my $content_provider_ref = &content_provider($filename, $size, $boundary, $self);
     $request->content($content_provider_ref);
 
 
@@ -1448,11 +1452,13 @@ sub uploadupdate {
       my $filename = shift;
       my $size = shift;
       my $boundary = shift;
+      my $self = shift;
       # we need to send 4 parts - a boundary start, content description, file content, boundary end
       my @content_part = ( 'b', 'c', 'f', 'e' );
       my $total = 0;
       my $report = 0;
       my $end = 0;
+      my $end2 = 0;
       $| = 1;
 
       my $fh;
@@ -1462,25 +1468,34 @@ sub uploadupdate {
       return sub {
         my $buf;
 
-        # print Dumper $content_part[0];
-        # print Dumper "----";
-        # print Dumper $total;
+        #print Dumper $content_part[0];
+        #print Dumper "----";
+        #print Dumper $total;
 
         if (!defined($content_part[0])) {
           if ($end eq 0) {
+            #print Dumper "kuku";
+            #print Dumper \@content_part;
             printf "%5.1f \n\n", 100;
+            $end = 1;
           }
-          return undef;
+
+
+          if (version->parse($self->getApi()) >= version->parse(1.10.0)) {
+            return "\r\n";
+          } else {
+            return undef;
+          }
         }
 
         if ($content_part[0] eq 'e') {
           $buf = "\r\n--" . $boundary . "--\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          print Dumper $buf;
         } elsif ($content_part[0] eq 'b') {
           $buf = "--" . $boundary . "\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          print Dumper $buf;
         } elsif ($content_part[0] eq 'c') {
           $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
           shift @content_part;
@@ -1526,7 +1541,7 @@ sub uploadupdate {
        $decoded_response = $response->decoded_content;
        $result = decode_json($decoded_response);
        $result_fmt = to_json($result, {pretty=>1});
-       print Dumper $result_fmt;
+       #print Dumper $result_fmt;
        logger($self->{_debug}, "Response message: " . $result_fmt, 2);
        if (defined($result->{status}) && ($result->{status} eq 'OK')) {
          print "File upload completed without issues.\n";
