@@ -79,6 +79,7 @@ sub new
    logger($debug,"Dxtoolkit version " . $Toolkit_helpers::version);
    logger($debug,"Entering Engine::constructor",1);
    $ua = LWP::UserAgent->new;
+   #$ua = LWP::UserAgent->new(keep_alive => 1);
    $ua->agent("Delphix Perl Agent/0.1");
    $ua->ssl_opts( verify_hostname => 0 );
    $ua->timeout(15);
@@ -1409,26 +1410,23 @@ sub uploadupdate {
     my $url = $self->{_protocol} . '://' . $self->{_host} ;
     my $api_url = "$url/resources/json/system/uploadUpgrade";
 
-    #$filename = '/mnt/c/temp/delphix_5.3.3.0_2019-03-30-02-01.upgrade.tar.gz';
-    #$filename = '/mnt/c/temp/zdjecia1.zip';
-
     my $size = -s $filename;
     my $boundary = HTTP::Request::Common::boundary(10);
 
-
-    $size = $size + (length $boundary) + 6 + (length $filename) + 500;
+    my $fsize = $size;
+    # 6 for - char
+    # 63 is Content-Disposition plus end of lines
+    $size = $size + 2 * (length $boundary) + 6 + (length $filename) + 63;
 
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
+      Connection          => 'keep-alive',
       Content_Type        => 'multipart/form-data; boundary=' . $boundary
     );
 
     my $request = HTTP::Request->new(
       POST => $api_url, $h
     );
-
-
-    print Dumper $request;
 
 
     # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
@@ -1439,7 +1437,7 @@ sub uploadupdate {
 
 
 
-    my $content_provider_ref = &content_provider($filename, $size, $boundary);
+    my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);
     $request->content($content_provider_ref);
 
 
@@ -1448,11 +1446,15 @@ sub uploadupdate {
       my $filename = shift;
       my $size = shift;
       my $boundary = shift;
+      my $self = shift;
+      my $fsize = shift;
       # we need to send 4 parts - a boundary start, content description, file content, boundary end
       my @content_part = ( 'b', 'c', 'f', 'e' );
       my $total = 0;
       my $report = 0;
       my $end = 0;
+      my $end2 = 0;
+      my $real  = 0;
       $| = 1;
 
       my $fh;
@@ -1468,7 +1470,8 @@ sub uploadupdate {
 
         if (!defined($content_part[0])) {
           if ($end eq 0) {
-            printf "%5.1f \n\n", 100;
+            printf "%5.1f\n", 100;
+            $end = 1;
           }
           return undef;
         }
@@ -1476,36 +1479,43 @@ sub uploadupdate {
         if ($content_part[0] eq 'e') {
           $buf = "\r\n--" . $boundary . "--\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
         } elsif ($content_part[0] eq 'b') {
           $buf = "--" . $boundary . "\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
+          # my $buf2;
+          # my $rc = sysread($fh, $buf2, 1048576);
+          # $buf = $buf . $buf2;
+          # $total = $total + length $buf2;
+          # print Dumper $total;
         } elsif ($content_part[0] eq 'c') {
           $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
         } elsif ($content_part[0] eq 'f') {
           my $rc = sysread($fh, $buf, 1048576);
           $total = $total + length $buf;
+          #print Dumper $total;
           # print Dumper $rc;
-          if (($total / $size * 100) > $report) {
-            if (($total / $size * 100) eq 100) {
-              printf "%5.1f\n\n ", 100;
+          if (($total / $fsize * 100) > $report) {
+            if (($total / $fsize * 100) eq 100) {
+              printf "%5.1f\n ", 100;
               $end = 1;
             } else {
-              printf "%5.1f - ", $total / $size * 100;
+              printf "%5.1f - ", $total / $fsize * 100;
               $report = $report + 10;
             }
 
-          }
-          if ($rc ne 1048576) {
-            shift @content_part;
-          }
+            }
+            if ($rc ne 1048576) {
+              shift @content_part;
+            }
 
           #print Dumper $buf;
         }
-
+        $real = $real + length $buf;
+        #print Dumper $buf;
         return $buf;
       }
     }
@@ -1513,23 +1523,19 @@ sub uploadupdate {
 
     my $response = $self->{_ua}->request($request);
 
-
     my $decoded_response;
     my $result_fmt;
     my $retcode;
     my $result;
-
-    #print Dumper $response;
 
     if ( $response->is_success ) {
 
        $decoded_response = $response->decoded_content;
        $result = decode_json($decoded_response);
        $result_fmt = to_json($result, {pretty=>1});
-       print Dumper $result_fmt;
        logger($self->{_debug}, "Response message: " . $result_fmt, 2);
        if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-         print "File upload completed without issues.\n";
+         print "\nFile upload completed without issues.\n";
          $retcode = 0;
        } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
          print "\nFile upload issues\n";
