@@ -142,28 +142,47 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
-    $jobstart = Toolkit_helpers::timestamp("-0mins", $engine_obj);
+    $jobstart = Toolkit_helpers::timestamp("-5min", $engine_obj);
 
     my $rc = $engine_obj->uploadupdate($filename);
 
-    print Dumper $rc;
-
-    if ($rc eq 0) {
-      print "Checking status of upload verification job\n";
+    if ($rc ne 0) {
+      $ret = $ret + $rc;
+      next;
     }
-    $ret = $ret + $rc;
+
+    print "Checking status of upload verification job\n";
+
 
     my $jobs = new Jobs($engine_obj, $jobstart, undef, undef, undef, undef, undef, undef, 1, undef, $debug);
-    my $joblist = $jobs->getJobList();
+    my $counter = 0;
+    my @refresh;
+    my $joblist;
 
-    my @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'REFRESH_VERSIONS' } @{$joblist};
+    do {
+      $joblist = $jobs->getJobList();
+      if (version->parse($engine_obj->getApi()) >= version->parse(1.10.0)) {
+        @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'UNPACK_VERSION' } @{$joblist};
+      } else {
+        @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'REFRESH_VERSIONS' } @{$joblist};
+      }
+      sleep 1;
+      $counter = $counter + 1;
+      if ($counter > 60) {
+        print "There is no job - exiting\n";
+        $ret = $ret + 1;
+        next;
+      }
+    }
+    while (scalar(@refresh)<1);
 
     my $job = $jobs->getJob($refresh[-1]);
     my $retjob = $job->waitForJob();
     if ($retjob eq 'COMPLETED') {
-      print "Uncompressing job $job finished.\n";
+      print "Uncompressing job " . $refresh[-1] . " finished.\n";
     } else {
       $ret = $ret + 1;
+      next;
     }
 
     $jobs = new Jobs($engine_obj, $jobstart, undef, undef, undef, undef, undef, undef, 1, undef, $debug);
