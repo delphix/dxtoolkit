@@ -1553,5 +1553,73 @@ sub uploadupdate {
 
 }
 
+
+# Procedure getSSOToken
+# parameters:
+# - client_id
+# - client_secret
+# Connect to SSO service and get a SSO token
+# 0 is all OK
+
+sub getSSOToken {
+    my $self = shift;
+    my $client_id = shift;
+    my $client_secret = shift;
+
+    my $sso_provider = 'https://delphix.okta.com/oauth2/default/v1/token'
+
+    logger($self->{_debug}, "Entering Engine::getSSOToken",1);
+
+    my $h = HTTP::Headers->new(
+      Accept              => 'application/json',
+      Connection          => 'keep-alive',
+      Content_Type        => 'application/x-www-form-urlencoded',
+      cache-control       => 'no-cache'
+    );
+
+    # --header 'accept: application/json'
+    # --header 'cache-control: no-cache'
+    # --header 'content-type: application/x-www-form-urlencoded'
+    # --data 'grant_type=client_credentials&scope=groups'
+
+    my $request = HTTP::Request->new(
+      POST => $sso_provider, $h
+    );
+
+    # $request->content_type("application/json");
+
+    $request->content($content_provider_ref);
+
+
+
+    my $response = $self->{_ua}->request($request);
+
+    if ( $response->is_success ) {
+       $decoded_response = $response->decoded_content;
+       $result = decode_json($decoded_response);
+       $result_fmt = to_json($result, {pretty=>1});
+       logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+       $retcode = 0;
+    }
+    else {
+       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+       if (($response->code == 401) || ($response->code == 403)) {
+         my $cookie_jar = $self->{_ua}->cookie_jar;
+         $cookie_jar->clear();
+       }
+       $retcode = 1;
+    }
+
+
+}
+
+ access_token=$(curl -s request POST --url https://delphix.okta.com/oauth2/default/v1/token
+ --header 'accept: application/json'
+ --header 'cache-control: no-cache'
+ --header 'content-type: application/x-www-form-urlencoded'
+ --data 'grant_type=client_credentials&scope=groups'
+ --user $client_id:$client_secret
+
 # End of package
 1;
