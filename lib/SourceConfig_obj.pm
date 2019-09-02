@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -40,16 +40,16 @@ sub new {
     my $dlpxObject = shift;
     my $debug = shift;
     logger($debug, "Entering SourceConfig_obj::constructor",1);
-    
+
     my %sourceconfigs;
     my $self = {
         _sourceconfigs => \%sourceconfigs,
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->getSourceConfigList($debug);
     return $self;
 }
@@ -59,29 +59,31 @@ sub new {
 
 sub refresh {
   my $self = shift;
-  logger($self->{_debug}, "Entering SourceConfig_obj::refresh",1); 
-  $self->getSourceConfigList();     
+  logger($self->{_debug}, "Entering SourceConfig_obj::refresh",1);
+  $self->getSourceConfigList();
 }
 
 
 
 # Procedure getSourceConfig
-# parameters: 
-# - reference - reference of source config 
+# parameters:
+# - reference - reference of source config
 # Return source config hash for specific source config reference
 
 sub getSourceConfig {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfig",1);   
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfig",1);
 
     my $sourceconfigs = $self->{_sourceconfigs};
 
     my $ret;
 
     if (defined($reference)) {
-        if (defined($sourceconfigs->{$reference})) {
+        if ($reference eq 'NA') {
+          $ret = 'NA';
+        } elsif (defined($sourceconfigs->{$reference})) {
             $ret = $sourceconfigs->{$reference};
         } else {
             $ret = 'NA';
@@ -93,7 +95,7 @@ sub getSourceConfig {
 }
 
 # Procedure getType
-# parameters: 
+# parameters:
 # - reference
 # Return source type for specific source reference
 
@@ -101,14 +103,14 @@ sub getType {
     my $self = shift;
     my $reference = shift;
 
-    logger($self->{_debug}, "Entering SourceConfig_obj::getType",1);   
+    logger($self->{_debug}, "Entering SourceConfig_obj::getType",1);
 
     my $sourceconfigs = $self->{_sourceconfigs};
     return $sourceconfigs->{$reference}->{type};
 }
 
 # Procedure getDBUser
-# parameters: 
+# parameters:
 # - reference
 # Return username for specific reference
 
@@ -116,14 +118,14 @@ sub getDBUser {
     my $self = shift;
     my $reference = shift;
 
-    logger($self->{_debug}, "Entering SourceConfig_obj::getDBUser",1);   
+    logger($self->{_debug}, "Entering SourceConfig_obj::getDBUser",1);
 
     my $sourceconfigs = $self->{_sourceconfigs};
     return $sourceconfigs->{$reference}->{user};
 }
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return source name for specific source reference
 
@@ -131,14 +133,14 @@ sub getName {
     my $self = shift;
     my $container = shift;
 
-    logger($self->{_debug}, "Entering SourceConfig_obj::getName",1);   
+    logger($self->{_debug}, "Entering SourceConfig_obj::getName",1);
 
     my $sourceconfigs = $self->{_sourceconfigs};
     return $sourceconfigs->{$container}->{name};
 }
 
 # Procedure getSourceConfigByNameForRepo
-# parameters: 
+# parameters:
 # - name
 # - repo reference
 # Return source hash for specific source name
@@ -148,14 +150,14 @@ sub getSourceConfigByNameForRepo {
     my $name = shift;
     my $repo = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigByNameForRepo",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigByNameForRepo",1);
 
     for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
-      
+
         if ($sourceitem ne 'NA') {
           if ( ( $self->getName($sourceitem) eq $name ) && ( $self->getRepository($sourceitem) eq $repo ) ) {
-              $ret = $self->getSourceConfig($sourceitem); 
+              $ret = $self->getSourceConfig($sourceitem);
           }
         }
     }
@@ -164,7 +166,7 @@ sub getSourceConfigByNameForRepo {
 }
 
 # Procedure getSourceConfigsListForRepo
-# parameters: 
+# parameters:
 # - repo reference
 # Return source config list for repository
 
@@ -173,14 +175,14 @@ sub getSourceConfigsListForRepo {
     my $repo = shift;
     my $ret;
     my @retarray;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigsListForRepo",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigsListForRepo",1);
 
     for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
-      
+
         if ($sourceitem ne 'NA') {
           if ( $self->getRepository($sourceitem) eq $repo ) {
-              push(@retarray, $sourceitem); 
+              push(@retarray, $sourceitem);
           }
         }
     }
@@ -190,7 +192,7 @@ sub getSourceConfigsListForRepo {
 
 
 # Procedure getSourceByName
-# parameters: 
+# parameters:
 # - name
 # Return source hash for specific source name
 
@@ -199,15 +201,15 @@ sub getSourceConfigByName {
     my $name = shift;
     my $repo = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigByName",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigByName",1);
 
     for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
-          
+
         if ( defined($self->getName($sourceitem))  && ( $self->getName($sourceitem) eq $name  )) {
-            $ret = $self->getSourceConfig($sourceitem); 
+            $ret = $self->getSourceConfig($sourceitem);
         }
-        
+
     }
 
     return $ret;
@@ -215,7 +217,7 @@ sub getSourceConfigByName {
 
 
 # Procedure validateDBCredentials
-# parameters: 
+# parameters:
 # - username
 # - password
 # Return status of credential check ( 0 - OK )
@@ -226,8 +228,8 @@ sub validateDBCredentials {
     my $username = shift;
     my $password = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::validateDBCredentials",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::validateDBCredentials",1);
 
     my %sourceconfig_hash = (
         "type" => "SourceConfigConnectivity",
@@ -251,7 +253,7 @@ sub validateDBCredentials {
 }
 
 # Procedure setCredentials
-# parameters: 
+# parameters:
 # - username
 # - password
 # - force - if defined skip check
@@ -264,8 +266,8 @@ sub setCredentials {
     my $password = shift;
     my $force = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::setCredentials",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::setCredentials",1);
 
     if (!defined($force)) {
         if (!defined($username)) {
@@ -296,7 +298,7 @@ sub setCredentials {
                 "type" => "PasswordCredential",
                 "password" => $password
             }
-        );      
+        );
     }
 
 
@@ -318,15 +320,15 @@ sub setCredentials {
 
 
 # Procedure getRepository
-# parameters: 
-# - reference - reference of source config 
+# parameters:
+# - reference - reference of source config
 # Return repository reference for specific source config reference
 
 sub getRepository {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::getRepository",1);   
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getRepository",1);
 
     my $sourceconfigs = $self->{_sourceconfigs};
     my $ret;
@@ -342,13 +344,13 @@ sub getRepository {
 
 # Procedure getSourceConfigList
 # parameters: - none
-# Load list of sources config objects from Delphix Engine 
+# Load list of sources config objects from Delphix Engine
 
-sub getSourceConfigList 
+sub getSourceConfigList
 {
     my $self = shift;
 
-    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigList",1);   
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceConfigList",1);
     my $operation = "resources/json/delphix/sourceconfig";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
@@ -362,22 +364,22 @@ sub getSourceConfigList
 
         for my $scitem (@res) {
             $sourceconfigs->{$scitem->{reference}} = $scitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
-    
-    
+
+
 }
 
 # Procedure createSourceConfig
-# parameters: 
-# - type 
+# parameters:
+# - type
 # - repository
-# - dbname 
-# - uniquename 
+# - dbname
+# - uniquename
 # - instancename
-# - jdbc 
+# - jdbc
 # Create a SourceConfig ( database to be added as dSource )
 # Return 0 if OK
 
@@ -391,21 +393,21 @@ sub createSourceConfig {
     my $jdbc = shift;
     my $path = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);  
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);
 
 
     my %sourceconfig_hash;
-    
-    if ($type eq 'oracleSI') {  
+
+    if ($type eq 'oracleSI') {
       my @services;
       my %service = (
         "type" => "OracleService",
         "jdbcConnectionString" => "jdbc:oracle:thin:@" . $jdbc
       );
-      
+
       push(@services, \%service);
-      
+
       %sourceconfig_hash = (
         "type" => "OracleSIConfig",
         "repository" => $reference,
@@ -419,14 +421,14 @@ sub createSourceConfig {
         }
       );
     } elsif ($type eq 'vfiles') {
-      
+
       %sourceconfig_hash = (
         "type" => "AppDataDirectSourceConfig",
         "repository" => $reference,
         "name" => $dbname,
-        "path" => $path        
-      );  
-      
+        "path" => $path
+      );
+
     } else {
       return 1;
     }
@@ -435,7 +437,7 @@ sub createSourceConfig {
     my $json_data = encode_json(\%sourceconfig_hash);
 
     my $operation = 'resources/json/delphix/sourceconfig';
-    
+
     logger($self->{_debug}, $json_data ,2);
 
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
@@ -456,8 +458,8 @@ sub createSourceConfig {
 }
 
 # Procedure deleteSourceConfig
-# parameters: 
-# - name 
+# parameters:
+# - name
 # - repository
 # Drop an SourceConfig with specific name ( database to be added as dSource )
 # Return 0 if OK
@@ -467,20 +469,20 @@ sub deleteSourceConfig {
     my $name = shift;
     my $repository = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);    
-    
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);
+
     my $obj = $self->getSourceConfigByNameForRepo($name, $repository);
-    
+
     my $ref = $obj->{reference};
-    
+
     if (!defined($ref)) {
       print "Database $name not found\n";
       return 1;
     }
 
     my $operation = 'resources/json/delphix/sourceconfig/' . $ref . '/delete';
-    
+
 
     my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, '{}');
 
@@ -495,7 +497,7 @@ sub deleteSourceConfig {
         }
         $ret = 1;
     }
-    
+
     return $ret;
 
 }

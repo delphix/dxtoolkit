@@ -190,7 +190,7 @@ sub LoadDBList
         } else {
           logger($self->{_debug},"config name - not available ",2);
         }
-
+        logger($self->{_debug},"Source config to assign " . Dumper $self->{_sourceconfigs}->getSourceConfig($configname),2);
         $db->{"sourceConfig"}  = $self->{_sourceconfigs}->getSourceConfig($configname);
 
         #added to keep object
