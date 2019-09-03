@@ -411,11 +411,13 @@ sub getApi {
 # Procedure dlpx_connect
 # parameters:
 # - engine - name of engine
+# - token - if API token should be used
 # return 0 if OK, 1 if failed
 
 sub dlpx_connect {
    my $self = shift;
    my $engine = shift;
+   my $token = shift;
    logger($self->{_debug}, "Entering Engine::dlpx_connect",1);
 
    my $dlpxObject;
@@ -510,25 +512,37 @@ sub dlpx_connect {
 
          }
 
-         # create a session first
-         if ( $self->session($ses_version) ) {
-            logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
-            $rc = 1;
-         } else {
-           # session is established - now login
-           if ($self->{_password} eq '') {
-             # if no password provided and there is no open session
-             $self->{_password} = $self->read_password();
-           }
-           if ( $self->login() ) {
-               print "login to " . $self->{_host} . "  failed. \n";
-               $cookie_jar->clear();
-               $rc = 1;
+         if (defined($token)) {
+           # create session for token login
+           if ( $self->token_login($token, $ses_version)) {
+             print "token login to " . $self->{_host} . "  failed. \n";
+             $cookie_jar->clear();
+             $rc = 1;
            } else {
-               logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
-               $rc = 0;
+             logger($self->{_debug}, "token login to " . $self->{_host} . "  succeeded.");
+             $rc = 0;
            }
-         }
+         } else {
+             # create a session first for user / password
+             if ( $self->session($ses_version) ) {
+                logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
+                $rc = 1;
+             } else {
+               # session is established - now login
+               if ($self->{_password} eq '') {
+                 # if no password provided and there is no open session
+                 $self->{_password} = $self->read_password();
+               }
+               if ( $self->login() ) {
+                   print "login to " . $self->{_host} . "  failed. \n";
+                   $cookie_jar->clear();
+                   $rc = 1;
+               } else {
+                   logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
+                   $rc = 0;
+               }
+             }
+          }
    } else {
       # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
@@ -741,6 +755,77 @@ sub login {
    }
 
    return $ret;
+
+
+}
+
+sub token_login {
+  my $self = shift;
+  my $token = shift;
+  my $version = shift;
+
+
+  my ($major,$minor,$micro) = split(/\./,$version);
+
+
+  my %mysession =
+  (
+    "type" => "APISession",
+    "version" => {
+       "type" => "APIVersion",
+       "major" => $major + 0,
+       "minor" => $minor + 0,
+       "micro" => $micro + 0
+     }
+  );
+
+  my $h = HTTP::Headers->new(
+    Content_Type        => 'application/json',
+    Authorization       => 'Bearer ' . $token
+  );
+
+  my $operation = "sso/virtualization/api/login";
+  my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
+  my $api_url = "$url/$operation";
+
+  my $request = HTTP::Request->new(
+    POST => $api_url,
+    $h
+  );
+
+  $request->content(to_json(\%mysession));
+
+
+
+
+
+  print Dumper $request;
+
+  my $response = $self->{_ua}->request($request);
+
+  print Dumper $response;
+
+  my $decoded_response;
+  my $result;
+  my $result_fmt;
+  my $retcode;
+
+  if ( $response->is_success ) {
+     $decoded_response = $response->decoded_content;
+     $result = decode_json($decoded_response);
+     $result_fmt = to_json($result, {pretty=>1});
+     logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+     $retcode = 0;
+  }
+  else {
+     logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+     logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+     if (($response->code == 401) || ($response->code == 403)) {
+       my $cookie_jar = $self->{_ua}->cookie_jar;
+       $cookie_jar->clear();
+     }
+     $retcode = 1;
+  }
 
 
 }
@@ -1566,60 +1651,57 @@ sub getSSOToken {
     my $client_id = shift;
     my $client_secret = shift;
 
-    my $sso_provider = 'https://delphix.okta.com/oauth2/default/v1/token'
+    my $sso_provider = 'https://delphix.okta.com/oauth2/default/v1/token';
 
     logger($self->{_debug}, "Entering Engine::getSSOToken",1);
+
+
+    my $ua = LWP::UserAgent->new(keep_alive => 1);
+    $ua->agent("Delphix Perl Agent/0.1");
+    $ua->ssl_opts( verify_hostname => 0 );
+    $ua->timeout(15);
 
     my $h = HTTP::Headers->new(
       Accept              => 'application/json',
       Connection          => 'keep-alive',
       Content_Type        => 'application/x-www-form-urlencoded',
-      cache-control       => 'no-cache'
+      Cache_control       => 'no-cache'
     );
 
-    # --header 'accept: application/json'
-    # --header 'cache-control: no-cache'
-    # --header 'content-type: application/x-www-form-urlencoded'
-    # --data 'grant_type=client_credentials&scope=groups'
 
     my $request = HTTP::Request->new(
-      POST => $sso_provider, $h
+      POST => $sso_provider,
+      $h
     );
 
-    # $request->content_type("application/json");
-
-    $request->content($content_provider_ref);
 
 
+    $request->authorization_basic($client_id, $client_secret);
+    $request->content("grant_type=client_credentials&scope=groups");
 
-    my $response = $self->{_ua}->request($request);
+
+    my $decoded_response;
+    my $result;
+    my $result_fmt;
+    my $token;
+
+    my $response = $ua->request($request);
 
     if ( $response->is_success ) {
        $decoded_response = $response->decoded_content;
        $result = decode_json($decoded_response);
        $result_fmt = to_json($result, {pretty=>1});
        logger($self->{_debug}, "Response message: " . $result_fmt, 2);
-       $retcode = 0;
+       $token = $result->{access_token};
     }
     else {
        logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
        logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
-       if (($response->code == 401) || ($response->code == 403)) {
-         my $cookie_jar = $self->{_ua}->cookie_jar;
-         $cookie_jar->clear();
-       }
-       $retcode = 1;
     }
 
+    return $token;
 
 }
-
- access_token=$(curl -s request POST --url https://delphix.okta.com/oauth2/default/v1/token
- --header 'accept: application/json'
- --header 'cache-control: no-cache'
- --header 'content-type: application/x-www-form-urlencoded'
- --data 'grant_type=client_credentials&scope=groups'
- --user $client_id:$client_secret
 
 # End of package
 1;
