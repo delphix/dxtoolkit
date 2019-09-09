@@ -30,6 +30,8 @@ use strict;
 use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
+use lib '../lib';
+use Host_obj;
 
 # constructor
 # parameters
@@ -499,12 +501,12 @@ sub getClusterName {
     return $ret;
 }
 
-# Procedure getClusterNode
+# Procedure getClusterNodes
 # parameters:
 # - reference
-# Return environment cluster location for specific environment reference
+# Return all nodes from cluster
 
-sub getClusterNode {
+sub getClusterNodes {
     my $self = shift;
     my $reference = shift;
 
@@ -515,12 +517,30 @@ sub getClusterNode {
 
     if (($environments->{$reference}->{'type'} eq 'OracleCluster') || ($environments->{$reference}->{'type'} eq 'WindowsCluster')) {
       my @nodes = grep { defined($environments->{$_}->{cluster}) && ( $environments->{$_}->{cluster} eq $reference ) } sort (keys %{$environments} );
-      $ret = $nodes[0];
+      $ret = \@nodes;
     } else {
       $ret = 'N/A';
     }
 
     return $ret;
+}
+
+# Procedure getClusterNode
+# parameters:
+# - reference
+# Return first node from cluster
+
+sub getClusterNode {
+    my $self = shift;
+    my $reference = shift;
+
+    my $nodelist = $self->getClusterNodes($reference);
+
+    if ($nodelist eq 'N/A') {
+      return 'N/A';
+    } else {
+      return $nodelist->[0];
+    }
 }
 
 # Procedure getASEUser
@@ -1492,6 +1512,68 @@ sub deleteListener
             print "Unknown error. Try with debug flag\n";
         }
     }
+}
+
+
+sub updatehost {
+    my $self = shift;
+    my $envitem = shift;
+    my $hostip = shift;
+    my $newhost = shift;
+
+    logger($self->{_debug}, "Entering Environment_obj::updatehost",1);
+    my $hosts = new Host_obj($self->{_dlpxObject}, $self->{_debug});
+    my $hostobj;
+    my $host;
+
+    if (!defined($hostip)) {
+      $host = $self->getHost($envitem);
+      if ($host eq 'CLUSTER') {
+        print "Please specify which host in a cluster environment you want to change\n";
+        return undef;
+      }
+      $hostobj = $hosts->getHost($host);
+    } else {
+      $host = $self->getHost($envitem);
+      my @nodestocheck;
+      if ($host eq 'CLUSTER') {
+        my @clusternodes = @{$self->getClusterNodes($envitem)};
+        @nodestocheck = map { $self->{_environments}->{$_}->{host} } @clusternodes;
+      } else {
+        push(@nodestocheck, $host);
+      }
+      logger($self->{_debug}, "Looking for IP: ". $hostip,2);
+      my $foundhost;
+      for my $h (@nodestocheck) {
+        $hostobj = $hosts->getHost($h);
+        my $ip = $hostobj->{"address"};
+        logger($self->{_debug}, "Checking IP: ". $ip,2);
+        if ($hostip eq $ip) {
+          logger($self->{_debug}, "Found IP: ". $ip,2);
+          $foundhost = $h;
+          last;
+        }
+      }
+
+      if (defined($foundhost)) {
+        # host will be set to one depend on IP matching
+        $host = $foundhost;
+      } else {
+        print "Host with IP $hostip not found\n";
+        return undef;
+      }
+
+    }
+
+    my %hostupdate = (
+      "type" => $hostobj->{"type"},
+      "address" => $newhost
+    );
+
+    my $operation = "resources/json/delphix/host/" . $host;
+
+    return $self->runJobOperation($operation, to_json(\%hostupdate));
+
 }
 
 1;

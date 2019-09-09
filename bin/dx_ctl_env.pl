@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2014,2016 by Delphix. All rights reserved.
+# Copyright (c) 2014,2019 by Delphix. All rights reserved.
 #
 # Program Name : dx_ctl_env.pl
 # Description  : Get database and host information
@@ -48,6 +48,8 @@ GetOptions(
   'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
   'action=s' => \(my $action),
+  'host=s' => \(my $host),
+  'newhost=s' => \(my $newhost),
   'username=s' => \(my $username),
   'authtype=s' => \(my $authtype),
   'password=s' => \(my $password),
@@ -98,12 +100,24 @@ if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq '
     (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') ||
     (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') ||
     (lc $action eq 'addlistener') || (lc $action eq 'deletelistener') ||
-    (lc $action eq 'adduser') || (lc $action eq 'deleteuser')
+    (lc $action eq 'adduser') || (lc $action eq 'deleteuser') ||
+    (lc $action eq 'updatehost')
     ))
     {
       print "Unknown action $action\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1);
+}
+
+if (lc $action eq 'updatehost') {
+  if (!defined($newhost)) {
+    print "New host has to be set\n";
+    exit 1;
+  }
+  if ((!defined($envname)) && (!defined($host))) {
+    print "Environment name or an existing host name has to be set for updatehost action\n";
+    exit 1;
+  }
 }
 
 if (lc $action eq 'addrepo') {
@@ -203,6 +217,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my @env_list;
   my @jobs;
+  my $hostupdate;
 
   if (defined($reference)) {
     push(@env_list, $reference);
@@ -227,7 +242,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     my $env_name = $environments->getName($envitem);
 
-    if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh')) {
+    if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh') ||
+        (lc $action eq 'updatehost') ) {
 
       if ( $action eq 'enable' ) {
         if ( $environments->getStatus($envitem) eq 'enabled' ) {
@@ -252,6 +268,14 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ( $action eq 'refresh' ) {
         print "Refreshing environment $env_name \n";
         $jobno = $environments->refresh($envitem);
+      }
+
+      if ( lc $action eq 'updatehost' ) {
+        print "Checking environment for host update $env_name ";
+        $jobno = $environments->updatehost($envitem, $host, $newhost);
+        if (defined($jobno)) {
+          $hostupdate = 1;
+        }
       }
 
       if (defined ($jobno) ) {
@@ -393,6 +417,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
+
+
   }
 
   if (defined($parallel) && (scalar(@jobs) > 0)) {
@@ -400,6 +426,11 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
       $ret = $ret + $pret;
     }
+  }
+
+  if (!defined($hostupdate)) {
+    # no environment found with a IP - need to report an error
+    $ret = $ret + 1;
   }
 
 }
@@ -413,7 +444,8 @@ __DATA__
 
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
             [ -name env_name | -reference reference ]
-            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
+            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener
+                   |deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
             [-dbname dbname]
             [-instancename instancename]
             [-uniquename db_unique_name]
@@ -425,6 +457,8 @@ __DATA__
             [-password password]
             [-repotype oracle|vfiles]
             [-repopath ORACLE_HOME]
+            [-host name/ip of existing host to update]
+            [-newhost new name/ip of the host]
             [-help|? ]
             [-debug ]
 
@@ -457,7 +491,7 @@ A config file search order is as follow:
 
 =over 1
 
-=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
+=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
 Run an action specified for environments selected by filter or all environments deployed on Delphix Engine
 
 =back
@@ -516,6 +550,13 @@ Oracle Home version ex. 11.2.0.4 or 12.1.0.2
 
 =item B<-oraclebase path>
 Oracle Base path
+
+=item B<-host hostname/IP>
+Host name or IP from an environment to be updated.
+Not required if environment name is specified
+
+=item B<-newhost hostname/IP>
+New Host name or IP of host being updated
 
 =item B<-help>
 Print this screen
@@ -607,5 +648,24 @@ Delete a vfiles from environment
  dx_ctl_env -d Landshark51 -name LINUXSOURCE -action deletedatabase -dbname swingbench -repotype vfiles
  Deleting vfiles swingbench from environment LINUXSOURCE
  Database swingbench deleted from Unstructured Files
+
+Chaging an IP of the environment
+
+ dx_ctl_env -d 53 -name linuxsource -newhost 172.16.200.130 -action updatehost
+ Checking environment for host update linuxsource Starting job JOB-2850 for environment linuxsource.
+ 0 - 30 - 40 - 80 - 100
+ Job JOB-2850 finished with state: COMPLETED
+
+Chaging an IP of particular host
+
+ dx_ctl_env -d 53 -host 172.16.200.130 -newhost 172.16.180.129 -action updatehost
+ Checking environment for host update racattack121 Host with IP 172.16.200.130 not found
+ Checking environment for host update racattack Host with IP 172.16.200.130 not found
+ Checking environment for host update oracle18tgt Host with IP 172.16.200.130 not found
+ Checking environment for host update oracle18 Host with IP 172.16.200.130 not found
+ Checking environment for host update linuxsource Starting job JOB-2852 for environment linuxsource.
+ 0 - 30 - 40 - 80 - 100
+ Job JOB-2852 finished with state: COMPLETED
+ Checking environment for host update linuxtarget Host with IP 172.16.200.130 not found
 
 =cut
