@@ -1416,7 +1416,7 @@ sub uploadupdate {
     my $fsize = $size;
     # 6 for - char
     # 63 is Content-Disposition plus end of lines
-    $size = $size + 2 * (length $boundary) + 6 + (length $filename) + 63;
+    $size = $size + 2 * (length $boundary) + 6 + (length basename($filename)) + 63;
 
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
@@ -1434,7 +1434,6 @@ sub uploadupdate {
     # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
     # and it's providing a content of multipart/form-data request
     # it's simple implementation and probably not a best one
-
 
 
     my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);
