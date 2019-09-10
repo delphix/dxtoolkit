@@ -518,4 +518,36 @@ sub unlockUser
   return $ret;
 }
 
+sub setSSHkey
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+  my $sshfile = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  if (defined($user) ) {
+    my $FD;
+    open($FD,$sshfile) or die("Can't open file $sshfile $!" );
+    my @sshkeylines = <$FD>;
+    close $FD;
+    $user->setSSHkey(\@sshkeylines);
+    if ($user->updateUser() ) {
+      print "Problem with ssh key setting. \n";
+      $ret = $ret + 1;
+    } else {
+      print "SSH key(s) for $username set. \n";
+    }
+
+  }
+  else {
+    print "User $username doesn't exist. Can't set SSH key\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
+}
+
 1;

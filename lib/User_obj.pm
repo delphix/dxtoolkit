@@ -92,6 +92,18 @@ sub setNames {
 }
 
 
+# Procedure setSSHkey
+# parameters:
+# - $sshkey
+
+sub setSSHkey {
+    my $self = shift;
+    my $sshkey = shift;
+
+    logger($self->{_debug}, "Entering User_obj::setSSHkey",1);
+    $self->{_new}->{publicKey} = $sshkey;
+}
+
 # Procedure getAuthType
 # Return:
 # - Native / LDAP
