@@ -90,25 +90,26 @@ if (((lc $action eq 'verify') || (lc $action eq 'apply')) && (!defined($osname))
 
 my $file_version;
 
-if ((lc $action eq 'upload')  && (!defined($filename))) {
-  print "Parameter -filename is required for upload action \n";
-  pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);
-} else {
-
-  my $namechek = basename($filename);
-  if ( ! (($file_version) = $namechek =~ /^delphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d.upgrade.tar.gz$/ )) {
-    print "Filename is not matching delphix upgrade pattern \n";
+if (lc $action eq 'upload')  {
+  if (!defined($filename)) {
+    print "Parameter -filename is required for upload action \n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
-  }
+  } else {
 
-  if (!defined($file_version)) {
-    print "Filename is not matching delphix upgrade pattern. Can't find version number \n";
-    exit (1);
-  }
+    my $namechek = basename($filename);
+    if ( ! (($file_version) = $namechek =~ /^delphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d.upgrade.tar.gz$/ )) {
+      print "Filename is not matching delphix upgrade pattern \n";
+      exit (1);
+    }
 
+    if (!defined($file_version)) {
+      print "Filename is not matching delphix upgrade pattern. Can't find version number \n";
+      exit (1);
+    }
+
+  }
 }
-
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -142,7 +143,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
-    $jobstart = Toolkit_helpers::timestamp("-5min", $engine_obj);
+    $jobstart = Toolkit_helpers::timestamp("-0min", $engine_obj);
 
     my $rc = $engine_obj->uploadupdate($filename);
 
@@ -160,16 +161,17 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $joblist;
 
     do {
+      $jobs->loadJobs();
       $joblist = $jobs->getJobList();
       if (version->parse($engine_obj->getApi()) >= version->parse(1.10.0)) {
         @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'UNPACK_VERSION' } @{$joblist};
       } else {
         @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'REFRESH_VERSIONS' } @{$joblist};
       }
-      sleep 1;
+      sleep 10;
       $counter = $counter + 1;
-      if ($counter > 60) {
-        print "There is no job - exiting\n";
+      if ($counter > 18) {
+        print "There is no job started for 3 minutes - exiting. File is uploaded please check GUI for job\n";
         $ret = $ret + 1;
         next;
       }
@@ -185,12 +187,24 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
-    $jobs = new Jobs($engine_obj, $jobstart, undef, undef, undef, undef, undef, undef, 1, undef, $debug);
-    $joblist = $jobs->getJobList();
-    @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'UPGRADE_VERIFY' } @{$joblist};
 
     if (version->parse($engine_obj->getApi()) >= version->parse(1.9.0)) {
       # above 5.2 there is a verification job
+      $counter = 0;
+      $jobs = new Jobs($engine_obj, $jobstart, undef, undef, undef, undef, undef, undef, 1, undef, $debug);
+      do {
+        $jobs->loadJobs();
+        $joblist = $jobs->getJobList();
+        @refresh = grep { ($jobs->getJob($_)->getJobActionType()) eq 'UPGRADE_VERIFY' } @{$joblist};
+        sleep 10;
+        $counter = $counter + 1;
+        if ($counter > 18) {
+          print "There is no verification job started for 3 minutes - exiting. File is uploaded please check GUI for job\n";
+          $ret = $ret + 1;
+          next;
+        }
+      } while (scalar(@refresh)<1);
+
       $job = $jobs->getJob($refresh[-1]);
       $retjob = $job->waitForJob();
       if ($retjob eq 'COMPLETED') {
@@ -198,6 +212,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       } else {
         $ret = $ret + 1;
       }
+
+
     }
   }
 
