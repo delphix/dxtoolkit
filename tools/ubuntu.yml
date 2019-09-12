@@ -14,32 +14,58 @@
      - debug:
          msg: "{{ temp }}"
 
+     - name: Update all repositories
+       become: yes
+       become_user: root
+       shell: |
+          cd /etc/apt
+          cp sources.list sources.list.orig
+          cat sources.list | sed s/us\.archive\./old-releases\./ | sed s/security\./old-releases\./ > sources.list.new
+          mv sources.list.new sources.list
+          apt-get update
+
+     - name: Install perls on ubuntu
+       become: yes
+       become_user: root
+       apt:
+          name: "{{ packages }}"
+          update_cache: true
+          state: present
+       vars:
+          packages:
+             - "libpar-packer-perl"
+             - "libjson-pp-perl"
+             - "libdate-manip-perl"
+             - "libdatetime-format-dateparse-perl"
+             - "libcrypt-cbc-perl"
+             - "libcrypt-blowfish-perl"
+             - "libtext-csv-perl"
+             - "libtry-tiny-perl"
+             - "libparse-http-useragent-perl"
+             - "libnet-ssleay-perl"
+             - "libio-socket-ssl-perl"
+             - "libfilter-perl"
+             - "libterm-readkey-perl"
+             - "cpanminus"
+             - "make"
+             - "gcc"
+             - "libssl-dev"
+             - "libwww-perl"
+
      - name: Install CPAN
-       sudo: yes
-       environment:
-        PATH: "/usr/local/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin"
+       become: yes
+       become_user: root
        cpanm: name={{ item }}
        ignore_errors: yes
        with_items:
-         - "JSON"
-         - "Date::Manip"
-         - "DateTime::Event::Cron::Quartz"
-         - "DateTime::Format::DateParse"
-         - "Crypt::CBC"
-         - "Crypt::Blowfish"
-         - "Text::CSV"
-         - "Try::Tiny"
-         - "LWP::UserAgent"
-         - "Net::SSLeay"
-         - "IO::Socket::SSL"
-         - "LWP::Protocol::https"
-         - "Filter::Crypto::Decrypt"
-         - "PAR::Packer"
-         - "Term::ReadKey"
-         - "Log::Syslog::Fast"
+          - "DateTime::Event::Cron::Quartz"
+          - "Log::Syslog::Fast"
+          - "Filter::Crypto::Decrypt"
 
      - name: dxtoolkit dirs
-       file: name={{ item }} state=directory
+       become: yes
+       become_user: root
+       file: name={{ item }} state=directory owner=delphix
        with_items:
          - "{{ dxout }}"
          - "{{ dxloc }}"
@@ -76,11 +102,6 @@
 
      - name: get toolkit
        fetch: src={{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz dest=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/ flat=yes
-       when: openssl is not defined
-
-     - name: get toolkit
-       fetch: src={{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}-openssl.tar.gz dest=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/ flat=yes
-       when: openssl is defined
 
      - name: cleanup temp
        shell: rm -rf /u02/tmp/par*
@@ -89,4 +110,4 @@
        shell: rm -rf /tmp/par*
 
      - name: cleanup file
-       shell: rm -rf "{{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}-*.tar.gz"
+       shell: rm -rf "{{ dxtar }}/dxtoolkit2-{{ dxversion }}-{{ system }}.tar.gz"
