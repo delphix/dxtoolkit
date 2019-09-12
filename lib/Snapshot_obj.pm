@@ -329,27 +329,58 @@ sub getSnapshotTime {
 # if timezone defined as GMT+/-offset return undef
 # parameters:
 # - timezone
-# Return 0 if OK
+# Return timezone of OK or N/A if timezone is not recognized by perl
 
 sub checkTZ {
     my $self = shift;
     my $timezone = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::checkTZ",1);
 
+    # fixes for timezones supported by Delphix but not recognized by Perl
+    if ($timezone eq 'Etc/Zulu') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Zulu') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Etc/Universal') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Universal') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Etc/Greenwich') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Greenwich') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'GMT0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT-0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT+0') {
+        $timezone = 'GMT';
+    }
 
     my $checktime = time();
     my $dt = ParseDate($checktime);
     my $tz = new Date::Manip::TZ;
     my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
 
-    if (defined($abbrev)) {
+    if (!$err) {
         logger($self->{_debug}, "checkTZ abbrev-" . $abbrev ,1);
     } else {
         logger($self->{_debug}, "checkTZ abbrev-undefined" ,1);
+        $timezone = 'N/A';
     }
 
-    return $err;
-
+    return $timezone;
 }
 
 # Procedure getSnapshotTimeZone
@@ -366,30 +397,11 @@ sub getSnapshotTimeZone {
     chomp($ts);
     my @temp = split(',',$ts);
     my $ret = $temp[0];
-    if ($ret eq 'Etc/Zulu') {
-        $ret = 'Etc/GMT';
-    }
-
-    if ($ret eq 'Greenwich') {
-        $ret = 'GMT+00:00';
-    }
-
-    my $tz = new Date::Manip::TZ;
-
-    my @zone = ('Etc/GMT');
-    my ($err,$val) = $tz->define_offset('+0000', @zone);
-
-    logger($self->{debug}, "Setting GMT timezone err-" . $err );
-
-    @zone = ('Asia/Singapore');
-    ($err,$val) = $tz->define_offset('+0800', @zone);
-
-    logger($self->{debug}, "Setting SGT timezone err-" . $err );
 
     if (! ($ret =~ /[a-zA-Z]{3}.\d\d:\d\d/ )) {
-      if ($self->checkTZ($ret)) {
-        $ret = 'N/A';
-      }
+      # if timezone is not GMT+-00:00 format
+      # check if this format can be recognized and amended by checkTZ function
+      $ret = $self->checkTZ($ret);
     }
 
     return $ret;
@@ -535,14 +547,19 @@ sub findTimeflowforLocation {
 # Procedure findSnapshotforTimestamp
 # parameters:
 # - timestamp
+# - timeflow
+# - utc_timestamp
 # if timestamp is without minutes only one snapshot per minute is allowed,
 # if there is more then one error will be displayed
+# timeflow will limit search for particular timeflow only
+# utc_timestamp will skip conversion of timestamp
 # Return snapshot for timestamp
 
 sub findSnapshotforTimestamp {
     my $self = shift;
     my $timestamp = shift;
     my $timeflow = shift;
+    my $utc_timestamp = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::findSnapshotforTimestamp",1);
 
     my %ret;
@@ -580,7 +597,12 @@ sub findSnapshotforTimestamp {
         #my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $self->getSnapshotTimeZone($snapitem));
 
         #my $sttz = sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4]);
-        $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+
+        if (defined($utc_timestamp)) {
+          $sttz = Toolkit_helpers::convert_to_utc($timestamp, 'UTC', undef, undef);
+        } else {
+          $sttz = Toolkit_helpers::convert_to_utc($timestamp, $self->getSnapshotTimeZone($snapitem), undef, undef);
+        }
 
         if ($seconds == 0) {
           # delete seconds from converted timestamp as input was given without seconds

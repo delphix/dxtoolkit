@@ -83,7 +83,7 @@ sub getJSOperationList {
 
     logger($self->{_debug}, "Entering JS_operation_obj::getJSOperationList",1);
 
-    my @arrret = sort (keys %{$self->{_jsoperations}} );
+    my @arrret = sort { Toolkit_helpers::sort_by_number($a, $b) } (keys %{$self->{_jsoperations}} );
 
     return \@arrret;
 }
@@ -150,6 +150,21 @@ sub getStartTime {
     return $jsoperations->{$reference}->{startTime};
 }
 
+# Procedure getDataTime
+# parameters:
+# - reference
+# Return JS operation starttime for specific operation reference
+
+sub getDataTime {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering JS_operation_obj::getDataTime",1);
+
+    my $jsoperations = $self->{_jsoperations};
+    return $jsoperations->{$reference}->{dataTime};
+}
+
 # Procedure findOpAfterDataTime
 # parameters:
 # - timestamp
@@ -172,11 +187,51 @@ sub findOpAfterDataTime {
     );
 
     my @listofddops = grep { $ddops{$jsoperations->{$_}->{name}}  } sort (keys %{$jsoperations});
-
-
     my @ops = grep { (defined($jsoperations->{$_}->{dataTime}) && ($jsoperations->{$_}->{dataTime} gt $timestamp)) } @listofddops;
 
     return $ops[0];
+}
+
+
+
+# Procedure link_tf_with_ss_operation
+# parameters:
+# - $timeflows - array of timeflows references to map
+# - timeflow_obj - reference to timeflow object to have access to metadata
+# Return hash of timeflows to operatation references
+
+sub link_tf_with_ss_operation {
+    my $self = shift;
+    my $timeflows = shift;
+    my $timeflow_obj = shift;
+
+    my @localfs = @{$timeflows};
+
+    logger($self->{_debug}, "Entering JS_operation_obj::link_tf_with_ss_operation",1);
+
+    my $jsoperations = $self->{_jsoperations};
+
+    my %ddops = (
+      "CREATE_BRANCH" => 1,
+      "RESTORE" => 1,
+      "REFRESH" => 1,
+    );
+
+    my @listofddops = grep { $ddops{$jsoperations->{$_}->{name}}  } sort { Toolkit_helpers::sort_by_number($b, $a) } (keys %{$jsoperations});
+
+    my %tfhash;
+
+
+    for my $op (@listofddops) {
+      my $tf = shift @localfs;
+      if (defined($tf)) {
+        $tfhash{$tf} = $op;
+      } else {
+        last;
+      }
+    }
+
+    return \%tfhash;
 }
 
 

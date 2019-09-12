@@ -235,6 +235,8 @@ sub getName {
     return $self->{_timeflows}->{$reference}->{name};
 }
 
+
+
 # Procedure getAllTimeflows
 # parameters:
 # Return refrerence list of all timeflows
@@ -260,6 +262,21 @@ sub getTimeflowsForContainer {
     my @retarr = grep { $self->getContainer($_) eq $container } keys %{$self->{_timeflows}};
 
     return \@retarr;
+}
+
+# Procedure getTimeflowsForSelfServiceContainer
+# parameters:
+# - container
+# Return refrerence list of timeflows for container ordered from newset to oldest
+
+sub getTimeflowsForSelfServiceContainer {
+    my $self = shift;
+    my $container = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getTimeflowsForSelfServiceContainer",1);
+    my $alltf = $self->getTimeflowsForContainer($container);
+    my @sortedtf = sort { Toolkit_helpers::sort_by_number($b, $a) } @{$alltf};
+    return \@sortedtf;
+
 }
 
 

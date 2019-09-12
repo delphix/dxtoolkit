@@ -79,6 +79,7 @@ sub new
    logger($debug,"Dxtoolkit version " . $Toolkit_helpers::version);
    logger($debug,"Entering Engine::constructor",1);
    $ua = LWP::UserAgent->new;
+   #$ua = LWP::UserAgent->new(keep_alive => 1);
    $ua->agent("Delphix Perl Agent/0.1");
    $ua->ssl_opts( verify_hostname => 0 );
    $ua->timeout(15);
@@ -372,7 +373,12 @@ sub getIP {
 sub getEngineName {
    my $self = shift;
    logger($self->{_debug}, "Entering Engine::getEngineName",1);
-   return $self->{_enginename};
+   if (defined($self->{_enginename})) {
+     return $self->{_enginename};
+   } else {
+     return "unknown";
+   }
+
 }
 
 
@@ -383,7 +389,13 @@ sub getEngineName {
 sub getUsername {
    my $self = shift;
    logger($self->{_debug}, "Entering Engine::getUsername",1);
-   return $self->{_user};
+   my $ret;
+   if ($self->{_user} =~ /@/) {
+     ($ret) = ($self->{_user} =~ /(.*?)@.*/);
+   } else {
+     $ret = $self->{_user};
+   }
+   return $ret;
 }
 
 # Procedure getApi
@@ -804,16 +816,31 @@ sub getTime {
 
    logger($self->{_debug}, "Entering Engine::getTime",1);
    my $time;
-   my $operation = "resources/json/service/configure/currentSystemTime";
+   my $operation = "resources/json/delphix/service/time";
    my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-   if ($result->{result} eq "ok") {
-      $time = $result->{systemTime}->{localTime};
+   if ($result->{status} eq "OK") {
+      $time = $result->{result}->{currentTime};
+      my $tz = $result->{result}->{systemTimeZone};
 
-      $time =~ s/\s[A-Z]{1,3}$//;
+      $time = Toolkit_helpers::convert_from_utc($time, $tz);
 
       if (defined($minus)) {
+        my $date = new Date::Manip::Date;
 
-         $time = DateCalc(ParseDate($time), ParseDateDelta('- ' . $minus . ' minutes'));
+        if ($date->parse($time)) {
+          print "Date parsing error\n";
+          return 'N/A';
+        }
+
+
+        my $delta = $date->new_delta();
+        my $deltastr = $minus . ' minutes ago';
+        if ($delta->parse($deltastr)) {
+          print "Delta time parsing error\n";
+          return 'N/A';
+        }
+        my $d = $date->calc($delta);
+        $time = $d->printf("%Y-%m-%d %H:%M:%S");
 
       }
 
@@ -1163,14 +1190,13 @@ sub postJSONData {
 
    if ( $post_data =~ /password/ ) {
      $post_data_logger = $post_data;
-     $post_data_logger =~ s/"password":"(.*)"/"password":"xxxxx"/;
+     $post_data_logger =~ s/"password":"(.*?)"/"password":"xxxxx"/;
    } else {
      $post_data_logger = $post_data;
    }
 
+
    logger($self->{_debug}, $post_data_logger, 1);
-
-
 
    my $response = $self->{_ua}->request($request);
 
@@ -1184,6 +1210,10 @@ sub postJSONData {
    else {
       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+      if (($response->code == 401) || ($response->code == 403)) {
+        my $cookie_jar = $self->{_ua}->cookie_jar;
+        $cookie_jar->clear();
+      }
       $retcode = 1;
    }
 
@@ -1223,7 +1253,9 @@ sub postJSONData {
       $filename =~ s|\?|_|;
       $filename =~ s|\&|_|g;
       $filename =~ s|\:|_|g;
-      #print Dumper $filename;
+      if (!defined($result)) {
+        $result = {};
+      }
       open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
       print $fh to_json($result, {pretty=>1});
       close $fh;
@@ -1378,26 +1410,23 @@ sub uploadupdate {
     my $url = $self->{_protocol} . '://' . $self->{_host} ;
     my $api_url = "$url/resources/json/system/uploadUpgrade";
 
-    #$filename = '/mnt/c/temp/delphix_5.3.3.0_2019-03-30-02-01.upgrade.tar.gz';
-    #$filename = '/mnt/c/temp/zdjecia1.zip';
-
     my $size = -s $filename;
     my $boundary = HTTP::Request::Common::boundary(10);
 
-
-    $size = $size + (length $boundary) + 6 + (length $filename) + 500;
+    my $fsize = $size;
+    # 6 for - char
+    # 63 is Content-Disposition plus end of lines
+    $size = $size + 2 * (length $boundary) + 6 + (length basename($filename)) + 63;
 
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
+      Connection          => 'keep-alive',
       Content_Type        => 'multipart/form-data; boundary=' . $boundary
     );
 
     my $request = HTTP::Request->new(
       POST => $api_url, $h
     );
-
-
-    print Dumper $request;
 
 
     # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
@@ -1407,8 +1436,7 @@ sub uploadupdate {
     # it's simple implementation and probably not a best one
 
 
-
-    my $content_provider_ref = &content_provider($filename, $size, $boundary);
+    my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);
     $request->content($content_provider_ref);
 
 
@@ -1417,11 +1445,15 @@ sub uploadupdate {
       my $filename = shift;
       my $size = shift;
       my $boundary = shift;
+      my $self = shift;
+      my $fsize = shift;
       # we need to send 4 parts - a boundary start, content description, file content, boundary end
       my @content_part = ( 'b', 'c', 'f', 'e' );
       my $total = 0;
       my $report = 0;
       my $end = 0;
+      my $end2 = 0;
+      my $real  = 0;
       $| = 1;
 
       my $fh;
@@ -1437,7 +1469,8 @@ sub uploadupdate {
 
         if (!defined($content_part[0])) {
           if ($end eq 0) {
-            printf "%5.1f \n\n", 100;
+            printf "%5.1f\n", 100;
+            $end = 1;
           }
           return undef;
         }
@@ -1445,36 +1478,43 @@ sub uploadupdate {
         if ($content_part[0] eq 'e') {
           $buf = "\r\n--" . $boundary . "--\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
         } elsif ($content_part[0] eq 'b') {
           $buf = "--" . $boundary . "\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
+          # my $buf2;
+          # my $rc = sysread($fh, $buf2, 1048576);
+          # $buf = $buf . $buf2;
+          # $total = $total + length $buf2;
+          # print Dumper $total;
         } elsif ($content_part[0] eq 'c') {
           $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
           shift @content_part;
-          # print Dumper $buf;
+          #print Dumper $buf;
         } elsif ($content_part[0] eq 'f') {
           my $rc = sysread($fh, $buf, 1048576);
           $total = $total + length $buf;
+          #print Dumper $total;
           # print Dumper $rc;
-          if (($total / $size * 100) > $report) {
-            if (($total / $size * 100) eq 100) {
-              printf "%5.1f\n\n ", 100;
+          if (($total / $fsize * 100) > $report) {
+            if (($total / $fsize * 100) eq 100) {
+              printf "%5.1f\n ", 100;
               $end = 1;
             } else {
-              printf "%5.1f - ", $total / $size * 100;
+              printf "%5.1f - ", $total / $fsize * 100;
               $report = $report + 10;
             }
 
-          }
-          if ($rc ne 1048576) {
-            shift @content_part;
-          }
+            }
+            if ($rc ne 1048576) {
+              shift @content_part;
+            }
 
           #print Dumper $buf;
         }
-
+        $real = $real + length $buf;
+        #print Dumper $buf;
         return $buf;
       }
     }
@@ -1482,23 +1522,19 @@ sub uploadupdate {
 
     my $response = $self->{_ua}->request($request);
 
-
     my $decoded_response;
     my $result_fmt;
     my $retcode;
     my $result;
-
-    #print Dumper $response;
 
     if ( $response->is_success ) {
 
        $decoded_response = $response->decoded_content;
        $result = decode_json($decoded_response);
        $result_fmt = to_json($result, {pretty=>1});
-       print Dumper $result_fmt;
        logger($self->{_debug}, "Response message: " . $result_fmt, 2);
        if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-         print "File upload completed without issues.\n";
+         print "\nFile upload completed without issues.\n";
          $retcode = 0;
        } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
          print "\nFile upload issues\n";

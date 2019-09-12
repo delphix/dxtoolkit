@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.0';
+our $version = '2.4.1';
 
 sub logger {
 	my $debug = shift;
@@ -642,8 +642,8 @@ sub sort_by_number {
 	my $a = shift;
 	my $b = shift;
 
-  my ( $anum ) = $a =~ /(\d+[.]?\d+)/;
-  my ( $bnum ) = $b =~ /(\d+[.]?\d+)/;
+  my ( $anum ) = $a =~ /(\d+[.]?\d?)/;
+  my ( $bnum ) = $b =~ /(\d+[.]?\d?)/;
   return ( $anum || 0 ) <=> ( $bnum || 0 );
 }
 

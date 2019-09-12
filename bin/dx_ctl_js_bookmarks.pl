@@ -86,7 +86,8 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'remove') ) ) ) {
+if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'remove')
+      || ( $action eq 'share')  || ( $action eq 'unshare') ) ) ) {
   print "Option -action not defined or has invalid parameter \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
@@ -139,13 +140,6 @@ if (lc $action eq 'create') {
   }
 }
 
-#  elsif (lc $action eq 'remove') {
-#   if (!defined($template_name)) {
-#     print "Options template_name is required \n";
-#     pod2usage(-verbose => 1,  -input=>\*DATA);
-#     exit (1);
-#   }
-# }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -178,16 +172,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
-    $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
-
-
     if (!defined($datalayout_ref)) {
       print "Can't find template with a name $template_name on engine $engine \n";
       $ret = $ret + 1;
       next;
     }
 
-
+    $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, undef, $debug );
     my $branchs = new JS_branch_obj ( $engine_obj, $datalayout_ref, $debug );
 
     my $active_branch;
@@ -207,88 +198,15 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $datasources = new JS_datasource_obj ( $engine_obj, $datalayout_ref, undef, undef );
 
     if ( defined($snapshots) ) {
+      # create bookmarks on snapshots
+      my $bookmark_times_hash = generate_snapshot_mapping($source, $datasources, $snapshots, $datalayout_ref, $active_branch);
 
 
-      my $ds_ref = $datasources->getJSDataSourceByName($source);
-
-      if (!defined($ds_ref)) {
-        print "Source $source in template $template_name not found. \n";
-        $ret = $ret + 1;
-        next;
-      }
-
-      my %bookmark_times_hash;
-
-      my $cont = $datasources->getJSDBContainer($ds_ref);
-      my $snapshot = new Snapshot_obj ( $engine_obj, $cont, 1, undef );
-
-      if ((lc $snapshots eq 'first') || (lc $snapshots eq 'both')) {
-        # find a first snapshot which can be used for bookmark ( has been taken after template was created )
-        for my $snapitem ( @{ $snapshot->getSnapshots() }) {
-          my $time = $snapshot->getSnapshotCreationTime($snapitem);
-          my $goodtime;
-          if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
-            $goodtime = $datasources->checkTime($datalayout_ref, $time);
-          } else {
-            $goodtime = $datasources->checkTime($active_branch, $time);
-          }
-          if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
-            my $timename = $time;
-            $timename =~ s/T/ /;
-            $timename =~ s/\....Z//;
-            $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
-            last;
-          }
-        }
-      }
-
-      if ((lc $snapshots eq 'last') || (lc $snapshots eq 'both')) {
-        my $last_time = (@{ $snapshot->getSnapshots() })[-1];
-
-        my $time = $snapshot->getSnapshotCreationTime($last_time);
-        my $goodtime;
-        if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
-          $goodtime = $datasources->checkTime($datalayout_ref, $time);
-        } else {
-          $goodtime = $datasources->checkTime($active_branch, $time);
-        }
-
-        if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
-          my $timename = $time;
-          $timename =~ s/T/ /;
-          $timename =~ s/\....Z//;
-          $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
-        }
-      }
-
-      if (lc $snapshots eq 'all') {
-        for my $snapitem ( @{ $snapshot->getSnapshots() }) {
-          my $time = $snapshot->getSnapshotCreationTime($snapitem);
-          my $goodtime;
-          if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
-            $goodtime = $datasources->checkTime($datalayout_ref, $time);
-          } else {
-            $goodtime = $datasources->checkTime($active_branch, $time);
-          }
-          if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
-            my $timename = $time;
-            $timename =~ s/T/ /;
-            $timename =~ s/\....Z//;
-            $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
-          }
-        }
-      }
-
-
-      for my $bookname_item (sort (keys %bookmark_times_hash)) {
-
-
-        if ( $datasources->checkTimeDelta($datalayout_ref, $bookmark_times_hash{$bookname_item}, $diff ) ) {
+      for my $bookname_item (sort (keys %{$bookmark_times_hash})) {
+        if ( $datasources->checkTimeDelta($datalayout_ref, $bookmark_times_hash->{$bookname_item}, $diff ) ) {
           print "Delta between bookmark time and real time of source is bigger than $diff sec.\n"
         }
-
-        create($bookmarks, $engine_obj, $debug, $bookname_item, $active_branch, $datalayout_ref, $bookmark_times_hash{$bookname_item}, 1, $expireat);
-
+        create($bookmarks, $engine_obj, $debug, $bookname_item, $active_branch, $datalayout_ref, $bookmark_times_hash->{$bookname_item}, 1, $expireat);
       }
 
     } else {
@@ -323,7 +241,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   } else {
 
-    # this is for creating deleting bookmark(s)
+    # this is for other bookmark actions
     my $bookmarks;
     my $template_ref;
     my $container_ref;
@@ -374,20 +292,35 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     for my $bookmarkitem (@bookmark_array) {
       #print Dumper $bookmarkitem;
-      my $jobno = $bookmarks->deleteBookmark($bookmarkitem);
-      $bookmark_name = $bookmarks->getName($bookmarkitem);
-      if (defined ($jobno) ) {
-        print "Starting job $jobno for bookmark $bookmark_name.\n";
-        my $job = new Jobs_obj($engine_obj, $jobno, 'true', $debug);
 
-        my $jobstat = $job->waitForJob();
-        if ($jobstat ne 'COMPLETED') {
+      $bookmark_name = $bookmarks->getName($bookmarkitem);
+
+      if (lc $action eq 'delete') {
+        my $jobno = $bookmarks->deleteBookmark($bookmarkitem);
+        $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Bookmark $bookmark_name deleted", "Problem with deleting bookmark $bookmark_name")
+
+      } elsif (lc $action eq 'share') {
+
+        if ($bookmarks->shareBookmark($bookmarkitem)) {
+          print "Issues with sharing bookmark $bookmark_name\n";
           $ret = $ret + 1;
+          next;
+        } else {
+          print "Bookmark $bookmark_name shared\n";
         }
-      } else {
-        print "Job for bookmark is not deleted. \n";
-        $ret = $ret + 1;
+
+      } elsif (lc $action eq 'unshare') {
+
+        if ($bookmarks->unshareBookmark($bookmarkitem)) {
+          print "Issues with unsharing bookmark $bookmark_name\n";
+          $ret = $ret + 1;
+          next;
+        } else {
+          print "Bookmark $bookmark_name unshared\n";
+        }
+
       }
+
     }
   }
 }
@@ -428,12 +361,94 @@ sub create {
 }
 
 
+sub generate_snapshot_mapping {
+  my $source = shift;
+  my $datasources = shift;
+  my $snapshots = shift;
+  my $datalayout_ref = shift;
+  my $active_branch = shift;
+
+
+  my %bookmark_times_hash;
+
+  my $ds_ref = $datasources->getJSDataSourceByName($source);
+  if (!defined($ds_ref)) {
+    print "Source $source in template $template_name not found. \n";
+    $ret = $ret + 1;
+    return \%bookmark_times_hash;
+  }
+
+
+  my $cont = $datasources->getJSDBContainer($ds_ref);
+  my $snapshot = new Snapshot_obj ( $engine_obj, $cont, 1, undef );
+
+  if ((lc $snapshots eq 'first') || (lc $snapshots eq 'both')) {
+    # find a first snapshot which can be used for bookmark ( has been taken after template was created )
+    for my $snapitem ( @{ $snapshot->getSnapshots() }) {
+      my $time = $snapshot->getSnapshotCreationTime($snapitem);
+      my $goodtime;
+      if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
+        $goodtime = $datasources->checkTime($datalayout_ref, $time);
+      } else {
+        $goodtime = $datasources->checkTime($active_branch, $time);
+      }
+      if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
+        my $timename = $time;
+        $timename =~ s/T/ /;
+        $timename =~ s/\....Z//;
+        $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
+        last;
+      }
+    }
+  }
+
+  if ((lc $snapshots eq 'last') || (lc $snapshots eq 'both')) {
+    my $last_time = (@{ $snapshot->getSnapshots() })[-1];
+
+    my $time = $snapshot->getSnapshotCreationTime($last_time);
+    my $goodtime;
+    if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
+      $goodtime = $datasources->checkTime($datalayout_ref, $time);
+    } else {
+      $goodtime = $datasources->checkTime($active_branch, $time);
+    }
+
+    if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
+      my $timename = $time;
+      $timename =~ s/T/ /;
+      $timename =~ s/\....Z//;
+      $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
+    }
+  }
+
+  if (lc $snapshots eq 'all') {
+    for my $snapitem ( @{ $snapshot->getSnapshots() }) {
+      my $time = $snapshot->getSnapshotCreationTime($snapitem);
+      my $goodtime;
+      if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
+        $goodtime = $datasources->checkTime($datalayout_ref, $time);
+      } else {
+        $goodtime = $datasources->checkTime($active_branch, $time);
+      }
+      if ( defined($goodtime) && (scalar(@{$goodtime}) > 0 )) {
+        my $timename = $time;
+        $timename =~ s/T/ /;
+        $timename =~ s/\....Z//;
+        $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
+      }
+    }
+  }
+
+  return \%bookmark_times_hash;
+
+}
+
 __DATA__
 
 =head1 SYNOPSIS
 
  dx_ctl_js_bookmarks    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-                         -action create | remove
+                         -action create | remove | share | unshare
                          -template_name template_name
                          -container_name container_name
                          -bookmark_name bookmark_name
@@ -480,6 +495,10 @@ Action name. Allowed values are :
 create - to create bookmark
 
 remove - to delete bookmark ( be aware that without bookmark_name - all bookmarks from template or container will be deleted)
+
+share - to mark bookmark as shared
+
+unshare - to mark bookmark as unshared
 
 =item B<-template_name template_name>
 Set templare for bookmark using template name
@@ -581,5 +600,16 @@ Deleting bookmark for template
  Starting job JOB-7629 for bookmark firstsnap-2016-10-12 12:02:31.
  0 - 100
  Job JOB-7629 finished with state: COMPLETED
+
+Shareing bookmark "cont_now"
+
+ dx_ctl_js_bookmarks -bookmark_name cont_now -action share
+ Bookmark cont_now shared
+
+Unsharing bookmark "cont_now"
+
+ dx_ctl_js_bookmarks -bookmark_name cont_now -action unshare
+ Bookmark cont_now unshared
+
 
 =cut

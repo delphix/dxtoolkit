@@ -154,6 +154,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $workcon (@contlist) {
     logger($debug, "processing container " . $workcon, 2);
 
+
     my $datasources = new JS_datasource_obj ( $engine_obj, undef, undef, $debug );
     my $jsbranches = new JS_branch_obj ( $engine_obj, $workcon, $debug );
 
@@ -173,10 +174,13 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $tfrangearray;
     my %timeflowranges;
 
+
+
     for my $dbref (keys %dbarray) {
 
       # load all timeflows for particular database in container
-      my $conttimeflows = $timeflows->getTimeflowsForContainer($dbref);
+      my $conttimeflows = $timeflows->getTimeflowsForSelfServiceContainer($dbref);
+      my $tfhash = $operations->link_tf_with_ss_operation($conttimeflows, $timeflows);
 
       # load database snapshots for parent
       my $dbobj = $databases->getDB($dbref);
@@ -185,58 +189,54 @@ for my $engine ( sort (@{$engine_list}) ) {
       # for all timeflows generate timeflow range for bookmarks,
       # find a matching operation from container based on name of timeflow
       #
-      for my $conttf (sort (@{$conttimeflows})) {
-        my @optime = split("@", $timeflows->getName($conttf));
+      for my $conttf (@{$conttimeflows}) {
+        # check if there is a SS operation for timeflow
+        my $operation_for_conttf = $tfhash->{$conttf};
+        my $branchref;
+        if (defined($operation_for_conttf)) {
+          $branchref = $operations->getBranch($operation_for_conttf);
+        } else {
+          $branchref = 'N/A';
+        }
 
-        if (scalar(@optime) > 1) {
-          # timeflow already in container
-          $tfrangearray = $timeflows->getTimeflowRange($conttf);
-          # my $timestart = $tfrangearray->[0]->{startPoint}->{timestamp};
+        # add to hash array a timeflow with range and branch
+        # this is used in bookmark section to find where bookmark sits
+        $tfrangearray = $timeflows->getTimeflowRange($conttf);
+        $timeflowranges{$conttf}{range} = $tfrangearray;
+        $timeflowranges{$conttf}{branch} = $branchref;
+        $timeflowranges{$conttf}{sourceref} = $dbarray{$dbref};
 
-          # find a first operation based on timeflow name
-          my $firstop = $operations->findOpAfterDataTime($optime[1] . ".000Z");
+        my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $conttf, $hier);
 
-          if (!defined($firstop)) {
-            print "Looks like JS operation is running. Skiping some operations\n";
-            $ret = $ret + 1;
-            next;
-          }
+        my $snapref = $timeflows->getParentSnapshot($topchild);
+        my $snapshotname = $snapshots->getSnapshotName($snapref);
 
-          # add to hash array a timeflow with range and branch
-          my $branchref = $operations->getBranch($firstop);
-          $timeflowranges{$conttf}{range} = $tfrangearray;
-          $timeflowranges{$conttf}{branch} = $branchref;
-          $timeflowranges{$conttf}{sourceref} = $dbarray{$dbref};
+        my $snapsize;
 
-          my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $conttf, $hier);
-          my $optime = Toolkit_helpers::convert_from_utc($operations->getStartTime($firstop), $timezone, 1);
-
-          my $branchname = $jsbranches->getName($operations->getBranch($firstop));
-          my $snapref = $timeflows->getParentSnapshot($topchild);
-          my $snapshotname = $snapshots->getSnapshotName($snapref);
-
-          my $snapsize;
-
-          if (!defined($snapshotname)) {
-            $snapshotname = "deleted";
-            $snapsize = 'N/A';
-          } else {
-            if (!defined($snapshot_sizes{$snapref})) {
-              $snapsize = $snapshots->getSnapshotSize($snapref);
-              if (defined($snapsize)) {
-                $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
-              } else {
-                $snapsize = 'N/A';
-              }
-              $snapshot_sizes{$snapref} = $snapsize
+        if (!defined($snapshotname)) {
+          $snapshotname = "deleted";
+          $snapsize = 'N/A';
+        } else {
+          if (!defined($snapshot_sizes{$snapref})) {
+            $snapsize = $snapshots->getSnapshotSize($snapref);
+            if (defined($snapsize)) {
+              $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
             } else {
-              $snapsize = $snapshot_sizes{$snapref};
+              $snapsize = 'N/A';
             }
+            $snapshot_sizes{$snapref} = $snapsize
+          } else {
+            $snapsize = $snapshot_sizes{$snapref};
           }
+        }
+
+        if (defined($operation_for_conttf)) {
+          my $optime = Toolkit_helpers::convert_from_utc($operations->getStartTime($operation_for_conttf), $timezone, 1);
+          my $branchname = $jsbranches->getName($operations->getBranch($operation_for_conttf));
 
           $output->addLine(
             $engine,
-            $operations->getName($firstop) . " / " . $optime,
+            $operations->getName($operation_for_conttf) . " / " . $optime,
             $templates->getName($containers->getJSContainerTemplate($workcon)),
             $containers->getName($workcon),
             $dbobj->getName(),
@@ -246,15 +246,19 @@ for my $engine ( sort (@{$engine_list}) ) {
             $snapshotname,
             $snapsize
           );
-
-
         } else {
-           # this is for container created without refresh
-           # maybe not needed at all
-           print Dumper $timeflows->getName($conttf);
-           print "Timestamp format not recognized. Please raise an issue when you will see this message.\n";
-           $ret = $ret + 1;
-           next;
+          $output->addLine(
+            $engine,
+            'Timeflow not in Self Service',
+            'N/A',
+            'N/A',
+            $dbobj->getName(),
+            'N/A',
+            'N/A',
+            'N/A',
+            $snapshotname,
+            $snapsize
+          );
         }
 
       }
@@ -274,6 +278,12 @@ for my $engine ( sort (@{$engine_list}) ) {
         # read bookmark time and branch
         my $booktime = $bookmarks->getJSBookmarkTime($book, 1);
         my $bookbranch = $bookmarks->getJSBookmarkBranch($book);
+
+        if (!defined($jsbranches->getName($bookbranch))) {
+          # this is a template bookmarks, we need to skip it
+          # print Dumper "Skipping " . $bookmarks->getName($book);
+          next;
+        }
 
         # convert bookmark time into database time
         if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
@@ -313,18 +323,21 @@ for my $engine ( sort (@{$engine_list}) ) {
             {
               # if timeflow if found - stop loop
               $tf = $r->{startPoint}->{timeflow};
-              next;
+              last;
             }
           }
 
         }
 
+
         # find parent timeflow for timeflow where bookmark exist
         my ($parenttf, $topchild) = $timeflows->findParentTimeflow( $tf, $hier);
 
-        # find a snapshot in container source timeflow used by bookmark
 
-        my $snap = $cont_snapshots->findSnapshotforTimestamp($rtitem[0]->{timestamp}, $tf);
+        # find a snapshot in container source timeflow used by bookmark
+        # rtitem is on ZULU already so switch search in zulu time
+
+        my $snap = $cont_snapshots->findSnapshotforTimestamp($rtitem[0]->{timestamp}, $tf, 1);
 
         # convert ref to names
         my $branchname = $jsbranches->getName($bookbranch);

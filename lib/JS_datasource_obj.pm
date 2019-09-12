@@ -249,7 +249,6 @@ sub checkTime {
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
         my @source_time;
-        my $tz = new Date::Manip::TZ;
         my $detz = $self->{_dlpxObject}->getTimezone();
         for my $t ( @{$result->{result} } ) {
           if (defined($noformat)) {
@@ -261,12 +260,11 @@ sub checkTime {
             push(@source_time, \%source_hash);
           } else {
             $t->{timestamp} =~ s/\....Z//;
-            my $dt = ParseDate($t->{timestamp});
-            my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $detz);
+            my $time = Toolkit_helpers::convert_from_utc($t->{timestamp}, $detz, 1);
             my %source_hash = (
               'name' => $t->{name},
               'dsref' => $t->{source},
-              'timestamp' => sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev)
+              'timestamp' => $time
             );
             push(@source_time, \%source_hash);
           }
