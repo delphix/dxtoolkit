@@ -15,6 +15,14 @@
      - debug:
          msg: "{{ dxout }}"
 
+     - set_fact:
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}.tar.gz"
+       when: openssl is not defined
+
+     - set_fact:
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}-openssl.tar.gz"
+       when: openssl is defined
+
      - name: Find dxtoolkit executable files
        find:
         paths: "{{ dxloc }}/bin"
@@ -40,14 +48,17 @@
 
      - name: delete a output file
        file:
-        path: "{{ dxtar }}/dxtoolkit2-{{ temp }}-{{ system }}.tar.gz"
+        path: "{{ dxtar }}/{{ outname }}"
         state: absent
 
      - name: create an archive
        archive:
-        dest: "{{ dxtar }}/dxtoolkit2-{{ temp }}-{{ system }}.tar.gz"
+        dest: "{{ dxtar }}/{{ outname }}"
         format: gz
         path: "{{ dxout }}"
 
      - name: get toolkit
-       fetch: src={{ dxtar }}/dxtoolkit2-{{ temp }}-{{ system }}.tar.gz dest=/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/ flat=yes
+       fetch:
+         src: "{{ dxtar }}/{{ outname }}"
+         dest: "/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/"
+         flat: yes

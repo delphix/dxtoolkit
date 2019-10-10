@@ -2,7 +2,7 @@
  - hosts: all
 
    vars:
-      dxloc: "/home/delphix/github"
+      #dxloc: "/home/delphix/github"
       temp: "{{ dxversion | default('HEAD') }}"
       gittag: "{% if temp != 'HEAD' %} v{{ temp }} {% else %} {{ temp }}{% endif %}"
 

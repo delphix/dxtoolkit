@@ -8,6 +8,12 @@ export DXLOC={{ dxout }}
 
 PP={{ pploc }}
 
+{% if ansible_os_family == "Solaris" %}
+export SSLLIBS="-l /opt/csw/lib/libcrypto.so.1.0.0 -l /opt/csw/lib/libssl.so"
+{% else %}
+export SSLLIBS="-l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so"
+{% endif %}
+
 rm -rf $DXLOC
 mkdir $DXLOC
 
@@ -17,16 +23,16 @@ for i in dx_*.pl ; do
     name=${i%.pl}
     echo Compiling $name;
     {% if openssl is defined %}
-    $PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so  -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
+    $PP -u $SSLLIBS -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
     {% else %}
     $PP -u -I {{ dxloc }}/lib/ -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/$name $i
     {% endif %}
 done
 
 {% if openssl is defined %}
-$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
-$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_get_replication dx_get_replication.pl
-$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_replication dx_ctl_replication.pl
+$PP -u $SSLLIBS -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
+$PP -u $SSLLIBS -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_get_replication dx_get_replication.pl
+$PP -u $SSLLIBS -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_replication dx_ctl_replication.pl
 {% else %}
 $PP -u -I {{dxloc}}/lib/ -M Text::CSV_PP  -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_ctl_users dx_ctl_users.pl
 $PP -u -M List::MoreUtils::PP -I {{dxloc}}/lib -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt  -o $DXLOC/dx_get_replication dx_get_replication.pl
@@ -61,7 +67,7 @@ pwd
 rm -rf dxtoolkit2-$1-{{ system }}-*.tar.gz
 {% if openssl is defined %}
   tar cvf dxtoolkit2-$1-{{ system }}-openssl.tar dxtoolkit2
-  gzip dxtoolkit2-$1-{{ system }}-openssl.tar 
+  gzip dxtoolkit2-$1-{{ system }}-openssl.tar
 {% else %}
   tar cvf dxtoolkit2-$1-{{ system }}.tar dxtoolkit2
   gzip dxtoolkit2-$1-{{ system }}.tar
