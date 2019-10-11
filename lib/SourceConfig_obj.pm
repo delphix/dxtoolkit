@@ -372,45 +372,48 @@ sub getSourceConfigList
 
 }
 
-# Procedure createSourceConfig
-# parameters:
-# - type
-# - repository
-# - dbname
-# - uniquename
-# - instancename
-# - jdbc
-# Create a SourceConfig ( database to be added as dSource )
-# Return 0 if OK
 
-sub createSourceConfig {
+sub buildOracleSourceConfig {
     my $self = shift;
     my $type = shift;
-    my $reference = shift;
+    my $repository = shift;
     my $dbname = shift;
-    my $uniquename = shift;
-    my $instancename = shift;
-    my $jdbc = shift;
-    my $path = shift;
-    my $ret;
+    my $native_params = shift;
 
-    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);
+    my ($jdbc, $uniquename, $instancename);
 
+    if (defined($native_params->{"jdbc"})) {
+      $jdbc = $native_params->{"jdbc"};
+    } else {
+      print "JDBC parameter is missing\n";
+      return 1;
+    }
 
-    my %sourceconfig_hash;
+    if (defined($native_params->{"uniquename"})) {
+      $uniquename = $native_params->{"uniquename"};
+    } else {
+      print "uniquename parameter is missing\n";
+      return 1;
+    }
 
-    if ($type eq 'oracleSI') {
-      my @services;
-      my %service = (
-        "type" => "OracleService",
-        "jdbcConnectionString" => "jdbc:oracle:thin:@" . $jdbc
-      );
+    if (defined($native_params->{"instancename"})) {
+      $instancename = $native_params->{"instancename"};
+    } else {
+      print "instancename parameter is missing\n";
+      return 1;
+    }
 
-      push(@services, \%service);
+    my @services;
+    my %service = (
+      "type" => "OracleService",
+      "jdbcConnectionString" => "jdbc:oracle:thin:@" . $jdbc
+    );
 
-      %sourceconfig_hash = (
+    push(@services, \%service);
+
+    my %sourceconfig_hash = (
         "type" => "OracleSIConfig",
-        "repository" => $reference,
+        "repository" => $repository,
         "services" => \@services,
         "databaseName" => $dbname,
         "uniqueName" => $uniquename,
@@ -420,21 +423,96 @@ sub createSourceConfig {
             "instanceNumber" => 1
         }
       );
+
+      return \%sourceconfig_hash;
+}
+
+
+sub buildVfilesSourceConfig {
+    my $self = shift;
+    my $type = shift;
+    my $repository = shift;
+    my $dbname = shift;
+    my $native_params = shift;
+
+    my $path;
+
+    if (defined($native_params->{"path"})) {
+      $path = $native_params->{"path"};
+    } else {
+      print "Path parameter is missing\n";
+      return 1;
+    }
+
+    my %sourceconfig_hash = (
+      "type" => "AppDataDirectSourceConfig",
+      "repository" => $repository,
+      "name" => $dbname,
+      "path" => $path
+    );
+
+    return \%sourceconfig_hash;
+}
+
+
+
+sub buildpluginSourceConfig {
+    my $self = shift;
+    my $type = shift;
+    my $repository = shift;
+    my $dbname = shift;
+    my $native_params = shift;
+    my $plugin_params = shift;
+
+    my %sourceconfig_hash = (
+      "type" => "AppDataStagedSourceConfig",
+      "repository" => $repository,
+      "name" => $dbname,
+      "linkingEnabled" => JSON::true,
+      "parameters" => $plugin_params
+    );
+
+    return \%sourceconfig_hash;
+}
+
+
+# Procedure createSourceConfig
+# parameters:
+# - type
+# - repository
+# - dbname
+# - native_params
+# - plugin_params
+# Create a SourceConfig ( database to be added as dSource )
+# Return 0 if OK
+
+sub createSourceConfig {
+    my $self = shift;
+    my $type = shift;
+    my $repository = shift;
+    my $dbname = shift;
+    my $native_params = shift;
+    my $plugin_params = shift;
+
+    my $ret;
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::createSourceConfig",1);
+
+
+    my $sourceconfig_hash;
+
+    if ($type eq 'oracleSI') {
+      $sourceconfig_hash = $self->buildOracleSourceConfig($type, $repository, $dbname, $native_params);
     } elsif ($type eq 'vfiles') {
-
-      %sourceconfig_hash = (
-        "type" => "AppDataDirectSourceConfig",
-        "repository" => $reference,
-        "name" => $dbname,
-        "path" => $path
-      );
-
+      $sourceconfig_hash = $self->buildVfilesSourceConfig($type, $repository, $dbname, $native_params);
+    } elsif ($type eq 'plugin') {
+      $sourceconfig_hash = $self->buildpluginSourceConfig($type, $repository, $dbname, $native_params, $plugin_params);
     } else {
       return 1;
     }
 
 
-    my $json_data = encode_json(\%sourceconfig_hash);
+    my $json_data = encode_json($sourceconfig_hash);
 
     my $operation = 'resources/json/delphix/sourceconfig';
 
