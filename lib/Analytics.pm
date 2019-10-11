@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +14,7 @@
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
 #
 # Program Name : Analytics.pm
-# Description  : Delphix Engine Analytics 
+# Description  : Delphix Engine Analytics
 # Author       : Marcin Przepiorowski
 # Created      : 27 May 2015 (v1.0.0)
 #
@@ -36,7 +36,7 @@ use Analytic_tcp_obj;
 use Analytic_network_obj;
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -52,24 +52,24 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
 
     $self->loadAnalyticsList($debug);
     return $self;
 }
 
 # Procedure getAnalytics
-# parameters: 
+# parameters:
 # - reference
 # Return Analictys_obj object for specific analytics reference
 
 sub getAnalytics {
     my $self = shift;
     my $container = shift;
-    
-    logger($self->{_debug}, "Entering Analytics::getAnalytics",1);   
+
+    logger($self->{_debug}, "Entering Analytics::getAnalytics",1);
 
     my $analytics = $self->{_analytics};
     return $analytics->{$container};
@@ -81,8 +81,8 @@ sub getAnalytics {
 sub getAnalyticsList {
     my $self = shift;
     my $container = shift;
-    
-    logger($self->{_debug}, "Entering Analytics::getAnalytics",1);   
+
+    logger($self->{_debug}, "Entering Analytics::getAnalytics",1);
     my @ret = sort (keys %{$self->{_analytics}});
     return \@ret;
 }
@@ -91,15 +91,15 @@ sub getAnalyticsList {
 
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
-# Return analytic name for specific analytic reference 
+# Return analytic name for specific analytic reference
 
 sub getName {
     my $self = shift;
     my $container = shift;
 
-    logger($self->{_debug}, "Entering Analytics::getName",1);   
+    logger($self->{_debug}, "Entering Analytics::getName",1);
 
     my $analytics = $self->{_analytics};
     my $ret = $analytics->{$container}->getName();
@@ -107,7 +107,7 @@ sub getName {
 }
 
 # Procedure getAnalyticByName
-# parameters: 
+# parameters:
 # - name
 # Return Analictys_obj object for specific analytics name
 
@@ -115,13 +115,13 @@ sub getAnalyticByName {
     my $self = shift;
     my $name = shift;
     my $ret;
-    
-    logger($self->{_debug}, "Entering Analytics::getAnalyticByName",1);   
+
+    logger($self->{_debug}, "Entering Analytics::getAnalyticByName",1);
 
     for my $analyticitem ( sort ( keys %{$self->{_analytics}} ) ) {
 
         if ( $self->getName($analyticitem) eq $name) {
-            $ret = $self->getAnalytics($analyticitem); 
+            $ret = $self->getAnalytics($analyticitem);
         }
     }
 
@@ -129,7 +129,7 @@ sub getAnalyticByName {
 }
 
 # Procedure get_perf
-# parameters: 
+# parameters:
 # - name - analytic name / all
 # - outdir - location of output filenames
 # - arguments - URL arguments
@@ -145,8 +145,11 @@ sub get_perf {
     my $arguments = shift;
     my $resolution = shift;
     my $format = shift;
+    my $skipinvalid = shift;
 
-    logger($self->{_debug}, "Entering Analytics::get_perf",1);   
+    logger($self->{_debug}, "Entering Analytics::get_perf",1);
+
+    my $returncode = 0;
 
     my @analytic_list;
 
@@ -189,44 +192,58 @@ sub get_perf {
         if ($ret) {
             if ($ret eq 1) {
               print "Timeout during gathering data for " . $analytic->getName() . "\n";
-              return 1;
+              if (defined($skipinvalid)) {
+                $returncode = $returncode + 1;
+              } else {
+                return 1;
+              }
             } elsif ($ret eq 2) {
               print "No data returned for analytics " . $analytic->getName() . ". Consider restarting collector\n";
-              return 2;              
+              if (defined($skipinvalid)) {
+                $returncode = $returncode + 1;
+              } else {
+                return 2;
+              }
             } else {
               print "Unknown error gathering a data for " . $analytic->getName() . "\n";
-              return 3;
-            } 
+              if (defined($skipinvalid)) {
+                $returncode = $returncode + 1;
+              } else {
+                return 3;
+              }
+            }
         } else {
             print "Generating " . $analytic->getName() . " raw report file $fn\n";
 
             open (my $FD, "> $fn") || die "Can't open file: $fn!\n";
-            
+
             $analytic->processData(10);
             $analytic->print($FD, $format);
 
             close($FD);
-          
+
             $fn = "$outdir/" . $self->{_dlpxObject}->getEngineName() . "-analytics-" . $analytic->getName() . "-aggregated" . $suffix;
             print "Generating " . $analytic->getName() . " aggregated report file $fn\n";
             open ($FD, "> $fn") || die "Can't open file: $fn!\n";
             $analytic->doAggregation();
             $analytic->print_aggregation($FD, $format);
-            close($FD);   
+            close($FD);
         }
 
     }
+
+    return $returncode;
 
 }
 
 
 # Procedure display_analytics
-# parameters: 
+# parameters:
 # Print list of analytics for engine
 
 sub display_analytics {
     my $self = shift;
-    logger($self->{_debug}, "Entering Analytics::display_analytics",1);   
+    logger($self->{_debug}, "Entering Analytics::display_analytics",1);
     my $analytics = $self->{_analytics};
     $analytics->{(keys %{$analytics})[0]}->printDetails_banner();
     for my $i (sort (keys %{$analytics})) {
@@ -235,7 +252,7 @@ sub display_analytics {
 }
 
 # Procedure create_analytics
-# parameters: 
+# parameters:
 # - name - analytic name
 # Print list of analytics for engine
 
@@ -243,16 +260,16 @@ sub display_analytics {
 sub create_analytic {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Analytics::create_analytics",1);   
+    logger($self->{_debug}, "Entering Analytics::create_analytics",1);
     my $analytics = $self->{_analytics};
 
-    my %newanalytic;    
+    my %newanalytic;
     my @axes = ("latency",
                 "throughput",
                 "count",
                 "op",
                 "client");
-    
+
     $newanalytic{"nfs-by-client"} = {
                 "type" => "StatisticSlice",
                 "name" => "nfs-by-client",
@@ -268,7 +285,7 @@ sub create_analytic {
                 "client",
                 "cached",
                 "size");
-    
+
     $newanalytic{"nfs-all"} = {
                 "type" => "StatisticSlice",
                 "name" => "nfs-all",
@@ -277,7 +294,7 @@ sub create_analytic {
                 "statisticType" => "NFS_OPS"
     };
 
-    
+
     $newanalytic{"iscsi-by-client"} = {
                 "type" => "StatisticSlice",
                 "name" => "iscsi-by-client",
@@ -285,21 +302,21 @@ sub create_analytic {
                 "collectionInterval" => 1,
                 "statisticType" => "iSCSI_OPS"
     };
-    
-    
+
+
     if (defined ($newanalytic{$name}) ) {
     # new analytic definition
 
         if (defined( $self->getAnalyticByName($name) )) {
             print "Analytic $name already exists.\n";
-            return 1;          
+            return 1;
         } else {
 
 
-            my $operation = "resources/json/delphix/analytics";        
+            my $operation = "resources/json/delphix/analytics";
             my $json_data = encode_json($newanalytic{$name});
             logger($self->{_debug}, $json_data,2);
-            my($result, $result_fmt) =$self->{_dlpxObject}->postJSONData($operation,$json_data); 
+            my($result, $result_fmt) =$self->{_dlpxObject}->postJSONData($operation,$json_data);
             my $status = $result->{status};
             if ( $status ne "OK"  ) {
                   print "Error: $result->{error}{details}\n";
@@ -308,13 +325,13 @@ sub create_analytic {
                   print "New analytic $name has been created\n";
                   return 0;
             }
-        } 
-        
+        }
+
     } else {
         print "Invalid analytic name - $name\n";
-        return 1;          
+        return 1;
     }
-        
+
 }
 
 
@@ -323,15 +340,15 @@ sub create_analytic {
 # Procedure getSourceList
 # parametres
 #
-# List analytics from Delphix Engine and 
+# List analytics from Delphix Engine and
 # create a instrance of Ananlytics_obj and load into _analytics hash
 
 sub loadAnalyticsList {
     my $self = shift;
-    
+
     my $analytics = $self->{_analytics};
     logger($self->{_debug}, "Entering Analytic::getAnalyticsList",1);
-    
+
     my $operation = "resources/json/delphix/analytics";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
 
@@ -349,11 +366,11 @@ sub loadAnalyticsList {
 
         if ($stat->{name}  =~ m/cpu/ ) {
             $ao = new Analytic_cpu_obj (     $self->{_dlpxObject},
-                                $stat->{name}, 
-                                $stat->{reference}, 
-                                $stat->{type}, 
-                                $stat->{collectionAxes}, 
-                                $stat->{collectionInterval}, 
+                                $stat->{name},
+                                $stat->{reference},
+                                $stat->{type},
+                                $stat->{collectionAxes},
+                                $stat->{collectionInterval},
                                 $stat->{statisticType},
                                 $self->{_debug}
                             );
@@ -361,11 +378,11 @@ sub loadAnalyticsList {
 
         if ($stat->{name}  =~ m/network/ ) {
             $ao = new Analytic_network_obj (     $self->{_dlpxObject},
-                                $stat->{name}, 
-                                $stat->{reference}, 
-                                $stat->{type}, 
-                                $stat->{collectionAxes}, 
-                                $stat->{collectionInterval}, 
+                                $stat->{name},
+                                $stat->{reference},
+                                $stat->{type},
+                                $stat->{collectionAxes},
+                                $stat->{collectionInterval},
                                 $stat->{statisticType},
                                 $self->{_debug}
                             );
@@ -373,11 +390,11 @@ sub loadAnalyticsList {
 
         if ( ($stat->{name}  =~ m/disk/) || ($stat->{name}  =~ m/iscsi/) || ($stat->{name}  =~ m/nfs/)  ) {
             $ao = new Analytic_io_obj (     $self->{_dlpxObject},
-                                $stat->{name}, 
-                                $stat->{reference}, 
-                                $stat->{type}, 
-                                $stat->{collectionAxes}, 
-                                $stat->{collectionInterval}, 
+                                $stat->{name},
+                                $stat->{reference},
+                                $stat->{type},
+                                $stat->{collectionAxes},
+                                $stat->{collectionInterval},
                                 $stat->{statisticType},
                                 $self->{_debug}
                             );
@@ -385,11 +402,11 @@ sub loadAnalyticsList {
 
         if ( ($stat->{name}  =~ m/default.tcp/) ) {
             $ao = new Analytic_tcp_obj (     $self->{_dlpxObject},
-                                $stat->{name}, 
-                                $stat->{reference}, 
-                                $stat->{type}, 
-                                $stat->{collectionAxes}, 
-                                $stat->{collectionInterval}, 
+                                $stat->{name},
+                                $stat->{reference},
+                                $stat->{type},
+                                $stat->{collectionAxes},
+                                $stat->{collectionInterval},
                                 $stat->{statisticType},
                                 $self->{_debug}
                             );
@@ -397,9 +414,9 @@ sub loadAnalyticsList {
 
         if (defined($ao)) {
             $analytics->{$stat->{reference}} = $ao;
-        } 
+        }
 
-    } 
+    }
 }
 
 
