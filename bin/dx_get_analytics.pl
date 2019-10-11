@@ -58,6 +58,7 @@ GetOptions(
   'dever=s' => \(my $dever),
   'interval|i=s' => \($resolution),
   'version' => \(my $print_version),
+  'skipinvalid' => \(my $skipinvalid),
   'nohead' => \(my $nohead),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -152,7 +153,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $arguments = "&resolution=$resolution&startTime=$st_timestamp";
   my $endTime = $et_timestamp ? "&endTime=$et_timestamp" : "";
   $arguments = $arguments . $endTime;
-  $ret = $ret + $analytic_list->get_perf($type, $outdir, $arguments, $allowedres{$resolution}, $format );
+  $ret = $ret + $analytic_list->get_perf($type, $outdir, $arguments, $allowedres{$resolution}, $format, $skipinvalid );
 
 }
 
@@ -177,6 +178,7 @@ __DATA__
                         [-i interval ]
                         [-st <start_time> ]
                         [-et <end_time> ]
+                        [-skipinvalid ]
                         -format csv|json
                         -debug
 
@@ -230,6 +232,11 @@ Output directory
 =head1 OPTIONS
 
 =over 4
+
+=item B<-skipinvalid>
+Skip broken or empty analytic output and contiune with other.
+Return code will be not 0 if there were any skipped analytics.
+Default is stop execution on first broken or empty analytic.
 
 =item B<-format>
 Display output in csv or json format
