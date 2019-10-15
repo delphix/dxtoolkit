@@ -145,7 +145,7 @@ sub get_perf {
     my $arguments = shift;
     my $resolution = shift;
     my $format = shift;
-    my $skipinvalid = shift;
+    my $stoponinvalid = shift;
 
     logger($self->{_debug}, "Entering Analytics::get_perf",1);
 
@@ -192,24 +192,24 @@ sub get_perf {
         if ($ret) {
             if ($ret eq 1) {
               print "Timeout during gathering data for " . $analytic->getName() . "\n";
-              if (defined($skipinvalid)) {
-                $returncode = $returncode + 1;
-              } else {
+              if (defined($stoponinvalid)) {
                 return 1;
+              } else {
+                $returncode = $returncode + 1;
               }
             } elsif ($ret eq 2) {
               print "No data returned for analytics " . $analytic->getName() . ". Consider restarting collector\n";
-              if (defined($skipinvalid)) {
-                $returncode = $returncode + 1;
-              } else {
+              if (defined($stoponinvalid)) {
                 return 2;
+              } else {
+                $returncode = $returncode + 1;
               }
             } else {
               print "Unknown error gathering a data for " . $analytic->getName() . "\n";
-              if (defined($skipinvalid)) {
-                $returncode = $returncode + 1;
-              } else {
+              if (defined($stoponinvalid)) {
                 return 3;
+              } else {
+                $returncode = $returncode + 1;
               }
             }
         } else {
