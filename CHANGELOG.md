@@ -1,5 +1,14 @@
 ## 2.4.2
 
+New, smaller dxtoolkit package with installed.
+It's initial phase of revisiting [an old issue](https://github.com/delphix/dxtoolkit/issues/8).
+The trick is based on one binary created with symlinks on Linux platorm and hard links on Windows platform.
+
+Packages named with installer, requires the following steps:
+- uncompress package
+- change working directory to one with uncompressed package
+- run ./install.sh or install.cmd command
+
 ### Changed
 - [fix for #90](https://github.com/delphix/dxtoolkit/issues/90) - Allow dx_get_analytics -t all to ignore missing metrics. 2.4.2 will skip broken analytics unless parameter -stoponinvalid is specified
 - [fix for #103](https://github.com/delphix/dxtoolkit/issues/103) - Policy files can be loaded in newer engines now
