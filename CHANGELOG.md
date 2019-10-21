@@ -1,3 +1,13 @@
+## 2.4.2
+
+### Changed
+- [fix for #90](https://github.com/delphix/dxtoolkit/issues/90) - Allow dx_get_analytics -t all to ignore missing metrics. 2.4.2 will skip broken analytics unless parameter -stoponinvalid is specified
+- [fix for #103](https://github.com/delphix/dxtoolkit/issues/103) - Policy files can be loaded in newer engines now
+- [fix for #104](https://github.com/delphix/dxtoolkit/issues/104) - fix for vCDB and dx_get_db_env with -config
+
+
+
+
 ## 2.4.1
 
 Configuration files with an encrypted passwords created before version 2.4.0 has to be regenerated due
