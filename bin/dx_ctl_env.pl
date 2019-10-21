@@ -60,6 +60,7 @@ GetOptions(
   'uniquename=s' => \(my $uniquename),
   'instancename=s' => \(my $instancename),
   'jdbc=s'     => \(my $jdbc),
+  'plugin_params=s' => \(my $plugin_params),
   'listenername=s' => \(my $listenername),
   'endpoint=s@' => \(my $endpoint),
   'bits=n' => \(my $bits),
@@ -134,6 +135,11 @@ if ((lc $action eq 'addrepo') || (lc $action eq 'deleterepo')) {
   }
 }
 
+if (!((lc $repotype eq 'oracle') || (lc $repotype eq 'vfiles') || (lc $repotype eq 'postgresql') || (lc $repotype eq 'db2') || (lc $repotype eq 'plugin'))) {
+  print "Unknown repository type $repotype\n";
+  exit 1;
+}
+
 if (lc $action eq 'adddatabase') {
   if (defined($repotype)) {
     if (lc $repotype eq 'oracle') {
@@ -158,9 +164,11 @@ if (lc $action eq 'adddatabase') {
         print "vfilepath has to be set\n";
         exit 1;
       }
-    } else {
-      print "Repotype parameter $repotype unknown. Use oracle or vfiles\n";
-      exit 1;
+    } elsif (lc $repotype eq 'plugin') {
+      if (!defined($plugin_params)) {
+        print "plugin_params has to be set\n";
+        exit 1;
+      }
     }
   } else {
     print "Repotype parameter is required with adddatabase\n";
@@ -351,18 +359,68 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
 
         if (lc $repotype eq 'oracle') {
-          if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
+          my %native_params = (
+            "uniquename" => $uniquename,
+            "instancename" => $instancename,
+            "jdbc" => $jdbc
+          );
+          if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, \%native_params)) {
             print "Can't add database $dbname \n";
             $ret = $ret + 1;
           } else {
             print "Database $dbname added into $repopath\n";
           }
         } elsif (lc $repotype eq 'vfiles') {
-          if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, undef, undef, undef, $vfilepath)) {
+          my %native_params = (
+            "path" => $vfilepath
+          );
+
+          my %plugin_params = ();
+
+          if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, \%native_params)) {
             print "Can't add directory $vfilepath as $dbname \n";
             $ret = $ret + 1;
           } else {
             print "vFiles source $vfilepath added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'db2') {
+          my %native_params;
+          my %plugin_params_hash = (
+            "prettyName" => $dbname,
+            "dbName" => $dbname
+          );
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
+            print "Can't add DB2 $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "DB2 $dbname added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'postgresql') {
+          my %native_params;
+          my %plugin_params_hash = (
+            "prettyName" => $dbname
+          );
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
+            print "Can't add Postgresql $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "Postgresql $dbname added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'plugin') {
+          my $native_params;
+          my $plugin_params_hash;
+          eval {
+            $plugin_params_hash = from_json($plugin_params);
+          } or do {
+            my $e = $@;
+            print "Problem with JSON $e\n";
+          };
+
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, $native_params, $plugin_params_hash)) {
+            print "Can't add plugin database $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "Plugin database $dbname added into environment $env_name\n";
           }
         }
 
@@ -371,6 +429,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Can't find repository path $repopath \n";
         $ret = $ret + 1;
       }
+
     }
 
     if ( lc $action eq 'deletedatabase' ) {
@@ -416,9 +475,6 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
       }
     }
-
-
-
   }
 
   if (defined($parallel) && (scalar(@jobs) > 0)) {
@@ -428,7 +484,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
   }
 
-  if (!defined($hostupdate)) {
+  if ((lc $action eq 'updatehost') && (!defined($hostupdate))) {
     # no environment found with a IP - need to report an error
     $ret = $ret + 1;
   }
@@ -455,8 +511,9 @@ __DATA__
             [-username name]
             [-authtype password|systemkey]
             [-password password]
-            [-repotype oracle|vfiles]
+            [-repotype oracle|vfiles|db2|postgresql|plugin]
             [-repopath ORACLE_HOME]
+            [-plugin_params JSON_parameters]
             [-host name/ip of existing host to update]
             [-newhost new name/ip of the host]
             [-help|? ]
@@ -536,11 +593,12 @@ Authentication type for user (use with adduser)
 =item B<-password password>
 Password for user (use with adduser)
 
-=item B<-repotype oracle|vfiles>
-Repository type to add (only Oracle and vFiles support for now - use with addrepo or adddatabase)
+=item B<-repotype oracle|vfiles|db2|postgresql|plugin>
+Repository type.
+The following types oracle and vfiles can be used to add repository manually.
 
 =item B<-repopath ORACLE_HOME>
-Oracle Home to add (use with addrepo)
+Repository name (Oracle Home, plugin name, vfiles directory)
 
 =item B<-bits 32|64>
 Oracle Home binary bit version (32/64)
@@ -556,6 +614,9 @@ Host name or IP from an environment to be updated.
 Not required if environment name is specified
 
 =item B<-newhost hostname/IP>
+New Host name or IP of host being updated
+
+=item B<-plugin_params JSON_parameters>
 New Host name or IP of host being updated
 
 =item B<-help>
@@ -667,5 +728,19 @@ Chaging an IP of particular host
  0 - 30 - 40 - 80 - 100
  Job JOB-2852 finished with state: COMPLETED
  Checking environment for host update linuxtarget Host with IP 172.16.200.130 not found
+
+Adding the Postgresql database posttest into environment
+
+  dx_ctl_env -d 53 -name linuxsource -action adddatabase -dbname posttest -repotype postgresql -repopath "Postgres vFiles (9.6)"
+  Adding database posttest into Postgres vFiles (9.6) on environment linuxsource
+  Postgresql posttest added into environment linuxsource
+
+Adding the MySQL database using EDSI plugin
+
+  dx_ctl_env -d 53 -action adddatabase -repotype plugin -repopath "/usr/sbin (MySQL Community Server (GPL)) 5.6.29" \
+                   -dbname testmysql -name linuxtarget \
+                   -plugin_params  '{ "dbName": "testmysql", "baseDir":"/usr/sbin" }'
+  Adding database testmysql into /usr/sbin (MySQL Community Server (GPL)) 5.6.29 on environment linuxtarget
+  Plugin database testmysql added into environment linuxtarget
 
 =cut

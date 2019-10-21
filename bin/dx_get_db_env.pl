@@ -329,7 +329,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (defined($config)) {
 
-      my $other = $dbobj->getConfig($templates);
+      my $other = $dbobj->getConfig($templates, undef, $groups);
       $output->addLine(
         $engine,
         $hostenv_line,
