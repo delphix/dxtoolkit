@@ -1,0 +1,44 @@
+#!/bin/bash
+
+VER=$1
+
+export PAR_VERBATIM=1
+export TARLOC={{ dxtar }}
+export DXLOC={{ dxout }}
+
+PP={{ pploc }}
+
+rm -rf $DXLOC
+mkdir $DXLOC
+
+cd {{ dxloc }}/bin
+
+{% if openssl is defined %}
+$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so  -I {{ dxloc }}/lib/ -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/runner `ls dx_*.pl | xargs`
+{% else %}
+$PP -u -I {{ dxloc }}/lib/ -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/runner `ls dx_*.pl | xargs`
+{% endif %}
+
+cp *.example $DXLOC
+
+if [[ "$VER" == "HEAD" ]]; then
+ VER=`cat ../lib/Toolkit_helpers.pm | grep -e 'our $version' | perl -pe "s/.*(\d\.\d\.\d).*/\1/"`
+fi
+
+rm -rf /tmp/par-*
+
+cd $DXLOC
+
+ln -s $DXLOC/runner $DXLOC/dx_get_appliance
+
+echo Checking version
+RV=`$DXLOC/dx_get_appliance -version 2>&1`
+
+
+if [ "$RV" != "$VER" ] ; then
+	echo ERROR
+	exit
+fi
+
+rm $DXLOC/dx_get_appliance
+rm -rf /tmp/par-*

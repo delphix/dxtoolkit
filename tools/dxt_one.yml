@@ -1,0 +1,64 @@
+---
+ - hosts: all
+
+   vars:
+      dxloc: "/home/delphix/github"
+      temp: "{{ dxversion | default('HEAD') }}"
+      gittag: "{% if temp != 'HEAD' %} v{{ temp }} {% else %} {{ temp }}{% endif %}"
+
+
+   tasks:
+
+     - debug:
+         msg: "{{ gittag }}"
+
+     - debug:
+         msg: "{{ dxout }}"
+
+     - set_fact:
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}.tar.gz"
+       when: openssl is not defined
+
+     - set_fact:
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}-openssl.tar.gz"
+       when: openssl is defined
+
+     - name: Find dxtoolkit executable files
+       find:
+        paths: "{{ dxloc }}/bin"
+        file_type: file
+        patterns: "dx_*.pl"
+       register: findfiles
+
+     - set_fact:
+         dxfiles: "{{ findfiles.files}}"
+
+     - name: create dxtoolkit compile script
+       template: src=compile_one.j2 dest="{{ dxloc }}/bin/compile_one.sh" mode=755 force=yes
+
+     - name: compile
+       shell: "bash -x {{dxloc}}/bin/compile_one.sh {{ temp }} > /tmp/compile.log"
+       args:
+        chdir: "{{ dxloc }}/bin/"
+       register: output
+       failed_when: "'ERROR' in output.stdout"
+
+     - name: create installer
+       template: src=install.j2 dest="{{ dxout }}/install.sh" mode=755 force=yes
+
+     - name: delete a output file
+       file:
+        path: "{{ dxtar }}/{{ outname }}"
+        state: absent
+
+     - name: create an archive
+       archive:
+        dest: "{{ dxtar }}/{{ outname }}"
+        format: gz
+        path: "{{ dxout }}"
+
+     - name: get toolkit
+       fetch:
+         src: "{{ dxtar }}/{{ outname }}"
+         dest: "/mnt/c/Users/pioro/Documents/oss_delphix/dxtoolkit/tools/"
+         flat: yes
