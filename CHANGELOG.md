@@ -1,7 +1,18 @@
+## 2.4.2
+
+### Changed
+- [fix for #90](https://github.com/delphix/dxtoolkit/issues/90) - Allow dx_get_analytics -t all to ignore missing metrics. 2.4.2 will skip broken analytics unless parameter -stoponinvalid is specified
+- [fix for #103](https://github.com/delphix/dxtoolkit/issues/103) - Policy files can be loaded in newer engines now
+- [fix for #104](https://github.com/delphix/dxtoolkit/issues/104) - fix for vCDB and dx_get_db_env with -config
+
+
+
+
 ## 2.4.1
 
-Configuration files with an encrypted passwords has to be regenerated due
+Configuration files with an encrypted passwords created before version 2.4.0 has to be regenerated due
 to changes with encryption keys and adding a checksum to password encryption.
+Configuration files encrypted using version 2.4.0+ should work without any changes.
 
 ### Added
 
@@ -9,7 +20,7 @@ to changes with encryption keys and adding a checksum to password encryption.
 - [fix for #84](https://github.com/delphix/dxtoolkit/issues/84) - shared / unshare action added to dx_ctl_js_bookmarks
 - [fix for #94](https://github.com/delphix/dxtoolkit/issues/94) - shared / unshare action added to dx_ctl_js_bookmarks
 - [fix for #96](https://github.com/delphix/dxtoolkit/issues/96) - support for changing a host in an environment added
-- [fix for #97](https://github.com/delphix/dxtoolkit/issues/97) - dx_ctl_users enhancement - adding a SSH key to user 
+- [fix for #97](https://github.com/delphix/dxtoolkit/issues/97) - dx_ctl_users enhancement - adding a SSH key to user
 
 ### Changed
 - better support for log in errors ( cookie clean up )
