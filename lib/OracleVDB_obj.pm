@@ -693,7 +693,12 @@ sub setListener {
       }
     }
 
-    $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.8.0)) {
+      $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
+    } else {
+      $self->{NEWDB}->{source}->{nodeListeners} = \@listrefarray;
+    }
     return 0;
   }
 
