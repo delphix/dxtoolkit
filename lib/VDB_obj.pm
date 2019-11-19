@@ -198,7 +198,18 @@ sub setMaskingJob
     my $maskingjob = shift;
     logger($self->{_debug}, "Entering VDB_obj::setMaskingJob",1);
 
-    $self->{"NEWDB"}->{maskingJob} = $maskingjob;
+    if ($maskingjob eq 'script') {
+      if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.10.1)) {
+        $self->{"NEWDB"}->{masked} = JSON::true;
+      } else {
+        print "Script masking allowed from higher version of Delphix";
+        return 1;
+      }
+    } else {
+      $self->{"NEWDB"}->{maskingJob} = $maskingjob;
+    }
+
+    return 0;
 
 }
 
