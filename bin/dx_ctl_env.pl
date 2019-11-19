@@ -135,9 +135,12 @@ if ((lc $action eq 'addrepo') || (lc $action eq 'deleterepo')) {
   }
 }
 
-if (!((lc $repotype eq 'oracle') || (lc $repotype eq 'vfiles') || (lc $repotype eq 'postgresql') || (lc $repotype eq 'db2') || (lc $repotype eq 'plugin'))) {
-  print "Unknown repository type $repotype\n";
-  exit 1;
+
+if (defined($repotype)) {
+  if (!((lc $repotype eq 'oracle') || (lc $repotype eq 'vfiles') || (lc $repotype eq 'postgresql') || (lc $repotype eq 'db2') || (lc $repotype eq 'plugin'))) {
+    print "Unknown repository type $repotype\n";
+    exit 1;
+  }
 }
 
 if (lc $action eq 'adddatabase') {
