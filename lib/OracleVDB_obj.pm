@@ -1647,7 +1647,8 @@ sub addSource {
         $dsource_params{"type"} = 'OraclePDBLinkParameters';
       }
 
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) { 
+        # all above 1.8 below 1.11
         %dsource_params = (
           "type" => "LinkParameters",
           "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -1674,6 +1675,34 @@ sub addSource {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkData";
       }
 
+    } else {
+        # Delphix 6.0
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "dbCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "dbUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true
+          }
+      );
+
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+      }
+      
     }
 
 
