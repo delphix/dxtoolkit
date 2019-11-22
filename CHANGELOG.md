@@ -1,3 +1,10 @@
+## 2.4.3
+
+### Changed
+- [fix for #110](https://github.com/delphix/dxtoolkit/issues/110) - Listener selection for provisioning database doesn't work with 5.2 and 5.3 engines
+- [fix for #108](https://github.com/delphix/dxtoolkit/issues/108) - add an option for dx_provision_db to use script for masking
+- [fix for #107](https://github.com/delphix/dxtoolkit/issues/107) - fix for dx_ctl_env - disable env fails
+
 ## 2.4.2
 
 ### Changed
