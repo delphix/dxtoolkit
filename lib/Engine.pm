@@ -856,20 +856,29 @@ sub getTime {
 
 # Procedure checkSSHconnectivity
 # parameters:
-# - minus - date current date minus minus minutes
-# return timezone of Delphix engine
+# -username - user name to check
+# -password - password
+# -hostip - ip of host to check
+# -port - port of host to check
+# return array (0 if OK, 1 if not OK, reason)
 
 sub checkSSHconnectivity {
    my $self = shift;
    my $username = shift;
    my $password = shift;
    my $host = shift;
+   my $port = shift;
 
    logger($self->{_debug}, "Entering Engine::checkSSHconnectivity",1);
+
+   if (!defined($port)) {
+     $port = 22;
+   }
 
    my %conn_hash = (
        "type" => "SSHConnectivity",
        "address" => $host,
+       "port" => $port,
        "credentials" => {
            "type" => "PasswordCredential",
            "password" => $password
@@ -890,8 +899,7 @@ sub checkSSHconnectivity {
    } else {
       $ret = 0;
    }
-
-   return $ret;
+   return ($ret, $result);
 }
 
 # Procedure checkConnectorconnectivity
