@@ -13,14 +13,52 @@
          msg: "{{ gittag }}"
 
      - debug:
-         msg: "{{ dxout }}"
+         msg: "{{ temp }}"
+
+     - name: Install CPAN
+       sudo: yes
+       environment:
+        PATH: "/usr/local/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin"
+       cpanm: name={{ item }}
+       ignore_errors: yes
+       with_items:
+         - "JSON"
+         - "Date::Manip"
+         - "DateTime::Event::Cron::Quartz"
+         - "DateTime::Format::DateParse"
+         - "Crypt::CBC"
+         - "Crypt::Blowfish"
+         - "Text::CSV"
+         - "Try::Tiny"
+         - "LWP::UserAgent"
+         - "Net::SSLeay"
+         - "IO::Socket::SSL"
+         - "LWP::Protocol::https"
+         - "Filter::Crypto::Decrypt"
+         - "PAR::Packer"
+         - "Term::ReadKey"
+         - "Log::Syslog::Fast"
+
+     - name: dxtoolkit dirs
+       file: name={{ item }} state=directory
+       with_items:
+         - "{{ dxout }}"
+         - "{{ dxloc }}"
+
+     - name: github checkout
+       git:
+         repo: https://github.com/delphix/dxtoolkit.git
+         dest: "{{ dxloc }}"
+         clone: yes
+         version: "{{ gittag }}"
+         force: yes
 
      - set_fact:
-         outname: "dxtoolkit2-{{ temp }}-{{ system }}.tar.gz"
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}-installer.tar.gz"
        when: openssl is not defined
 
      - set_fact:
-         outname: "dxtoolkit2-{{ temp }}-{{ system }}-openssl.tar.gz"
+         outname: "dxtoolkit2-{{ temp }}-{{ system }}-installer-openssl.tar.gz"
        when: openssl is defined
 
      - name: Find dxtoolkit executable files
@@ -36,8 +74,17 @@
      - name: create dxtoolkit compile script
        template: src=compile_one.j2 dest="{{ dxloc }}/bin/compile_one.sh" mode=755 force=yes
 
+     - name: no dx_syslog support
+       when: no_dx_syslog == True
+       file:
+         state: absent
+         path: "{{ dxloc }}/bin/dx_syslog.pl"
+
+     - name: put password
+       synchronize: src=dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+
      - name: compile
-       shell: "bash -x {{dxloc}}/bin/compile_one.sh {{ temp }} > /tmp/compile.log"
+       shell: "bash -x {{dxloc}}/bin/compile_one.sh {{ temp }} | tee /tmp/compile.log"
        args:
         chdir: "{{ dxloc }}/bin/"
        register: output
