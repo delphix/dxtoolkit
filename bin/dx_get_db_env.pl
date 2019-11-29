@@ -53,6 +53,7 @@ my $version = $Toolkit_helpers::version;
 
 my $parentlast = 'p';
 my $hostenv = 'h';
+my $configtype = 's';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -73,6 +74,7 @@ GetOptions(
   'parentlast=s' =>  \($parentlast),
   'hostenv=s' =>  \($hostenv),
   'config' => \(my $config),
+  'configtype=s' => \($configtype),
   'backup=s' => \(my $backup),
   'olderthan=s' => \(my $creationtime),
   'save=s' => \(my $save),
@@ -173,19 +175,34 @@ if (defined($backup)) {
   $primary = 1;
 
 } elsif (defined($config)) {
-  $hostenv = 'e';
-  $output->addHeader(
-    {'Appliance', 20},
-    {'Env. name', 20},
-    {'Database',   30},
-    {'Group',      15},
-    {'Type',        8},
-    {'SourceDB',   30},
-    {'Repository', 35},
-    {'DB type',    10},
-    {'Version',    10},
-    {'Other',      100}
-  );
+  if ($configtype eq 's') {
+    $hostenv = 'e';
+    $output->addHeader(
+      {'Appliance', 20},
+      {'Env. name', 20},
+      {'Database',   30},
+      {'Group',      15},
+      {'Type',        8},
+      {'SourceDB',   30},
+      {'Repository', 35},
+      {'DB type',    10},
+      {'Version',    10},
+      {'Other',      100}
+    );
+  } elsif ($configtype eq 'd') {
+    $output->addHeader(
+      {'Appliance', 20},
+      {$hostenv_head, 20},
+      {'Database',   30},
+      {'Group',      15},
+      {'Type',        8},
+      {'SourceDB',   30},
+      {'Repository', 35},
+      {'DB type',    10},
+      {'Version',    15},
+      {'Server DB name',  30}
+    );
+  }
 } else {
   if (defined($masking)) {
     $output->addHeader(
@@ -328,20 +345,35 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $groupname = $groups->getName($dbobj->getGroup());
 
     if (defined($config)) {
-
-      my $other = $dbobj->getConfig($templates, undef, $groups);
-      $output->addLine(
-        $engine,
-        $hostenv_line,
-        $dbobj->getName(),
-        $groupname,
-        $dbobj->getType(),
-        $parentname,
-        $dbobj->getHome(),
-        $dbobj->{_dbtype},
-        $dbobj->getVersion(),
-        $other
-      );
+      if ($configtype eq 's') {
+        my $other = $dbobj->getConfig($templates, undef, $groups);
+        $output->addLine(
+          $engine,
+          $hostenv_line,
+          $dbobj->getName(),
+          $groupname,
+          $dbobj->getType(),
+          $parentname,
+          $dbobj->getHome(),
+          $dbobj->{_dbtype},
+          $dbobj->getVersion(),
+          $other
+        );
+      } elsif ($configtype eq 'd') {
+        my $other = $dbobj->getConfig($templates, undef, $groups);
+        $output->addLine(
+          $engine,
+          $hostenv_line,
+          $dbobj->getName(),
+          $groupname,
+          $dbobj->getType(),
+          $parentname,
+          $dbobj->getHome(),
+          $dbobj->{_dbtype},
+          $dbobj->getVersion(),
+          $dbobj->getDatabaseName()
+        );
+      }
 
     } elsif (defined($backup)) {
 
@@ -410,6 +442,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $maskedjob_name
         );
       } else {
+
         $output->addLine(
           $engine,
           $hostenv_line,
