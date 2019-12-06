@@ -68,7 +68,7 @@
        template: src=compile_template.j2 dest="{{ dxloc }}/bin/compile.sh" mode=755 force=yes
 
      - name: compile
-       shell: "bash -x {{dxloc}}/bin/compile.sh {{ temp }} > /tmp/compile.log"
+       shell: "bash -x {{dxloc}}/bin/compile.sh {{ temp }} | tee /tmp/compile.log"
        args:
         chdir: "{{ dxloc }}/bin/"
        register: output

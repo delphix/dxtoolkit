@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,9 +67,9 @@ sub getAllHosts {
     logger($self->{_debug}, "Entering Host_obj::getAllHosts",1);
 
     my $hosts = $self->{_hosts};
-    
+
     return sort (keys %{$hosts});
-    
+
 }
 
 # Procedure getHost
@@ -140,6 +140,29 @@ sub getHostAddr {
 
     if (defined($reference) && defined($hosts->{$reference}) ) {
         $ret = $hosts->{$reference}->{name};
+    } else {
+        $ret = 'NA';
+    }
+    return $ret;
+}
+
+
+# Procedure getHostPort
+# parameters:
+# - reference - reference of host
+# Return host hash for specific host reference
+
+sub getHostPort {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Host_obj::getHostPort",1);
+
+    my $hosts = $self->{_hosts};
+    my $ret;
+
+    if (defined($reference) && defined($hosts->{$reference}) ) {
+        $ret = $hosts->{$reference}->{sshPort};
     } else {
         $ret = 'NA';
     }

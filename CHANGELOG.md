@@ -1,3 +1,12 @@
+## 2.4.4
+
+### Added
+- [fix for #100](https://github.com/delphix/dxtoolkit/issues/100) - Request for new dxtoolkit command that can do port validation
+
+### Changed
+- [fix for #105](https://github.com/delphix/dxtoolkit/issues/105) - dx_get_db_env: Get database name (the one in the instance) for SQL databases
+- [fix for #106](https://github.com/delphix/dxtoolkit/issues/106) - fix for db_get_db_env -hostenv and -config does not work together
+
 ## 2.4.3
 
 ### Changed
@@ -20,8 +29,6 @@ Packages named with installer, requires the following steps:
 - [fix for #90](https://github.com/delphix/dxtoolkit/issues/90) - Allow dx_get_analytics -t all to ignore missing metrics. 2.4.2 will skip broken analytics unless parameter -stoponinvalid is specified
 - [fix for #103](https://github.com/delphix/dxtoolkit/issues/103) - Policy files can be loaded in newer engines now
 - [fix for #104](https://github.com/delphix/dxtoolkit/issues/104) - fix for vCDB and dx_get_db_env with -config
-
-
 
 
 ## 2.4.1

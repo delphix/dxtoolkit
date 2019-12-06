@@ -85,7 +85,7 @@
          path: "{{ dxloc }}/bin/dx_syslog.pl"
 
      - name: put password
-       synchronize: src=dbutils.pm dest={{ dxloc }}/lib/dbutils.pm
+       copy: src=dbutils.pm dest={{ dxloc }}/lib/dbutils.pm force=yes
 
      #- name: remove script
      #  file: name="{{ dxloc }}/bin/compile.sh"
