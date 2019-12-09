@@ -530,7 +530,15 @@ sub getDatabaseName
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getDatabaseName",1);
-    return $self->{sourceConfig}->{databaseName};
+    if (defined($self->{sourceConfig})) {
+      if ($self->{sourceConfig} eq "NA") {
+        return "NA";
+      } else {
+        return $self->{sourceConfig}->{databaseName};
+      }
+    } else {
+      return "NA";
+    }
 }
 
 
