@@ -1,0 +1,2 @@
+dx_create_env -d local -envname marcinoraclesrc.dcenter.delphix.com -envtype unix -host 10.43.1.211 -username "ora12102" -authtype systemkey -password ChangeMe  -toolkitdir "/u01/app/toolkit"
+dx_create_env -d local -envname marcinoracletgt.dcenter.delphix.com -envtype unix -host 10.43.6.187 -username "ora12102" -authtype systemkey -password ChangeMe  -toolkitdir "/u01/app/toolkit"

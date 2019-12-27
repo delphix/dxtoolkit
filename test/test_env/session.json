@@ -1,0 +1,17 @@
+{
+   "type" : "OKResult",
+   "action" : null,
+   "result" : {
+      "version" : {
+         "major" : 1,
+         "minor" : 10,
+         "micro" : 6,
+         "type" : "APIVersion"
+      },
+      "client" : null,
+      "locale" : "en-US",
+      "type" : "APISession"
+   },
+   "job" : null,
+   "status" : "OK"
+}

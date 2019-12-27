@@ -1,0 +1,55 @@
+{
+   "action" : null,
+   "result" : {
+      "queued" : false,
+      "targetObjectType" : "UnixHostEnvironment",
+      "type" : "Job",
+      "target" : "UNIX_HOST_ENVIRONMENT-2",
+      "suspendable" : false,
+      "namespace" : null,
+      "jobState" : "COMPLETED",
+      "reference" : "JOB-7",
+      "user" : "USER-2",
+      "parentActionState" : "COMPLETED",
+      "percentComplete" : 100,
+      "cancelReason" : null,
+      "name" : null,
+      "title" : "Refresh and discover environment \"marcinoracletgt.dcenter.delphix.com\".",
+      "parentAction" : "ACTION-25",
+      "startTime" : "2019-12-24T15:12:25.474Z",
+      "emailAddresses" : null,
+      "updateTime" : "2019-12-24T15:14:04.477Z",
+      "targetName" : "marcinoracletgt.dcenter.delphix.com",
+      "events" : [
+         {
+            "timestamp" : "2019-12-24T15:12:25.492Z",
+            "percentComplete" : 0,
+            "type" : "JobEvent",
+            "messageCode" : "event.job.started",
+            "diagnoses" : [],
+            "eventType" : "INFO",
+            "messageDetails" : "ENVIRONMENT_REFRESH_AND_DISCOVER job started for \"marcinoracletgt.dcenter.delphix.com\".",
+            "messageAction" : null,
+            "messageCommandOutput" : null,
+            "state" : null
+         },
+         {
+            "type" : "JobEvent",
+            "percentComplete" : 100,
+            "timestamp" : "2019-12-24T15:14:04.479Z",
+            "diagnoses" : [],
+            "eventType" : "INFO",
+            "messageCode" : "event.job.completed",
+            "messageCommandOutput" : null,
+            "state" : null,
+            "messageAction" : null,
+            "messageDetails" : "ENVIRONMENT_REFRESH_AND_DISCOVER job for \"marcinoracletgt.dcenter.delphix.com\" completed successfully."
+         }
+      ],
+      "actionType" : "ENVIRONMENT_REFRESH_AND_DISCOVER",
+      "cancelable" : true
+   },
+   "type" : "OKResult",
+   "status" : "OK",
+   "job" : null
+}
