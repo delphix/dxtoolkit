@@ -1,360 +1,284 @@
 {
-   "job" : null,
-   "status" : "OK",
-   "overflow" : false,
-   "action" : null,
    "result" : [
       {
-         "virtual" : false,
-         "encryptedLinkingEnabled" : false,
          "filesPerSet" : 5,
-         "status" : "DEFAULT",
-         "hosts" : null,
-         "staging" : false,
-         "externalFilePath" : null,
-         "bandwidthLimit" : 0,
-         "container" : "ORACLE_DB_CONTAINER-1",
-         "linked" : true,
-         "namespace" : null,
-         "checkLogical" : false,
-         "numberOfConnections" : 1,
-         "compressedLinkingEnabled" : true,
-         "rmanChannels" : 2,
-         "backupLevelEnabled" : false,
-         "name" : "marina",
-         "type" : "OracleLinkedSource",
-         "reference" : "ORACLE_LINKED_SOURCE-1",
          "operations" : {
+            "type" : "LinkedSourceOperations",
             "preSync" : [],
-            "postSync" : [],
-            "type" : "LinkedSourceOperations"
+            "postSync" : []
          },
-         "config" : "ORACLE_SINGLE_CONFIG-1",
+         "logCollectionEnabled" : false,
+         "status" : "DEFAULT",
+         "staging" : false,
+         "encryptedLinkingEnabled" : false,
+         "numberOfConnections" : 1,
+         "rmanChannels" : 2,
+         "container" : "ORACLE_DB_CONTAINER-1",
+         "virtual" : false,
+         "reference" : "ORACLE_LINKED_SOURCE-4",
          "description" : null,
+         "compressedLinkingEnabled" : true,
+         "namespace" : null,
+         "type" : "OracleLinkedSource",
+         "name" : "marina",
+         "backupLevelEnabled" : false,
+         "externalFilePath" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-1",
+         "linked" : true,
+         "hosts" : null,
+         "bandwidthLimit" : 0,
+         "checkLogical" : false,
          "runtime" : {
-            "accessibleTimestamp" : "2017-12-07T17:24:29.300Z",
-            "databaseStats" : [],
-            "databaseMode" : null,
-            "type" : "OracleSourceRuntime",
-            "databaseSize" : 0,
-            "databaseRole" : null,
-            "archivelogEnabled" : null,
-            "activeInstances" : [],
             "dnfsEnabled" : false,
-            "enabled" : "ENABLED",
-            "lastNonLoggedLocation" : null,
-            "bctEnabled" : false,
-            "status" : "UNKNOWN",
-            "accessible" : false,
+            "activeInstances" : [
+               {
+                  "instanceNumber" : 1,
+                  "instanceName" : "marina",
+                  "type" : "OracleActiveInstance",
+                  "hostName" : "rh65-ora12c-src"
+               }
+            ],
+            "type" : "OracleSourceRuntime",
+            "archivelogEnabled" : null,
             "racEnabled" : null,
-            "notAccessibleReason" : "Cannot connect to database due to: Exception occurred while getting connection: oracle.ucp.UniversalConnectionPoolException: Cannot get Connection from Datasource: java.sql.SQLException: ORA-28001: the password has expired\n"
+            "databaseRole" : "PRIMARY",
+            "bctEnabled" : true,
+            "accessible" : true,
+            "notAccessibleReason" : null,
+            "accessibleTimestamp" : "2019-12-30T16:49:20.474Z",
+            "databaseMode" : "READ_WRITE",
+            "databaseStats" : null,
+            "lastNonLoggedLocation" : "3016311",
+            "databaseSize" : 3102179328,
+            "status" : "RUNNING",
+            "enabled" : "ENABLED"
          }
       },
       {
-         "checkLogical" : false,
-         "numberOfConnections" : 1,
+         "reference" : "ORACLE_LINKED_SOURCE-2",
+         "description" : null,
+         "type" : "OracleLinkedSource",
          "compressedLinkingEnabled" : false,
          "namespace" : null,
-         "config" : "ORACLE_SINGLE_CONFIG-2",
-         "description" : null,
-         "runtime" : {
-            "status" : "RUNNING",
-            "lastNonLoggedLocation" : "6473824",
-            "enabled" : "ENABLED",
-            "bctEnabled" : true,
-            "notAccessibleReason" : null,
-            "accessible" : true,
-            "racEnabled" : null,
-            "databaseStats" : null,
-            "databaseMode" : "READ_WRITE",
-            "accessibleTimestamp" : "2017-12-07T17:24:28.339Z",
-            "activeInstances" : [
-               {
-                  "type" : "OracleActiveInstance",
-                  "instanceNumber" : 1,
-                  "instanceName" : "carmel",
-                  "hostName" : "rh65-ora12c-src"
-               }
-            ],
-            "dnfsEnabled" : false,
-            "type" : "OracleSourceRuntime",
-            "databaseSize" : 2372534272,
-            "databaseRole" : "PRIMARY",
-            "archivelogEnabled" : null
-         },
-         "rmanChannels" : 2,
-         "backupLevelEnabled" : false,
-         "type" : "OracleLinkedSource",
          "name" : "carmel",
-         "reference" : "ORACLE_LINKED_SOURCE-2",
+         "backupLevelEnabled" : false,
+         "externalFilePath" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-2",
+         "linked" : true,
+         "hosts" : null,
+         "bandwidthLimit" : 0,
+         "checkLogical" : false,
+         "runtime" : {
+            "enabled" : "DISABLED",
+            "status" : "UNKNOWN",
+            "lastNonLoggedLocation" : null,
+            "databaseSize" : 0,
+            "databaseStats" : [],
+            "databaseMode" : null,
+            "accessible" : false,
+            "notAccessibleReason" : "Object is not available for monitoring",
+            "accessibleTimestamp" : "2019-12-30T16:49:20.199Z",
+            "databaseRole" : null,
+            "bctEnabled" : false,
+            "racEnabled" : null,
+            "archivelogEnabled" : null,
+            "type" : "OracleSourceRuntime",
+            "activeInstances" : [],
+            "dnfsEnabled" : false
+         },
+         "filesPerSet" : 5,
          "operations" : {
-            "preSync" : [],
             "postSync" : [],
+            "preSync" : [],
             "type" : "LinkedSourceOperations"
          },
-         "encryptedLinkingEnabled" : false,
-         "filesPerSet" : 5,
          "status" : "DEFAULT",
-         "hosts" : null,
-         "virtual" : false,
-         "externalFilePath" : null,
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "bandwidthLimit" : 0,
-         "linked" : true,
-         "staging" : false
+         "logCollectionEnabled" : false,
+         "staging" : false,
+         "encryptedLinkingEnabled" : false,
+         "numberOfConnections" : 1,
+         "rmanChannels" : 2,
+         "container" : "ORACLE_DB_CONTAINER-2",
+         "virtual" : false
       },
       {
+         "runtime" : {
+            "notAccessibleReason" : "Object is not available for monitoring",
+            "accessibleTimestamp" : "2019-12-30T16:49:20.201Z",
+            "accessible" : false,
+            "databaseStats" : [],
+            "databaseMode" : null,
+            "databaseSize" : 0,
+            "lastNonLoggedLocation" : null,
+            "status" : "UNKNOWN",
+            "enabled" : "DISABLED",
+            "activeInstances" : [],
+            "dnfsEnabled" : false,
+            "type" : "OracleSourceRuntime",
+            "archivelogEnabled" : null,
+            "racEnabled" : null,
+            "bctEnabled" : false,
+            "databaseRole" : null
+         },
+         "checkLogical" : false,
+         "hosts" : null,
+         "bandwidthLimit" : 0,
+         "linked" : true,
+         "externalFilePath" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-5",
+         "name" : "cdbkate",
          "backupLevelEnabled" : false,
+         "compressedLinkingEnabled" : false,
+         "namespace" : null,
+         "type" : "OracleLinkedSource",
+         "description" : null,
+         "reference" : "ORACLE_LINKED_SOURCE-6",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "virtual" : false,
+         "numberOfConnections" : 1,
          "rmanChannels" : 2,
-         "reference" : "ORACLE_LINKED_SOURCE-3",
+         "logCollectionEnabled" : false,
+         "status" : "DEFAULT",
+         "encryptedLinkingEnabled" : false,
+         "staging" : false,
          "operations" : {
             "postSync" : [],
-            "type" : "LinkedSourceOperations",
-            "preSync" : []
+            "preSync" : [],
+            "type" : "LinkedSourceOperations"
          },
-         "type" : "OracleLinkedSource",
-         "name" : "PDBX1",
-         "description" : null,
-         "config" : "ORACLE_PDB_CONFIG-8",
+         "filesPerSet" : 5
+      },
+      {
+         "config" : "ORACLE_PDB_CONFIG-7",
+         "externalFilePath" : null,
+         "linked" : true,
+         "bandwidthLimit" : 0,
+         "hosts" : null,
          "runtime" : {
-            "databaseRole" : "PRIMARY",
-            "accessible" : true,
-            "databaseSize" : 2187722752,
-            "type" : "OraclePDBSourceRuntime",
+            "notAccessibleReason" : null,
             "activeInstances" : [
                {
-                  "instanceNumber" : 1,
                   "type" : "OracleActiveInstance",
+                  "instanceNumber" : 1,
                   "instanceName" : "carmel",
                   "hostName" : "rh65-ora12c-src"
                }
             ],
-            "notAccessibleReason" : null,
-            "lastNonLoggedLocation" : "6473824",
-            "enabled" : "ENABLED",
-            "accessibleTimestamp" : "2017-12-07T17:24:28.970Z",
+            "accessibleTimestamp" : "2019-12-30T16:52:19.065Z",
+            "accessible" : true,
+            "type" : "OraclePDBSourceRuntime",
             "databaseMode" : "READ_WRITE",
             "databaseStats" : null,
-            "status" : "RUNNING"
-         },
-         "namespace" : null,
-         "checkLogical" : false,
-         "compressedLinkingEnabled" : true,
-         "numberOfConnections" : 1,
-         "staging" : false,
-         "bandwidthLimit" : 0,
-         "container" : "ORACLE_DB_CONTAINER-4",
-         "externalFilePath" : null,
-         "linked" : true,
-         "virtual" : false,
-         "encryptedLinkingEnabled" : false,
-         "hosts" : null,
-         "filesPerSet" : 5,
-         "status" : "DEFAULT"
-      },
-      {
-         "name" : "testdx",
-         "type" : "OracleVirtualSource",
-         "reference" : "ORACLE_VIRTUAL_SOURCE-1",
-         "operations" : {
-            "postRollback" : [],
-            "preSnapshot" : [],
-            "type" : "VirtualSourceOperations",
-            "preStop" : [],
-            "configureClone" : [],
-            "postStop" : [],
-            "preStart" : [],
-            "postRefresh" : [],
-            "preRollback" : [],
-            "preRefresh" : [],
-            "postSnapshot" : [],
-            "postStart" : []
-         },
-         "runtime" : {
-            "accessibleTimestamp" : "2017-12-07T17:24:29.426Z",
-            "databaseMode" : null,
-            "databaseStats" : [],
-            "archivelogEnabled" : null,
-            "databaseRole" : null,
-            "databaseSize" : 0,
-            "type" : "OracleSourceRuntime",
-            "dnfsEnabled" : false,
-            "activeInstances" : [],
-            "bctEnabled" : false,
+            "databaseSize" : 2156101632,
+            "lastNonLoggedLocation" : "6485533",
+            "status" : "RUNNING",
             "enabled" : "ENABLED",
-            "lastNonLoggedLocation" : null,
-            "status" : "INACTIVE",
-            "racEnabled" : null,
-            "accessible" : false,
-            "notAccessibleReason" : "Cannot connect to database due to: Exception occurred while getting connection: oracle.ucp.UniversalConnectionPoolException: Cannot get Connection from Datasource: java.sql.SQLRecoverableException: Listener refused the connection with the following error:\nORA-12514, TNS:listener does not currently know of service requested in connect descriptor\n "
+            "databaseRole" : "PRIMARY"
          },
-         "config" : "ORACLE_SINGLE_CONFIG-7",
+         "checkLogical" : false,
+         "reference" : "ORACLE_LINKED_SOURCE-7",
          "description" : null,
-         "fileMappingRules" : null,
+         "compressedLinkingEnabled" : true,
          "namespace" : null,
-         "redoLogSizeInMB" : 50,
-         "configTemplate" : null,
-         "mountBase" : "/mnt/provision",
+         "type" : "OracleLinkedSource",
+         "backupLevelEnabled" : false,
+         "name" : "PDBX1",
+         "encryptedLinkingEnabled" : false,
          "staging" : false,
-         "archivelogMode" : true,
-         "allowAutoVDBRestartOnHostReboot" : false,
-         "linked" : false,
-         "container" : "ORACLE_DB_CONTAINER-2",
-         "lsnrProtocolAddresses" : [],
-         "virtual" : true,
          "status" : "DEFAULT",
-         "hosts" : null,
-         "redoLogGroups" : 3,
-         "customEnvVars" : [],
-         "configParams" : {
-            "audit_sys_operations" : "FALSE",
-            "remote_login_passwordfile" : "'EXCLUSIVE'",
-            "_omf" : "'ENABLED'",
-            "audit_trail" : "'NONE'",
-            "log_archive_format" : "'%t_%s_%r.dbf'",
-            "memory_target" : "1073741824",
-            "open_cursors" : "300",
-            "compatible" : "'12.1.0.2.0'",
-            "filesystemio_options" : "'setall'",
-            "log_archive_dest_1" : "'location=/mnt/provision/testdx/archive/ MANDATORY'",
-            "processes" : "300",
-            "event" : "'19397 trace name context forever, level 1024'"
+         "logCollectionEnabled" : false,
+         "rmanChannels" : 2,
+         "numberOfConnections" : 1,
+         "virtual" : false,
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "filesPerSet" : 5,
+         "operations" : {
+            "preSync" : [],
+            "type" : "LinkedSourceOperations",
+            "postSync" : []
          }
       },
       {
-         "runtime" : {
-            "lastNonLoggedLocation" : null,
-            "enabled" : "ENABLED",
-            "accessibleTimestamp" : "2017-12-07T17:24:29.912Z",
-            "status" : "INACTIVE",
-            "databaseStats" : [],
-            "databaseMode" : null,
-            "databaseSize" : 0,
-            "type" : "OraclePDBSourceRuntime",
-            "accessible" : false,
-            "databaseRole" : null,
-            "activeInstances" : [],
-            "notAccessibleReason" : "Database user \"delphix\" cannot access the source database because the database is not open."
-         },
-         "description" : null,
-         "config" : "ORACLE_PDB_CONFIG-31",
-         "reference" : "ORACLE_VIRTUAL_SOURCE-22",
-         "operations" : {
-            "postStop" : [],
-            "type" : "VirtualSourceOperations",
-            "preSnapshot" : [],
-            "preStop" : [],
-            "configureClone" : [],
-            "postRollback" : [],
-            "postSnapshot" : [],
-            "preRefresh" : [],
-            "postStart" : [],
-            "postRefresh" : [],
-            "preRollback" : [],
-            "preStart" : []
-         },
-         "name" : "carpVDB",
-         "type" : "OracleVirtualSource",
-         "configTemplate" : null,
-         "mountBase" : "/mnt/provision",
-         "fileMappingRules" : null,
-         "namespace" : null,
-         "redoLogSizeInMB" : 50,
-         "linked" : false,
-         "allowAutoVDBRestartOnHostReboot" : false,
-         "container" : "ORACLE_DB_CONTAINER-28",
-         "archivelogMode" : true,
          "staging" : false,
-         "hosts" : null,
          "status" : "DEFAULT",
+         "logCollectionEnabled" : false,
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "nodeListeners" : [],
+         "virtual" : true,
+         "container" : "ORACLE_DB_CONTAINER-4",
          "configParams" : {
             "compatible" : "'12.1.0.2.0'",
-            "open_cursors" : "300",
-            "db_files" : "500",
             "audit_trail" : "'NONE'",
-            "_catalog_foreign_restore" : "FALSE",
-            "pga_aggregate_target" : "416284672",
-            "log_archive_format" : "'%t_%s_%r.dbf'",
-            "diagnostic_dest" : "'/u01/app/ora12102'",
-            "remote_login_passwordfile" : "'EXCLUSIVE'",
-            "audit_file_dest" : "'/u01/app/ora12102/admin/carmel/adump'",
-            "processes" : "300",
-            "enable_pluggable_database" : "TRUE",
-            "dispatchers" : "'(PROTOCOL=TCP) (SERVICE=carmelXDB)'",
-            "db_domain" : "''",
-            "sga_target" : "1258291200"
-         },
-         "customEnvVars" : [],
-         "redoLogGroups" : 3,
-         "virtual" : true,
-         "lsnrProtocolAddresses" : []
-      },
-      {
-         "archivelogMode" : true,
-         "staging" : false,
-         "container" : "ORACLE_DB_CONTAINER-33",
-         "linked" : false,
-         "allowAutoVDBRestartOnHostReboot" : false,
-         "virtual" : true,
-         "lsnrProtocolAddresses" : [],
-         "configParams" : {
-            "audit_trail" : "'NONE'",
-            "_omf" : "'ENABLED'",
-            "memory_target" : "1073741824",
-            "log_archive_format" : "'%t_%s_%r.dbf'",
             "audit_sys_operations" : "FALSE",
-            "remote_login_passwordfile" : "'EXCLUSIVE'",
-            "open_cursors" : "300",
-            "filesystemio_options" : "'setall'",
-            "compatible" : "'12.1.0.2.0'",
             "processes" : "300",
-            "event" : "'19397 trace name context forever, level 1024'",
-            "log_archive_dest_1" : "'location=/mnt/provision/Vtestdx_X6F/archive/ MANDATORY'"
+            "open_cursors" : "300",
+            "memory_target" : "1073741824",
+            "_omf" : "'ENABLED'",
+            "filesystemio_options" : "'setall'",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "log_archive_dest_1" : "'location=/mnt/provision/oratest/archive/ MANDATORY'"
          },
-         "customEnvVars" : [],
-         "redoLogGroups" : 3,
-         "hosts" : null,
-         "status" : "DEFAULT",
-         "reference" : "ORACLE_VIRTUAL_SOURCE-27",
+         "archivelogMode" : true,
+         "fileMappingRules" : null,
          "operations" : {
-            "postRollback" : [],
+            "postStart" : [],
             "postStop" : [],
-            "preStop" : [],
-            "configureClone" : [],
             "preSnapshot" : [],
             "type" : "VirtualSourceOperations",
-            "preRollback" : [],
-            "postRefresh" : [],
-            "preStart" : [],
-            "postStart" : [],
             "preRefresh" : [],
-            "postSnapshot" : []
+            "preStart" : [],
+            "postRefresh" : [],
+            "postSnapshot" : [],
+            "preStop" : [],
+            "postRollback" : [],
+            "preRollback" : [],
+            "configureClone" : []
          },
-         "type" : "OracleVirtualSource",
-         "name" : "Vtestdx_X6F",
-         "description" : null,
-         "config" : "ORACLE_SINGLE_CONFIG-36",
+         "redoLogGroups" : 3,
+         "linked" : false,
+         "redoLogSizeInMB" : 50,
+         "config" : "ORACLE_SINGLE_CONFIG-10",
          "runtime" : {
-            "accessibleTimestamp" : "2017-12-07T17:24:28.443Z",
+            "archivelogEnabled" : null,
+            "databaseRole" : "PRIMARY",
+            "racEnabled" : null,
+            "bctEnabled" : false,
+            "dnfsEnabled" : false,
+            "activeInstances" : [
+               {
+                  "instanceName" : "oratest",
+                  "instanceNumber" : 1,
+                  "type" : "OracleActiveInstance",
+                  "hostName" : "rh65-ora12c-tgt"
+               }
+            ],
+            "type" : "OracleSourceRuntime",
+            "status" : "RUNNING",
+            "lastNonLoggedLocation" : "0",
+            "databaseSize" : 3103064064,
+            "enabled" : "ENABLED",
+            "accessible" : true,
+            "accessibleTimestamp" : "2019-12-30T16:49:20.481Z",
+            "notAccessibleReason" : null,
             "databaseMode" : "READ_WRITE",
             "databaseStats" : [
                {
-                  "sectionName" : "Open Transactions",
                   "type" : "OracleDatabaseStatsSection",
-                  "rowValues" : [
-                     {
-                        "statisticValues" : [
-                           "1"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     }
-                  ],
                   "columnHeaders" : [
                      "Transaction Count"
-                  ]
+                  ],
+                  "rowValues" : [
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "0"
+                        ]
+                     }
+                  ],
+                  "sectionName" : "Open Transactions"
                },
                {
-                  "sectionName" : "Session Statistics",
                   "columnHeaders" : [
                      "Current Session",
                      "Total Session",
@@ -363,219 +287,192 @@
                   "rowValues" : [
                      {
                         "statisticValues" : [
-                           "18",
-                           "98",
-                           "18"
+                           "1",
+                           "1323",
+                           "6"
                         ],
                         "type" : "OracleDatabaseStatistic"
                      }
                   ],
+                  "sectionName" : "Session Statistics",
                   "type" : "OracleDatabaseStatsSection"
                },
                {
+                  "sectionName" : "Top Wait Events",
+                  "rowValues" : [
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "control file parallel write",
+                           "29",
+                           "8"
+                        ]
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "db file parallel write",
+                           "10",
+                           "7"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "log file parallel write",
+                           "4",
+                           "2"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "log file sync",
+                           "1",
+                           "1"
+                        ]
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "control file sequential read",
+                           "13",
+                           "0"
+                        ]
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "os thread creation",
+                           "1",
+                           "0"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "db file sequential read",
+                           "2",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "oracle thread bootstrap",
+                           "5",
+                           "0"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "Disk file operations I/O",
+                           "2",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     }
+                  ],
                   "columnHeaders" : [
                      "Event",
                      "Wait Count",
                      "Total Wait Time (s)"
                   ],
-                  "rowValues" : [
-                     {
-                        "statisticValues" : [
-                           "db file sequential read",
-                           "64",
-                           "11"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "statisticValues" : [
-                           "enq: TM - contention",
-                           "5",
-                           "5"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "type" : "OracleDatabaseStatistic",
-                        "statisticValues" : [
-                           "external table read",
-                           "3",
-                           "3"
-                        ]
-                     },
-                     {
-                        "statisticValues" : [
-                           "db file parallel write",
-                           "2",
-                           "1"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "type" : "OracleDatabaseStatistic",
-                        "statisticValues" : [
-                           "enq: CR - block range reuse ckpt",
-                           "2",
-                           "1"
-                        ]
-                     },
-                     {
-                        "statisticValues" : [
-                           "db file parallel read",
-                           "5",
-                           "1"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "statisticValues" : [
-                           "library cache load lock",
-                           "1",
-                           "0"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "type" : "OracleDatabaseStatistic",
-                        "statisticValues" : [
-                           "control file parallel write",
-                           "1",
-                           "0"
-                        ]
-                     },
-                     {
-                        "statisticValues" : [
-                           "read by other session",
-                           "3",
-                           "0"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "statisticValues" : [
-                           "os thread creation",
-                           "1",
-                           "0"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     }
-                  ],
-                  "type" : "OracleDatabaseStatsSection",
-                  "sectionName" : "Top Wait Events"
+                  "type" : "OracleDatabaseStatsSection"
                },
                {
+                  "sectionName" : "Top SQL by CPU",
+                  "rowValues" : [],
                   "columnHeaders" : [
                      "Percentage of Load",
                      "SQL Statement"
                   ],
-                  "rowValues" : [
-                     {
-                        "statisticValues" : [
-                           "33%",
-                           "SELECT synonym_name from all_synonyms where (owner = 'PUBLIC' OR owner = (SELECT USER FROM DUAL)) AND (synonym_name LIKE 'V$%' OR synonym_name LIKE 'X$%' OR synonym_name like 'GV$%')"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     },
-                     {
-                        "type" : "OracleDatabaseStatistic",
-                        "statisticValues" : [
-                           "17%",
-                           "SELECT DISTINCT table_name FROM (SELECT table_name FROM all_tab_privs WHERE (privilege = 'SELECT') AND (table_name LIKE 'V_$%' OR table_name LIKE 'GV_$%' OR table_name LIKE 'V_X$%' OR table_name LIKE 'DBA_%' OR table_name LIKE 'CDB_%') UNION SELECT table_name FROM role_tab_privs WHERE privilege = 'SELECT')"
-                        ]
-                     },
-                     {
-                        "statisticValues" : [
-                           "17%",
-                           "select name,intcol#,segcol#,type#,length,nvl(precision#,0),decode(type#,2,nvl(scale,-127/*MAXSB1MINAL*/),178,scale,179,scale,180,scale,181,scale,182,scale,183,scale,231,scale,0),null$,fixedstorage,nvl(deflength,0),default$,rowid,col#,property, nvl(charsetid,0),nvl(charsetform,0),spare1,spare2,nvl(spare3,0), nvl(evaledition#,1),nvl(unusablebefore#,0),nvl(unusablebeginning#,0) from col$ where obj#=:1 order by intcol#"
-                        ],
-                        "type" : "OracleDatabaseStatistic"
-                     }
-                  ],
-                  "type" : "OracleDatabaseStatsSection",
-                  "sectionName" : "Top SQL by CPU"
+                  "type" : "OracleDatabaseStatsSection"
                }
-            ],
-            "archivelogEnabled" : null,
-            "databaseSize" : 3459579904,
-            "type" : "OracleSourceRuntime",
-            "databaseRole" : "PRIMARY",
-            "dnfsEnabled" : true,
-            "activeInstances" : [
-               {
-                  "instanceNumber" : 1,
-                  "type" : "OracleActiveInstance",
-                  "instanceName" : "VtesX6F",
-                  "hostName" : "rh65-ora12c-tgt"
-               }
-            ],
-            "bctEnabled" : false,
-            "lastNonLoggedLocation" : "0",
-            "enabled" : "ENABLED",
-            "status" : "RUNNING",
-            "accessible" : true,
-            "racEnabled" : null,
-            "notAccessibleReason" : null
+            ]
          },
-         "redoLogSizeInMB" : 50,
-         "namespace" : null,
-         "fileMappingRules" : null,
+         "hosts" : null,
+         "description" : null,
+         "reference" : "ORACLE_VIRTUAL_SOURCE-1",
          "mountBase" : "/mnt/provision",
-         "configTemplate" : null
+         "name" : "oratest",
+         "configTemplate" : "DATABASE_TEMPLATE-1",
+         "customEnvVars" : [],
+         "namespace" : null,
+         "type" : "OracleVirtualSource"
       },
       {
-         "namespace" : null,
-         "runtime" : {
-            "notAccessibleReason" : null,
-            "status" : "INACTIVE",
-            "enabled" : "ENABLED",
-            "accessible" : true,
-            "databaseSize" : 11776,
-            "accessibleTimestamp" : "2017-12-07T17:29:11.275Z",
-            "type" : "AppDataSourceRuntime"
-         },
          "description" : null,
-         "config" : "APPDATA_SOURCE_CONFIG-1",
+         "reference" : "ORACLE_VIRTUAL_SOURCE-3",
+         "mountBase" : "/mnt/provision",
+         "name" : "PDBTEST",
+         "configTemplate" : null,
+         "customEnvVars" : [],
+         "namespace" : null,
+         "type" : "OracleVirtualSource",
+         "linked" : false,
+         "redoLogSizeInMB" : 50,
+         "config" : "ORACLE_PDB_CONFIG-13",
+         "runtime" : {
+            "lastNonLoggedLocation" : null,
+            "status" : "UNKNOWN",
+            "databaseSize" : 0,
+            "databaseRole" : null,
+            "enabled" : "DISABLED",
+            "accessible" : false,
+            "activeInstances" : [],
+            "notAccessibleReason" : "Object is not available for monitoring",
+            "accessibleTimestamp" : "2019-12-30T16:49:20.223Z",
+            "databaseStats" : [],
+            "databaseMode" : null,
+            "type" : "OraclePDBSourceRuntime"
+         },
+         "hosts" : null,
+         "configParams" : {
+            "audit_trail" : "'DB'",
+            "compatible" : "'12.1.0.2.0'",
+            "open_cursors" : "300",
+            "processes" : "300",
+            "enable_pluggable_database" : "TRUE",
+            "audit_file_dest" : "'/u01/app/ora12102/admin/cdbkate/adump'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "pga_aggregate_target" : "416284672",
+            "sga_target" : "1258291200",
+            "dispatchers" : "'(PROTOCOL=TCP) (SERVICE=cdbkateXDB)'",
+            "db_domain" : "''",
+            "diagnostic_dest" : "'/u01/app/ora12102'"
+         },
+         "archivelogMode" : true,
+         "fileMappingRules" : null,
          "operations" : {
+            "postRollback" : [],
+            "preStop" : [],
+            "configureClone" : [],
+            "preRollback" : [],
             "type" : "VirtualSourceOperations",
             "preSnapshot" : [],
-            "preStop" : [
-               {
-                  "type" : "RunBashOnSourceOperation",
-                  "name" : "bbbbb",
-                  "command" : "touch /tmp/pre_stop"
-               }
-            ],
-            "configureClone" : [],
-            "postStop" : [
-               {
-                  "command" : "touch /tmp/post_stop",
-                  "type" : "RunBashOnSourceOperation",
-                  "name" : "aaaaaaaa"
-               }
-            ],
-            "postRollback" : [],
-            "postSnapshot" : [],
-            "preRefresh" : [],
+            "postStop" : [],
             "postStart" : [],
-            "preStart" : [],
+            "postSnapshot" : [],
             "postRefresh" : [],
-            "preRollback" : []
+            "preStart" : [],
+            "preRefresh" : []
          },
-         "reference" : "APPDATA_VIRTUAL_SOURCE-1",
-         "name" : "Vfiles_3RSCQ792",
-         "type" : "AppDataVirtualSource",
-         "toolkit" : "APPDATA_TOOLKIT-1",
-         "parameters" : {},
-         "hosts" : null,
+         "redoLogGroups" : 3,
+         "staging" : false,
          "status" : "DEFAULT",
-         "additionalMountPoints" : [],
-         "virtual" : true,
-         "linked" : false,
+         "logCollectionEnabled" : false,
          "allowAutoVDBRestartOnHostReboot" : false,
-         "container" : "APPDATA_CONTAINER-17",
-         "staging" : false
+         "nodeListeners" : [],
+         "virtual" : true,
+         "container" : "ORACLE_DB_CONTAINER-6"
       }
    ],
-   "total" : 7,
+   "status" : "OK",
+   "overflow" : false,
+   "total" : 6,
+   "action" : null,
+   "job" : null,
    "type" : "ListResult"
 }

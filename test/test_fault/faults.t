@@ -3,8 +3,8 @@ use Data::Dumper;
 use Test::More tests => 11;
 use Test::Script;
 use LWP::UserAgent;
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/lib/';
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/test/';
+use lib '../../lib/';
+use lib '../';
 use lib '.';
 use server;
 

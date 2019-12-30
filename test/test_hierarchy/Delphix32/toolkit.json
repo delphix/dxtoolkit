@@ -1,0 +1,103 @@
+{
+   "job" : null,
+   "result" : [
+      {
+         "resources" : {
+            "virtual/status.sh" : "#\n# Copyright (c) 2016, 2017 by Delphix. All rights reserved.\n#\n\n#\n# Checks whether the provided location is mounted on the target host.\n# Mount checking mechanism is adopted from Delphix Oracle provision scripts (unmount_vdb*.sh)\n#\n# Since output of `mount` will always be canonical, we must also canonicalize the user provided data directory path\n# to ensure proper matching.\n#\n\ncanonicalize_path() {\n    local input_path=\"${1}\"\n    local output_path=\"\"\n\n    local pathArr=($(echo ${input_path} | tr \"/\" \" \"))\n    local pathStack=()\n\n    for item in ${pathArr[@]}; do\n        # Ignore \"\" or \".\" as the path would remain in same level\n        if [[ ${item} != \"\" && ${item} != \".\" ]]; then\n            if [[ ${item} != \"..\" ]]; then\n                # Push valid path content into \"stack\"\n                pathStack[${#pathStack[*]}]=${item}\n            elif [[ ${#pathStack[@]} -gt 0 ]]; then\n                # Pop off top of \"stack\" for \"..\" case\n                unset pathStack[${#pathStack[@]}-1]\n            fi\n        fi\n    done\n\n    for pathContent in ${pathStack[@]}; do\n        output_path=\"${output_path}/${pathContent}\"\n    done\n\n    # If the path deducts to empty, return \"/\"\n    [[ ${output_path} = \"\" ]] && output_path=\"/\"\n\n    echo ${output_path}\n}\n\ncheck_mounted() {\n    if $(type mount >/dev/null 2>&1); then\n        mount_output=$(mount)\n    elif $(type /usr/sbin/mount >/dev/null 2>&1); then\n        mount_output=$(/usr/sbin/mount)\n    else\n        # Assume running if mount lookup is not possible\n        return 0\n    fi\n\n    # Handle mount output differences between OS\n    if [[ \"$DLPX_OS_TYPE\" == \"SOLARIS\" || \"$DLPX_OS_TYPE\" == \"HP_UX\" ]]; then\n        mount_output=$(echo \"${mount_output}\" | \\\n            awk '{if ($1 == mount_point) print $0}' mount_point=$1)\n    else\n        # LINUX and AIX\n        mount_output=$(echo \"${mount_output}\" | \\\n            awk '{if ($3 == mount_point) print $0}' mount_point=$1)\n    fi\n    test -n \"$mount_output\"\n}\n\ncheck_running() {\n    # We track starting/stopping by creating/deleting a sentinel file.\n    # If the token file is there, then we are \"running\"\n    STATUS_DIR=${TOOLKIT_DIR}/Delphix-USF\n    STATUS_FILE=${STATUS_DIR}/status-${VDB_GUID}\n    [ -f ${STATUS_FILE} ]\n}\n\nnormalized_path=$(canonicalize_path \"$DLPX_DATA_DIRECTORY\")\n\nif check_mounted ${normalized_path} && check_running; then\n    printf \"\\\"ACTIVE\\\"\" > $DLPX_OUTPUT_FILE\n    exit 0\nelse\n    printf \"\\\"INACTIVE\\\"\" > $DLPX_OUTPUT_FILE\n    exit 0\nfi\n",
+            "virtual/start.sh" : "#\n# Copyright (c) 2017 by Delphix. All rights reserved.\n#\n\n# We keep track of whether a VDB is running or not using a sentinel files.\n# Each running VDB has its own sentinel file, named using the VDB's GUID.\n# All of the sentinel files for a particular host are kept in a single directory,\n# inside the Delphix Engine's \"toolkit directory\".\n\nSTATUS_DIR=${TOOLKIT_DIR}/Delphix-USF\nSTATUS_FILE=${STATUS_DIR}/status-${VDB_GUID}\n\n# Make the sentinel directory, if necessary.\nmkdir -p ${STATUS_DIR}\n\n# \"starting\" just means making sure the sentinel file exists.\ntouch ${STATUS_FILE}\n",
+            "virtual/status.ps1" : "#\n# Copyright (c) 2016 by Delphix. All rights reserved.\n#\n\n#\n# Checks whether the provided location is mounted on the target host.\n#\n\n# Normalize mount path as Windows accepts Unix style paths and converts them to Windows style path when mounting\n$mountpath = (Resolve-Path -LiteralPath \"$env:DLPX_DATA_DIRECTORY\").Path\n\n# If the mountpath failed to resolve, it means nothing is mounted at this location\nif ($mountpath -ne $null) {\n    $mount_point = Get-WmiObject -Class Win32_MountPoint |\n    where {$_.Directory -like \"Win32_Directory.Name=`\"$($mountpath -replace '\\\\','\\\\')`\"\"}\n    if ($mount_point -ne $null) {\n        '\"ACTIVE\"' | Out-File -Encoding ascii $env:DLPX_OUTPUT_FILE\n        exit 0\n    }\n}\n\n'\"INACTIVE\"' | Out-File -Encoding ascii $env:DLPX_OUTPUT_FILE\nexit 0\n",
+            "virtual/stop.sh" : "#\n# Copyright (c) 2017 by Delphix. All rights reserved.\n#\n\n# We keep track of whether a VDB is running or not using a sentinel files.\n# Each running VDB has its own sentinel file, named using the VDB's GUID.\n# All of the sentinel files for a particular host are kept in a single directory,\n# inside the Delphix Engine's \"toolkit directory\".\n\nSTATUS_DIR=${TOOLKIT_DIR}/Delphix-USF\nSTATUS_FILE=${STATUS_DIR}/status-${VDB_GUID}\n\n# \"Stopping\" a VDB just means ensuring that no sentinel file exists.\nrm -f ${STATUS_FILE}\n"
+         },
+         "discoveryDefinition" : {
+            "sourceConfigDiscovery" : "return {}",
+            "sourceConfigNameField" : "",
+            "sourceConfigSchema" : {
+               "properties" : {},
+               "additionalProperties" : false,
+               "type" : "object"
+            },
+            "repositoryIdentityFields" : [
+               "name"
+            ],
+            "repositorySchema" : {
+               "properties" : {
+                  "name" : {
+                     "type" : "string"
+                  }
+               },
+               "additionalProperties" : false,
+               "required" : [
+                  "name"
+               ],
+               "type" : "object"
+            },
+            "sourceConfigIdentityFields" : [],
+            "repositoryNameField" : "name",
+            "type" : "ToolkitDiscoveryDefinition",
+            "manualSourceConfigDiscovery" : true,
+            "repositoryDiscovery" : "return {{ name=\"Unstructured Files\"}}"
+         },
+         "hostTypes" : [
+            "UNIX",
+            "WINDOWS"
+         ],
+         "linkedSourceDefinition" : {
+            "usesGrandfatheredAppDataProperties" : true,
+            "preSnapshot" : "--\n-- Copyright (c) 2015 by Delphix. All rights reserved.\n--\n\nRunSync {\n   environment        = source.environment,\n   user               = source.environmentUser,\n   host               = source.host,\n   sourceDirectory    = source.dataDirectory,\n   excludePaths       = parameters.excludes,\n   followSymlinkPaths = parameters.followSymlinks\n}\n",
+            "parameters" : {
+               "type" : "object",
+               "additionalProperties" : false,
+               "properties" : {}
+            },
+            "postSnapshot" : "return {}",
+            "type" : "ToolkitLinkedDirectSource"
+         },
+         "messages" : [],
+         "virtualSourceDefinition" : {
+            "initialize" : "--\n-- Copyright (c) 2015, 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/start.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n",
+            "start" : "--\n-- Copyright (c) 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/start.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n",
+            "unconfigure" : "--\n-- Copyright (c) 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/stop.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n",
+            "preSnapshot" : "",
+            "mountSpec" : null,
+            "parameters" : {
+               "type" : "object",
+               "properties" : {},
+               "additionalProperties" : false
+            },
+            "ownershipSpec" : null,
+            "status" : "--\n-- Copyright (c) 2016, 2017 by Delphix. All rights reserved.\n--\n\nenvVar = {\n    DLPX_DATA_DIRECTORY = source.dataDirectory,\n    DLPX_OS_TYPE        = source.osType,\n    TOOLKIT_DIR         = source.toolkitPath,\n    VDB_GUID            = source.guid\n}\n\nif source.osType == \"WINDOWS\" then\n    return RunPowerShell {\n        command     = resources[\"virtual/status.ps1\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        outputSchema= { type = \"string\" }\n    }\nelse\n    return RunBash {\n        command     = resources[\"virtual/status.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        outputSchema= { type = \"string\" },\n        loginShell = true\n    }\nend\n",
+            "configure" : "--\n-- Copyright (c) 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/start.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n\nreturn {}\n",
+            "stop" : "--\n-- Copyright (c) 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/stop.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n",
+            "type" : "ToolkitVirtualSource",
+            "reconfigure" : "--\n-- Copyright (c) 2017 by Delphix. All rights reserved.\n--\n\nif source.osType ~= \"WINDOWS\" then\n    envVar = {\n        TOOLKIT_DIR = source.toolkitPath,\n        VDB_GUID    = source.guid\n    }\n\n    RunBash {\n        command     = resources[\"virtual/start.sh\"],\n        environment = source.environment,\n        user        = source.environmentUser,\n        variables   = envVar,\n        loginShell = true\n    }\nend\n\nreturn {}\n",
+            "postSnapshot" : "return {}"
+         },
+         "type" : "Toolkit",
+         "defaultLocale" : "en-US",
+         "upgradeDefinition" : null,
+         "snapshotSchema" : {
+            "type" : "object",
+            "additionalProperties" : false,
+            "properties" : {}
+         },
+         "buildApi" : {
+            "micro" : 0,
+            "type" : "APIVersion",
+            "major" : 1,
+            "minor" : 10
+         },
+         "language" : "LUA",
+         "rootSquashEnabled" : true,
+         "prettyName" : "Unstructured Files",
+         "version" : "1.0.0",
+         "name" : "builtin:files",
+         "reference" : "APPDATA_TOOLKIT-1",
+         "namespace" : null
+      }
+   ],
+   "type" : "ListResult",
+   "action" : null,
+   "status" : "OK",
+   "total" : 1,
+   "overflow" : false
+}

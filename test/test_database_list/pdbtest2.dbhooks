@@ -1,0 +1,14 @@
+{
+   "preSnapshot" : [],
+   "configureClone" : [],
+   "preStart" : [],
+   "postSnapshot" : [],
+   "preStop" : [],
+   "preRollback" : [],
+   "postRollback" : [],
+   "type" : "VirtualSourceOperations",
+   "postStop" : [],
+   "postRefresh" : [],
+   "preRefresh" : [],
+   "postStart" : []
+}

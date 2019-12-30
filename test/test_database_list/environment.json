@@ -1,0 +1,34 @@
+{
+   "job" : null,
+   "result" : [
+      {
+         "logCollectionEnabled" : false,
+         "type" : "UnixHostEnvironment",
+         "namespace" : null,
+         "name" : "marcinoracletgt.dcenter.delphix.com",
+         "reference" : "UNIX_HOST_ENVIRONMENT-2",
+         "description" : null,
+         "host" : "UNIX_HOST-2",
+         "enabled" : true,
+         "aseHostEnvironmentParameters" : null,
+         "primaryUser" : "HOST_USER-2"
+      },
+      {
+         "primaryUser" : "HOST_USER-1",
+         "aseHostEnvironmentParameters" : null,
+         "enabled" : true,
+         "host" : "UNIX_HOST-1",
+         "description" : null,
+         "logCollectionEnabled" : false,
+         "reference" : "UNIX_HOST_ENVIRONMENT-1",
+         "name" : "marcinoraclesrc.dcenter.delphix.com",
+         "namespace" : null,
+         "type" : "UnixHostEnvironment"
+      }
+   ],
+   "total" : 2,
+   "overflow" : false,
+   "status" : "OK",
+   "action" : null,
+   "type" : "ListResult"
+}

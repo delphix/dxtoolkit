@@ -1,9 +1,9 @@
 {
+   "result" : "ok",
    "systemTime" : {
-      "localTime" : "2018/01/25 16:06:21 GMT",
-      "localTimeZone" : "Europe/Dublin",
+      "localTime" : "2019/12/30 08:07:39 PST",
+      "localTimeRaw" : "2019/12/30 08:07:39 UTC-0800",
       "isDaylightSavings" : false,
-      "localTimeRaw" : "2018/01/25 16:06:21 UTC+0000"
-   },
-   "result" : "ok"
+      "localTimeZone" : "US/Pacific"
+   }
 }

@@ -1,32 +1,34 @@
 {
+   "job" : null,
    "type" : "ListResult",
-   "total" : 2,
-   "action" : null,
-   "overflow" : false,
    "result" : [
       {
-         "description" : null,
-         "reference" : "UNIX_HOST_ENVIRONMENT-2",
          "aseHostEnvironmentParameters" : null,
-         "name" : "marcintgt.dcenter.delphix.com",
-         "type" : "UnixHostEnvironment",
-         "host" : "UNIX_HOST-2",
          "primaryUser" : "HOST_USER-2",
+         "host" : "UNIX_HOST-2",
          "enabled" : true,
-         "namespace" : null
-      },
-      {
-         "primaryUser" : "HOST_USER-1",
-         "enabled" : true,
+         "logCollectionEnabled" : false,
+         "name" : "marcinoracletgt.dcenter.delphix.com",
+         "type" : "UnixHostEnvironment",
          "namespace" : null,
          "description" : null,
-         "type" : "UnixHostEnvironment",
-         "name" : "marcinsrc.dcenter.delphix.com",
-         "aseHostEnvironmentParameters" : null,
+         "reference" : "UNIX_HOST_ENVIRONMENT-2"
+      },
+      {
+         "description" : null,
          "reference" : "UNIX_HOST_ENVIRONMENT-1",
-         "host" : "UNIX_HOST-1"
+         "name" : "marcinoraclesrc.dcenter.delphix.com",
+         "type" : "UnixHostEnvironment",
+         "namespace" : null,
+         "logCollectionEnabled" : false,
+         "aseHostEnvironmentParameters" : null,
+         "host" : "UNIX_HOST-1",
+         "enabled" : true,
+         "primaryUser" : "HOST_USER-1"
       }
    ],
+   "action" : null,
    "status" : "OK",
-   "job" : null
+   "overflow" : false,
+   "total" : 2
 }
