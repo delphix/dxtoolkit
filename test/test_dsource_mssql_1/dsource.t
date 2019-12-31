@@ -18,8 +18,6 @@ $server->background();
 
 script_compiles('../../bin/dx_ctl_dsource.pl');
 
-
-
 script_runs(['../../bin/dx_ctl_dsource.pl', '-d', 'local', '-action','create','-group','Sources','-creategroup','-dsourcename',
              'AdventureWorksLT2008R2','-type','mssql','-sourcename','AdventureWorksLT2008R2','-sourceinst','MSSQLSERVER',
              '-sourceenv','WINDOWSSOURCE','-source_os_user','DELPHIX\delphix_admin','-dbuser','aw','-password','delphixdb','-logsync',
