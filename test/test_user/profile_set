@@ -1,6 +1,0 @@
-#Username,Type,Name,Role
-dev,group,Analytics,read
-dev,group,Tests,owner
-user,databases,PDB,data
-user,databases,siclone,PROVISIONER
-user,databases,Oracle dsource,PROVISIONER
