@@ -1,0 +1,84 @@
+{
+   "result" : [
+      {
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.180.130:1521"
+         ],
+         "type" : "OracleNodeListener",
+         "name" : "LISTENER",
+         "reference" : "ORACLE_NODE_LISTENER-27",
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "discovered" : true,
+         "host" : "UNIX_HOST-15"
+      },
+      {
+         "host" : "UNIX_HOST-16",
+         "discovered" : true,
+         "name" : "LISTENER",
+         "environment" : "UNIX_HOST_ENVIRONMENT-11",
+         "reference" : "ORACLE_NODE_LISTENER-25",
+         "type" : "OracleNodeListener",
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.180.129:1521"
+         ]
+      },
+      {
+         "host" : "UNIX_HOST-8",
+         "discovered" : true,
+         "type" : "OracleNodeListener",
+         "name" : "LISTENER",
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "ORACLE_NODE_LISTENER-8",
+         "endPoints" : [
+            "172.16.180.61:1521",
+            "172.16.180.161:1521"
+         ],
+         "namespace" : null
+      },
+      {
+         "type" : "OracleNodeListener",
+         "name" : "MGMTLSNR",
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "ORACLE_NODE_LISTENER-9",
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.100.61:1521",
+            "169.254.140.1:1521"
+         ],
+         "host" : "UNIX_HOST-8",
+         "discovered" : true
+      },
+      {
+         "namespace" : null,
+         "endPoints" : [
+            "172.16.180.62:1521",
+            "172.16.180.162:1521"
+         ],
+         "type" : "OracleNodeListener",
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "ORACLE_NODE_LISTENER-10",
+         "name" : "LISTENER",
+         "discovered" : true,
+         "host" : "UNIX_HOST-9"
+      },
+      {
+         "discovered" : true,
+         "endPoints" : [
+            "collabn-cluster-scan.racattack:1521"
+         ],
+         "namespace" : null,
+         "type" : "OracleScanListener",
+         "name" : "LISTENER_SCAN1",
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "ORACLE_SCAN_LISTENER-7"
+      }
+   ],
+   "total" : 6,
+   "status" : "OK",
+   "overflow" : false,
+   "action" : null,
+   "job" : null,
+   "type" : "ListResult"
+}

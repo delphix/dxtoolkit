@@ -1,0 +1,88 @@
+{
+   "result" : [
+      {
+         "name" : "oracle",
+         "userId" : 500,
+         "type" : "EnvironmentUser",
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "groupId" : 500,
+         "namespace" : null,
+         "reference" : "HOST_USER-31"
+      },
+      {
+         "groupId" : 0,
+         "environment" : "ORACLE_CLUSTER-3",
+         "reference" : "HOST_USER-8",
+         "namespace" : null,
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "type" : "EnvironmentUser",
+         "name" : "oracle",
+         "userId" : 0
+      },
+      {
+         "groupId" : 500,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "reference" : "HOST_USER-26",
+         "namespace" : null,
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "type" : "EnvironmentUser",
+         "name" : "delphix",
+         "userId" : 501
+      },
+      {
+         "groupId" : 500,
+         "environment" : "UNIX_HOST_ENVIRONMENT-11",
+         "reference" : "HOST_USER-27",
+         "namespace" : null,
+         "credential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "type" : "EnvironmentUser",
+         "name" : "delphix",
+         "userId" : 501
+      },
+      {
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "userId" : 0,
+         "name" : "DELPHIX\\delphix_admin",
+         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-29",
+         "namespace" : null,
+         "groupId" : 0,
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-13"
+      },
+      {
+         "groupId" : 0,
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "reference" : "HOST_USER-30",
+         "namespace" : null,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "name" : "DELPHIX\\delphix_admin",
+         "userId" : 0,
+         "type" : "EnvironmentUser"
+      }
+   ],
+   "status" : "OK",
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "action" : null,
+   "total" : 6
+}

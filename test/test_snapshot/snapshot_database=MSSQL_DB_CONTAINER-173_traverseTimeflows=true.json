@@ -1,0 +1,43 @@
+{
+   "status" : "OK",
+   "total" : 1,
+   "result" : [
+      {
+         "retention" : 123,
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-24T13:33:00.180Z",
+            "location" : "78000000048900001",
+            "timeflow" : "MSSQL_TIMEFLOW-362",
+            "type" : "MSSqlTimeflowPoint"
+         },
+         "timezone" : "Europe/London,BST+0100",
+         "firstChangePoint" : {
+            "type" : "MSSqlTimeflowPoint",
+            "location" : "78000000048900001",
+            "timeflow" : "MSSQL_TIMEFLOW-362",
+            "timestamp" : "2017-04-24T13:33:00.180Z"
+         },
+         "namespace" : null,
+         "name" : "@2017-04-24T14:33:00.180",
+         "reference" : "MSSQL_SNAPSHOT-664",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "MSSqlSnapshotRuntime"
+         },
+         "timeflow" : "MSSQL_TIMEFLOW-362",
+         "internalVersion" : 661,
+         "consistency" : "CONSISTENT",
+         "container" : "MSSQL_DB_CONTAINER-173",
+         "missingNonLoggedData" : false,
+         "version" : "10.50.1600.1",
+         "creationTime" : "2017-04-24T13:33:10.630Z",
+         "temporary" : false,
+         "type" : "MSSqlSnapshot",
+         "backupSetUUID" : null
+      }
+   ],
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false
+}

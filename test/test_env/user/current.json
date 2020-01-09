@@ -1,0 +1,29 @@
+{
+   "type" : "OKResult",
+   "action" : null,
+   "job" : null,
+   "result" : {
+      "type" : "User",
+      "isDefault" : true,
+      "workPhoneNumber" : null,
+      "namespace" : null,
+      "mobilePhoneNumber" : null,
+      "lastName" : null,
+      "passwordUpdateRequest" : "NONE",
+      "sessionTimeout" : 30,
+      "userType" : "DOMAIN",
+      "apiUser" : true,
+      "authenticationType" : "NATIVE",
+      "credential" : null,
+      "reference" : "USER-2",
+      "emailAddress" : "test@delphix.com",
+      "name" : "admin",
+      "principal" : "admin",
+      "firstName" : null,
+      "locale" : "en-US",
+      "homePhoneNumber" : null,
+      "enabled" : true,
+      "publicKey" : []
+   },
+   "status" : "OK"
+}

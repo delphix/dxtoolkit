@@ -1,0 +1,66 @@
+{
+   "type" : "ListResult",
+   "total" : 7,
+   "status" : "OK",
+   "action" : null,
+   "overflow" : false,
+   "job" : null,
+   "result" : [
+      {
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390483",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-02T22:30:02.271Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-03T22:30:02.333Z",
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390505"
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390526",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-04T22:30:02.481Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "snapshotTimestamp" : "2017-10-05T22:30:02.340Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390546",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390565",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T22:30:02.350Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "snapshot" : "ORACLE_SNAPSHOT-19390586",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-07T22:30:02.266Z",
+         "descendantVDBs" : []
+      },
+      {
+         "snapshotTimestamp" : "2017-10-08T22:30:02.316Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390605",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      }
+   ]
+}

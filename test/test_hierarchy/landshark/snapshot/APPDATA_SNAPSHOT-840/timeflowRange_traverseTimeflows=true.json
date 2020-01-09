@@ -1,0 +1,22 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "type" : "OKResult",
+   "action" : null,
+   "result" : {
+      "endPoint" : {
+         "location" : null,
+         "type" : "AppDataTimeflowPoint",
+         "timeflow" : "APPDATA_TIMEFLOW-263",
+         "timestamp" : "2017-05-12T10:30:01.826Z"
+      },
+      "type" : "TimeflowRange",
+      "provisionable" : true,
+      "startPoint" : {
+         "timestamp" : "2017-05-12T10:30:01.826Z",
+         "type" : "AppDataTimeflowPoint",
+         "location" : null,
+         "timeflow" : "APPDATA_TIMEFLOW-263"
+      }
+   }
+}

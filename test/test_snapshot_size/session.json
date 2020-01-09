@@ -1,0 +1,12 @@
+{
+   "status" : "ERROR",
+   "error" : {
+      "diagnoses" : null,
+      "id" : "exception.webservices.session.nosession",
+      "type" : "APIError",
+      "details" : "No API session has been established.",
+      "action" : "Create an API session by calling /resources/json/delphix/session.",
+      "commandOutput" : null
+   },
+   "type" : "ErrorResult"
+}

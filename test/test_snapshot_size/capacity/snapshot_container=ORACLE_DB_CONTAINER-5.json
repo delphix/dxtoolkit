@@ -1,0 +1,20 @@
+{
+   "type" : "ListResult",
+   "status" : "OK",
+   "total" : 1,
+   "result" : [
+      {
+         "snapshotTimestamp" : "2017-10-10T11:40:08.525Z",
+         "space" : 1006592,
+         "container" : "ORACLE_DB_CONTAINER-5",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : [],
+         "manualRetention" : 0,
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-5"
+      }
+   ],
+   "overflow" : false,
+   "action" : null,
+   "job" : null
+}

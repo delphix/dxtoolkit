@@ -1,0 +1,42 @@
+{
+   "job" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "type" : "Group",
+         "reference" : "GROUP-8584650",
+         "namespace" : null,
+         "name" : "G8",
+         "dataNode" : null,
+         "description" : "Default Group"
+      },
+      {
+         "name" : "G5",
+         "dataNode" : null,
+         "description" : "Default Group",
+         "namespace" : null,
+         "reference" : "GROUP-8584654",
+         "type" : "Group"
+      },
+      {
+         "reference" : "GROUP-8584653",
+         "type" : "Group",
+         "namespace" : null,
+         "description" : "Default Group",
+         "dataNode" : null,
+         "name" : "G6"
+      },
+      {
+         "name" : "G7",
+         "description" : "",
+         "dataNode" : null,
+         "type" : "Group",
+         "reference" : "GROUP-8584651",
+         "namespace" : null
+      }
+   ],
+   "action" : null,
+   "total" : 4,
+   "status" : "OK",
+   "type" : "ListResult"
+}

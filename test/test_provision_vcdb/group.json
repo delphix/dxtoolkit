@@ -1,0 +1,31 @@
+{
+   "result" : [
+      {
+         "name" : "Untitled",
+         "type" : "Group",
+         "namespace" : null,
+         "description" : "Default Group",
+         "reference" : "GROUP-1"
+      },
+      {
+         "name" : "Sources",
+         "type" : "Group",
+         "namespace" : null,
+         "description" : null,
+         "reference" : "GROUP-2"
+      },
+      {
+         "namespace" : null,
+         "type" : "Group",
+         "name" : "Analytics",
+         "reference" : "GROUP-3",
+         "description" : null
+      }
+   ],
+   "action" : null,
+   "status" : "OK",
+   "overflow" : false,
+   "total" : 3,
+   "job" : null,
+   "type" : "ListResult"
+}

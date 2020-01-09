@@ -1,0 +1,84 @@
+{
+   "action" : null,
+   "overflow" : false,
+   "job" : null,
+   "result" : [
+      {
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-8584667"
+         ],
+         "policyRetention" : false,
+         "snapshotTimestamp" : "2017-08-01T18:20:02.023Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19389239",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "snapshotTimestamp" : "2017-10-02T22:30:32.786Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390496",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-03T22:30:17.728Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19390514",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "snapshot" : "ORACLE_SNAPSHOT-19390534",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-04T22:30:14.449Z"
+      },
+      {
+         "descendantVDBs" : [],
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390554",
+         "snapshotTimestamp" : "2017-10-05T22:30:08.327Z",
+         "policyRetention" : true,
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T22:30:11.993Z",
+         "snapshot" : "ORACLE_SNAPSHOT-19390574",
+         "type" : "SnapshotCapacityData"
+      },
+      {
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390596",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-07T22:30:20.788Z",
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "snapshotTimestamp" : "2017-10-08T22:30:16.411Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390616",
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "snapshotTimestamp" : "2017-10-09T09:05:36.098Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390623",
+         "descendantVDBs" : []
+      }
+   ],
+   "type" : "ListResult",
+   "total" : 9,
+   "status" : "OK"
+}

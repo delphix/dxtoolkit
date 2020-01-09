@@ -1,0 +1,106 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "action" : null,
+   "result" : [
+      {
+         "type" : "AppDataSnapshot",
+         "metadata" : {},
+         "timezone" : "Europe/Dublin,IST+0100",
+         "creationTime" : "2017-04-06T12:16:37.420Z",
+         "name" : "@2017-04-06T13:16:37.405",
+         "missingNonLoggedData" : false,
+         "timeflow" : "APPDATA_TIMEFLOW-263",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "AppDataSnapshotRuntime"
+         },
+         "reference" : "APPDATA_SNAPSHOT-404",
+         "consistency" : "CONSISTENT",
+         "namespace" : null,
+         "container" : "APPDATA_CONTAINER-146",
+         "firstChangePoint" : {
+            "location" : null,
+            "type" : "AppDataTimeflowPoint",
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "timestamp" : "2017-04-06T12:16:37.405Z"
+         },
+         "temporary" : false,
+         "version" : null,
+         "latestChangePoint" : {
+            "timestamp" : "2017-04-06T12:16:37.405Z",
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "type" : "AppDataTimeflowPoint",
+            "location" : null
+         },
+         "retention" : 0
+      },
+      {
+         "firstChangePoint" : {
+            "timestamp" : "2017-05-10T14:39:31.846Z",
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "location" : null,
+            "type" : "AppDataTimeflowPoint"
+         },
+         "container" : "APPDATA_CONTAINER-146",
+         "namespace" : null,
+         "retention" : 0,
+         "latestChangePoint" : {
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "location" : null,
+            "type" : "AppDataTimeflowPoint",
+            "timestamp" : "2017-05-10T14:39:31.846Z"
+         },
+         "version" : null,
+         "temporary" : false,
+         "name" : "@2017-05-10T15:39:31.846",
+         "timezone" : "Europe/Dublin,IST+0100",
+         "creationTime" : "2017-05-10T14:39:31.874Z",
+         "metadata" : {},
+         "type" : "AppDataSnapshot",
+         "consistency" : "CONSISTENT",
+         "reference" : "APPDATA_SNAPSHOT-802",
+         "runtime" : {
+            "type" : "AppDataSnapshotRuntime",
+            "provisionable" : true
+         },
+         "missingNonLoggedData" : false,
+         "timeflow" : "APPDATA_TIMEFLOW-263"
+      },
+      {
+         "container" : "APPDATA_CONTAINER-146",
+         "firstChangePoint" : {
+            "location" : null,
+            "type" : "AppDataTimeflowPoint",
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "timestamp" : "2017-05-12T10:30:01.826Z"
+         },
+         "namespace" : null,
+         "retention" : 0,
+         "temporary" : false,
+         "version" : null,
+         "latestChangePoint" : {
+            "timestamp" : "2017-05-12T10:30:01.826Z",
+            "timeflow" : "APPDATA_TIMEFLOW-263",
+            "type" : "AppDataTimeflowPoint",
+            "location" : null
+         },
+         "name" : "@2017-05-12T11:30:01.826",
+         "type" : "AppDataSnapshot",
+         "metadata" : {},
+         "timezone" : "Europe/Dublin,IST+0100",
+         "creationTime" : "2017-05-12T10:30:01.838Z",
+         "runtime" : {
+            "type" : "AppDataSnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "APPDATA_SNAPSHOT-840",
+         "consistency" : "CONSISTENT",
+         "timeflow" : "APPDATA_TIMEFLOW-263",
+         "missingNonLoggedData" : false
+      }
+   ],
+   "total" : 5
+}

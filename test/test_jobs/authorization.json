@@ -1,0 +1,37 @@
+{
+   "action" : null,
+   "total" : 3,
+   "result" : [
+      {
+         "target" : "USER-1",
+         "role" : "ROLE-1",
+         "reference" : "AUTHORIZATION-1",
+         "user" : "USER-1",
+         "type" : "Authorization",
+         "namespace" : null,
+         "name" : "(USER-1, ROLE-1, USER-1)"
+      },
+      {
+         "role" : "ROLE-1",
+         "target" : "USER-2",
+         "reference" : "AUTHORIZATION-2",
+         "user" : "USER-2",
+         "type" : "Authorization",
+         "namespace" : null,
+         "name" : "(USER-2, ROLE-1, USER-2)"
+      },
+      {
+         "user" : "USER-2",
+         "type" : "Authorization",
+         "namespace" : null,
+         "name" : "(USER-2, ROLE-1, DOMAIN)",
+         "reference" : "AUTHORIZATION-3",
+         "role" : "ROLE-1",
+         "target" : "DOMAIN"
+      }
+   ],
+   "status" : "OK",
+   "overflow" : false,
+   "type" : "ListResult",
+   "job" : null
+}

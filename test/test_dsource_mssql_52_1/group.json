@@ -1,0 +1,52 @@
+{
+   "total" : 6,
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "status" : "OK",
+   "result" : [
+      {
+         "namespace" : null,
+         "type" : "Group",
+         "description" : "Default Group",
+         "reference" : "GROUP-1",
+         "name" : "Untitled"
+      },
+      {
+         "namespace" : null,
+         "description" : "",
+         "type" : "Group",
+         "name" : "Sources",
+         "reference" : "GROUP-35"
+      },
+      {
+         "reference" : "GROUP-266741",
+         "name" : "Test",
+         "type" : "Group",
+         "description" : "",
+         "namespace" : null
+      },
+      {
+         "type" : "Group",
+         "description" : null,
+         "reference" : "GROUP-266747",
+         "name" : "Sources",
+         "namespace" : "NAMESPACE-266742"
+      },
+      {
+         "description" : "",
+         "type" : "Group",
+         "name" : "rbs",
+         "reference" : "GROUP-266749",
+         "namespace" : null
+      },
+      {
+         "type" : "Group",
+         "description" : "",
+         "reference" : "GROUP-266750",
+         "name" : "Test",
+         "namespace" : "NAMESPACE-266742"
+      }
+   ]
+}

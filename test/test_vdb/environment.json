@@ -1,0 +1,84 @@
+{
+   "result" : [
+      {
+         "enabled" : true,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "primaryUser" : "HOST_USER-30",
+         "namespace" : null,
+         "description" : null,
+         "type" : "WindowsHostEnvironment",
+         "host" : "WINDOWS_HOST-19",
+         "proxy" : "WINDOWS_HOST-18",
+         "name" : "WINDOWSSOURCE"
+      },
+      {
+         "namespace" : null,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "enabled" : true,
+         "primaryUser" : "HOST_USER-29",
+         "name" : "WINDOWSTARGET",
+         "proxy" : null,
+         "type" : "WindowsHostEnvironment",
+         "host" : "WINDOWS_HOST-18",
+         "description" : null
+      },
+      {
+         "description" : null,
+         "name" : "LINUXSOURCE",
+         "type" : "UnixHostEnvironment",
+         "host" : "UNIX_HOST-16",
+         "namespace" : null,
+         "reference" : "UNIX_HOST_ENVIRONMENT-11",
+         "primaryUser" : "HOST_USER-27",
+         "enabled" : true,
+         "aseHostEnvironmentParameters" : {
+            "type" : "ASEHostEnvironmentParameters",
+            "credentials" : {
+               "type" : "PasswordCredential",
+               "password" : "********"
+            },
+            "dbUser" : "sa"
+         }
+      },
+      {
+         "host" : "UNIX_HOST-15",
+         "type" : "UnixHostEnvironment",
+         "name" : "LINUXTARGET",
+         "description" : null,
+         "namespace" : null,
+         "aseHostEnvironmentParameters" : {
+            "dbUser" : "sa",
+            "credentials" : {
+               "password" : "********",
+               "type" : "PasswordCredential"
+            },
+            "type" : "ASEHostEnvironmentParameters"
+         },
+         "reference" : "UNIX_HOST_ENVIRONMENT-10",
+         "enabled" : true,
+         "primaryUser" : "HOST_USER-26"
+      },
+      {
+         "namespace" : null,
+         "version" : "12.1.0.2.0",
+         "scan" : "collabn-cluster-scan.racattack",
+         "enabled" : false,
+         "reference" : "ORACLE_CLUSTER-3",
+         "primaryUser" : "HOST_USER-8",
+         "scanManual" : false,
+         "crsClusterHome" : "/u01/app/12.1.0.2/grid/",
+         "description" : null,
+         "remoteListener" : null,
+         "type" : "OracleCluster",
+         "clusterUser" : "HOST_USER-8",
+         "name" : "racattack-cl",
+         "crsClusterName" : "racattack-cl"
+      }
+   ],
+   "status" : "OK",
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "action" : null,
+   "total" : 5
+}

@@ -1,0 +1,54 @@
+{
+   "total" : 4,
+   "result" : [
+      {
+         "bytesTransferred" : 19952,
+         "reference" : "SERIALIZATION_POINT-266768",
+         "averageThroughput" : 2651,
+         "namespace" : null,
+         "name" : null,
+         "dataTimestamp" : "2017-03-07T15:24:32.767Z",
+         "elapsedTimeNanos" : 7523944875,
+         "tag" : "e2472ee3-c30e-412c-a391-8827e1c37f66",
+         "type" : "SerializationPoint"
+      },
+      {
+         "elapsedTimeNanos" : 15503075133,
+         "type" : "SerializationPoint",
+         "tag" : "2ebb9f27-10bf-4ceb-bf06-9ad6e5784525",
+         "dataTimestamp" : "2017-03-08T14:41:43.925Z",
+         "namespace" : null,
+         "name" : null,
+         "bytesTransferred" : 1182264,
+         "reference" : "SERIALIZATION_POINT-266771",
+         "averageThroughput" : 76259
+      },
+      {
+         "dataTimestamp" : "2017-03-08T17:51:18.724Z",
+         "elapsedTimeNanos" : 28540221731,
+         "tag" : "cdbf2ea0-df83-4a58-9c2a-26fcef6fb783",
+         "type" : "SerializationPoint",
+         "bytesTransferred" : 98703856,
+         "averageThroughput" : 3458412,
+         "reference" : "SERIALIZATION_POINT-266773",
+         "name" : null,
+         "namespace" : null
+      },
+      {
+         "bytesTransferred" : 548731000,
+         "reference" : "SERIALIZATION_POINT-266775",
+         "averageThroughput" : 7353162,
+         "namespace" : null,
+         "name" : null,
+         "dataTimestamp" : "2017-06-14T11:26:54.197Z",
+         "elapsedTimeNanos" : 74625172506,
+         "type" : "SerializationPoint",
+         "tag" : "dc6c882e-97e6-4c37-b54d-f6784b4e1258"
+      }
+   ],
+   "overflow" : false,
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "status" : "OK"
+}

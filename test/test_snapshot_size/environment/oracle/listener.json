@@ -1,0 +1,40 @@
+{
+   "action" : null,
+   "job" : null,
+   "result" : [
+      {
+         "namespace" : null,
+         "type" : "OracleNodeListener",
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.4.120)(PORT=1521))"
+         ],
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "reference" : "ORACLE_NODE_LISTENER-2",
+         "name" : "LISTENER",
+         "host" : "UNIX_HOST-2",
+         "discovered" : true,
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.4.120)(PORT=1521))"
+         ]
+      },
+      {
+         "discovered" : true,
+         "host" : "UNIX_HOST-1",
+         "name" : "LISTENER",
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.19.108)(PORT=1521))"
+         ],
+         "reference" : "ORACLE_NODE_LISTENER-1",
+         "environment" : "UNIX_HOST_ENVIRONMENT-1",
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.19.108)(PORT=1521))"
+         ],
+         "namespace" : null,
+         "type" : "OracleNodeListener"
+      }
+   ],
+   "overflow" : false,
+   "total" : 2,
+   "type" : "ListResult",
+   "status" : "OK"
+}

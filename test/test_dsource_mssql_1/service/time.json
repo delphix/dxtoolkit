@@ -1,0 +1,14 @@
+{
+   "status" : "OK",
+   "result" : {
+      "currentTime" : "2019-12-30T11:35:52.191Z",
+      "type" : "TimeConfig",
+      "systemTimeZoneOffset" : 480,
+      "systemTimeZoneOffsetString" : "UTC -08:00",
+      "systemTimeZone" : "US/Pacific",
+      "ntpConfig" : null
+   },
+   "action" : null,
+   "job" : null,
+   "type" : "OKResult"
+}

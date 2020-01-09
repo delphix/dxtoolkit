@@ -1,0 +1,30 @@
+{
+   "type" : "ListResult",
+   "result" : [
+      {
+         "report" : null,
+         "reference" : "ACTION-11691",
+         "workSource" : "WEBSERVICE",
+         "title" : "DB_SYNC",
+         "parentAction" : "ACTION-11690",
+         "failureMessageCode" : null,
+         "failureDescription" : null,
+         "userAgent" : null,
+         "workSourceName" : "delphix_admin",
+         "endTime" : null,
+         "state" : "WAITING",
+         "details" : "Run SnapSync for database \"AdventureWorksLT2008R2\".",
+         "failureAction" : null,
+         "startTime" : "2018-01-05T16:42:35.344Z",
+         "type" : "Action",
+         "user" : "USER-2",
+         "namespace" : null,
+         "actionType" : "DB_SYNC"
+      }
+   ],
+   "overflow" : false,
+   "total" : 1,
+   "action" : null,
+   "status" : "OK",
+   "job" : null
+}

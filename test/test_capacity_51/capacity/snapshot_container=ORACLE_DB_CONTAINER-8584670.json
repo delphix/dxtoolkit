@@ -1,0 +1,66 @@
+{
+   "job" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "descendantVDBs" : [],
+         "snapshotTimestamp" : "2017-10-02T22:30:12.414Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390494",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390513",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-03T22:30:16.511Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "snapshotTimestamp" : "2017-10-04T22:30:25.123Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390536"
+      },
+      {
+         "manualRetention" : 0,
+         "snapshotTimestamp" : "2017-10-05T22:30:15.570Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390556",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : []
+      },
+      {
+         "descendantVDBs" : [],
+         "snapshot" : "ORACLE_SNAPSHOT-19390576",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-06T22:30:12.744Z",
+         "policyRetention" : true,
+         "manualRetention" : 0
+      },
+      {
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390594",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-07T22:30:16.607Z",
+         "descendantVDBs" : []
+      },
+      {
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "snapshotTimestamp" : "2017-10-08T22:30:13.014Z",
+         "policyRetention" : true,
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390614"
+      }
+   ],
+   "action" : null,
+   "status" : "OK",
+   "total" : 7,
+   "type" : "ListResult"
+}

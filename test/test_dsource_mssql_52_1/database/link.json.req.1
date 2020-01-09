@@ -1,0 +1,26 @@
+{
+   "group" : "GROUP-35",
+   "name" : "tpcc",
+   "linkData" : {
+      "type" : "MSSqlLinkData",
+      "syncParameters" : {
+         "type" : "MSSqlExistingMostRecentBackupSyncParameters"
+      },
+      "config" : "MSSQL_SINGLE_CONFIG-266759",
+      "pptRepository" : "MSSQL_INSTANCE-266751",
+      "dbUser" : "delphixdb",
+      "validatedSyncMode" : "TRANSACTION_LOG",
+      "sourcingPolicy" : {
+         "type" : "SourcingPolicy",
+         "logsyncEnabled" : true
+      },
+      "sourceHostUser" : "HOST_USER-266786",
+      "pptHostUser" : "HOST_USER-266786",
+      "environmentUser" : "HOST_USER-266786",
+      "dbCredentials" : {
+         "password" : "delphixdb",
+         "type" : "PasswordCredential"
+      }
+   },
+   "type" : "LinkParameters"
+}

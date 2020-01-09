@@ -1,0 +1,23 @@
+{
+   "overflow" : false,
+   "result" : [
+      {
+         "description" : null,
+         "namespaceType" : "REPLICATION",
+         "failoverReport" : null,
+         "tag" : "c4519918-0da6-4ac3-8bf4-c52959a3ff04",
+         "type" : "Namespace",
+         "reference" : "NAMESPACE-266742",
+         "namespace" : null,
+         "name" : "LandsharkEngine",
+         "failedOver" : false,
+         "secureNamespace" : false,
+         "source" : "xport-s:/192.168.1.32:8415-/192.168.1.102:61321"
+      }
+   ],
+   "total" : 1,
+   "job" : null,
+   "action" : null,
+   "status" : "OK",
+   "type" : "ListResult"
+}

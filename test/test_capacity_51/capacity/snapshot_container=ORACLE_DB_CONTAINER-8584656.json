@@ -1,0 +1,66 @@
+{
+   "type" : "ListResult",
+   "status" : "OK",
+   "total" : 7,
+   "action" : null,
+   "result" : [
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390485",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-02T22:30:02.279Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390503",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-03T22:30:02.143Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390523",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-04T22:30:02.082Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "snapshotTimestamp" : "2017-10-05T22:30:02.136Z",
+         "policyRetention" : true,
+         "snapshot" : "ORACLE_SNAPSHOT-19390544",
+         "type" : "SnapshotCapacityData",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-06T22:30:02.117Z",
+         "type" : "SnapshotCapacityData",
+         "snapshot" : "ORACLE_SNAPSHOT-19390563",
+         "manualRetention" : 0
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390583",
+         "type" : "SnapshotCapacityData",
+         "policyRetention" : true,
+         "snapshotTimestamp" : "2017-10-07T22:30:02.043Z",
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      },
+      {
+         "snapshot" : "ORACLE_SNAPSHOT-19390604",
+         "type" : "SnapshotCapacityData",
+         "snapshotTimestamp" : "2017-10-08T22:30:02.297Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0
+      }
+   ],
+   "overflow" : false,
+   "job" : null
+}

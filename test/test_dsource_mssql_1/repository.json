@@ -1,0 +1,500 @@
+{
+   "type" : "ListResult",
+   "result" : [
+      {
+         "linkingEnabled" : true,
+         "oracleBase" : "/u01/app/oracle",
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "appliedPatches" : [],
+         "name" : "/u01/app/oracle/12.1.0.2/db1",
+         "type" : "OracleInstall",
+         "userId" : 500,
+         "version" : "12.1.0.2.0",
+         "rac" : false,
+         "groupId" : 500,
+         "bits" : 64,
+         "installationHome" : "/u01/app/oracle/12.1.0.2/db1",
+         "discovered" : false,
+         "reference" : "ORACLE_INSTALL-29",
+         "provisioningEnabled" : true,
+         "logsyncPossible" : true,
+         "userName" : "oracle",
+         "groupName" : "oinstall"
+      },
+      {
+         "type" : "OracleInstall",
+         "userId" : 54321,
+         "rac" : true,
+         "version" : "12.1.0.2.0",
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "appliedPatches" : [],
+         "name" : "/u01/app/oracle/12.1.0.2/rachome1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "oracleBase" : "/u01/app/oracle",
+         "reference" : "ORACLE_INSTALL-30",
+         "provisioningEnabled" : true,
+         "logsyncPossible" : true,
+         "groupName" : "asmadmin",
+         "userName" : "oracle",
+         "installationHome" : "/u01/app/oracle/12.1.0.2/rachome1",
+         "discovered" : true,
+         "bits" : 64,
+         "groupId" : 54320
+      },
+      {
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "oracleBase" : "/u01/app/oracle",
+         "environment" : "ORACLE_CLUSTER-3",
+         "staging" : false,
+         "name" : "/u01/app/oracle/12.1.0.2/rachome1",
+         "appliedPatches" : [],
+         "type" : "OracleInstall",
+         "userId" : 54321,
+         "version" : "12.1.0.2.0",
+         "rac" : true,
+         "bits" : 64,
+         "groupId" : 54320,
+         "installationHome" : "/u01/app/oracle/12.1.0.2/rachome1",
+         "discovered" : true,
+         "provisioningEnabled" : true,
+         "reference" : "ORACLE_INSTALL-6",
+         "logsyncPossible" : true,
+         "groupName" : "asmadmin",
+         "userName" : "oracle"
+      },
+      {
+         "logsyncPossible" : true,
+         "provisioningEnabled" : true,
+         "reference" : "ORACLE_INSTALL-31",
+         "userName" : "oracle",
+         "groupName" : "oinstall",
+         "installationHome" : "/u01/app/oracle/12.2.0.1/db1",
+         "discovered" : false,
+         "bits" : 64,
+         "groupId" : 500,
+         "type" : "OracleInstall",
+         "rac" : false,
+         "version" : "12.2.0.1.0",
+         "userId" : 500,
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "appliedPatches" : [],
+         "name" : "/u01/app/oracle/12.2.0.1/db1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "oracleBase" : "/u01/app/oracle"
+      },
+      {
+         "namespace" : null,
+         "oracleBase" : "/u01/app/oracle",
+         "linkingEnabled" : true,
+         "name" : "/u01/app/oracle/12.1.0.2/db1",
+         "appliedPatches" : [],
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "userId" : 54321,
+         "rac" : false,
+         "version" : "12.1.0.2.0",
+         "type" : "OracleInstall",
+         "bits" : 64,
+         "groupId" : 54321,
+         "discovered" : true,
+         "installationHome" : "/u01/app/oracle/12.1.0.2/db1",
+         "groupName" : "oinstall",
+         "userName" : "oracle",
+         "reference" : "ORACLE_INSTALL-27",
+         "provisioningEnabled" : true,
+         "logsyncPossible" : true
+      },
+      {
+         "installationHome" : "/u01/app/oracle/12.2.0.1/db1",
+         "discovered" : true,
+         "logsyncPossible" : true,
+         "provisioningEnabled" : true,
+         "reference" : "ORACLE_INSTALL-28",
+         "userName" : "oracle",
+         "groupName" : "oinstall",
+         "bits" : 64,
+         "groupId" : 54321,
+         "type" : "OracleInstall",
+         "version" : "12.2.0.1.0",
+         "rac" : false,
+         "userId" : 54321,
+         "linkingEnabled" : true,
+         "oracleBase" : "/u01/app/oracle",
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "appliedPatches" : [],
+         "name" : "/u01/app/oracle/12.2.0.1/db1"
+      },
+      {
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-71",
+         "toolkit" : "APPDATA_TOOLKIT-6",
+         "type" : "AppDataRepository",
+         "version" : null,
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "name" : "E-Business Suite R12.1 appsTier",
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 appsTier"
+         },
+         "linkingEnabled" : true,
+         "namespace" : null
+      },
+      {
+         "toolkit" : "APPDATA_TOOLKIT-4",
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-73",
+         "version" : null,
+         "type" : "AppDataRepository",
+         "name" : "E-Business Suite R12.2 appsTier",
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "namespace" : null,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 appsTier"
+         },
+         "linkingEnabled" : true
+      },
+      {
+         "name" : "Unstructured Files",
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "staging" : false,
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "toolkit" : "APPDATA_TOOLKIT-7",
+         "reference" : "APPDATA_REPOSITORY-75",
+         "provisioningEnabled" : true,
+         "version" : null,
+         "type" : "AppDataRepository"
+      },
+      {
+         "version" : null,
+         "type" : "AppDataRepository",
+         "toolkit" : "APPDATA_TOOLKIT-7",
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-65",
+         "namespace" : null,
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "linkingEnabled" : true,
+         "name" : "Unstructured Files",
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "staging" : false
+      },
+      {
+         "version" : null,
+         "type" : "AppDataRepository",
+         "toolkit" : "APPDATA_TOOLKIT-6",
+         "reference" : "APPDATA_REPOSITORY-51",
+         "provisioningEnabled" : true,
+         "namespace" : null,
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 appsTier"
+         },
+         "linkingEnabled" : true,
+         "name" : "E-Business Suite R12.1 appsTier",
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false
+      },
+      {
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "name" : "E-Business Suite R12.1 dbTechStack",
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 dbTechStack"
+         },
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "reference" : "APPDATA_REPOSITORY-52",
+         "provisioningEnabled" : true,
+         "toolkit" : "APPDATA_TOOLKIT-5",
+         "type" : "AppDataRepository",
+         "version" : null
+      },
+      {
+         "type" : "AppDataRepository",
+         "version" : null,
+         "reference" : "APPDATA_REPOSITORY-55",
+         "provisioningEnabled" : true,
+         "toolkit" : "APPDATA_TOOLKIT-4",
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 appsTier"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "name" : "E-Business Suite R12.2 appsTier"
+      },
+      {
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 dbTechStack"
+         },
+         "name" : "E-Business Suite R12.2 dbTechStack",
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "version" : null,
+         "type" : "AppDataRepository",
+         "toolkit" : "APPDATA_TOOLKIT-3",
+         "reference" : "APPDATA_REPOSITORY-56",
+         "provisioningEnabled" : true
+      },
+      {
+         "toolkit" : "APPDATA_TOOLKIT-5",
+         "reference" : "APPDATA_REPOSITORY-72",
+         "provisioningEnabled" : true,
+         "version" : null,
+         "type" : "AppDataRepository",
+         "name" : "E-Business Suite R12.1 dbTechStack",
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "staging" : false,
+         "namespace" : null,
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 dbTechStack"
+         },
+         "linkingEnabled" : true
+      },
+      {
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-74",
+         "toolkit" : "APPDATA_TOOLKIT-3",
+         "type" : "AppDataRepository",
+         "version" : null,
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-19",
+         "name" : "E-Business Suite R12.2 dbTechStack",
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 dbTechStack"
+         },
+         "namespace" : null
+      },
+      {
+         "namespace" : null,
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "linkingEnabled" : true,
+         "name" : "Unstructured Files",
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "version" : null,
+         "type" : "AppDataRepository",
+         "toolkit" : "APPDATA_TOOLKIT-7",
+         "reference" : "APPDATA_REPOSITORY-57",
+         "provisioningEnabled" : true
+      },
+      {
+         "toolkit" : "APPDATA_TOOLKIT-6",
+         "reference" : "APPDATA_REPOSITORY-66",
+         "provisioningEnabled" : true,
+         "version" : null,
+         "type" : "AppDataRepository",
+         "name" : "E-Business Suite R12.1 appsTier",
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 appsTier"
+         }
+      },
+      {
+         "version" : null,
+         "type" : "AppDataRepository",
+         "toolkit" : "APPDATA_TOOLKIT-5",
+         "reference" : "APPDATA_REPOSITORY-67",
+         "provisioningEnabled" : true,
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.1 dbTechStack"
+         },
+         "name" : "E-Business Suite R12.1 dbTechStack",
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false
+      },
+      {
+         "name" : "E-Business Suite R12.2 appsTier",
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "namespace" : null,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 appsTier"
+         },
+         "linkingEnabled" : true,
+         "toolkit" : "APPDATA_TOOLKIT-4",
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-68",
+         "version" : null,
+         "type" : "AppDataRepository"
+      },
+      {
+         "toolkit" : "APPDATA_TOOLKIT-3",
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-69",
+         "version" : null,
+         "type" : "AppDataRepository",
+         "name" : "E-Business Suite R12.2 dbTechStack",
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "E-Business Suite R12.2 dbTechStack"
+         }
+      },
+      {
+         "staging" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "name" : "Unstructured Files",
+         "linkingEnabled" : true,
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "namespace" : null,
+         "provisioningEnabled" : true,
+         "reference" : "APPDATA_REPOSITORY-70",
+         "toolkit" : "APPDATA_TOOLKIT-7",
+         "type" : "AppDataRepository",
+         "version" : null
+      },
+      {
+         "reference" : "PGSQL_INSTALL-8",
+         "provisioningEnabled" : true,
+         "segmentSize" : 16777216,
+         "variant" : "PostgreSQL",
+         "type" : "PgSQLInstall",
+         "discovered" : true,
+         "version" : "9.2.14",
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "installationPath" : "/usr/pgsql-9.2",
+         "name" : "/usr/pgsql-9.2",
+         "bits" : 64,
+         "linkingEnabled" : true,
+         "namespace" : null
+      },
+      {
+         "instanceName" : "LINUXSOURCE",
+         "servicePrincipalName" : null,
+         "ports" : [
+            5000
+         ],
+         "type" : "ASEInstance",
+         "version" : "15.7 SP101",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-18",
+         "staging" : false,
+         "instanceOwnerUid" : 54323,
+         "name" : "LINUXSOURCE",
+         "pageSize" : 4096,
+         "internalVersion" : "15.7 SP101",
+         "discovered" : true,
+         "instanceOwner" : "sybase",
+         "provisioningEnabled" : true,
+         "reference" : "ASE_INSTANCE-10",
+         "instanceOwnerGid" : 54323,
+         "dbUser" : null,
+         "installationPath" : "/u02/sybase",
+         "credentials" : null
+      },
+      {
+         "dbUser" : null,
+         "installationPath" : "/u02/app/sybase",
+         "credentials" : null,
+         "pageSize" : 4096,
+         "discovered" : true,
+         "instanceOwner" : "delphix",
+         "internalVersion" : "15.7 SP101",
+         "reference" : "ASE_INSTANCE-8",
+         "provisioningEnabled" : true,
+         "instanceOwnerGid" : 500,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "staging" : false,
+         "instanceOwnerUid" : 501,
+         "name" : "LINUXTARGET",
+         "servicePrincipalName" : null,
+         "ports" : [
+            5000
+         ],
+         "type" : "ASEInstance",
+         "instanceName" : "LINUXTARGET",
+         "version" : "15.7 SP101"
+      },
+      {
+         "staging" : true,
+         "environment" : "UNIX_HOST_ENVIRONMENT-10",
+         "installationPath" : "/usr",
+         "name" : "/usr",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "reference" : "MYSQL_INSTALL-8",
+         "provisioningEnabled" : true,
+         "type" : "MySQLInstall",
+         "internalVersion" : {
+            "variant" : "CommunityServer",
+            "type" : "MySQLVersion",
+            "version" : "5.6.29"
+         },
+         "discovered" : true,
+         "version" : "5.6.29 MySQL Community/Enterprise"
+      },
+      {
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "staging" : false,
+         "installationPath" : "C:\\Program Files\\Microsoft SQL Server\\\\100",
+         "serverName" : null,
+         "port" : 1433,
+         "name" : "MSSQLSERVER",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "reference" : "MSSQL_INSTANCE-5",
+         "provisioningEnabled" : true,
+         "instanceName" : "MSSQLSERVER",
+         "type" : "MSSqlInstance",
+         "internalVersion" : 661,
+         "instanceOwner" : "DELPHIX\\delphix_admin",
+         "version" : "10.50.1600.1"
+      },
+      {
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "port" : 1433,
+         "serverName" : null,
+         "name" : "MSSQLSERVER",
+         "installationPath" : "C:\\Program Files\\Microsoft SQL Server\\\\100",
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "staging" : false,
+         "version" : "10.50.1600.1",
+         "internalVersion" : 661,
+         "instanceOwner" : "DELPHIX\\Administrator",
+         "instanceName" : "MSSQLSERVER",
+         "type" : "MSSqlInstance",
+         "provisioningEnabled" : true,
+         "reference" : "MSSQL_INSTANCE-4"
+      }
+   ],
+   "action" : null,
+   "total" : 28,
+   "job" : null,
+   "status" : "OK",
+   "overflow" : false
+}

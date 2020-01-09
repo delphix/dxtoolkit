@@ -1,0 +1,26 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "type" : "OKResult",
+   "action" : null,
+   "result" : {
+      "type" : "Action",
+      "failureAction" : null,
+      "actionType" : "DB_LINK",
+      "title" : "DB_LINK",
+      "user" : "USER-2",
+      "workSource" : "WEBSERVICE",
+      "namespace" : null,
+      "report" : null,
+      "workSourceName" : "delphix_admin",
+      "details" : "Link dSource \"test_simple\" from source \"test_simple\".",
+      "state" : "COMPLETED",
+      "failureMessageCode" : null,
+      "startTime" : "2018-01-05T16:56:54.440Z",
+      "reference" : "ACTION-11696",
+      "failureDescription" : null,
+      "endTime" : "2018-01-05T16:57:00.815Z",
+      "userAgent" : "Delphix Perl Agent/0.1",
+      "parentAction" : null
+   }
+}

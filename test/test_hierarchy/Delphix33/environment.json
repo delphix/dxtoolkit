@@ -1,0 +1,140 @@
+{
+   "total" : 10,
+   "overflow" : false,
+   "result" : [
+      {
+         "primaryUser" : "HOST_USER-16",
+         "name" : "WIN2012N2STD",
+         "namespace" : "NAMESPACE-10",
+         "proxy" : null,
+         "host" : "WINDOWS_HOST-15",
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-15",
+         "enabled" : false,
+         "type" : "WindowsHostEnvironment",
+         "description" : null
+      },
+      {
+         "enabled" : false,
+         "type" : "WindowsHostEnvironment",
+         "description" : "",
+         "namespace" : "NAMESPACE-10",
+         "name" : "KVMDC",
+         "primaryUser" : "HOST_USER-17",
+         "proxy" : null,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-14",
+         "host" : "WINDOWS_HOST-16"
+      },
+      {
+         "primaryUser" : "HOST_USER-18",
+         "name" : "WIN2012N1STD",
+         "namespace" : "NAMESPACE-10",
+         "proxy" : null,
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-13",
+         "host" : "WINDOWS_HOST-17",
+         "enabled" : false,
+         "type" : "WindowsHostEnvironment",
+         "description" : null
+      },
+      {
+         "type" : "WindowsHostEnvironment",
+         "enabled" : true,
+         "description" : "",
+         "proxy" : null,
+         "namespace" : null,
+         "primaryUser" : "HOST_USER-11",
+         "name" : "Windows",
+         "host" : "WINDOWS_HOST-11",
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-9"
+      },
+      {
+         "description" : "",
+         "type" : "UnixHostEnvironment",
+         "enabled" : true,
+         "aseHostEnvironmentParameters" : {
+            "credentials" : {
+               "password" : "********",
+               "type" : "PasswordCredential"
+            },
+            "type" : "ASEHostEnvironmentParameters",
+            "dbUser" : "sa"
+         },
+         "reference" : "UNIX_HOST_ENVIRONMENT-12",
+         "host" : "UNIX_HOST-14",
+         "namespace" : null,
+         "primaryUser" : "HOST_USER-14",
+         "name" : "sybase_clone"
+      },
+      {
+         "description" : "",
+         "aseHostEnvironmentParameters" : {
+            "credentials" : {
+               "password" : "********",
+               "type" : "PasswordCredential"
+            },
+            "type" : "ASEHostEnvironmentParameters",
+            "dbUser" : "sa"
+         },
+         "enabled" : false,
+         "type" : "UnixHostEnvironment",
+         "host" : "UNIX_HOST-13",
+         "reference" : "UNIX_HOST_ENVIRONMENT-11",
+         "namespace" : "NAMESPACE-8",
+         "primaryUser" : "HOST_USER-13",
+         "name" : "sybasesrc"
+      },
+      {
+         "reference" : "UNIX_HOST_ENVIRONMENT-10",
+         "host" : "UNIX_HOST-12",
+         "name" : "targetkvm",
+         "primaryUser" : "HOST_USER-12",
+         "namespace" : "NAMESPACE-6",
+         "description" : "",
+         "enabled" : false,
+         "aseHostEnvironmentParameters" : null,
+         "type" : "UnixHostEnvironment"
+      },
+      {
+         "type" : "UnixHostEnvironment",
+         "aseHostEnvironmentParameters" : null,
+         "enabled" : true,
+         "description" : "",
+         "namespace" : null,
+         "name" : "targetkvm_clone",
+         "primaryUser" : "HOST_USER-2",
+         "reference" : "UNIX_HOST_ENVIRONMENT-2",
+         "host" : "UNIX_HOST-2"
+      },
+      {
+         "primaryUser" : "HOST_USER-3",
+         "name" : "racattack-kvm-11g",
+         "scanManual" : false,
+         "namespace" : "NAMESPACE-3",
+         "scan" : "collabn-cluster-scan.racattack",
+         "reference" : "ORACLE_CLUSTER-1",
+         "version" : "11.2.0.4.0",
+         "crsClusterName" : "racattack-cl",
+         "type" : "OracleCluster",
+         "clusterUser" : "HOST_USER-3",
+         "enabled" : false,
+         "crsClusterHome" : "/u01/app/11.2.0.4/grid",
+         "description" : "",
+         "remoteListener" : null
+      },
+      {
+         "name" : "SOURCE2012CLU",
+         "primaryUser" : "HOST_USER-15",
+         "address" : "target2012.delphix.local",
+         "namespace" : "NAMESPACE-10",
+         "proxy" : "WINDOWS_HOST-16",
+         "reference" : "WINDOWS_CLUSTER-2",
+         "enabled" : false,
+         "type" : "WindowsCluster",
+         "targetProxy" : null,
+         "description" : ""
+      }
+   ],
+   "type" : "ListResult",
+   "status" : "OK",
+   "action" : null,
+   "job" : null
+}

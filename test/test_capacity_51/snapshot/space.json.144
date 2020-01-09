@@ -1,0 +1,10 @@
+{
+   "action" : null,
+   "result" : {
+      "totalSize" : 115687424,
+      "type" : "SnapshotSpaceResult"
+   },
+   "job" : null,
+   "type" : "OKResult",
+   "status" : "OK"
+}

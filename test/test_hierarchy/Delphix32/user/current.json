@@ -1,0 +1,29 @@
+{
+   "result" : {
+      "userType" : "DOMAIN",
+      "publicKey" : [],
+      "emailAddress" : "test@test.com",
+      "namespace" : null,
+      "mobilePhoneNumber" : null,
+      "homePhoneNumber" : null,
+      "workPhoneNumber" : null,
+      "isDefault" : true,
+      "firstName" : null,
+      "type" : "User",
+      "principal" : "admin",
+      "lastName" : null,
+      "passwordUpdateRequest" : "NONE",
+      "sessionTimeout" : 30,
+      "locale" : "en-US",
+      "enabled" : true,
+      "authenticationType" : "NATIVE",
+      "apiUser" : true,
+      "name" : "admin",
+      "credential" : null,
+      "reference" : "USER-2"
+   },
+   "type" : "OKResult",
+   "action" : null,
+   "job" : null,
+   "status" : "OK"
+}

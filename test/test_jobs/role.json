@@ -1,0 +1,86 @@
+{
+   "job" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "result" : [
+      {
+         "reference" : "ROLE-1",
+         "permissions" : [
+            "PERMISSION-1"
+         ],
+         "name" : "OWNER",
+         "immutable" : true,
+         "namespace" : null,
+         "type" : "Role"
+      },
+      {
+         "reference" : "ROLE-2",
+         "permissions" : [
+            "PERMISSION-3",
+            "PERMISSION-2"
+         ],
+         "name" : "PROVISIONER",
+         "immutable" : true,
+         "type" : "Role",
+         "namespace" : null
+      },
+      {
+         "immutable" : true,
+         "type" : "Role",
+         "namespace" : null,
+         "permissions" : [
+            "PERMISSION-170",
+            "PERMISSION-163",
+            "PERMISSION-152",
+            "PERMISSION-15",
+            "PERMISSION-56",
+            "PERMISSION-12",
+            "PERMISSION-13",
+            "PERMISSION-61",
+            "PERMISSION-94",
+            "PERMISSION-92",
+            "PERMISSION-70",
+            "PERMISSION-119",
+            "PERMISSION-93",
+            "PERMISSION-76",
+            "PERMISSION-87",
+            "PERMISSION-55",
+            "PERMISSION-20",
+            "PERMISSION-42",
+            "PERMISSION-53",
+            "PERMISSION-177",
+            "PERMISSION-7",
+            "PERMISSION-80"
+         ],
+         "name" : "Jet Stream User",
+         "reference" : "ROLE-3"
+      },
+      {
+         "reference" : "ROLE-4",
+         "permissions" : [
+            "PERMISSION-170",
+            "PERMISSION-11",
+            "PERMISSION-168",
+            "PERMISSION-2",
+            "PERMISSION-116"
+         ],
+         "name" : "Data",
+         "immutable" : true,
+         "type" : "Role",
+         "namespace" : null
+      },
+      {
+         "permissions" : [
+            "PERMISSION-2"
+         ],
+         "name" : "Read",
+         "immutable" : true,
+         "type" : "Role",
+         "namespace" : null,
+         "reference" : "ROLE-5"
+      }
+   ],
+   "status" : "OK",
+   "total" : 5,
+   "action" : null
+}

@@ -1,0 +1,25 @@
+{
+   "type" : "LinkParameters",
+   "group" : "GROUP-34",
+   "linkData" : {
+      "config" : "MSSQL_SINGLE_CONFIG-23",
+      "sharedBackupLocation" : "\\\\172.16.180.133\\backups",
+      "pptHostUser" : "HOST_USER-29",
+      "pptRepository" : "MSSQL_INSTANCE-4",
+      "environmentUser" : "HOST_USER-30",
+      "sourcingPolicy" : {
+         "loadFromBackup" : true,
+         "type" : "SourcingPolicy",
+         "logsyncEnabled" : false
+      },
+      "dbCredentials" : {
+         "password" : "delphixdb",
+         "type" : "PasswordCredential"
+      },
+      "dbUser" : "aw",
+      "validatedSyncMode" : "NONE",
+      "sourceHostUser" : "HOST_USER-30",
+      "type" : "MSSqlLinkData"
+   },
+   "name" : "AdventureWorksLT2008R2"
+}

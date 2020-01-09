@@ -1,0 +1,28 @@
+{
+   "result" : [
+      {
+         "discovered" : null,
+         "cluster" : "WINDOWS_CLUSTER-266766",
+         "host" : "WINDOWS_HOST-266785",
+         "reference" : "WINDOWS_CLUSTER_NODE-266751",
+         "name" : "WIN2012N1.delphix.local",
+         "namespace" : null,
+         "type" : "WindowsClusterNode"
+      },
+      {
+         "cluster" : "WINDOWS_CLUSTER-266766",
+         "host" : "WINDOWS_HOST-266786",
+         "reference" : "WINDOWS_CLUSTER_NODE-266752",
+         "discovered" : null,
+         "type" : "WindowsClusterNode",
+         "name" : "WIN2012N2.delphix.local",
+         "namespace" : null
+      }
+   ],
+   "overflow" : false,
+   "total" : 2,
+   "status" : "OK",
+   "type" : "ListResult",
+   "job" : null,
+   "action" : null
+}

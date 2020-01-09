@@ -1,0 +1,31 @@
+{
+   "result" : [
+      {
+         "details" : "Run SnapSync for database \"tpcc\".",
+         "failureMessageCode" : null,
+         "report" : null,
+         "startTime" : "2018-01-05T17:25:33.255Z",
+         "title" : "DB_SYNC",
+         "failureDescription" : null,
+         "userAgent" : null,
+         "reference" : "ACTION-273181",
+         "failureAction" : null,
+         "workSource" : "WEBSERVICE",
+         "originIp" : null,
+         "endTime" : null,
+         "namespace" : null,
+         "type" : "Action",
+         "actionType" : "DB_SYNC",
+         "state" : "WAITING",
+         "user" : "USER-2",
+         "parentAction" : "ACTION-273180",
+         "workSourceName" : "delphix_admin"
+      }
+   ],
+   "status" : "OK",
+   "type" : "ListResult",
+   "action" : null,
+   "overflow" : false,
+   "job" : null,
+   "total" : 1
+}

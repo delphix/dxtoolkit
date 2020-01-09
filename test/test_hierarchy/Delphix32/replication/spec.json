@@ -1,0 +1,146 @@
+{
+   "status" : "OK",
+   "type" : "ListResult",
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "targetPort" : 8415,
+         "numberOfConnections" : 1,
+         "description" : null,
+         "useSystemSocksSetting" : false,
+         "type" : "ReplicationSpec",
+         "enabled" : false,
+         "targetCredential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "reference" : "REPLICATION_SPEC-266742",
+         "encrypted" : false,
+         "targetPrincipal" : "delphix_admin",
+         "schedule" : "0 0 0 * * ?",
+         "runtime" : {
+            "type" : "ReplicationSpecRuntime",
+            "nextScheduledExecution" : null
+         },
+         "tag" : "e2472ee3-c30e-412c-a391-8827e1c37f66",
+         "objectSpecification" : {
+            "type" : "ReplicationList",
+            "namespace" : null,
+            "objects" : [
+               "ORACLE_DB_CONTAINER-266801"
+            ],
+            "name" : null,
+            "reference" : null
+         },
+         "targetHost" : "192.168.1.33",
+         "bandwidthLimit" : 0,
+         "namespace" : null,
+         "name" : "testu"
+      },
+      {
+         "targetHost" : "192.168.1.33",
+         "objectSpecification" : {
+            "reference" : null,
+            "containers" : [
+               "ASE_DB_CONTAINER-266901"
+            ],
+            "name" : null,
+            "namespace" : null,
+            "type" : "ReplicationSecureList"
+         },
+         "name" : "sybase",
+         "bandwidthLimit" : 0,
+         "namespace" : null,
+         "tag" : "2ebb9f27-10bf-4ceb-bf06-9ad6e5784525",
+         "runtime" : {
+            "type" : "ReplicationSpecRuntime",
+            "nextScheduledExecution" : null
+         },
+         "reference" : "REPLICATION_SPEC-266749",
+         "targetPrincipal" : "delphix_admin",
+         "encrypted" : false,
+         "schedule" : "0 0 0 * * ?",
+         "numberOfConnections" : 1,
+         "description" : null,
+         "targetPort" : 8415,
+         "useSystemSocksSetting" : false,
+         "type" : "ReplicationSpec",
+         "targetCredential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "enabled" : false
+      },
+      {
+         "tag" : "cdbf2ea0-df83-4a58-9c2a-26fcef6fb783",
+         "runtime" : {
+            "type" : "ReplicationSpecRuntime",
+            "nextScheduledExecution" : null
+         },
+         "name" : "mssql",
+         "bandwidthLimit" : 0,
+         "namespace" : null,
+         "targetHost" : "192.168.1.33",
+         "objectSpecification" : {
+            "reference" : null,
+            "containers" : [
+               "MSSQL_DB_CONTAINER-266898"
+            ],
+            "type" : "ReplicationSecureList",
+            "name" : null,
+            "namespace" : null
+         },
+         "enabled" : false,
+         "targetCredential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "type" : "ReplicationSpec",
+         "useSystemSocksSetting" : false,
+         "numberOfConnections" : 1,
+         "description" : null,
+         "targetPort" : 8415,
+         "schedule" : "0 0 0 * * ?",
+         "encrypted" : false,
+         "targetPrincipal" : "delphix_admin",
+         "reference" : "REPLICATION_SPEC-266750"
+      },
+      {
+         "schedule" : "0 0 0 * * ?",
+         "reference" : "REPLICATION_SPEC-266748",
+         "encrypted" : false,
+         "targetPrincipal" : "delphix_admin",
+         "type" : "ReplicationSpec",
+         "targetCredential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "enabled" : false,
+         "numberOfConnections" : 1,
+         "description" : null,
+         "targetPort" : 8415,
+         "useSystemSocksSetting" : false,
+         "name" : "sdd",
+         "bandwidthLimit" : 0,
+         "namespace" : null,
+         "targetHost" : "192.168.1.33",
+         "objectSpecification" : {
+            "type" : "ReplicationSecureList",
+            "name" : null,
+            "namespace" : null,
+            "reference" : null,
+            "containers" : [
+               "ORACLE_DB_CONTAINER-266947"
+            ]
+         },
+         "tag" : "dc6c882e-97e6-4c37-b54d-f6784b4e1258",
+         "runtime" : {
+            "type" : "ReplicationSpecRuntime",
+            "nextScheduledExecution" : null
+         }
+      }
+   ],
+   "total" : 4
+}

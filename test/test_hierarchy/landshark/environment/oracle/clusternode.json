@@ -1,0 +1,46 @@
+{
+   "status" : "OK",
+   "result" : [
+      {
+         "name" : "collabn1",
+         "type" : "OracleClusterNode",
+         "namespace" : null,
+         "reference" : "ORACLE_CLUSTER_NODE-4",
+         "cluster" : "ORACLE_CLUSTER-3",
+         "enabled" : true,
+         "discovered" : true,
+         "virtualIPs" : [
+            {
+               "type" : "OracleVirtualIP",
+               "ip" : "172.16.180.161",
+               "discovered" : true,
+               "domainName" : "collabn1-vip.racattack"
+            }
+         ],
+         "host" : "UNIX_HOST-8"
+      },
+      {
+         "cluster" : "ORACLE_CLUSTER-3",
+         "type" : "OracleClusterNode",
+         "namespace" : null,
+         "reference" : "ORACLE_CLUSTER_NODE-5",
+         "name" : "collabn2",
+         "host" : "UNIX_HOST-9",
+         "discovered" : true,
+         "virtualIPs" : [
+            {
+               "ip" : "172.16.180.162",
+               "type" : "OracleVirtualIP",
+               "domainName" : "collabn2-vip.racattack",
+               "discovered" : true
+            }
+         ],
+         "enabled" : true
+      }
+   ],
+   "action" : null,
+   "overflow" : false,
+   "job" : null,
+   "type" : "ListResult",
+   "total" : 2
+}

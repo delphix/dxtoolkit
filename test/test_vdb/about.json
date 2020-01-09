@@ -1,0 +1,34 @@
+{
+   "status" : "OK",
+   "job" : null,
+   "result" : {
+      "productName" : "Delphix Engine",
+      "currentLocale" : "en-US",
+      "locales" : [
+         "en-US"
+      ],
+      "configured" : true,
+      "buildTitle" : "Delphix Engine 5.1.7.0",
+      "buildTimestamp" : "2017-06-15T20:00:34.000Z",
+      "apiVersion" : {
+         "minor" : 8,
+         "type" : "APIVersion",
+         "micro" : 2,
+         "major" : 1
+      },
+      "enabledFeatures" : [
+         "XPP"
+      ],
+      "productType" : "standard",
+      "buildVersion" : {
+         "major" : 5,
+         "micro" : 7,
+         "patch" : 0,
+         "type" : "VersionInfo",
+         "minor" : 1
+      },
+      "type" : "PublicSystemInfo"
+   },
+   "type" : "OKResult",
+   "action" : null
+}
