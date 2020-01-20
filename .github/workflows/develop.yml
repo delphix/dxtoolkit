@@ -22,10 +22,17 @@ jobs:
     - name: Get the version
       id: get_version
       run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
         echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
         echo "::set-env name=FILENAME::$FILENAME"
+
 
     - name: compress toolkit
       run: |
@@ -56,7 +63,13 @@ jobs:
     - name: Get the version
       id: get_version
       run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
         echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
         echo "::set-env name=FILENAME::$FILENAME"
@@ -88,7 +101,13 @@ jobs:
     - name: Get the version
       id: get_version
       run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
         echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
         echo "::set-env name=FILENAME::$FILENAME"
@@ -114,7 +133,13 @@ jobs:
     - name: Get the version
       id: get_version
       run: |
-        $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
+        if (${env:GITHUB_REF} -match "tags") {
+          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
+        } elseif (${env:GITHUB_REF} -match "heads") {
+          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/heads\/', ''
+        } else {
+          exit 1
+        }
         $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
         echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
         echo "::set-env name=FILENAME::$FILENAME"
