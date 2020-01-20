@@ -224,10 +224,10 @@ sub process_user {
       next;
     }
 
-    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
 
     if ($csv_obj->parse($line)) {
-      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout) = $csv_obj->fields();
+      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser) = $csv_obj->fields();
     } else {
       print "Can't parse line : $line \n";
       $ret = $ret + 1;
@@ -258,14 +258,17 @@ sub process_user {
       next;
     }
 
+    if (!defined($usertype)) {
+      $usertype = $loginuser->{userType};
+    }
 
     if (lc $command eq 'c') {
-      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
     }
 
     if (lc $command eq 'u') {
       $usertype = $loginuser->{userType};
-      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
     }
     if (lc $command eq 'd') {
       $usertype = $loginuser->{userType};
@@ -428,7 +431,7 @@ File with one or more SSH public key to set for user
 =item B<-file filename>
 CSV file name with user definition and actions. Field list as follow:
 
-command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, admin_priv, js_user, timeout
+command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, admin_priv, js_user, timeout, apiUser
 
 Allowed command values:
 
@@ -449,6 +452,10 @@ Allowed js_user values:
   Y - Self service (Jet Stream) user
   N - Standard User
 
+Allowed apiUser values:
+
+  Y - User can login with local user/password if SSO is enabled
+  N - User can't login with local user/password
 
 =item B<-profile filename>
 CSV file name with user profile definition. It can be generated using dx_get_users profile option.
