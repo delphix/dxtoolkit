@@ -420,16 +420,50 @@ sub getParentContainer
 
 # Procedure getTimezone
 # parameters: none
-# Return database timezone
+# Return database timezone or N/A
 
 sub getTimezone
 {
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getTimezone",1);
-    my $tz = $self->{host}->{hostConfiguration}->{operatingSystem}->{timezone};
+    # my $tz = $self->{host}->{hostConfiguration}->{operatingSystem}->{timezone};
+    #
+    # my @tztmp = split(',', $tz);
+    # return $tztmp[0];
 
-    my @tztmp = split(',', $tz);
-    return $tztmp[0];
+    my $timezone;
+
+    if (defined($self->{_timezone})) {
+      return $self->{_timezone}
+    } else {
+      my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->getReference();
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          my @res = @{$result->{result}};
+          if (scalar(@res) > 0) {
+              my $snapshot = $res[-1];
+              $timezone = $snapshot->{timezone};
+          }
+      } else {
+          print "Can't check snapshot timezone \n";
+          exit 1;
+      }
+      if (defined($timezone)) {
+        chomp($timezone);
+        my @temp = split(',',$timezone);
+        my $ret = $temp[0];
+
+        if (! ($ret =~ /[a-zA-Z]{3}.\d\d:\d\d/ )) {
+          # if timezone is not GMT+-00:00 format
+          # check if this format can be recognized and amended by checkTZ function
+          $ret = Snapshot_obj::checkTZ(undef, $ret);
+        }
+        $self->{_timezone} = $ret;
+        return $ret;
+      } else {
+        return "N/A";
+      }
+    }
 }
 
 

@@ -201,7 +201,6 @@ sub createBookmark
     }
     my $db_reference = $db->getReference();
 
-
     my $current_timeflow = $self->{_timeflows}->getCurrentTimeflowForContainer($db_reference);
 
     my $bookmark_timeflow_type;
@@ -244,7 +243,6 @@ sub createBookmark
         # this is to print time stamp of snapshot
         my $snapshots = new Snapshot_obj ($self->{_dlpxObject},$db_reference, 1, $self->{_debug});
         ($temp_time,$temp_timezone) = $snapshots->getLatestSnapshotTime();
-
         my @timesplit = split(' ',$temp_time);
 
         $temp_time = $timesplit[0] . ' ' . $timesplit[1];
@@ -301,6 +299,7 @@ sub createBookmark
        return 0;
     } else {
        print "Creatation of bookmark $name for time $temp_time failed\n";
+       print $result->{error}->{details} . "\n";
        return 1;
     }
 
