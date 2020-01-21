@@ -1,88 +1,77 @@
 {
    "status" : "OK",
-   "total" : 6,
+   "job" : null,
+   "total" : 5,
+   "overflow" : false,
+   "type" : "ListResult",
    "result" : [
       {
-         "credential" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         },
-         "userId" : 500,
-         "namespace" : null,
          "groupId" : 500,
-         "name" : "oracle",
-         "environment" : "UNIX_HOST_ENVIRONMENT-10",
-         "reference" : "HOST_USER-31",
+         "name" : "ora12102",
+         "userId" : 500,
+         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-1",
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "privateKey" : "********",
+            "publicKey" : "********"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-1"
+      },
+      {
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "privateKey" : "********",
+            "publicKey" : "********"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "groupId" : 500,
+         "name" : "ora12102",
+         "userId" : 500,
+         "reference" : "HOST_USER-2",
          "type" : "EnvironmentUser"
       },
       {
-         "type" : "EnvironmentUser",
-         "environment" : "ORACLE_CLUSTER-3",
-         "reference" : "HOST_USER-8",
-         "name" : "oracle",
-         "groupId" : 0,
-         "namespace" : null,
-         "userId" : 0,
-         "credential" : {
-            "password" : "********",
-            "type" : "PasswordCredential"
-         }
-      },
-      {
-         "name" : "DELPHIX\\delphix_admin",
-         "reference" : "HOST_USER-29",
-         "environment" : "WINDOWS_HOST_ENVIRONMENT-13",
-         "type" : "EnvironmentUser",
-         "namespace" : null,
-         "groupId" : 0,
-         "userId" : 0,
-         "credential" : {
-            "password" : "********",
-            "type" : "PasswordCredential"
-         }
-      },
-      {
-         "type" : "EnvironmentUser",
-         "environment" : "WINDOWS_HOST_ENVIRONMENT-14",
-         "reference" : "HOST_USER-30",
-         "name" : "DELPHIX\\delphix_admin",
-         "groupId" : 0,
-         "namespace" : null,
-         "userId" : 0,
-         "credential" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         }
-      },
-      {
-         "namespace" : null,
+         "userId" : 500,
          "groupId" : 500,
+         "name" : "sybase",
+         "reference" : "HOST_USER-3",
          "type" : "EnvironmentUser",
-         "name" : "delphix",
-         "reference" : "HOST_USER-26",
-         "environment" : "UNIX_HOST_ENVIRONMENT-10",
          "credential" : {
             "type" : "PasswordCredential",
             "password" : "********"
          },
-         "userId" : 501
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-3"
       },
       {
-         "name" : "delphix",
-         "reference" : "HOST_USER-27",
-         "environment" : "UNIX_HOST_ENVIRONMENT-11",
          "type" : "EnvironmentUser",
-         "namespace" : null,
+         "reference" : "HOST_USER-4",
+         "userId" : 500,
          "groupId" : 500,
-         "userId" : 501,
+         "name" : "sybase",
+         "environment" : "UNIX_HOST_ENVIRONMENT-4",
+         "namespace" : null,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         }
+      },
+      {
+         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-5",
+         "userId" : 500,
+         "name" : "sybase",
+         "groupId" : 500,
+         "environment" : "UNIX_HOST_ENVIRONMENT-5",
+         "namespace" : null,
          "credential" : {
             "type" : "PasswordCredential",
             "password" : "********"
          }
       }
    ],
-   "action" : null,
-   "type" : "ListResult",
-   "job" : null,
-   "overflow" : false
+   "action" : null
 }

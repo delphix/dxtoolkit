@@ -1,0 +1,103 @@
+{
+   "job" : null,
+   "status" : "OK",
+   "result" : [
+      {
+         "version" : "15.7 SP137",
+         "timeflow" : "ASE_TIMEFLOW-18",
+         "missingNonLoggedData" : false,
+         "reference" : "ASE_SNAPSHOT-72",
+         "type" : "ASESnapshot",
+         "firstChangePoint" : {
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timestamp" : "2020-01-17T11:30:08.573Z",
+            "timeflow" : "ASE_TIMEFLOW-18"
+         },
+         "consistency" : "CRASH_CONSISTENT",
+         "name" : "@2020-01-17T03:30:08.573",
+         "temporary" : false,
+         "retention" : 0,
+         "container" : "ASE_DB_CONTAINER-15",
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-18",
+            "timestamp" : "2020-01-17T11:30:08.573Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "creationTime" : "2020-01-17T11:30:08.448Z",
+         "namespace" : null,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         }
+      },
+      {
+         "temporary" : false,
+         "consistency" : "CRASH_CONSISTENT",
+         "name" : "@2020-01-16T03:30:00.443",
+         "container" : "ASE_DB_CONTAINER-15",
+         "retention" : 0,
+         "latestChangePoint" : {
+            "timestamp" : "2020-01-16T11:30:00.443Z",
+            "timeflow" : "ASE_TIMEFLOW-18",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "namespace" : null,
+         "creationTime" : "2020-01-16T11:30:00.540Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "timeflow" : "ASE_TIMEFLOW-18",
+         "version" : "15.7 SP137",
+         "reference" : "ASE_SNAPSHOT-71",
+         "type" : "ASESnapshot",
+         "missingNonLoggedData" : false,
+         "firstChangePoint" : {
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timestamp" : "2020-01-16T11:30:00.443Z",
+            "timeflow" : "ASE_TIMEFLOW-18"
+         }
+      },
+      {
+         "firstChangePoint" : {
+            "timestamp" : "2020-01-15T11:30:10.490Z",
+            "timeflow" : "ASE_TIMEFLOW-18",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "missingNonLoggedData" : false,
+         "reference" : "ASE_SNAPSHOT-70",
+         "type" : "ASESnapshot",
+         "version" : "15.7 SP137",
+         "timeflow" : "ASE_TIMEFLOW-18",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "namespace" : null,
+         "creationTime" : "2020-01-15T11:30:08.840Z",
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "latestChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timestamp" : "2020-01-15T11:30:10.490Z",
+            "timeflow" : "ASE_TIMEFLOW-18"
+         },
+         "retention" : 0,
+         "container" : "ASE_DB_CONTAINER-15",
+         "name" : "@2020-01-15T03:30:10.490",
+         "consistency" : "CRASH_CONSISTENT",
+         "temporary" : false
+      }
+   ],
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "total" : 3
+}
