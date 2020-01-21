@@ -340,7 +340,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Deleting repository $repopath from environment $env_name \n";
       my $repository_obj = new Repository_obj($engine_obj, $debug);
       if ($repository_obj->deleteRepository($envitem, $repopath)) {
-        print "Problem with adding repository \n";
+        print "Problem with deleting repository \n";
         $ret = $ret + 1;
       }
     }
