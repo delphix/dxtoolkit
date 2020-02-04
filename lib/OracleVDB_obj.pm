@@ -1647,7 +1647,7 @@ sub addSource {
         $dsource_params{"type"} = 'OraclePDBLinkParameters';
       }
 
-    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) { 
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) {
         # all above 1.8 below 1.11
         %dsource_params = (
           "type" => "LinkParameters",
@@ -1702,7 +1702,7 @@ sub addSource {
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
-      
+
     }
 
 
@@ -1849,8 +1849,15 @@ sub createVDB {
         # source was RAC but target enviroment is not RAC
         $configtype = "OracleSIConfig";
       } elsif ($configtype eq 'N/A') {
-        # detached - set OracleSI
-        $configtype = "OracleSIConfig";
+        # detached - check source DB container type
+        logger($self->{_debug}, "SourceDB container type " . Dumper $self->{_sourcedb}->{container}->{contentType});
+        if ($self->{_sourcedb}->{container}->{contentType} eq "NON_CDB") {
+          $configtype = "OracleSIConfig";
+        } else {
+          # set to PDB
+          $configtype = "OraclePDBConfig";
+        }
+
       }
       $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
 
