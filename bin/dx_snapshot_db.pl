@@ -161,6 +161,8 @@ for my $engine ( sort (@{$engine_list}) ) {
           $ret = $ret + 1;
         }
       }
+    } else {
+      $ret = $ret + 1;
     }
 
     if (defined($parallel)) {
