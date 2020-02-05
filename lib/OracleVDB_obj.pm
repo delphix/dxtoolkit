@@ -1271,9 +1271,18 @@ sub snapshot
     my $full = shift;
     my $double = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::snapshot",1);
-    my %snapshot_type = (
-        "type" => "OracleSyncParameters"
-    );
+    my %snapshot_type;
+
+    if  (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) {
+      %snapshot_type = (
+          "type" => "OracleSyncParameters"
+      );
+    } else {
+      # Delphix 6.0
+      %snapshot_type = (
+          "type" => "OracleSyncFromExternalParameters"
+      );
+    }
 
     if (defined($full)) {
       $snapshot_type{"forceFullBackup"} = JSON::true;
