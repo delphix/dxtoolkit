@@ -202,6 +202,9 @@ if (defined($backup)) {
       {'Version',    15},
       {'Server DB name',  30}
     );
+  } else {
+    print "Configtype has to have value 'd' or 's'\n";
+    exit 1;
   }
 } else {
   if (defined($masking)) {

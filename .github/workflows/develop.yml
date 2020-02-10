@@ -1,0 +1,281 @@
+name: Perl application
+
+on:
+  push:
+    branch:
+      - "develop"
+
+jobs:
+  centos7:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlcent7:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload centos 7
+      uses: actions/upload-artifact@v1
+      with:
+        name: cento7build
+        path: ${{ env.FILENAME }}
+
+
+  ubuntu:
+    needs: [centos7]
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlubuntu18:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload ubuntu
+      uses: actions/upload-artifact@v1
+      with:
+        name: ubuntubuild
+        path: ${{ env.FILENAME }}
+
+  centos6:
+    needs: [centos7]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlcent6:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload centos 6
+      uses: actions/upload-artifact@v1
+      with:
+        name: cento6build
+        path: ${{ env.FILENAME }}
+
+  Windows:
+    needs: [centos7]
+    runs-on: windows-2016
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (${env:GITHUB_REF} -match "tags") {
+          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
+        } elseif (${env:GITHUB_REF} -match "heads") {
+          $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/heads\/', ''
+        } else {
+          exit 1
+        }
+        $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+      shell: powershell
+
+    - name: Fix encryption key
+      run: |
+        cd D:\a\dxtoolkit\dxtoolkit\lib
+        ls -l dbutils.pm
+        mv dbutils.pm dbutils.orig.pm
+        $raw = (Get-Content -path .\dbutils.orig.pm -Raw) -replace 'put your encryption key here','${{ secrets.ENCKEY_WINDOWS }}'
+        Set-Content -Path .\dbutils.pm -Value $raw
+        cd D:\a\dxtoolkit\dxtoolkit\
+      shell: powershell
+
+    - name: Upload enc
+      uses: actions/upload-artifact@v1
+      with:
+        name: windowsbuild-enc
+        path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
+
+    - name: download perl
+      run: |
+        mkdir d:\a\perldownload
+        mkdir d:\a\perl
+        Invoke-WebRequest "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip" -OutFile "d:\a\perldownload\perl526.zip"
+        dir d:\a\perldownload\
+        Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
+      shell: powershell
+
+    - name: build
+      run: build\windows_compile.cmd
+      shell: cmd
+
+    - name: compress toolkit
+      run: |
+        $NAME = "d:\a\dxtoolkit\dxtoolkit\${{ env.FILENAME }}"
+        echo ${NAME}
+        Compress-Archive -Path d:\a\dxtoolkit\dxtoolkit\dxtoolkit2 -DestinationPath ${NAME}
+      shell: powershell
+
+    - name: Upload windows
+      uses: actions/upload-artifact@v1
+      with:
+        name: windowsbuild
+        path: ${{ env.FILENAME }}
+
+
+  osx:
+    needs: [centos7]
+    runs-on: macos-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: install perl
+      run: |
+        brew install cpanminus
+        brew install openssl
+        cpanm JSON
+        cpanm Date::Manip
+        # force requires after 1/1/2020 ?
+        cpanm -f Date::Parse
+        cpanm DateTime::Event::Cron::Quartz
+        cpanm DateTime::Format::DateParse
+        cpanm Crypt::CBC
+        cpanm Crypt::Blowfish
+        cpanm Text::CSV
+        cpanm LWP::UserAgent
+        cpanm Net::SSLeay
+        cpanm IO::Socket::SSL
+        cpanm LWP::Protocol::https
+        cpanm Term::ReadKey
+        cpanm --configure-args="-d=/usr/local/opt/openssl" Filter::Crypto::Decrypt
+        cpanm -f Archive::Zip
+        cpanm PAR::Packer
+        cpanm List::MoreUtils::PP
+
+    - name: Compile
+      run: |
+          CELL=`brew --prefix perl`
+          OPENLIB=`brew --prefix openssl`
+          CDIR=`pwd`
+          export PP=${CELL}/bin/pp
+          export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
+          echo $LIBS
+          mkdir dxtoolkit2
+          cd ./lib
+          mv dbutils.pm dbutils.orig.pm
+          cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+          cd ../bin
+          $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
+          -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
+          cd ${CDIR}/dxtoolkit2
+          #for i in ${CDIR}/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
+
+          echo #!/bin/bash > install.sh
+          echo LIST_OF_SCRIPTS=\( >> install.sh
+
+          for i in ${CDIR}/bin/dx_*.pl ; do
+              name=`basename -s .pl $i`;
+              echo $name >> install.sh
+          done
+
+          echo \) >> install.sh
+          echo >> install.sh
+          echo >> install.sh
+          echo for i in \"\$\{LIST_OF_SCRIPTS\[\@\]\}\" >> install.sh
+          echo do >> install.sh
+          echo   echo \$i >> install.sh
+          echo   ln -sf runner \$i >> install.sh
+          echo done >> install.sh
+
+
+          cd ${CDIR}
+          ls -l ./dxtoolkit2
+          tar czvf ${{ env.FILENAME }} dxtoolkit2/
+
+    - name: Upload OSX
+      uses: actions/upload-artifact@v1
+      with:
+        name: osxbuild
+        path: ${{ env.FILENAME }}

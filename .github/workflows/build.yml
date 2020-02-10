@@ -1,0 +1,419 @@
+name: Perl application
+
+on: 
+  push:
+    tags: 
+      - "v*.*.*"
+
+jobs:
+  centos7:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlcent7:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        SOURCE_TAG=${GITHUB_REF#refs/tags/} 
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload centos 7
+      uses: actions/upload-artifact@v1
+      with:
+        name: cento7build
+        path: ${{ env.FILENAME }}
+
+
+  ubuntu:
+    needs: [centos7]    
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    # - name: Set up a Perl container
+    #   run: |
+    #     sudo apt-get update || exit 0
+    #     sudo apt-get install -y libpar-packer-perl 
+    #     sudo apt-get install -y libjson-pp-perl
+    #     sudo apt-get install -y libdate-manip-perl
+    #     sudo apt-get install -y libdatetime-format-dateparse-perl
+    #     sudo apt-get install -y libcrypt-cbc-perl
+    #     sudo apt-get install -y libcrypt-blowfish-perl
+    #     sudo apt-get install -y libtext-csv-perl
+    #     sudo apt-get install -y libtry-tiny-perl
+    #     sudo apt-get install -y libparse-http-useragent-perl
+    #     sudo apt-get install -y libnet-ssleay-perl
+    #     sudo apt-get install -y libio-socket-ssl-perl
+    #     sudo apt-get install -y libfilter-perl
+    #     sudo apt-get install -y libterm-readkey-perl
+    #     sudo apt-get install -y cpanminus
+    #     sudo apt-get install -y make
+    #     sudo apt-get install -y gcc
+    #     sudo apt-get install -y libssl-dev
+    #     sudo apt-get install -y libwww-perl
+    #     sudo cpanm DateTime::Event::Cron::Quartz
+    #     sudo cpanm Log::Syslog::Fast@0.65
+    #     sudo cpanm Filter::Crypto::Decrypt
+
+    # - name: Compile
+    #   run: |
+    #       mkdir /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
+
+    #       cd /home/runner/work/dxtoolkit/dxtoolkit/lib
+    #       mv dbutils.pm dbutils.orig.pm
+    #       cat dbutils.orig.pm | sed -e "s/put your encryption key here/${INPUT_ENCKEY}/" > dbutils.pm
+
+    #       cd /home/runner/work/dxtoolkit/dxtoolkit/bin
+    #       pp -u -l /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 -l /usr/lib/x86_64-linux-gnu/libssl.so.1.1 -I /home/runner/work/dxtoolkit/dxtoolkit/lib -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
+    #       -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2/runner `ls dx_*.pl | xargs`
+
+    #       cd /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
+    #       for i in /home/runner/work/dxtoolkit/dxtoolkit/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
+    #       ls -l /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
+    #       cd /home/runner/work/dxtoolkit/dxtoolkit/
+    #       tar czvf /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit.tar.gz dxtoolkit2/
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlubuntu18:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload ubuntu 
+      uses: actions/upload-artifact@v1
+      with:
+        name: ubuntubuild
+        path: ${{ env.FILENAME }}
+
+  centos6:
+    needs: [centos7]    
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlcent6:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload centos 6 
+      uses: actions/upload-artifact@v1
+      with:
+        name: cento6build
+        path: ${{ env.FILENAME }}
+
+  Windows:
+    needs: [centos7]    
+    runs-on: windows-2016
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
+        $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+      shell: powershell
+
+    - name: Fix encryption key
+      run: |
+        cd D:\a\dxtoolkit\dxtoolkit\lib
+        ls -l dbutils.pm
+        mv dbutils.pm dbutils.orig.pm
+        $raw = (Get-Content -path .\dbutils.orig.pm -Raw) -replace 'put your encryption key here','${{ secrets.ENCKEY_WINDOWS }}'
+        Set-Content -Path .\dbutils.pm -Value $raw
+        cd D:\a\dxtoolkit\dxtoolkit\
+      shell: powershell
+
+    - name: Upload enc
+      uses: actions/upload-artifact@v1
+      with:
+        name: windowsbuild-enc
+        path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
+
+    - name: download perl
+      run: |
+        mkdir d:\a\perldownload
+        mkdir d:\a\perl
+        Invoke-WebRequest "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip" -OutFile "d:\a\perldownload\perl526.zip"
+        dir d:\a\perldownload\
+        Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
+      shell: powershell
+
+    - name: build  
+      run: build\windows_compile.cmd
+      shell: cmd
+
+    - name: compress toolkit
+      run: |
+        $NAME = "d:\a\dxtoolkit\dxtoolkit\${{ env.FILENAME }}"
+        echo ${NAME}
+        Compress-Archive -Path d:\a\dxtoolkit\dxtoolkit\dxtoolkit2 -DestinationPath ${NAME}
+      shell: powershell
+
+    - name: Upload windows
+      uses: actions/upload-artifact@v1
+      with:
+        name: windowsbuild
+        path: ${{ env.FILENAME }}
+
+
+  osx:
+    needs: [centos7]    
+    runs-on: macos-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAME::$FILENAME"
+
+    - name: install perl
+      run: |
+        brew install cpanminus
+        brew install openssl
+        cpanm JSON 
+        cpanm Date::Manip 
+        # force requires after 1/1/2020 ?
+        cpanm -f Date::Parse
+        cpanm DateTime::Event::Cron::Quartz 
+        cpanm DateTime::Format::DateParse 
+        cpanm Crypt::CBC 
+        cpanm Crypt::Blowfish 
+        cpanm Text::CSV 
+        cpanm LWP::UserAgent 
+        cpanm Net::SSLeay 
+        cpanm IO::Socket::SSL 
+        cpanm LWP::Protocol::https 
+        cpanm Term::ReadKey 
+        cpanm --configure-args="-d=/usr/local/opt/openssl" Filter::Crypto::Decrypt 
+        cpanm -f Archive::Zip
+        cpanm PAR::Packer 
+        cpanm List::MoreUtils::PP 
+
+    - name: Compile
+      run: |
+          CELL=`brew --prefix perl`
+          OPENLIB=`brew --prefix openssl`
+          CDIR=`pwd`
+          export PP=${CELL}/bin/pp
+          export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
+          echo $LIBS
+          mkdir dxtoolkit2
+          cd ./lib
+          mv dbutils.pm dbutils.orig.pm
+          cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+          cd ../bin
+          $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
+          -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
+          cd ${CDIR}/dxtoolkit2
+          #for i in ${CDIR}/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
+
+          echo #!/bin/bash > install.sh
+          echo LIST_OF_SCRIPTS=\( >> install.sh
+
+          for i in ${CDIR}/bin/dx_*.pl ; do
+              name=`basename -s .pl $i`;
+              echo $name >> install.sh
+          done
+
+          echo \) >> install.sh
+          echo >> install.sh
+          echo >> install.sh
+          echo for i in \"\$\{LIST_OF_SCRIPTS\[\@\]\}\" >> install.sh
+          echo do >> install.sh
+          echo   echo \$i >> install.sh
+          echo   ln -sf runner \$i >> install.sh
+          echo done >> install.sh
+
+
+          cd ${CDIR}
+          ls -l ./dxtoolkit2
+          tar czvf ${{ env.FILENAME }} dxtoolkit2/
+
+    - name: Upload OSX
+      uses: actions/upload-artifact@v1
+      with:
+        name: osxbuild
+        path: ${{ env.FILENAME }}
+
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [centos6, centos7, windows, ubuntu, osx]
+    steps:
+
+    - name: Download centos7
+      uses: actions/download-artifact@v1
+      with:
+        name: cento7build
+
+    - name: Download centos6
+      uses: actions/download-artifact@v1
+      with:
+        name: cento6build
+
+    - name: Download windows
+      uses: actions/download-artifact@v1
+      with:
+        name: windowsbuild
+        
+    - name: Download ubuntu
+      uses: actions/download-artifact@v1
+      with:
+        name: ubuntubuild
+
+    - name: Download osx
+      uses: actions/download-artifact@v1
+      with:
+        name: osxbuild
+
+    - name: Say
+      run: |
+        echo "HELLO" 
+        ls -l 
+        ls -lR
+
+    - name: Get the version
+      id: get_version 
+      run: |
+        SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        FILENAMERH7="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
+        FILENAMERH6="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
+        FILENAMEUBUNTU="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
+        FILENAMEWIN="dxtoolkit2-${SOURCE_TAG}-win64-installer.zip"
+        FILENAMEOSX="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
+        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
+        echo "::set-env name=FILENAMERH7::$FILENAMERH7"
+        echo "::set-env name=FILENAMERH6::$FILENAMERH6"
+        echo "::set-env name=FILENAMEUBUNTU::$FILENAMEUBUNTU"
+        echo "::set-env name=FILENAMEWIN::$FILENAMEWIN"
+        echo "::set-env name=FILENAMEOSX::$FILENAMEOSX"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.SOURCE_TAG }}
+        release_name: Release ${{ env.SOURCE_TAG }}
+        draft: true
+        prerelease: true
+        body: "To jest tekst
+               2nd linia"
+
+    - name: Upload Release Asset
+      id: upload-release-asset1
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: cento6build/${{ env.FILENAMERH6 }}
+        asset_name: ${{ env.FILENAMERH6 }}
+        asset_content_type: application/tgz
+
+    - name: Upload Release Asset
+      id: upload-release-asset2 
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: cento7build/${{ env.FILENAMERH7 }}
+        asset_name: ${{ env.FILENAMERH7 }}
+        asset_content_type: application/tgz
+
+    - name: Upload Release Asset
+      id: upload-release-asset3 
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ubuntubuild/${{ env.FILENAMEUBUNTU }}
+        asset_name: ${{ env.FILENAMEUBUNTU }}
+        asset_content_type: application/tgz
+
+    - name: Upload Release Asset
+      id: upload-release-asset4 
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: windowsbuild/${{ env.FILENAMEWIN }}
+        asset_name: ${{ env.FILENAMEWIN }}
+        asset_content_type: application/zip
+
+    - name: Upload Release Asset
+      id: upload-release-asset5
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: osxbuild/${{ env.FILENAMEOSX }}
+        asset_name: ${{ env.FILENAMEOSX }}
+        asset_content_type: application/tgz

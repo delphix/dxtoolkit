@@ -1,0 +1,114 @@
+{
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "status" : "OK",
+   "total" : 2,
+   "result" : [
+      {
+         "dspKeystorePath" : null,
+         "hostConfiguration" : {
+            "lastRefreshed" : null,
+            "lastUpdated" : "2019-12-24T14:04:30.502Z",
+            "type" : "HostConfiguration",
+            "discovered" : true,
+            "operatingSystem" : {
+               "release" : "2.6.32-431.el6.x86_64",
+               "timezone" : "America/Los_Angeles,PST-0800",
+               "type" : "HostOS",
+               "kernel" : null,
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "distribution" : "RedHat",
+               "name" : "Linux"
+            },
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 16726491136
+            }
+         },
+         "oracleJdbcKeystorePassword" : null,
+         "namespace" : null,
+         "dateAdded" : "2019-12-24T14:03:58.823Z",
+         "nfsAddressList" : [],
+         "dspTruststorePassword" : null,
+         "type" : "UnixHost",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "dspKeystorePassword" : null,
+         "dspTruststorePath" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "address" : "10.43.1.211",
+         "javaHome" : null,
+         "sshPort" : 22,
+         "dspKeystoreAlias" : null,
+         "toolkitPath" : "/u01/app/toolkit",
+         "name" : "10.43.1.211",
+         "hostRuntime" : {
+            "notAvailableReason" : null,
+            "type" : "HostRuntime",
+            "traceRouteInfo" : {
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.299 ms  4.052 ms  0.803 ms",
+               "type" : "TracerouteInfo"
+            },
+            "available" : true,
+            "availableTimestamp" : "2019-12-24T15:13:34.908Z"
+         },
+         "reference" : "UNIX_HOST-1"
+      },
+      {
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "dspTruststorePassword" : null,
+         "type" : "UnixHost",
+         "dspKeystorePassword" : null,
+         "dspTruststorePath" : null,
+         "namespace" : null,
+         "dateAdded" : "2019-12-24T14:06:56.888Z",
+         "nfsAddressList" : [],
+         "oracleJdbcKeystorePassword" : null,
+         "hostConfiguration" : {
+            "lastRefreshed" : "2019-12-24T15:12:55.279Z",
+            "lastUpdated" : "2019-12-24T15:12:55.298Z",
+            "discovered" : true,
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 16726491136
+            },
+            "operatingSystem" : {
+               "distribution" : "RedHat",
+               "name" : "Linux",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "release" : "2.6.32-431.el6.x86_64",
+               "timezone" : "US/Pacific,PST-0800",
+               "type" : "HostOS",
+               "kernel" : null
+            },
+            "type" : "HostConfiguration"
+         },
+         "dspKeystorePath" : null,
+         "reference" : "UNIX_HOST-2",
+         "name" : "10.43.6.187",
+         "hostRuntime" : {
+            "notAvailableReason" : null,
+            "type" : "HostRuntime",
+            "traceRouteInfo" : {
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.313 ms  0.632 ms  0.260 ms",
+               "type" : "TracerouteInfo"
+            },
+            "availableTimestamp" : "2019-12-24T15:13:34.889Z",
+            "available" : true
+         },
+         "dspKeystoreAlias" : null,
+         "javaHome" : null,
+         "sshPort" : 22,
+         "address" : "10.43.6.187",
+         "toolkitPath" : "/u01/app/toolkit",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1"
+      }
+   ],
+   "job" : null
+}

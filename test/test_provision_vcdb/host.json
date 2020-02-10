@@ -1,105 +1,114 @@
 {
+   "job" : null,
    "type" : "ListResult",
-   "action" : null,
-   "overflow" : false,
-   "status" : "OK",
    "result" : [
       {
-         "reference" : "UNIX_HOST-1",
-         "type" : "UnixHost",
-         "name" : "marcinsrc.dcenter.delphix.com",
          "hostConfiguration" : {
-            "operatingSystem" : {
-               "distribution" : "RedHat",
-               "timezone" : "US/Pacific,PST-0800",
-               "type" : "HostOS",
-               "release" : "2.6.32-431.el6.x86_64",
-               "name" : "Linux",
-               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
-               "kernel" : null
-            },
-            "lastRefreshed" : null,
-            "type" : "HostConfiguration",
+            "lastUpdated" : "2019-12-24T14:04:30.502Z",
             "machine" : {
                "memorySize" : 16726491136,
                "platform" : "x86_64",
                "type" : "HostMachine"
             },
+            "lastRefreshed" : null,
+            "type" : "HostConfiguration",
             "discovered" : true,
-            "lastUpdated" : "2017-11-05T12:04:17.729Z"
-         },
-         "dateAdded" : "2017-11-01T17:32:01.370Z",
-         "address" : "marcinsrc.dcenter.delphix.com",
-         "toolkitPath" : "/home/ora12102/toolkit",
-         "userTruststorePassword" : null,
-         "sshVerificationStrategy" : {
-            "type" : "SshAcceptAlways"
-         },
-         "namespace" : null,
-         "hostRuntime" : {
-            "notAvailableReason" : null,
-            "type" : "HostRuntime",
-            "available" : true,
-            "availableTimestamp" : "2017-12-07T17:24:28.743Z",
-            "traceRouteInfo" : null
-         },
-         "certificateChain" : [
-            "-----BEGIN CERTIFICATE-----\nMIIDRzCCAi+gAwIBAgIEHADa5zANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJVUzEQMA4GA1UE\nChMHRGVscGhpeDEtMCsGA1UEAxMkRGVscGhpeCBFbmdpbmUgbWFyY2luZGxweC5kY2VudGVyIENB\nMB4XDTE3MTEwMTE3MTI0NVoXDTIxMTAzMDE3MTI0NVowOTELMAkGA1UEBhMCVVMxEDAOBgNVBAoT\nB0RlbHBoaXgxGDAWBgNVBAMTD3JoNjUtb3JhMTJjLXNyYzCCASIwDQYJKoZIhvcNAQEBBQADggEP\nADCCAQoCggEBALoqOxSz4a/zbVM8pAkvVuo2Ejsk1GCdnZ1U/Ggc/RtDOorEp46vwPc2ZWrai0mk\n2C9M/4lr9TwYTNV73+MvcKke7aqkgF0acTwI6+9kNz7A5sO1OQ6Pm24dMMa8aNO40qHtGUApAJh6\nBW8eJI64XWKErLSrtAP5bm6kiF4AocEJ5ydBxy6dZK3tgG94ezd6ymDO6NvlRNcfGQC7+5bEg/tv\nz5qONbdj8OoOyPGzH7C/i0ZIef/YVtBCFWuHKquA+3c73w7Qth9StF865ocH441Z523cDBgbZIO4\nu0pb+qlicezi9wV27Hc8jp1TpqIquxua+9kxN3j63WX2hPoKjQUCAwEAAaNCMEAwHwYDVR0jBBgw\nFoAURE3FtWqH64N8Q7Idy2aq3zNw0MkwHQYDVR0OBBYEFB44XWmly47OqMzK1uP9usOzCZBOMA0G\nCSqGSIb3DQEBCwUAA4IBAQAyrvwKJe5RJFxZE0clq8FUfU2oym7wIEJ+iGCrKlXfNBwDa08qO2zo\nVifh7vYF/bv/SH4eqW6Zl7kTk8SC/+0I0rltCZe6x0+NbpZWRrJBEr7PtSmURzsq/LlXTxcACJWw\nbEDUjn8YkfPBhKcdsPGuatYneAB4fvnei7+bIq9gfiTTG69ZYyQu+hgho7hvtoJqGj83hEws6t5P\njoLBEAdYNDAkzrQDWvE1oWKiNA0SLMhN9vfWKbfwQONno8e1eAwtq28G+IP4rm3Ggr8xlt+L3lEW\nmyvr4H8JCHS57gT8/l8KsvQwYSAIR2baF5nWW+LXRkbcjw9L5ePfCv2g0I/g\n-----END CERTIFICATE-----\n",
-            "-----BEGIN CERTIFICATE-----\nMIIDVjCCAj6gAwIBAgIEQD2mYDANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJVUzEQMA4GA1UE\nChMHRGVscGhpeDEtMCsGA1UEAxMkRGVscGhpeCBFbmdpbmUgbWFyY2luZGxweC5kY2VudGVyIENB\nMB4XDTE3MTEwMTE2NDIyNFoXDTIxMTEwMTE2NDIyNFowTjELMAkGA1UEBhMCVVMxEDAOBgNVBAoT\nB0RlbHBoaXgxLTArBgNVBAMTJERlbHBoaXggRW5naW5lIG1hcmNpbmRscHguZGNlbnRlciBDQTCC\nASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJEuE+wplAItJkgsc0iDXK+ocKm5okgKh2Zp\n42HasBHDz1MmMBQGHTn6N7grUn38kfAsnQSaN6Dsy4u8TDQMFx5MmnUmaemZU7C/PEUc09peb1x0\nIcX2tiBnbqr0lcL1YT+lKeXvmjUgfs+SimBCv0IrZNgePrf8uVbSBo6zegNuDuT7DLz4rnLhJvWd\n/XUlGfFykqguZE0v0YQHwJYu/gTP/CCZ44KlFGFvunFj0NyP2xWXQ8W6HPc/H+BEHti4moq1H7OG\ndEjGQ6cHqKGzC1JcJHrLqrDA70T5e7k0dLGxI+ERxCcLKKpyvuN98RJt1yXGBLJPyBy0pC3yH7ZZ\neSMCAwEAAaM8MDowDAYDVR0TBAUwAwEB/zALBgNVHQ8EBAMCAQYwHQYDVR0OBBYEFERNxbVqh+uD\nfEOyHctmqt8zcNDJMA0GCSqGSIb3DQEBCwUAA4IBAQBhwDPJamRTxthDactG68YOp2DPpu0+zl/s\nQdguwx0sHZpokhMZJ5pzILeCnTMBOLUSpLTR8/uHW7+2TQhrXBTyrwksRpoC90ZJNaOSk8ffiJTl\nva/meAeGo0aAlMkHgbDXK9YKYkY7fhyfgy3IS3zvLIFTJUwxUj2Mo5u/WBDK56N8aoKOZg9CcTwZ\neow+GEO5hhlD4hGOnXTQ3mKUPz+dzNqbkePTgokSq9mIMf7pkmrjb9nEAeM+wfSeuuBfNr4l3gh3\nRObTYK43DbhD7FAScdEPay+1cbmmuIZ14xSGWUcORj39Ui7XGSggSasdhYFDdhJ6ermy54d74FRx\na9oe\n-----END CERTIFICATE-----\n"
-         ],
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
-         "sshPort" : 22
-      },
-      {
-         "sshVerificationStrategy" : {
-            "type" : "SshAcceptAlways"
-         },
-         "toolkitPath" : "/home/ora12102/toolkit",
-         "userTruststorePassword" : null,
-         "name" : "marcintgt.dcenter.delphix.com",
-         "type" : "UnixHost",
-         "reference" : "UNIX_HOST-2",
-         "address" : "marcintgt.dcenter.delphix.com",
-         "dateAdded" : "2017-11-01T17:32:09.538Z",
-         "hostConfiguration" : {
-            "machine" : {
-               "platform" : "x86_64",
-               "memorySize" : 16726491136,
-               "type" : "HostMachine"
-            },
-            "type" : "HostConfiguration",
             "operatingSystem" : {
-               "distribution" : "RedHat",
-               "timezone" : "US/Pacific,PST-0800",
-               "release" : "2.6.32-431.el6.x86_64",
-               "type" : "HostOS",
                "name" : "Linux",
                "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
-               "kernel" : null
-            },
-            "lastRefreshed" : null,
-            "lastUpdated" : "2017-11-05T12:09:18.071Z",
-            "discovered" : true
+               "type" : "HostOS",
+               "distribution" : "RedHat",
+               "kernel" : null,
+               "timezone" : "America/Los_Angeles,PST-0800",
+               "release" : "2.6.32-431.el6.x86_64"
+            }
          },
-         "sshPort" : 22,
-         "certificateChain" : [
-            "-----BEGIN CERTIFICATE-----\nMIIDRzCCAi+gAwIBAgIEX0hhyzANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJVUzEQMA4GA1UE\nChMHRGVscGhpeDEtMCsGA1UEAxMkRGVscGhpeCBFbmdpbmUgbWFyY2luZGxweC5kY2VudGVyIENB\nMB4XDTE3MTEwMTE3MTI1MloXDTIxMTAzMDE3MTI1MlowOTELMAkGA1UEBhMCVVMxEDAOBgNVBAoT\nB0RlbHBoaXgxGDAWBgNVBAMTD3JoNjUtb3JhMTJjLXRndDCCASIwDQYJKoZIhvcNAQEBBQADggEP\nADCCAQoCggEBAJhOv45KHGSx1hbpnH/PBSZgCN2T0pMDAbCNFm05/twM3L9bfZfVRqtoH5U5mXPq\npU7aAGz8esBfg6okEUpi2OYStBbfFKYQRq6nqalFwLdsKXXKM1fenYKSqWqxJrShXm0vgn8nczfp\nl3cWvLDkzM9MzT5fZkyZA71hrHOAUx24yGX4Cch1rgcGsriFCg5ox28UhPSbO6SZYtAopZd52sdR\nbsb2p6S2ohU+verLdPuzwsfW1rWLB3HXUbA02rxiAu2sAf9Tbee0bcNaG+yZqM+PDypmydD8KYVL\nG4E5EIjzLJNgXg8R5ganyT/gWAhKljZOqRz2sUAzFTawRG4NRfcCAwEAAaNCMEAwHwYDVR0jBBgw\nFoAURE3FtWqH64N8Q7Idy2aq3zNw0MkwHQYDVR0OBBYEFJfo2qIyvQX0C5lNTNKzGPbjlZQBMA0G\nCSqGSIb3DQEBCwUAA4IBAQCGW007l6kZH0U17Hddmk67TGF1UdTJ1PcCm7qLcszXS4zy/0RwRoQp\nqeSfQL9L1ohCmtVe1yG+CIB0d+6meif0v+CwNiewLMRyP66tOTfjIKAKoprfXcW4rN378Xz3tt06\nk+Y9jxS8Cn4KDz+kjXoR2lSG3NFtM3NEiyXgquQCRCqrb6hCPiQOD9Fh+ie/AJvKuTtaY5S7Wfkx\npMla8qo5BpABsxHIR1LjJGMN/POgfhsuXI9Vo2rX7Zh+5FGNtpeW5q53t3WODECaYe5CR2OeR2yJ\n5ywCZlr/gBG2W8M5vDBQHCSq1jz7+WCMsdgjw3rAPj7TtMFadmgcRlUDLrAn\n-----END CERTIFICATE-----\n",
-            "-----BEGIN CERTIFICATE-----\nMIIDVjCCAj6gAwIBAgIEQD2mYDANBgkqhkiG9w0BAQsFADBOMQswCQYDVQQGEwJVUzEQMA4GA1UE\nChMHRGVscGhpeDEtMCsGA1UEAxMkRGVscGhpeCBFbmdpbmUgbWFyY2luZGxweC5kY2VudGVyIENB\nMB4XDTE3MTEwMTE2NDIyNFoXDTIxMTEwMTE2NDIyNFowTjELMAkGA1UEBhMCVVMxEDAOBgNVBAoT\nB0RlbHBoaXgxLTArBgNVBAMTJERlbHBoaXggRW5naW5lIG1hcmNpbmRscHguZGNlbnRlciBDQTCC\nASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJEuE+wplAItJkgsc0iDXK+ocKm5okgKh2Zp\n42HasBHDz1MmMBQGHTn6N7grUn38kfAsnQSaN6Dsy4u8TDQMFx5MmnUmaemZU7C/PEUc09peb1x0\nIcX2tiBnbqr0lcL1YT+lKeXvmjUgfs+SimBCv0IrZNgePrf8uVbSBo6zegNuDuT7DLz4rnLhJvWd\n/XUlGfFykqguZE0v0YQHwJYu/gTP/CCZ44KlFGFvunFj0NyP2xWXQ8W6HPc/H+BEHti4moq1H7OG\ndEjGQ6cHqKGzC1JcJHrLqrDA70T5e7k0dLGxI+ERxCcLKKpyvuN98RJt1yXGBLJPyBy0pC3yH7ZZ\neSMCAwEAAaM8MDowDAYDVR0TBAUwAwEB/zALBgNVHQ8EBAMCAQYwHQYDVR0OBBYEFERNxbVqh+uD\nfEOyHctmqt8zcNDJMA0GCSqGSIb3DQEBCwUAA4IBAQBhwDPJamRTxthDactG68YOp2DPpu0+zl/s\nQdguwx0sHZpokhMZJ5pzILeCnTMBOLUSpLTR8/uHW7+2TQhrXBTyrwksRpoC90ZJNaOSk8ffiJTl\nva/meAeGo0aAlMkHgbDXK9YKYkY7fhyfgy3IS3zvLIFTJUwxUj2Mo5u/WBDK56N8aoKOZg9CcTwZ\neow+GEO5hhlD4hGOnXTQ3mKUPz+dzNqbkePTgokSq9mIMf7pkmrjb9nEAeM+wfSeuuBfNr4l3gh3\nRObTYK43DbhD7FAScdEPay+1cbmmuIZ14xSGWUcORj39Ui7XGSggSasdhYFDdhJ6ermy54d74FRx\na9oe\n-----END CERTIFICATE-----\n"
-         ],
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "nfsAddressList" : [],
+         "dspTruststorePath" : null,
          "hostRuntime" : {
             "traceRouteInfo" : {
                "type" : "TracerouteInfo",
-               "networkHops" : "1  10.43.3.38 (10.43.3.38)  1.113 ms  1.071 ms  23.158 ms"
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.234 ms  0.312 ms  0.331 ms"
             },
-            "availableTimestamp" : "2017-12-07T17:24:28.931Z",
             "available" : true,
             "type" : "HostRuntime",
-            "notAvailableReason" : null
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2019-12-30T16:49:20.630Z"
          },
-         "namespace" : null
+         "sshPort" : 22,
+         "dateAdded" : "2019-12-24T14:03:58.823Z",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "toolkitPath" : "/u01/app/toolkit",
+         "type" : "UnixHost",
+         "namespace" : null,
+         "dspKeystorePassword" : null,
+         "name" : "10.43.1.211",
+         "reference" : "UNIX_HOST-1",
+         "address" : "10.43.1.211",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "dspKeystoreAlias" : null,
+         "dspKeystorePath" : null,
+         "oracleJdbcKeystorePassword" : null,
+         "dspTruststorePassword" : null,
+         "javaHome" : null
+      },
+      {
+         "dspKeystoreAlias" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "oracleJdbcKeystorePassword" : null,
+         "javaHome" : null,
+         "dspTruststorePassword" : null,
+         "dspKeystorePath" : null,
+         "dspKeystorePassword" : null,
+         "name" : "10.43.6.187",
+         "dateAdded" : "2019-12-24T14:06:56.888Z",
+         "sshPort" : 22,
+         "hostRuntime" : {
+            "traceRouteInfo" : {
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.636 ms  0.423 ms  0.432 ms",
+               "type" : "TracerouteInfo"
+            },
+            "available" : true,
+            "type" : "HostRuntime",
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2019-12-30T16:49:20.618Z"
+         },
+         "type" : "UnixHost",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "toolkitPath" : "/u01/app/toolkit",
+         "namespace" : null,
+         "reference" : "UNIX_HOST-2",
+         "address" : "10.43.6.187",
+         "nfsAddressList" : [],
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "lastRefreshed" : "2019-12-24T15:12:55.279Z",
+            "lastUpdated" : "2019-12-24T15:12:55.298Z",
+            "machine" : {
+               "type" : "HostMachine",
+               "platform" : "x86_64",
+               "memorySize" : 16726491136
+            },
+            "operatingSystem" : {
+               "release" : "2.6.32-431.el6.x86_64",
+               "kernel" : null,
+               "distribution" : "RedHat",
+               "timezone" : "US/Pacific,PST-0800",
+               "type" : "HostOS",
+               "name" : "Linux",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)"
+            },
+            "discovered" : true,
+            "type" : "HostConfiguration"
+         }
       }
    ],
-   "job" : null,
-   "total" : 2
+   "action" : null,
+   "overflow" : false,
+   "total" : 2,
+   "status" : "OK"
 }

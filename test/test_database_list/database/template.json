@@ -1,0 +1,26 @@
+{
+   "status" : "OK",
+   "action" : null,
+   "type" : "ListResult",
+   "total" : 1,
+   "overflow" : false,
+   "result" : [
+      {
+         "type" : "DatabaseTemplate",
+         "namespace" : null,
+         "name" : "vdb_temp_1",
+         "reference" : "DATABASE_TEMPLATE-1",
+         "description" : null,
+         "parameters" : {
+            "memory_target" : "1073741824",
+            "open_cursors" : "300",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "compatible" : "'12.1.0.2.0'",
+            "processes" : "300"
+         },
+         "sourceType" : "OracleVirtualSource"
+      }
+   ],
+   "job" : null
+}

@@ -1,80 +1,90 @@
 {
+   "type" : "ListResult",
    "job" : null,
-   "overflow" : false,
-   "status" : "OK",
    "action" : null,
+   "overflow" : false,
+   "total" : 6,
+   "status" : "OK",
    "result" : [
       {
-         "namespace" : null,
-         "effectiveType" : "DIRECT_APPLIED",
-         "default" : false,
-         "timezone" : {
-            "offset" : 480,
-            "id" : "US/Pacific",
-            "type" : "TimeZone",
-            "offsetString" : "UTC -08:00"
-         },
-         "scheduleList" : [],
-         "reference" : "POLICY_SYNC-1",
-         "customized" : false,
          "name" : "None:SyncPolicy",
-         "type" : "SyncPolicy"
+         "default" : false,
+         "type" : "SyncPolicy",
+         "scheduleList" : [],
+         "namespace" : null,
+         "customized" : false,
+         "timezone" : {
+            "offsetString" : "UTC -08:00",
+            "offset" : 480,
+            "type" : "TimeZone",
+            "id" : "US/Pacific"
+         },
+         "effectiveType" : "DIRECT_APPLIED",
+         "reference" : "POLICY_SYNC-1"
       },
       {
-         "effectiveType" : "DIRECT_APPLIED",
-         "namespace" : null,
+         "default" : false,
          "name" : "None:SnapshotPolicy",
+         "namespace" : null,
+         "scheduleList" : [],
          "type" : "SnapshotPolicy",
          "customized" : false,
-         "reference" : "POLICY_SNAPSHOT-2",
-         "scheduleList" : [],
          "timezone" : {
             "id" : "US/Pacific",
+            "offsetString" : "UTC -08:00",
             "offset" : 480,
-            "type" : "TimeZone",
-            "offsetString" : "UTC -08:00"
+            "type" : "TimeZone"
          },
-         "default" : false
+         "effectiveType" : "DIRECT_APPLIED",
+         "reference" : "POLICY_SNAPSHOT-2"
       },
       {
-         "provisionSource" : "LATEST_SNAPSHOT",
+         "reference" : "POLICY_REFRESH-3",
          "effectiveType" : "DIRECT_APPLIED",
+         "provisionSource" : "LATEST_SNAPSHOT",
+         "timezone" : {
+            "offsetString" : "UTC -08:00",
+            "type" : "TimeZone",
+            "offset" : 480,
+            "id" : "US/Pacific"
+         },
+         "customized" : false,
+         "scheduleList" : [],
+         "type" : "RefreshPolicy",
          "namespace" : null,
          "default" : false,
-         "reference" : "POLICY_REFRESH-3",
-         "customized" : false,
-         "type" : "RefreshPolicy",
-         "name" : "None:RefreshPolicy",
-         "timezone" : {
-            "id" : "US/Pacific",
-            "offset" : 480,
-            "type" : "TimeZone",
-            "offsetString" : "UTC -08:00"
-         },
-         "scheduleList" : []
+         "name" : "None:RefreshPolicy"
       },
       {
-         "effectiveType" : "DIRECT_APPLIED",
-         "numOfYearly" : 0,
-         "namespace" : null,
          "logUnit" : "WEEK",
+         "numOfYearly" : 0,
+         "dayOfMonth" : 1,
+         "dayOfWeek" : "MONDAY",
+         "numOfWeekly" : 0,
          "numOfDaily" : 0,
-         "reference" : "POLICY_RETENTION-4",
+         "dayOfYear" : "Jan 1",
+         "logDuration" : 1,
          "dataUnit" : "WEEK",
+         "numOfMonthly" : 0,
+         "dataDuration" : 1,
+         "effectiveType" : "DIRECT_APPLIED",
+         "reference" : "POLICY_RETENTION-4",
+         "customized" : false,
+         "namespace" : null,
          "type" : "RetentionPolicy",
          "name" : "Default Retention",
-         "dayOfMonth" : 1,
-         "dataDuration" : 1,
-         "dayOfWeek" : "MONDAY",
-         "numOfMonthly" : 0,
-         "logDuration" : 1,
-         "default" : true,
-         "numOfWeekly" : 0,
-         "dayOfYear" : "Jan 1",
-         "customized" : false
+         "default" : true
       },
       {
-         "default" : true,
+         "reference" : "POLICY_SYNC-5",
+         "effectiveType" : "DIRECT_APPLIED",
+         "customized" : false,
+         "timezone" : {
+            "offsetString" : "UTC -08:00",
+            "type" : "TimeZone",
+            "offset" : 480,
+            "id" : "US/Pacific"
+         },
          "scheduleList" : [
             {
                "cronString" : "0 30 3 ? * 1",
@@ -82,9 +92,9 @@
                "cutoffTime" : 14400
             },
             {
-               "type" : "Schedule",
                "cronString" : "0 30 3 ? * 2",
-               "cutoffTime" : 14400
+               "cutoffTime" : 14400,
+               "type" : "Schedule"
             },
             {
                "cutoffTime" : 14400,
@@ -97,68 +107,13 @@
                "cutoffTime" : 14400
             },
             {
-               "cronString" : "0 30 3 ? * 5",
                "type" : "Schedule",
-               "cutoffTime" : 14400
+               "cutoffTime" : 14400,
+               "cronString" : "0 30 3 ? * 5"
             },
             {
                "cronString" : "0 30 3 ? * 6",
-               "type" : "Schedule",
-               "cutoffTime" : 14400
-            },
-            {
                "cutoffTime" : 14400,
-               "type" : "Schedule",
-               "cronString" : "0 30 3 ? * 7"
-            }
-         ],
-         "timezone" : {
-            "offset" : 480,
-            "id" : "US/Pacific",
-            "type" : "TimeZone",
-            "offsetString" : "UTC -08:00"
-         },
-         "customized" : false,
-         "type" : "SyncPolicy",
-         "name" : "Default SnapSync",
-         "reference" : "POLICY_SYNC-5",
-         "namespace" : null,
-         "effectiveType" : "DIRECT_APPLIED"
-      },
-      {
-         "customized" : false,
-         "name" : "Default Snapshot",
-         "type" : "SnapshotPolicy",
-         "reference" : "POLICY_SNAPSHOT-6",
-         "scheduleList" : [
-            {
-               "type" : "Schedule",
-               "cronString" : "0 30 3 ? * 1",
-               "cutoffTime" : 14400
-            },
-            {
-               "cutoffTime" : 14400,
-               "cronString" : "0 30 3 ? * 2",
-               "type" : "Schedule"
-            },
-            {
-               "cronString" : "0 30 3 ? * 3",
-               "type" : "Schedule",
-               "cutoffTime" : 14400
-            },
-            {
-               "cutoffTime" : 14400,
-               "type" : "Schedule",
-               "cronString" : "0 30 3 ? * 4"
-            },
-            {
-               "cutoffTime" : 14400,
-               "cronString" : "0 30 3 ? * 5",
-               "type" : "Schedule"
-            },
-            {
-               "cutoffTime" : 14400,
-               "cronString" : "0 30 3 ? * 6",
                "type" : "Schedule"
             },
             {
@@ -167,17 +122,62 @@
                "cutoffTime" : 14400
             }
          ],
+         "namespace" : null,
+         "type" : "SyncPolicy",
+         "name" : "Default SnapSync",
+         "default" : true
+      },
+      {
+         "reference" : "POLICY_SNAPSHOT-6",
+         "effectiveType" : "DIRECT_APPLIED",
          "timezone" : {
             "offsetString" : "UTC -08:00",
             "type" : "TimeZone",
             "offset" : 480,
             "id" : "US/Pacific"
          },
-         "default" : true,
-         "effectiveType" : "DIRECT_APPLIED",
-         "namespace" : null
+         "customized" : false,
+         "scheduleList" : [
+            {
+               "type" : "Schedule",
+               "cutoffTime" : 14400,
+               "cronString" : "0 30 3 ? * 1"
+            },
+            {
+               "cronString" : "0 30 3 ? * 2",
+               "type" : "Schedule",
+               "cutoffTime" : 14400
+            },
+            {
+               "cronString" : "0 30 3 ? * 3",
+               "cutoffTime" : 14400,
+               "type" : "Schedule"
+            },
+            {
+               "cutoffTime" : 14400,
+               "type" : "Schedule",
+               "cronString" : "0 30 3 ? * 4"
+            },
+            {
+               "cronString" : "0 30 3 ? * 5",
+               "cutoffTime" : 14400,
+               "type" : "Schedule"
+            },
+            {
+               "cronString" : "0 30 3 ? * 6",
+               "type" : "Schedule",
+               "cutoffTime" : 14400
+            },
+            {
+               "cronString" : "0 30 3 ? * 7",
+               "type" : "Schedule",
+               "cutoffTime" : 14400
+            }
+         ],
+         "type" : "SnapshotPolicy",
+         "namespace" : null,
+         "name" : "Default Snapshot",
+         "default" : true
       }
-   ],
-   "total" : 6,
-   "type" : "ListResult"
+   ]
 }

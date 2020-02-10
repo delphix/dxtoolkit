@@ -962,6 +962,34 @@ sub getSnapshotSize {
 
 }
 
+# Procedure getVDBTimezone
+# parameters:
+# Load 1 snapshot object for a database from Delphix Engine
+
+sub getVDBTimezone
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getVDBTimezone",1);
+
+    my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        if (scalar(@res) > 0) {
+            $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
+            $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
+            delete $self->{_snapshots}->{$res[-1]->{reference}};
+        }
+    } else {
+        print "Can't check snapshot timezone \n";
+        exit 1;
+    }
+    if (defined($self->{_timezone})) {
+      return $self->{_timezone};
+    } else {
+      return "N/A";
+    }
+}
 
 # Procedure getSnapshotList
 # parameters: - none
@@ -984,19 +1012,7 @@ sub getSnapshotList
 
         if (defined($self->{_startDate}) || defined($self->{_endDate})  ) {
             # timezone check
-            my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
-            my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
-            if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-                my @res = @{$result->{result}};
-                if (scalar(@res) > 0) {
-                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
-                    $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
-                    delete $self->{_snapshots}->{$res[-1]->{reference}};
-                }
-            } else {
-                print "Can't check snapshot timezone \n";
-                exit 1;
-            }
+            $self->getVDBTimezone();
         }
 
         if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
@@ -1065,7 +1081,8 @@ sub getSnapshotList
 
               for my $snapitem (@res) {
                   $snapshots->{$snapitem->{reference}} = $snapitem;
-                  push(@snapshot_order, $snapitem->{reference});
+                  #push(@snapshot_order, $snapitem->{reference});
+                  unshift @snapshot_order, $snapitem->{reference};
               }
 
               $pageoffset = $self->{_snapshots}->{$snapshot_order[-1]}->{latestChangePoint}->{timestamp};
@@ -1078,6 +1095,7 @@ sub getSnapshotList
           exit 1;
       }
     }
+
 }
 
 1;

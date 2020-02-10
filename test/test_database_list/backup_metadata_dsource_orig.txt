@@ -1,0 +1,2 @@
+dx_ctl_dsource -d local -action create -group "Sources" -creategroup -dsourcename "marina"  -type oracle -sourcename "marina" -sourceinst "/u01/app/ora12102/product/12.1.0/dbhome_1" -sourceenv "marcinoraclesrc.dcenter.delphix.com" -source_os_user "ora12102" -dbuser delphix -password ChangeMeDB -logsync no
+dx_ctl_dsource -d local -action create -group "Sources" -creategroup -dsourcename "PDBX1"  -type oracle -sourcename "detached" -sourceinst "N/A" -sourceenv "NA" -source_os_user "N/A" -dbuser N/A -password ChangeMeDB -logsync no

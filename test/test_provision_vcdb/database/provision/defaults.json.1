@@ -1,137 +1,140 @@
 {
-   "action" : null,
-   "status" : "OK",
+   "job" : null,
+   "type" : "OKResult",
    "result" : {
-      "type" : "OracleMultitenantProvisionParameters",
-      "source" : {
-         "allowAutoVDBRestartOnHostReboot" : false,
-         "operations" : {
-            "postStart" : [],
-            "preRefresh" : [],
-            "postSnapshot" : [],
-            "preStart" : [],
-            "preRollback" : [],
-            "postRefresh" : [],
-            "configureClone" : [],
-            "preStop" : [],
-            "preSnapshot" : [],
-            "type" : "VirtualSourceOperations",
-            "postStop" : [],
-            "postRollback" : []
-         },
-         "archivelogMode" : true,
-         "type" : "OracleVirtualPdbSource",
-         "mountBase" : "/mnt/provision",
-         "configParams" : {
-            "processes" : "300",
-            "sga_target" : "1258291200",
-            "enable_pluggable_database" : "TRUE",
-            "db_files" : "500",
-            "open_cursors" : "300",
-            "compatible" : "'12.1.0.2.0'",
-            "remote_login_passwordfile" : "'EXCLUSIVE'",
-            "log_archive_format" : "'%t_%s_%r.dbf'",
-            "_catalog_foreign_restore" : "FALSE",
-            "pga_aggregate_target" : "416284672"
-         },
-         "redoLogGroups" : 3,
-         "customEnvVars" : [],
-         "lsnrProtocolAddresses" : []
-      },
       "virtualCdb" : {
+         "type" : "OracleVirtualCdbProvisionParameters",
+         "container" : {
+            "preProvisioningEnabled" : false,
+            "group" : "GROUP-2",
+            "sourcingPolicy" : {
+               "logsyncEnabled" : false,
+               "logsyncInterval" : 5,
+               "logsyncMode" : "UNDEFINED",
+               "type" : "OracleSourcingPolicy"
+            },
+            "diagnoseNoLoggingFaults" : true,
+            "name" : "CDBPDBX1JU3_VQZ",
+            "performanceMode" : "DISABLED",
+            "type" : "OracleDatabaseContainer"
+         },
+         "sourceConfig" : {
+            "uniqueName" : "CDBPDBX1JU3_VQZ",
+            "services" : [],
+            "databaseName" : "CDBP_VQZ",
+            "repository" : "ORACLE_INSTALL-1",
+            "name" : "CDBPDBX1JU3_VQZ",
+            "linkingEnabled" : false,
+            "instance" : {
+               "type" : "OracleInstance",
+               "instanceNumber" : 1,
+               "instanceName" : "CDBPDBX1JVQZ"
+            },
+            "type" : "OracleSIConfig"
+         },
          "source" : {
-            "redoLogGroups" : 3,
-            "customEnvVars" : [],
+            "logCollectionEnabled" : false,
+            "allowAutoVDBRestartOnHostReboot" : true,
+            "nodeListeners" : [],
+            "archivelogMode" : true,
             "mountBase" : "/mnt/provision",
             "configParams" : {
-               "remote_login_passwordfile" : "'EXCLUSIVE'",
-               "pga_aggregate_target" : "416284672",
                "_catalog_foreign_restore" : "FALSE",
-               "log_archive_format" : "'%t_%s_%r.dbf'",
+               "sga_target" : "1258291200",
                "db_files" : "500",
                "compatible" : "'12.1.0.2.0'",
                "open_cursors" : "300",
-               "sga_target" : "1258291200",
                "enable_pluggable_database" : "TRUE",
-               "processes" : "300"
+               "processes" : "300",
+               "remote_login_passwordfile" : "'EXCLUSIVE'",
+               "log_archive_format" : "'%t_%s_%r.dbf'",
+               "pga_aggregate_target" : "416284672"
             },
-            "lsnrProtocolAddresses" : [],
-            "allowAutoVDBRestartOnHostReboot" : false,
-            "type" : "OracleVirtualCdbSource",
             "operations" : {
-               "preStop" : [],
-               "configureClone" : [],
-               "type" : "VirtualSourceOperations",
-               "preSnapshot" : [],
-               "postStop" : [],
-               "postRollback" : [],
-               "postStart" : [],
                "preRefresh" : [],
                "postSnapshot" : [],
                "preStart" : [],
+               "postRefresh" : [],
+               "postStart" : [],
+               "postStop" : [],
+               "type" : "VirtualSourceOperations",
+               "preSnapshot" : [],
                "preRollback" : [],
-               "postRefresh" : []
+               "configureClone" : [],
+               "preStop" : [],
+               "postRollback" : []
             },
-            "archivelogMode" : true
-         },
-         "type" : "OracleVirtualCdbProvisionParameters",
-         "container" : {
-            "sourcingPolicy" : {
-               "logsyncInterval" : 5,
-               "logsyncEnabled" : false,
-               "type" : "OracleSourcingPolicy",
-               "logsyncMode" : "UNDEFINED"
-            },
-            "type" : "OracleDatabaseContainer",
-            "name" : "CDBPDBX1GZL_AZG",
-            "diagnoseNoLoggingFaults" : true,
-            "preProvisioningEnabled" : false,
-            "group" : "GROUP-34",
-            "performanceMode" : "DISABLED"
-         },
-         "sourceConfig" : {
-            "repository" : "ORACLE_INSTALL-1",
-            "databaseName" : "CDBP_AZG",
-            "uniqueName" : "CDBPDBX1GZL_AZG",
-            "type" : "OracleSIConfig",
-            "name" : "CDBPDBX1GZL_AZG",
-            "services" : [],
-            "instance" : {
-               "instanceName" : "CDBPDBX1GAZG",
-               "instanceNumber" : 1,
-               "type" : "OracleInstance"
-            },
-            "linkingEnabled" : false
+            "customEnvVars" : [],
+            "type" : "OracleVirtualCdbSource",
+            "redoLogGroups" : 3
          }
       },
       "sourceConfig" : {
-         "name" : "PDBX1_GZL",
+         "databaseName" : "PDBX1_JU3",
          "type" : "OraclePDBConfig",
-         "databaseName" : "PDBX1_GZL",
+         "linkingEnabled" : false,
+         "name" : "PDBX1_JU3",
          "repository" : "ORACLE_INSTALL-1",
-         "services" : [],
-         "linkingEnabled" : false
+         "services" : []
       },
-      "timeflowPointParameters" : {
-         "container" : "ORACLE_DB_CONTAINER-4",
-         "location" : "LATEST_SNAPSHOT",
-         "type" : "TimeflowPointSemantic"
+      "source" : {
+         "allowAutoVDBRestartOnHostReboot" : true,
+         "nodeListeners" : [],
+         "logCollectionEnabled" : false,
+         "customEnvVars" : [],
+         "operations" : {
+            "preRefresh" : [],
+            "preStart" : [],
+            "postRefresh" : [],
+            "postSnapshot" : [],
+            "postStart" : [],
+            "postStop" : [],
+            "preSnapshot" : [],
+            "type" : "VirtualSourceOperations",
+            "preRollback" : [],
+            "configureClone" : [],
+            "preStop" : [],
+            "postRollback" : []
+         },
+         "redoLogGroups" : 3,
+         "type" : "OracleVirtualPdbSource",
+         "configParams" : {
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "pga_aggregate_target" : "416284672",
+            "open_cursors" : "300",
+            "enable_pluggable_database" : "TRUE",
+            "processes" : "300",
+            "compatible" : "'12.1.0.2.0'",
+            "db_files" : "500",
+            "sga_target" : "1258291200",
+            "_catalog_foreign_restore" : "FALSE"
+         },
+         "archivelogMode" : true,
+         "mountBase" : "/mnt/provision"
       },
       "container" : {
+         "performanceMode" : "DISABLED",
          "type" : "OracleDatabaseContainer",
-         "name" : "PDBX1_GZL",
+         "diagnoseNoLoggingFaults" : true,
+         "name" : "PDBX1_JU3",
+         "group" : "GROUP-2",
          "sourcingPolicy" : {
+            "logsyncEnabled" : false,
             "logsyncMode" : "UNDEFINED",
             "type" : "OracleSourcingPolicy",
-            "logsyncInterval" : 5,
-            "logsyncEnabled" : false
+            "logsyncInterval" : 5
          },
-         "preProvisioningEnabled" : false,
-         "group" : "GROUP-34",
-         "performanceMode" : "DISABLED",
-         "diagnoseNoLoggingFaults" : true
+         "preProvisioningEnabled" : false
+      },
+      "type" : "OracleMultitenantProvisionParameters",
+      "masked" : false,
+      "timeflowPointParameters" : {
+         "location" : "LATEST_SNAPSHOT",
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "type" : "TimeflowPointSemantic"
       }
    },
-   "job" : null,
-   "type" : "OKResult"
+   "status" : "OK",
+   "action" : null
 }

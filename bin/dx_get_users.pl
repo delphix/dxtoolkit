@@ -91,7 +91,9 @@ if (defined($export)) {
     {'principal', 30},
     {'password', 8},
     {'admin_priv', 8},
-    {'js_user', 8}
+    {'js_user', 8},
+    {'timeout', 8},
+    {'apiUser', 2}
   );
   $save = $export;
   $format = 'csv';
@@ -198,7 +200,9 @@ for my $engine ( sort (@{$engine_list}) ) {
         $principal,
         $password,
         $user->isAdmin(),
-        $user->isJS() ? 'Y' : 'N'
+        $user->isJS() ? 'Y' : 'N',
+        $user->getTimeout(),
+        $user->getApiUser()
       );
     } else {
       if (defined($audit)) {

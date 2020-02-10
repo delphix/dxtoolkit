@@ -1,3 +1,18 @@
+## 2.4.5
+
+### Added
+- [fix for #100](https://github.com/delphix/dxtoolkit/issues/100) - Request for new dxtoolkit command that can do port validation
+- [fix for #120](https://github.com/delphix/dxtoolkit/issues/120) - Oracle and MS SQL support fixed and tested with Delphix 6.0
+
+
+### Changed
+- Since version 2.4.0 snapshot related commands were displaying a snapshots in wrong order from newest to oldest. Version 2.4.5 is fixing this issue and snapshot will be displayed from oldest to newest
+  like in all previous versions.
+  This will also fix all commands using a latest snapshot as a timestamp.
+- [fix for #106](https://github.com/delphix/dxtoolkit/issues/106) - fix for db_get_db_env -hostenv and -config does not work together
+- [fix for #114](https://github.com/delphix/dxtoolkit/issues/114) - dx_provision_vdb - provision vPDB with vCDB from detached source
+- [fix for #115](https://github.com/delphix/dxtoolkit/issues/115) - dx_get_bookmark fix for RAC databases
+
 ## 2.4.4
 
 ### Added
