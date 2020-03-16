@@ -167,7 +167,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $jsdatasources = new JS_datasource_obj ( $engine_obj , $jsconitem, undef);
       my $display_db_name = "";
       for my $ds (@{$jsdatasources->getJSDataSourceList()}) {
-          $display_db_name = $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()). " / " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName() ;
+          $display_db_name = $display_db_name . $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()). " / " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName() . " " ;
       }
       $output->addLine(
          $engine,
@@ -203,7 +203,7 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_containers [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-container_name container_name]
+ dx_get_js_containers [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-container_name container_name] [-listdb]
                         [ -format csv|json ]  [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -247,6 +247,9 @@ Display container using container_name
 =head1 OPTIONS
 
 =over 3
+
+=item B<-listdb>
+Display a name of the database assigned with container
 
 =item B<-format>
 Display output in csv or json format
