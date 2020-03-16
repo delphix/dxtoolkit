@@ -48,6 +48,7 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
+  'listdb' => \(my $listdb),
   'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -75,14 +76,25 @@ if (defined($all) && defined($dx_host)) {
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
-
-$output->addHeader(
-    {'Appliance'     , 20},
-    {'Container name', 20},
-    {'Template name' , 20},
-    {'Active branch' , 20},
-    {'Owners'        , 50}
-);
+if (defined($listdb)) {
+  $output->addHeader(
+      {'Appliance'     , 20},
+      {'Container name', 20},
+      {'Template name' , 20},
+      {'Active branch' , 20},
+      {'Owners'        , 50},
+      {'Database name' , 50}
+  );
+}
+else {
+  $output->addHeader(
+      {'Appliance'     , 20},
+      {'Container name', 20},
+      {'Template name' , 20},
+      {'Active branch' , 20},
+      {'Owners'        , 50}
+  );
+}
 # }
 
 my $ret = 0;
@@ -98,6 +110,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
+
+  my $databases;
+  my $groups;
+  if (defined($listdb)) {
+    $databases = new Databases ( $engine_obj , $debug);
+    $groups = new Group_obj($engine_obj, $debug);
+  }
 
   my $template_ref;
 
@@ -141,15 +160,34 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
-    my $owners_string = join(',',@owners_array);
+    my $owners_string = join(';',@owners_array);
 
-    $output->addLine(
-       $engine,
-       $jscontainers->getName($jsconitem),
-       $jstemplates->getName($jscontainers->getJSContainerTemplate($jsconitem)),
-       $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)),
-       $owners_string
-    );
+
+    if (defined($listdb)) {
+      my $jsdatasources = new JS_datasource_obj ( $engine_obj , $jsconitem, undef);
+      my $display_db_name = "";
+      for my $ds (@{$jsdatasources->getJSDataSourceList()}) {
+          $display_db_name = $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()). " / " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName() ;
+      }
+      $output->addLine(
+         $engine,
+         $jscontainers->getName($jsconitem),
+         $jstemplates->getName($jscontainers->getJSContainerTemplate($jsconitem)),
+         $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)),
+         $owners_string,
+         $display_db_name
+      );
+    } else {
+      $output->addLine(
+         $engine,
+         $jscontainers->getName($jsconitem),
+         $jstemplates->getName($jscontainers->getJSContainerTemplate($jsconitem)),
+         $jsbranches->getName($jscontainers->getJSActiveBranch($jsconitem)),
+         $owners_string
+      );
+    }
+
+
 
 
   }
