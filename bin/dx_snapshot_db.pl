@@ -62,7 +62,7 @@ GetOptions(
   'version' => \(my $print_version),
   'parallel=n' => \(my $parallel),
   'configfile|c=s' => \(my $config_file)
-);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
