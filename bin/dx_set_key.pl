@@ -56,7 +56,7 @@ GetOptions(
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
-);
+) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 
 
