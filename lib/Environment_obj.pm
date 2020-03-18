@@ -1116,8 +1116,13 @@ sub createEnv
         "hostParameters" => \%host
       );
 
-      push (@nodes, \%node1);
-      $env{"nodes"} = \@nodes;
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.10.0)) {
+        push (@nodes, \%node1);
+        $env{"nodes"} = \@nodes;
+      } else {
+        # from 1.10.0 - we don't have array but single node
+        $env{"node"} = \%node1;
+      }
 
     } elsif ($type eq 'wincluster') {
       $env{"type"} = "WindowsClusterCreateParameters";
