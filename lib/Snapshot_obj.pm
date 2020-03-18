@@ -1085,7 +1085,7 @@ sub getSnapshotList
                   unshift @snapshot_order, $snapitem->{reference};
               }
 
-              $pageoffset = $self->{_snapshots}->{$snapshot_order[-1]}->{latestChangePoint}->{timestamp};
+              $pageoffset = $self->{_snapshots}->{$snapshot_order[0]}->{latestChangePoint}->{timestamp};
 
               $self->{_snapshot_list} = \@snapshot_order;
               $self->{_snapshots} = $snapshots;
