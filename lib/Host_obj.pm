@@ -169,6 +169,41 @@ sub getHostPort {
     return $ret;
 }
 
+
+# Procedure getHostNFS
+# parameters:
+# - reference - reference of host
+# Return host NFS for specific host reference
+
+sub getHostNFS {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering Host_obj::getHostNFS",1);
+
+    my $hosts = $self->{_hosts};
+    my $ret;
+
+    if (defined($reference) && defined($hosts->{$reference}) ) {
+
+        if (defined($hosts->{$reference}->{nfsAddressList})) {
+          my $list = $hosts->{$reference}->{nfsAddressList};
+          if (scalar(@{$list}) > 0) {
+            $ret = join(',', @{$list});
+          } else {
+            $ret = 'NA';
+          }
+        } else {
+          $ret = 'NA';
+        }
+
+    } else {
+        $ret = 'NA';
+    }
+
+    return $ret;
+}
+
 # Procedure getTimezone
 # parameters:
 # - reference - reference of host
