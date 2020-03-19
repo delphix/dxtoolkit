@@ -1070,6 +1070,8 @@ sub getJSONResult {
 sub generateSupportBundle {
    my $self = shift;
    my $file = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::generateSupportBundle",1);
    my $timeout =    $self->{_ua}->timeout();
@@ -1083,10 +1085,40 @@ sub generateSupportBundle {
   #  }
 
 
+  my %allowed_types = (
+    "PHONEHOME" => 1,
+    "MDS" => 1,
+    "OS" => 1,
+    "CORE" => 1,
+    "LOG" => 1,
+    "PLUGIN_LOG" => 1,
+    "DROPBOX" => 1,
+    "STORAGE_TEST" => 1,
+    "MASKING" => 1,
+    "ALL" => 1
+  );
+
+  my $bundle_type;
+
+  if (defined($type)) {
+    if (defined($allowed_types{uc $type})) {
+      $bundle_type = uc $type;
+    } else {
+      print "Unknown type $type. Please specify a proper one. \n";
+      return 1;
+    }
+  } else {
+    $bundle_type = 'ALL';
+  }
+
   my %bundle_hash = (
     "type" => "SupportBundleGenerateParameters",
-    "bundleType" => "MASKING"
+    "bundleType" => $bundle_type
   );
+
+  if (defined($analytics)) {
+    $bundle_hash{"includeAnalyticsData"} = JSON::true;
+  }
 
   my $json = to_json(\%bundle_hash);
 
@@ -1128,13 +1160,45 @@ sub generateSupportBundle {
 sub uploadSupportBundle {
    my $self = shift;
    my $caseNumber = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::uploadSupportBundle",1);
 
+   my %allowed_types = (
+     "PHONEHOME" => 1,
+     "MDS" => 1,
+     "OS" => 1,
+     "CORE" => 1,
+     "LOG" => 1,
+     "PLUGIN_LOG" => 1,
+     "DROPBOX" => 1,
+     "STORAGE_TEST" => 1,
+     "MASKING" => 1,
+     "ALL" => 1
+   );
+
+   my $bundle_type;
+
+   if (defined($type)) {
+     if (defined($allowed_types{uc $type})) {
+       $bundle_type = uc $type;
+     } else {
+       print "Unknown type $type. Please specify a proper one. \n";
+       return undef;
+     }
+   } else {
+     $bundle_type = 'ALL';
+   }
 
    my %case_hash = (
-       "type" => "SupportBundleUploadParameters"
+       "type" => "SupportBundleUploadParameters",
+       "bundleType" => $bundle_type
    );
+
+   if (defined($analytics)) {
+     $case_hash{"includeAnalyticsData"} = JSON::true;
+   }
 
    if (defined($caseNumber)) {
       $case_hash{caseNumber} = 0 + $caseNumber;
