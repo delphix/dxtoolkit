@@ -29,6 +29,10 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 
+use lib '../lib';
+use JS_datasource_obj;
+
+
 # constructor
 # parameters
 # - dlpxObject - connection to DE
@@ -276,5 +280,53 @@ sub deleteTemplate
     }
 
 }
+
+# Procedure generateBackup
+# parameters:
+# - engine_obj
+# - template_ref
+# - databases object
+# - group object
+# - output object
+# Generate a script to recreate template
+
+sub generateBackup
+{
+    my $self = shift;
+    my $engine_obj = shift;
+    my $template_ref = shift;
+    my $databases = shift;
+    my $groups = shift;
+    my $output = shift;
+
+    my $command = "dx_ctl_js_template -d " . $engine_obj->getEngineName();
+    $command = $command . " -action create ";
+    $command = $command . " -template_name " . $self->getName($template_ref);
+
+    my $jsdatasources = new JS_datasource_obj ( $engine_obj , $template_ref, undef);
+    for my $ds (@{$jsdatasources->getJSDataSourceList()}) {
+
+        my $temp_cont = $self->getName($jsdatasources->getJSTemplate($ds));
+        if (!defined($temp_cont)) {
+          # do not display JS container DB's
+          next;
+        }
+
+        my $display_db_name = $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()). " / " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName() ;
+
+        $command = $command . " -source \"" . $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup());
+        $command = $command . ", " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName();
+        $command = $command . ", " . $jsdatasources->getName($ds);
+        $command = $command . ", " . $jsdatasources->getPriority($ds);
+        $command = $command . "\" ";
+    }
+
+    $output->addLine(
+      $command
+    );
+
+}
+
+
 
 1;

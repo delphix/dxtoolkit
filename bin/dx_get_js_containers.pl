@@ -49,6 +49,7 @@ GetOptions(
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
   'listdb' => \(my $listdb),
+  'backup=s' => (\my $backup),
   'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -76,7 +77,19 @@ if (defined($all) && defined($dx_host)) {
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
-if (defined($listdb)) {
+if (defined($backup)) {
+  if (! -d $backup) {
+    print "Path $backup is not a directory \n";
+    exit (1);
+  }
+  if (! -w $backup) {
+    print "Path $backup is not writtable \n";
+    exit (1);
+  }
+  $output->addHeader(
+      {'Paramters', 200}
+  );
+} elsif (defined($listdb)) {
   $output->addHeader(
       {'Appliance'     , 20},
       {'Container name', 20},
@@ -113,7 +126,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $databases;
   my $groups;
-  if (defined($listdb)) {
+  if (defined($listdb) || defined($backup)) {
     $databases = new Databases ( $engine_obj , $debug);
     $groups = new Group_obj($engine_obj, $debug);
   }
@@ -162,13 +175,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     my $owners_string = join(';',@owners_array);
 
+    if (defined($backup)) {
 
-    if (defined($listdb)) {
-      my $jsdatasources = new JS_datasource_obj ( $engine_obj , $jsconitem, undef);
-      my $display_db_name = "";
-      for my $ds (@{$jsdatasources->getJSDataSourceList()}) {
-          $display_db_name = $display_db_name . $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()). " / " . $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName() . " " ;
-      }
+      $jscontainers->getbackup($engine_obj, $jsconitem, $databases, $groups, $jstemplates, \@owners_array, $output);
+
+    } elsif (defined($listdb)) {
+      my $display_db_name = $jscontainers->getDatabaseList($engine_obj, $jsconitem, $databases, $groups);
+
       $output->addLine(
          $engine,
          $jscontainers->getName($jsconitem),
@@ -194,7 +207,27 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
+
+
+if (defined($backup)) {
+
+  if ($ret eq 0) {
+    my $FD;
+    my $filename = File::Spec->catfile($backup,'backup_selfservice_containers.txt');
+
+    if ( open($FD,'>', $filename) ) {
+      $output->savecsv(1,$FD);
+      print "Backup exported into $filename \n";
+    } else {
+      print "Can't create a backup file $filename \n";
+      $ret = $ret + 1;
+    }
+    close ($FD);
+  }
+
+} else {
+    Toolkit_helpers::print_output($output, $format, $nohead);
+}
 
 exit $ret;
 
@@ -203,8 +236,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_containers [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-container_name container_name] [-listdb]
-                        [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_js_containers   [ -engine|d <delphix identifier> | -all ]
+                        [ -configfile file ]
+                        [-template_name template_name]
+                        [-container_name container_name]
+                        [-listdb]
+                        [-backup path]
+                        [ -format csv|json ]
+                        [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -248,6 +287,9 @@ Display container using container_name
 
 =over 3
 
+=item B<-backup path>
+Gnerate a dxToolkit commands to recreate containers
+
 =item B<-listdb>
 Display a name of the database assigned with container
 
@@ -272,10 +314,21 @@ List all containers
 
  dx_get_js_containers -d Landshark5
 
- Appliance            Container name       Template name        Active branch
- -------------------- -------------------- -------------------- --------------------
- Landshark5           cont                 test                 default
+ Appliance            Container name       Template name        Active branch        Owners
+ -------------------- -------------------- -------------------- -------------------- ----------------------------
+ Landshark5           cont                 test                 default              testjsuser
 
+List all container with databases used by them
 
+ dx_get_js_containers -d testdlpx -listdb
+
+ Appliance            Container name       Template name        Active branch        Owners                                             Database name
+ -------------------- -------------------- -------------------- -------------------- -------------------------------------------------- --------------------------------------------------
+ testdlpx             contXXX              XXXtest              default              admin;testuser2                                    Untitled/VFOO_FG4; Untitled/VPDB
+
+Backup containers configuration
+
+ dx_get_js_containers -d marcindlpx -backup /tmp
+ Backup exported into /tmp/backup_selfservice_containers.txt
 
 =cut
