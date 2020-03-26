@@ -314,7 +314,7 @@ sub getConfig {
 
     my $asedbuser =  $self->getASEUser($envitem);
     if ($asedbuser ne 'N/A') {
-      $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass ChangeMeDB"));
+      $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass xxxxxxxx"));
     }
 
     my $nfsaddresses = $host_obj->getHostNFS($host_ref);
@@ -357,7 +357,7 @@ sub getBackup {
       $suffix = '.exe';
     }
 
-    my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password ChangeMe ";
+    my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password xxxxxxxx";
     $backup = $backup . $self->getConfig($envitem, $host_obj, 1);
 
     return $backup;
