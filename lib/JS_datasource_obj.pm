@@ -151,6 +151,22 @@ sub getName {
     return $jsdatasource->{$reference}->{name};
 }
 
+
+# Procedure getPriority
+# parameters:
+# - reference
+# Return JS source priority for specific data source reference
+
+sub getPriority {
+    my $self = shift;
+    my $reference = shift;
+
+    logger($self->{_debug}, "Entering JS_datasource_obj::getPriority",1);
+
+    my $jsdatasource = $self->{_jsdatasource};
+    return $jsdatasource->{$reference}->{priority};
+}
+
 # Procedure getJSTemplate
 # parameters:
 # - reference
