@@ -1,33 +1,24 @@
 {
 	"data":[
 	{
-		"hostname" : "Landshark",
-		"ip_address" : "delphix01",
-		"username" : "delphix_admin",
+		"hostname" : "boast",
+		"ip_address" : "13.64.244.223",
+		"username" : "admin",
+		"password" : "delphix",
+		"port" : "80",
+		"default" : "true",
+		"encrypted" : "false",
+		"timeout" : "60"
+	},
+	{
+		"hostname" : "boa18c",
+		"ip_address" : "13.93.210.215",
+		"username" : "admin",
 		"password" : "delphix",
 		"port" : "80",
 		"default" : "false",
 		"encrypted" : "false",
 		"timeout" : "60"
-	},
-	{
-		"hostname" : "Landshark2",
-		"ip_address" : "delphix02",
-		"username" : "delphix_admin",
-		"password" : "delphix",
-		"port" : "443",
-		"default" : "true",
-		"encrypted" : "false",
-                "protocol" : "https"
-	},
-	{
-		"hostname" : "Delphix32",
-		"ip_address" : "192.168.1.32",
-		"username" : "delphix_admin",
-		"password" : "#papapaewiru32472931u12",
-		"port" : "80",
-		"default" : "true",
-		"encrypted" : "true"
 	}
 	]
 }

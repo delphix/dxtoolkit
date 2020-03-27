@@ -276,7 +276,7 @@ sub getbackup {
 
 #   dx_ctl_js_container -d Landshark51 -action create -container_def "Analytics,testdx" -container_def "Analytics,autotest" -container_name cont2 -template_name template2 -container_owner js
 
-    my $ret = "dx_ctl_js_container -d " . $engine_obj->getEngineName() . " -action create";
+    my $ret = "dx_ctl_js_container -d " . $engine_obj->getEngineName() . " -action create -dontrefresh";
 
     $ret = $ret . " -container_name \"" . $self->getName($reference) . "\"";
     $ret = $ret . " -template_name \"" .$templates->getName($self->getJSContainerTemplate($reference)) . "\"";
