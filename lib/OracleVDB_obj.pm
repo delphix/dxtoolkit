@@ -190,7 +190,7 @@ sub getConfig
               my $vcdbinstname = $instances->[-1]->{instanceName};
               my $vcdbname = $dbobj->getName();
               my $vcdbgroupname = $groups->getName($dbobj->getGroup());
-              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup -vcdbgroup \"$vcdbgroupname\""));
+              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup \"$vcdbgroupname\""));
             } else {
               print "Something went wrong. No vCDB found.\n";
               $config = join($joinsep,($config, "vCDB parameters not found"));
