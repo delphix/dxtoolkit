@@ -301,7 +301,7 @@ sub generateBackup
 
     my $command = "dx_ctl_js_template -d " . $engine_obj->getEngineName();
     $command = $command . " -action create ";
-    $command = $command . " -template_name " . $self->getName($template_ref);
+    $command = $command . " -template_name \"" . $self->getName($template_ref) . "\"";
 
     my $jsdatasources = new JS_datasource_obj ( $engine_obj , $template_ref, undef);
     for my $ds (@{$jsdatasources->getJSDataSourceList()}) {

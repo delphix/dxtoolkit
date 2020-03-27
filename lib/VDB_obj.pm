@@ -798,7 +798,7 @@ sub getdSourceBackup
     my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
     my $dbuser = $self->getDbUser();
 
-    $restore_args = $restore_args . "-dbuser $dbuser -password ChangeMeDB -logsync $logsync";
+    $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx -logsync $logsync";
 
     $restore_args = $restore_args . $self->getConfig(undef, 1);
 
