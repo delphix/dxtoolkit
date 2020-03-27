@@ -253,7 +253,7 @@ sub getConfig
         my $cdbname = $self->{_sourceconfig}->getName($cdbref);
         $config = join($joinsep,($config, "-cdbcont $cdbname"));
         $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
-        $config = join($joinsep,($config, "-cdbpass Change_Me"));
+        $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
       }
 
 
