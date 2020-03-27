@@ -308,7 +308,6 @@ sub getInstances
     my @temparr;
     my $ret;
 
-
     if ( (defined($self->{sourceConfig}) ) && ($self->{sourceConfig} ne 'NA') ) {
         if (defined($self->{sourceConfig}->{instance})) {
             push (@temparr, $self->{sourceConfig}->{instance});
