@@ -357,7 +357,7 @@ sub getBackup {
       $suffix = '.exe';
     }
 
-    my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password xxxxxxxx";
+    my $backup = "dx_create_env$suffix -d $engine -envname \"$envname\" -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password xxxxxxxx";
     $backup = $backup . $self->getConfig($envitem, $host_obj, 1);
 
     return $backup;

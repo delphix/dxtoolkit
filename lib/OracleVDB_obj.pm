@@ -176,7 +176,7 @@ sub getConfig
 
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
-              $config = join($joinsep,($config, "-vcdbtemplate $vcdbtempname"));
+              $config = join($joinsep,($config, "-vcdbtemplate \"$vcdbtempname\""));
             }
 
 
@@ -190,7 +190,7 @@ sub getConfig
               my $vcdbinstname = $instances->[-1]->{instanceName};
               my $vcdbname = $dbobj->getName();
               my $vcdbgroupname = $groups->getName($dbobj->getGroup());
-              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup $vcdbgroupname"));
+              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup -vcdbgroup \"$vcdbgroupname\""));
             } else {
               print "Something went wrong. No vCDB found.\n";
               $config = join($joinsep,($config, "vCDB parameters not found"));
@@ -219,7 +219,7 @@ sub getConfig
 
       if (defined($tempref)) {
         my $tempname = $templates->getTemplate($tempref)->{name};
-        $config = join($joinsep,($config, "-template $tempname"));
+        $config = join($joinsep,($config, "-template \"$tempname\""));
       }
       $config = join($joinsep,($config, "-mntpoint \"$mntpoint\""));
 
@@ -252,7 +252,7 @@ sub getConfig
         my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
         my $cdbname = $self->{_sourceconfig}->getName($cdbref);
         $config = join($joinsep,($config, "-cdbcont $cdbname"));
-        $config = join($joinsep,($config, "-cdbuser $cdbuser"));
+        $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
         $config = join($joinsep,($config, "-cdbpass Change_Me"));
       }
 
