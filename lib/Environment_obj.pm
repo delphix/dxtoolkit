@@ -1122,6 +1122,7 @@ sub createEnv
       $env{"cluster"}{"type"} = "OracleCluster";
       $env{"cluster"}{"crsClusterName"} = $crsname;
       $env{"cluster"}{"crsClusterHome"} = $crsloc;
+      $env{"cluster"}{"name"} = $name;
 
       my @nodes;
 
