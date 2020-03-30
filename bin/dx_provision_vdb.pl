@@ -103,6 +103,7 @@ GetOptions(
   'snapshotpolicy=s' => \(my $snapshotpolicy),
   'retentionpolicy=s' => \(my $retentionpolicy),
   'maskingjob=s' => \(my $maskingjob),
+  'maskedbyscript' => \(my $maskedbyscript),
   'noopen' => \(my $noopen),
   'vcdbname=s' => \(my $vcdbname),
   'vcdbgroup=s' => \(my $vcdbgroup),
@@ -181,6 +182,12 @@ if (defined($vcdbname) && (!( defined($vcdbdbname) ) ) ) {
   exit (1);
 }
 
+
+if (defined($maskedbyscript) && defined($maskingjob)) {
+  print "Flag maskedbyscript and argument maskingjob  are mutually exclusive \n";
+  pod2usage(-verbose => 1, -input=>\*DATA);
+  exit (1);
+}
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -451,13 +458,25 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
   }
-
+  
+  
+  if (defined($maskedbyscript)) {
+    if ($db->setMaskingJob('script')) {
+      $ret = $ret + 1;
+      next;
+    }  
+  }
 
   if (defined($maskingjob)) {
+    my $job;
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
     my $source_ref = $source->getReference();
-    my $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
-    $db->setMaskingJob($job);
+    $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
+    
+    if (!defined($job)) {
+      $ret = $ret + 1;
+      next;  
+    }    
   }
 
   # set autostart
@@ -655,17 +674,17 @@ __DATA__
                   [-noopen]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
-                  [-configureclone pathtoscript | operation_template_name ]
-                  [-prerefresh  pathtoscript | operation_template_name ]
-                  [-postrefresh pathtoscript | operation_template_name ]
-                  [-prerewind pathtoscript | operation_template_name ]
-                  [-postrewind pathtoscript | operation_template_name ]
-                  [-presnapshot pathtoscript | operation_template_name ]
-                  [-postsnapshot pathtoscript | operation_template_name ]
-                  [-prestart pathtoscript | operation_template_name ]
-                  [-poststart pathtoscript | operation_template_name ]
-                  [-prestop pathtoscript | operation_template_name ]
-                  [-poststop pathtoscript | operation_template_name ]
+                  [-configureclone [hookname,]template|filename[,OS_shell] ]
+                  [-prerefresh  [hookname,]template|filename[,OS_shell] ]
+                  [-postrefresh [hookname,]template|filename[,OS_shell] ]
+                  [-prerewind [hookname,]template|filename[,OS_shell] ]
+                  [-postrewind [hookname,]template|filename[,OS_shell] ]
+                  [-presnapshot [hookname,]template|filename[,OS_shell] ]
+                  [-postsnapshot [hookname,]template|filename[,OS_shell] ]
+                  [-prestart [hookname,]template|filename[,OS_shell] ]
+                  [-poststart [hookname,]template|filename[,OS_shell] ]
+                  [-prestop [hookname,]template|filename[,OS_shell] ]
+                  [-poststop [hookname,]template|filename[,OS_shell] ]
                   [-prescript pathtoscript ]
                   [-postscript pathtoscript ]
                   [-recoveryModel model ]
@@ -679,6 +698,7 @@ __DATA__
                   [-hooks path_to_hooks]
                   [-envUser username]
                   [-maskingjob jobname]
+                  [-maskedbyscript]
                   [-autostart yes]
                   [-vcdbname name]
                   [-vcdbgroup groupname]
@@ -818,39 +838,6 @@ Create VDB in archivelog (yes - default) or noarchielog (no) (for Oracle)
 =item B<-truncateLogOnCheckpoint>
 Truncate a log on checkpoint. Set this parameter to enable truncate operation (for Sybase)
 
-=item B<-configureclone pathtoscript | operation_template_name>
-Configure Clone hook
-
-=item B<-prerefresh pathtoscript | operation_template_name>
-Pre refresh hook
-
-=item B<-postrefresh pathtoscript | operation_template_name>
-Post refresh hook
-
-=item B<-prerewind pathtoscript | operation_template_name>
-Pre rewind hook
-
-=item B<-postrewind pathtoscript | operation_template_name>
-Post rewind hook
-
-=item B<-presnapshot pathtoscript | operation_template_name>
-Pre snapshot hook
-
-=item B<-postsnapshot pathtoscript | operation_template_name>
-Post snapshot hook
-
-=item B<-prestart pathtoscript | operation_template_name>
-Pre start hook
-
-=item B<-poststart pathtoscript | operation_template_name>
-Post start hook
-
-=item B<-prestop pathtoscript | operation_template_name>
-Pre stop hook
-
-=item B<-poststop pathtoscript | operation_template_name>
-Post stop hook
-
 =item B<-prescript  pathtoscript>
 Path to prescript on Windows target
 
@@ -863,6 +850,10 @@ Snapshot policy name for VDB
 =item B<-maskingjob jobname>
 Name of masking job to use during VDB provisioning
 
+=item B<-maskedbyscript>
+Database will be created as masked VDB but user is responsible
+to provide hooks with script to run custom masking
+ 
 =item B<-retentionpolicy retention_policy>
 Retention policy name for VDB
 
@@ -901,6 +892,64 @@ Use an environment user "username" for provisioning database
 
 =item B<-autostart yes>
 Set VDB autostart flag to yes. Default is no
+
+=back
+
+=head2 Hooks
+
+Hook definition.
+
+File name is a path to a file with a hook body on machine
+with dxtoolkit.
+
+Template name is an operational template name
+
+Allowed combinations:
+
+ - hookname,template_name,OS_shell
+ 
+ - hookname,filename,OS_shell
+ 
+ - hookname,template_name
+ 
+ - hookname,filename
+ 
+ - template_name
+ 
+ - filename
+
+=item B<-configureclone [hookname,]template|filename[,OS_shell]>
+Configure Clone hook
+
+=item B<-prerefresh [hookname,]template|filename[,OS_shell]>
+Pre refresh hook
+
+=item B<-postrefresh [hookname,]template|filename[,OS_shell]>
+Post refresh hook
+
+=item B<-prerewind [hookname,]template|filename[,OS_shell]>
+Pre rewind hook
+
+=item B<-postrewind [hookname,]template|filename[,OS_shell]>
+Post rewind hook
+
+=item B<-presnapshot [hookname,]template|filename[,OS_shell]>
+Pre snapshot hook
+
+=item B<-postsnapshot [hookname,]template|filename[,OS_shell]>
+Post snapshot hook
+
+=item B<-prestart [hookname,]template|filename[,OS_shell]>
+Pre start hook
+
+=item B<-poststart [hookname,]template|filename[,OS_shell]>
+Post start hook
+
+=item B<-prestop [hookname,]template|filename[,OS_shell]>
+Pre stop hook
+
+=item B<-poststop [hookname,]template|filename[,OS_shell]>
+Post stop hook
 
 =back
 

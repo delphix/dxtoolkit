@@ -1,6 +1,6 @@
 use strict;
 use Data::Dumper;
-use Test::More tests => 5;
+use Test::More tests => 3;
 use Test::Script;
 use LWP::UserAgent;
 use lib '../../lib/';

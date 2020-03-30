@@ -1,0 +1,114 @@
+{
+   "job" : null,
+   "status" : "OK",
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "total" : 2,
+   "result" : [
+      {
+         "address" : "10.43.1.211",
+         "toolkitPath" : "/u01/app/toolkit",
+         "oracleJdbcKeystorePassword" : null,
+         "type" : "UnixHost",
+         "dspTruststorePassword" : null,
+         "dateAdded" : "2019-12-24T14:03:58.823Z",
+         "sshPort" : 22,
+         "javaHome" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "dspTruststorePath" : null,
+         "name" : "10.43.1.211",
+         "nfsAddressList" : [],
+         "reference" : "UNIX_HOST-1",
+         "dspKeystorePath" : null,
+         "namespace" : null,
+         "hostRuntime" : {
+            "available" : true,
+            "notAvailableReason" : null,
+            "type" : "HostRuntime",
+            "availableTimestamp" : "2019-12-30T12:14:18.505Z",
+            "traceRouteInfo" : {
+               "type" : "TracerouteInfo",
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.362 ms  0.295 ms  0.278 ms"
+            }
+         },
+         "dspKeystorePassword" : null,
+         "hostConfiguration" : {
+            "lastUpdated" : "2019-12-24T14:04:30.502Z",
+            "machine" : {
+               "memorySize" : 16726491136,
+               "type" : "HostMachine",
+               "platform" : "x86_64"
+            },
+            "type" : "HostConfiguration",
+            "discovered" : true,
+            "lastRefreshed" : null,
+            "operatingSystem" : {
+               "type" : "HostOS",
+               "timezone" : "America/Los_Angeles,PST-0800",
+               "name" : "Linux",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "distribution" : "RedHat",
+               "release" : "2.6.32-431.el6.x86_64",
+               "kernel" : null
+            }
+         },
+         "dspKeystoreAlias" : null,
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         }
+      },
+      {
+         "javaHome" : null,
+         "sshPort" : 22,
+         "dateAdded" : "2019-12-24T14:06:56.888Z",
+         "dspTruststorePassword" : null,
+         "type" : "UnixHost",
+         "oracleJdbcKeystorePassword" : null,
+         "address" : "10.43.6.187",
+         "toolkitPath" : "/u01/app/toolkit",
+         "dspKeystoreAlias" : null,
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "hostRuntime" : {
+            "traceRouteInfo" : {
+               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.300 ms  0.316 ms  0.436 ms",
+               "type" : "TracerouteInfo"
+            },
+            "availableTimestamp" : "2019-12-30T12:14:18.484Z",
+            "type" : "HostRuntime",
+            "notAvailableReason" : null,
+            "available" : true
+         },
+         "dspKeystorePassword" : null,
+         "hostConfiguration" : {
+            "type" : "HostConfiguration",
+            "discovered" : true,
+            "machine" : {
+               "type" : "HostMachine",
+               "memorySize" : 16726491136,
+               "platform" : "x86_64"
+            },
+            "lastUpdated" : "2019-12-24T15:12:55.298Z",
+            "operatingSystem" : {
+               "distribution" : "RedHat",
+               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
+               "kernel" : null,
+               "release" : "2.6.32-431.el6.x86_64",
+               "type" : "HostOS",
+               "timezone" : "US/Pacific,PST-0800",
+               "name" : "Linux"
+            },
+            "lastRefreshed" : "2019-12-24T15:12:55.279Z"
+         },
+         "dspKeystorePath" : null,
+         "namespace" : null,
+         "nfsAddressList" : [],
+         "name" : "10.43.6.187",
+         "reference" : "UNIX_HOST-2",
+         "dspTruststorePath" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1"
+      }
+   ]
+}

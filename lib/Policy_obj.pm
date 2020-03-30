@@ -562,6 +562,10 @@ sub importPolicy {
     delete $loadedPolicy->{effectiveType};
     delete $loadedPolicy->{timezone}->{offset};
 
+    if (defined($loadedPolicy->{timezone}->{offsetString})) {
+      delete $loadedPolicy->{timezone}->{offsetString};
+    }
+
     $self->loadPolicyList();
 
     if (defined($self->getPolicyByName($loadedPolicy->{name}))) {

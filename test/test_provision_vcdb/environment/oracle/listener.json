@@ -1,40 +1,40 @@
 {
    "type" : "ListResult",
    "job" : null,
-   "action" : null,
    "overflow" : false,
+   "status" : "OK",
+   "total" : 2,
+   "action" : null,
    "result" : [
       {
-         "host" : "UNIX_HOST-2",
-         "reference" : "ORACLE_NODE_LISTENER-2",
-         "type" : "OracleNodeListener",
-         "name" : "LISTENER",
-         "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.10.164)(PORT=1521))"
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))"
          ],
-         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "reference" : "ORACLE_NODE_LISTENER-2",
          "discovered" : true,
          "namespace" : null,
-         "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.10.164)(PORT=1521))"
-         ]
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))"
+         ],
+         "type" : "OracleNodeListener",
+         "name" : "LISTENER",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "host" : "UNIX_HOST-2"
       },
       {
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))"
+         ],
+         "discovered" : true,
          "namespace" : null,
+         "type" : "OracleNodeListener",
+         "name" : "LISTENER",
+         "reference" : "ORACLE_NODE_LISTENER-1",
          "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.8.174)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))"
          ],
          "host" : "UNIX_HOST-1",
-         "reference" : "ORACLE_NODE_LISTENER-1",
-         "name" : "LISTENER",
-         "type" : "OracleNodeListener",
-         "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.8.174)(PORT=1521))"
-         ],
-         "environment" : "UNIX_HOST_ENVIRONMENT-1",
-         "discovered" : true
+         "environment" : "UNIX_HOST_ENVIRONMENT-1"
       }
-   ],
-   "status" : "OK",
-   "total" : 2
+   ]
 }

@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2016 by Delphix. All rights reserved.
+# Copyright (c) 2016,2019 by Delphix. All rights reserved.
 #
 # Program Name : dx_set_envpass.pl
 # Description  : Set password for OS Delphix user or DB Delphix user
@@ -119,6 +119,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $hostref = $environments->getHost($envitem);
 
     my $connfault = 0;
+    my $result;
 
     if ( $environments->getType($envitem) ne 'WindowsHostEnvironment' ) {
 
@@ -131,18 +132,20 @@ for my $engine ( sort (@{$engine_list}) ) {
         for my $clunode ( @{$cluhosts} ) {
 
           my $nodeaddr = $hosts->getHostAddr($clunode->{host});
-          $connfault = $connfault + $engine_obj->checkSSHconnectivity($username, $password, $nodeaddr);
+          my $port = $hosts->getHostPort($clunode->{host});
+          ($connfault, $result)  = $connfault + $engine_obj->checkSSHconnectivity($username, $password, $nodeaddr, $port);
 
         }
       } else {
         my $nodeaddr = $hosts->getHostAddr($hostref);
-        $connfault = $engine_obj->checkSSHconnectivity($username, $password, $nodeaddr);
+        my $port = $hosts->getHostPort($hostref);
+        ($connfault, $result) = $engine_obj->checkSSHconnectivity($username, $password, $nodeaddr, $port);
       }
 
     } else {
       if ( $hostref ne 'CLUSTER' ) {
         my $nodeaddr = $hosts->getHostAddr($hostref);
-        $connfault =  $engine_obj->checkConnectorconnectivity($username, $password, $nodeaddr);
+        ($connfault, $result) =  $engine_obj->checkConnectorconnectivity($username, $password, $nodeaddr);
       }
 
 

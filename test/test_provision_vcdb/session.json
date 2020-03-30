@@ -1,12 +1,17 @@
 {
-   "error" : {
-      "commandOutput" : null,
-      "details" : "The API session has expired.",
-      "diagnoses" : null,
-      "id" : "exception.webservices.session.expired",
-      "type" : "APIError",
-      "action" : "Create a new API session by calling /resources/json/delphix/session."
+   "status" : "OK",
+   "action" : null,
+   "result" : {
+      "locale" : "en-US",
+      "version" : {
+         "micro" : 6,
+         "major" : 1,
+         "minor" : 10,
+         "type" : "APIVersion"
+      },
+      "client" : null,
+      "type" : "APISession"
    },
-   "status" : "ERROR",
-   "type" : "ErrorResult"
+   "type" : "OKResult",
+   "job" : null
 }

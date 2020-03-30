@@ -1,4 +1,4 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -35,6 +35,7 @@ use Engine;
 use Formater;
 use Toolkit_helpers;
 use JS_template_obj;
+use Databases;
 
 
 my $version = $Toolkit_helpers::version;
@@ -46,6 +47,7 @@ GetOptions(
   'template_name=s' => \(my $template_name),
   'property_name=s' => \(my $property_name),
   'properties' => \(my $properties),
+  'backup=s' => (\my $backup),
   'format=s' => \(my $format),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -73,8 +75,19 @@ if (defined($all) && defined($dx_host)) {
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 my $output = new Formater();
 
-
-if (defined($properties) || defined($property_name)) {
+if (defined($backup)) {
+  if (! -d $backup) {
+    print "Path $backup is not a directory \n";
+    exit (1);
+  }
+  if (! -w $backup) {
+    print "Path $backup is not writtable \n";
+    exit (1);
+  }
+  $output->addHeader(
+      {'Paramters', 200}
+  );
+} elsif (defined($properties) || defined($property_name)) {
   $output->addHeader(
       {'Appliance',       20},
       {'Template name',   20},
@@ -100,6 +113,13 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $jstemplates = new JS_template_obj ($engine_obj, $debug );
+
+  my $db;
+  my $groups;
+  if (defined($backup)) {
+    $db = new Databases ( $engine_obj , $debug);
+    $groups = new Group_obj($engine_obj, $debug);
+  }
 
 
   my @template_array;
@@ -149,6 +169,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       }
 
+    } elsif (defined($backup)) {
+      # for backup
+
+      $jstemplates->generateBackup($engine_obj, $jstitem, $db, $groups, $output);
+
     } else {
       $output->addLine(
           $engine,
@@ -160,7 +185,26 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
-Toolkit_helpers::print_output($output, $format, $nohead);
+if (defined($backup)) {
+
+  if ($ret eq 0) {
+    my $FD;
+    my $filename = File::Spec->catfile($backup,'backup_selfservice_templates.txt');
+
+    if ( open($FD,'>', $filename) ) {
+      $output->savecsv(1,$FD);
+      print "Backup exported into $filename \n";
+    } else {
+      print "Can't create a backup file $filename \n";
+      $ret = $ret + 1;
+    }
+    close ($FD);
+  }
+
+} else {
+    Toolkit_helpers::print_output($output, $format, $nohead);
+}
+
 
 exit $ret;
 
@@ -168,8 +212,14 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_js_templates    [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-template_name template_name] [-properties] [-property_name property_name]
-                        [ -format csv|json ]  [ --help|? ] [ -debug ]
+ dx_get_js_templates    [ -engine|d <delphix identifier> | -all ]
+                        [ -configfile file ]
+                        [-template_name template_name]
+                        [-properties]
+                        [-property_name property_name]
+                        [-backup path]
+                        [ -format csv|json ]
+                        [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -209,11 +259,8 @@ Display properties from templates
 =item B<-property_name property_name>
 Display property property_name from template
 
-=back
-
-=head1 OPTIONS
-
-=over 3
+=item B<-backup path>
+Gnerate a dxToolkit commands to recreate templates
 
 =item B<-format>
 Display output in csv or json format
@@ -248,6 +295,10 @@ List templates with properties
  -------------------- -------------------- -------------------- --------------------
  Landshark5           test                 prop1                value
 
+ Backup templates configuration
+
+  dx_get_js_containers -d marcindlpx -backup /tmp
+  Backup exported into /tmp/backup_selfservice_templates.txt
 
 
 =cut

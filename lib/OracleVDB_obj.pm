@@ -176,7 +176,7 @@ sub getConfig
 
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
-              $config = join($joinsep,($config, "-vcdbtemplate $vcdbtempname"));
+              $config = join($joinsep,($config, "-vcdbtemplate \"$vcdbtempname\""));
             }
 
 
@@ -190,7 +190,7 @@ sub getConfig
               my $vcdbinstname = $instances->[-1]->{instanceName};
               my $vcdbname = $dbobj->getName();
               my $vcdbgroupname = $groups->getName($dbobj->getGroup());
-              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup $vcdbgroupname"));
+              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup \"$vcdbgroupname\""));
             } else {
               print "Something went wrong. No vCDB found.\n";
               $config = join($joinsep,($config, "vCDB parameters not found"));
@@ -219,7 +219,7 @@ sub getConfig
 
       if (defined($tempref)) {
         my $tempname = $templates->getTemplate($tempref)->{name};
-        $config = join($joinsep,($config, "-template $tempname"));
+        $config = join($joinsep,($config, "-template \"$tempname\""));
       }
       $config = join($joinsep,($config, "-mntpoint \"$mntpoint\""));
 
@@ -252,8 +252,8 @@ sub getConfig
         my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
         my $cdbname = $self->{_sourceconfig}->getName($cdbref);
         $config = join($joinsep,($config, "-cdbcont $cdbname"));
-        $config = join($joinsep,($config, "-cdbuser $cdbuser"));
-        $config = join($joinsep,($config, "-cdbpass Change_Me"));
+        $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
+        $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
       }
 
 
@@ -307,7 +307,6 @@ sub getInstances
     logger($self->{_debug}, "Entering OracleVDB_obj::getInstances",1);
     my @temparr;
     my $ret;
-
 
     if ( (defined($self->{sourceConfig}) ) && ($self->{sourceConfig} ne 'NA') ) {
         if (defined($self->{sourceConfig}->{instance})) {
@@ -693,7 +692,12 @@ sub setListener {
       }
     }
 
-    $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.8.0)) {
+      $self->{NEWDB}->{source}->{nodeListenerList} = \@listrefarray;
+    } else {
+      $self->{NEWDB}->{source}->{nodeListeners} = \@listrefarray;
+    }
     return 0;
   }
 
@@ -1266,9 +1270,18 @@ sub snapshot
     my $full = shift;
     my $double = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::snapshot",1);
-    my %snapshot_type = (
-        "type" => "OracleSyncParameters"
-    );
+    my %snapshot_type;
+
+    if  (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) {
+      %snapshot_type = (
+          "type" => "OracleSyncParameters"
+      );
+    } else {
+      # Delphix 6.0
+      %snapshot_type = (
+          "type" => "OracleSyncFromExternalParameters"
+      );
+    }
 
     if (defined($full)) {
       $snapshot_type{"forceFullBackup"} = JSON::true;
@@ -1642,7 +1655,8 @@ sub addSource {
         $dsource_params{"type"} = 'OraclePDBLinkParameters';
       }
 
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.0)) {
+        # all above 1.8 below 1.11
         %dsource_params = (
           "type" => "LinkParameters",
           "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -1667,6 +1681,34 @@ sub addSource {
 
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkData";
+      }
+
+    } else {
+        # Delphix 6.0
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "dbCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "dbUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true
+          }
+      );
+
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
 
     }
@@ -1815,8 +1857,15 @@ sub createVDB {
         # source was RAC but target enviroment is not RAC
         $configtype = "OracleSIConfig";
       } elsif ($configtype eq 'N/A') {
-        # detached - set OracleSI
-        $configtype = "OracleSIConfig";
+        # detached - check source DB container type
+        logger($self->{_debug}, "SourceDB container type " . Dumper $self->{_sourcedb}->{container}->{contentType});
+        if ($self->{_sourcedb}->{container}->{contentType} eq "NON_CDB") {
+          $configtype = "OracleSIConfig";
+        } else {
+          # set to PDB
+          $configtype = "OraclePDBConfig";
+        }
+
       }
       $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
 

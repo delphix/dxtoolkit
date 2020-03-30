@@ -291,6 +291,7 @@ sub addUser
   my $is_admin = shift;
   my $is_JS = shift;
   my $timeout = shift;
+  my $apiuser = shift;
 
   my $ret = 0;
   my $user = $self->getUserByName($username, $usertype);
@@ -321,6 +322,11 @@ sub addUser
     if (defined($timeout)) {
       $newuser->setTimeout($timeout);
     }
+
+    if (defined($apiuser) ) {
+      $newuser->setApiUser($apiuser);
+    }
+
 
     if (uc $is_admin eq 'S') {
       $newuser->setSysadmin()
@@ -369,6 +375,7 @@ sub updateUser
   my $is_admin = shift;
   my $is_JS = shift;
   my $timeout = shift;
+  my $apiuser = shift;
 
   my $ret = 0;
 
@@ -384,6 +391,10 @@ sub updateUser
 
     if (defined($timeout)) {
       $user->setTimeout($timeout);
+    }
+
+    if (defined($apiuser) ) {
+      $user->setApiUser($apiuser);
     }
 
     $user->setNames($firstname, $lastname);
@@ -405,14 +416,12 @@ sub updateUser
     }
 
     if ($user->updateUser() ) {
-      print "Problem with update. \n";
       $ret = $ret + 1;
     } else {
       print "User $username updated. ";
     }
-    if ($password ne '') {
+    if (($ret eq 0) && ($password ne '')) {
       if ($user->updatePassword($password)) {
-        print "Problem with password update. \n";
         $ret = $ret + 1;
       } else {
         print "Password for user $username updated. ";
@@ -512,6 +521,38 @@ sub unlockUser
   }
   else {
     print "User $username doesn't exist. Can't unlock(enable)\n";
+    $ret = $ret + 1;
+  }
+
+  return $ret;
+}
+
+sub setSSHkey
+{
+  my $self = shift;
+  my $username = shift;
+  my $usertype = shift;
+  my $sshfile = shift;
+
+  my $ret = 0;
+  my $user = $self->getUserByName($username, $usertype);
+
+  if (defined($user) ) {
+    my $FD;
+    open($FD,$sshfile) or die("Can't open file $sshfile $!" );
+    my @sshkeylines = <$FD>;
+    close $FD;
+    $user->setSSHkey(\@sshkeylines);
+    if ($user->updateUser() ) {
+      print "Problem with ssh key setting. \n";
+      $ret = $ret + 1;
+    } else {
+      print "SSH key(s) for $username set. \n";
+    }
+
+  }
+  else {
+    print "User $username doesn't exist. Can't set SSH key\n";
     $ret = $ret + 1;
   }
 

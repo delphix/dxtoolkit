@@ -1,0 +1,142 @@
+{
+   "action" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "job" : null,
+   "status" : "OK",
+   "result" : [
+      {
+         "warehouseTimeflow" : null,
+         "reference" : "ORACLE_TIMEFLOW-9",
+         "creationType" : "INITIAL",
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "warehouse" : false,
+         "type" : "OracleTimeflow",
+         "incarnationID" : "1028346073",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "namespace" : null,
+         "parentSnapshot" : "ORACLE_SNAPSHOT-10",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "location" : "6920598",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2019-12-30T11:31:23.000Z"
+         },
+         "name" : "DB_PROVISION@2019-12-30T03:37:53"
+      },
+      {
+         "warehouseTimeflow" : null,
+         "reference" : "ORACLE_TIMEFLOW-8",
+         "creationType" : "INITIAL",
+         "container" : "ORACLE_DB_CONTAINER-8",
+         "warehouse" : false,
+         "type" : "OracleTimeflow",
+         "incarnationID" : "1028346073",
+         "cdbTimeflow" : null,
+         "namespace" : null,
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "parentPoint" : {
+            "location" : "6920577",
+            "timeflow" : "ORACLE_TIMEFLOW-2",
+            "timestamp" : "2019-12-30T11:31:23.000Z",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "DB_PROVISION@2019-12-30T03:37:49"
+      },
+      {
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2019-12-30T11:21:29.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "location" : "6919533"
+         },
+         "name" : "DB_PROVISION@2019-12-30T03:26:16",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-5",
+         "namespace" : null,
+         "parentSnapshot" : "ORACLE_SNAPSHOT-5",
+         "type" : "OracleTimeflow",
+         "warehouse" : false,
+         "container" : "ORACLE_DB_CONTAINER-6",
+         "incarnationID" : "880148783",
+         "warehouseTimeflow" : null,
+         "creationType" : "INITIAL",
+         "reference" : "ORACLE_TIMEFLOW-7"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-5",
+         "creationType" : "INITIAL",
+         "warehouseTimeflow" : null,
+         "incarnationID" : "880148783",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "type" : "OracleTimeflow",
+         "warehouse" : false,
+         "cdbTimeflow" : null,
+         "namespace" : null,
+         "parentSnapshot" : null,
+         "parentPoint" : null,
+         "name" : "default"
+      },
+      {
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-1",
+            "location" : "3431693",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2019-12-30T11:20:58.000Z"
+         },
+         "name" : "DB_PROVISION@2019-12-30T03:22:20",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-4",
+         "cdbTimeflow" : null,
+         "namespace" : null,
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "type" : "OracleTimeflow",
+         "warehouse" : false,
+         "incarnationID" : "1028345085",
+         "warehouseTimeflow" : null,
+         "reference" : "ORACLE_TIMEFLOW-4",
+         "creationType" : "INITIAL"
+      },
+      {
+         "parentPoint" : null,
+         "name" : "default",
+         "parentSnapshot" : null,
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-2",
+         "namespace" : null,
+         "incarnationID" : "880239338",
+         "warehouse" : false,
+         "type" : "OracleTimeflow",
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "creationType" : "INITIAL",
+         "reference" : "ORACLE_TIMEFLOW-3",
+         "warehouseTimeflow" : null
+      },
+      {
+         "namespace" : null,
+         "cdbTimeflow" : null,
+         "parentSnapshot" : null,
+         "parentPoint" : null,
+         "name" : "default",
+         "reference" : "ORACLE_TIMEFLOW-2",
+         "creationType" : "INITIAL",
+         "warehouseTimeflow" : null,
+         "incarnationID" : "880239338",
+         "container" : "ORACLE_DB_CONTAINER-2",
+         "type" : "OracleTimeflow",
+         "warehouse" : false
+      },
+      {
+         "parentSnapshot" : null,
+         "cdbTimeflow" : null,
+         "namespace" : null,
+         "parentPoint" : null,
+         "name" : "default",
+         "warehouseTimeflow" : null,
+         "creationType" : "INITIAL",
+         "reference" : "ORACLE_TIMEFLOW-1",
+         "warehouse" : false,
+         "type" : "OracleTimeflow",
+         "container" : "ORACLE_DB_CONTAINER-1",
+         "incarnationID" : "937066950"
+      }
+   ],
+   "total" : 8
+}

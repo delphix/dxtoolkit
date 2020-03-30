@@ -1,9 +1,9 @@
 {
-   "type" : "ListResult",
+   "overflow" : false,
+   "status" : "OK",
    "total" : 0,
    "action" : null,
-   "overflow" : false,
    "result" : [],
-   "status" : "OK",
+   "type" : "ListResult",
    "job" : null
 }

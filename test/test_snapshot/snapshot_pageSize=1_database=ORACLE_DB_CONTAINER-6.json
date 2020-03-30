@@ -1,45 +1,45 @@
 {
-   "action" : null,
-   "job" : null,
-   "type" : "ListResult",
+   "total" : 1,
    "result" : [
       {
-         "timezone" : "GMT+01:00,GMT+0100",
-         "namespace" : null,
-         "fromPhysicalStandbyVdb" : false,
-         "fractionTimeflows" : null,
          "container" : "ORACLE_DB_CONTAINER-6",
-         "latestChangePoint" : {
-            "location" : "505864285",
-            "timeflow" : "ORACLE_TIMEFLOW-10",
-            "timestamp" : "2017-06-13T10:30:01.000Z",
-            "type" : "OracleTimeflowPoint"
-         },
-         "version" : "12.1.0.2.0",
-         "firstChangePoint" : {
-            "type" : "OracleTimeflowPoint",
-            "timeflow" : "ORACLE_TIMEFLOW-10",
-            "timestamp" : null,
-            "location" : "505864281"
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : []
          },
          "temporary" : false,
-         "consistency" : "CRASH_CONSISTENT",
-         "retention" : 0,
-         "missingNonLoggedData" : false,
-         "timeflow" : "ORACLE_TIMEFLOW-10",
-         "creationTime" : "2017-06-13T10:30:01.097Z",
-         "runtime" : {
-            "missingLogs" : null,
-            "type" : "OracleSnapshotRuntime",
-            "provisionable" : true
-         },
-         "redoLogSizeInBytes" : 209715200,
+         "version" : "12.1.0.2.0",
+         "consistency" : "INCONSISTENT",
+         "redoLogSizeInBytes" : 52428800,
          "type" : "OracleSnapshot",
-         "reference" : "ORACLE_SNAPSHOT-78",
-         "name" : "@2017-06-13T10:30:01.097Z"
+         "reference" : "ORACLE_SNAPSHOT-12",
+         "fromPhysicalStandbyVdb" : false,
+         "retention" : 0,
+         "namespace" : null,
+         "timeflow" : "ORACLE_TIMEFLOW-7",
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-7",
+            "timestamp" : "2019-12-30T11:36:40.000Z",
+            "location" : "7020994",
+            "type" : "OracleTimeflowPoint"
+         },
+         "fractionTimeflows" : null,
+         "creationTime" : "2019-12-30T11:36:33.724Z",
+         "name" : "@2019-12-30T11:36:33.724Z",
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Pacific,PST-0800",
+         "firstChangePoint" : {
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-7",
+            "type" : "OracleTimeflowPoint",
+            "location" : "7020986"
+         }
       }
    ],
-   "overflow" : false,
-   "total" : 16,
-   "status" : "OK"
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "status" : "OK",
+   "overflow" : false
 }

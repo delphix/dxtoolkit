@@ -1,0 +1,38 @@
+{
+   "job" : null,
+   "total" : 2,
+   "overflow" : false,
+   "status" : "OK",
+   "action" : null,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "groupId" : 500,
+         "userId" : 500,
+         "credential" : {
+            "publicKey" : "********",
+            "privateKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "namespace" : null,
+         "type" : "EnvironmentUser",
+         "environment" : "UNIX_HOST_ENVIRONMENT-1",
+         "name" : "ora12102",
+         "reference" : "HOST_USER-1"
+      },
+      {
+         "groupId" : 500,
+         "credential" : {
+            "publicKey" : "********",
+            "privateKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "namespace" : null,
+         "type" : "EnvironmentUser",
+         "userId" : 500,
+         "name" : "ora12102",
+         "reference" : "HOST_USER-2",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2"
+      }
+   ]
+}

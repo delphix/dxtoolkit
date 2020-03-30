@@ -1,0 +1,16 @@
+#!/bin/bash
+
+
+LIST_OF_SCRIPTS=(
+{% for item in dxfiles %}
+  {{ item.path | basename | regex_replace('\.pl', '') }}
+{% endfor %}
+)
+
+CURRENT_DIR=`pwd`
+
+for i in "${LIST_OF_SCRIPTS[@]}"
+do
+  echo $i
+  ln -sf runner ${CURRENT_DIR}/$i
+done

@@ -329,27 +329,58 @@ sub getSnapshotTime {
 # if timezone defined as GMT+/-offset return undef
 # parameters:
 # - timezone
-# Return 0 if OK
+# Return timezone of OK or N/A if timezone is not recognized by perl
 
 sub checkTZ {
     my $self = shift;
     my $timezone = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::checkTZ",1);
 
+    # fixes for timezones supported by Delphix but not recognized by Perl
+    if ($timezone eq 'Etc/Zulu') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Zulu') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Etc/Universal') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Universal') {
+        $timezone = 'UTC';
+    }
+    if ($timezone eq 'Etc/Greenwich') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Greenwich') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'GMT0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT-0') {
+        $timezone = 'GMT';
+    }
+    if ($timezone eq 'Etc/GMT+0') {
+        $timezone = 'GMT';
+    }
 
     my $checktime = time();
     my $dt = ParseDate($checktime);
     my $tz = new Date::Manip::TZ;
     my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_from_gmt($dt, $timezone);
 
-    if (defined($abbrev)) {
+    if (!$err) {
         logger($self->{_debug}, "checkTZ abbrev-" . $abbrev ,1);
     } else {
         logger($self->{_debug}, "checkTZ abbrev-undefined" ,1);
+        $timezone = 'N/A';
     }
 
-    return $err;
-
+    return $timezone;
 }
 
 # Procedure getSnapshotTimeZone
@@ -366,30 +397,11 @@ sub getSnapshotTimeZone {
     chomp($ts);
     my @temp = split(',',$ts);
     my $ret = $temp[0];
-    if ($ret eq 'Etc/Zulu') {
-        $ret = 'Etc/GMT';
-    }
-
-    if ($ret eq 'Greenwich') {
-        $ret = 'GMT+00:00';
-    }
-
-    my $tz = new Date::Manip::TZ;
-
-    my @zone = ('Etc/GMT');
-    my ($err,$val) = $tz->define_offset('+0000', @zone);
-
-    logger($self->{debug}, "Setting GMT timezone err-" . $err );
-
-    @zone = ('Asia/Singapore');
-    ($err,$val) = $tz->define_offset('+0800', @zone);
-
-    logger($self->{debug}, "Setting SGT timezone err-" . $err );
 
     if (! ($ret =~ /[a-zA-Z]{3}.\d\d:\d\d/ )) {
-      if ($self->checkTZ($ret)) {
-        $ret = 'N/A';
-      }
+      # if timezone is not GMT+-00:00 format
+      # check if this format can be recognized and amended by checkTZ function
+      $ret = $self->checkTZ($ret);
     }
 
     return $ret;
@@ -950,6 +962,34 @@ sub getSnapshotSize {
 
 }
 
+# Procedure getVDBTimezone
+# parameters:
+# Load 1 snapshot object for a database from Delphix Engine
+
+sub getVDBTimezone
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getVDBTimezone",1);
+
+    my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my @res = @{$result->{result}};
+        if (scalar(@res) > 0) {
+            $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
+            $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
+            delete $self->{_snapshots}->{$res[-1]->{reference}};
+        }
+    } else {
+        print "Can't check snapshot timezone \n";
+        exit 1;
+    }
+    if (defined($self->{_timezone})) {
+      return $self->{_timezone};
+    } else {
+      return "N/A";
+    }
+}
 
 # Procedure getSnapshotList
 # parameters: - none
@@ -972,19 +1012,7 @@ sub getSnapshotList
 
         if (defined($self->{_startDate}) || defined($self->{_endDate})  ) {
             # timezone check
-            my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
-            my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
-            if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-                my @res = @{$result->{result}};
-                if (scalar(@res) > 0) {
-                    $self->{_snapshots}->{$res[-1]->{reference}} = $res[-1];
-                    $self->{_timezone} = $self->getSnapshotTimeZone($res[-1]->{reference});
-                    delete $self->{_snapshots}->{$res[-1]->{reference}};
-                }
-            } else {
-                print "Can't check snapshot timezone \n";
-                exit 1;
-            }
+            $self->getVDBTimezone();
         }
 
         if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
@@ -1053,10 +1081,11 @@ sub getSnapshotList
 
               for my $snapitem (@res) {
                   $snapshots->{$snapitem->{reference}} = $snapitem;
-                  push(@snapshot_order, $snapitem->{reference});
+                  #push(@snapshot_order, $snapitem->{reference});
+                  unshift @snapshot_order, $snapitem->{reference};
               }
 
-              $pageoffset = $self->{_snapshots}->{$snapshot_order[-1]}->{latestChangePoint}->{timestamp};
+              $pageoffset = $self->{_snapshots}->{$snapshot_order[0]}->{latestChangePoint}->{timestamp};
 
               $self->{_snapshot_list} = \@snapshot_order;
               $self->{_snapshots} = $snapshots;
@@ -1066,6 +1095,7 @@ sub getSnapshotList
           exit 1;
       }
     }
+
 }
 
 1;

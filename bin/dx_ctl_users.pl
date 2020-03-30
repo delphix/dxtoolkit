@@ -54,6 +54,7 @@ GetOptions(
   'username=s' => \(my $username),
   'password=s' => \(my $password),
   'timeout=n'  => \(my $timeout),
+  'sshkeyfile=s'  => \(my $sshkeyfile),
   'force' => \(my $force),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -90,7 +91,8 @@ if (lc $action eq 'import') {
     exit (1);
   }
 
-} elsif ((lc $action eq 'lock') || (lc $action eq 'unlock') || (lc $action eq 'password')  || (lc $action eq 'timeout')) {
+} elsif ((lc $action eq 'lock') || (lc $action eq 'unlock') || (lc $action eq 'password')  || (lc $action eq 'timeout')
+        || (lc $action eq 'sshkey') ) {
 
   if (!defined($username)) {
     print "Parameter -username is required for action $action\n";
@@ -100,6 +102,12 @@ if (lc $action eq 'import') {
 
   if ((lc $action eq 'timeout') && !defined($timeout)) {
     print "Parameter -timeout is required for action $action\n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
+
+  if ((lc $action eq 'sshkey') && !defined($sshkeyfile)) {
+    print "Parameter -sshkeyfile is required for action $action\n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
@@ -134,7 +142,13 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   if (defined($file) || defined($username)) {
-    $ret = $ret + process_user($engine_obj, $file, $action, $username, $jscontainers, $timeout);
+    if (lc $action eq 'sshkey') {
+      my $users_obj = new Users ($engine_obj, undef, $debug);
+      my $loginuser = $users_obj->getCurrentUser();
+      $ret = $ret + $users_obj->setSSHkey($username, $loginuser->{userType}, $sshkeyfile);
+    } else {
+      $ret = $ret + process_user($engine_obj, $file, $action, $username, $jscontainers, $timeout);
+    }
   }
 
   if (defined($profile)) {
@@ -210,10 +224,10 @@ sub process_user {
       next;
     }
 
-    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+    my ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
 
     if ($csv_obj->parse($line)) {
-      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout) = $csv_obj->fields();
+      ($command, $username,$firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser) = $csv_obj->fields();
     } else {
       print "Can't parse line : $line \n";
       $ret = $ret + 1;
@@ -244,14 +258,17 @@ sub process_user {
       next;
     }
 
+    if (!defined($usertype)) {
+      $usertype = $loginuser->{userType};
+    }
 
     if (lc $command eq 'c') {
-      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+      $ret = $ret + $users_obj->addUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
     }
 
     if (lc $command eq 'u') {
       $usertype = $loginuser->{userType};
-      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout);
+      $ret = $ret + $users_obj->updateUser($username, $usertype, $firstname,$lastname,$email,$workphone,$homephone,$mobilephone,$authtype,$principal,$password,$is_admin, $is_JS, $timeout, $apiuser);
     }
     if (lc $command eq 'd') {
       $usertype = $loginuser->{userType};
@@ -350,10 +367,11 @@ __DATA__
 
  dx_ctl_users    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                  [-action import] <-file filename | -profile filename >
-                 -action lock|unlock|password|timeout
+                 -action lock|unlock|password|timeout|sshkey
                  -username name|all
                  [-password password]
                  [-timeout timeout]
+                 [-sshkeyfile filename]
                  [-help|?]
                  [-debug]
 
@@ -386,7 +404,7 @@ A config file search order is as follow:
 
 =over 4
 
-=item B<-action import|lock|unlock|password>
+=item B<-action import|lock|unlock|password|sshkey>
 Action for a particular user or file
 Actions:
 
@@ -395,6 +413,7 @@ Actions:
  - unlock - enable (unlock) user account
  - password - change user password
  - timeout - change user timeout
+ - sshkey - set a user SSH key
 
 =item B<-username user|all>
 Username for particular action.
@@ -406,10 +425,13 @@ New password for user. If not specified prompt will be displayed.
 =item B<-timeout time>
 Update a timeout for an user. Timeout is set in minutes
 
+=item B<-sshkeyfile filename>
+File with one or more SSH public key to set for user
+
 =item B<-file filename>
 CSV file name with user definition and actions. Field list as follow:
 
-command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, admin_priv, js_user, timeout
+command, username, firstname, lastname, email, workphone, homephone, mobilephone, authtype, principal, password, admin_priv, js_user, timeout, apiUser
 
 Allowed command values:
 
@@ -430,6 +452,10 @@ Allowed js_user values:
   Y - Self service (Jet Stream) user
   N - Standard User
 
+Allowed apiUser values:
+
+  Y - User can login with local user/password if SSO is enabled
+  N - User can't login with local user/password
 
 =item B<-profile filename>
 CSV file name with user profile definition. It can be generated using dx_get_users profile option.
@@ -548,5 +574,10 @@ Force delete example - JS user own container
   Owner js removed
   User js deleted.
   User js created.
+
+Setting a SSH key for user
+
+ dx_ctl_users -d 53 -action sshkey -username admin -sshkeyfile /tmp/id_rsa.pub
+ SSH key for admin set.
 
 =cut

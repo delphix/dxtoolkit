@@ -1,0 +1,41 @@
+{
+   "status" : "OK",
+   "overflow" : false,
+   "total" : 1,
+   "result" : [
+      {
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "timestamp" : "2020-01-08T13:33:00.930Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "missingNonLoggedData" : false,
+         "timezone" : "US/Pacific-New,PST-0800",
+         "creationTime" : "2020-01-13T17:23:09.153Z",
+         "name" : "@2020-01-13T09:21:28.223",
+         "timeflow" : "ASE_TIMEFLOW-15",
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "timestamp" : "2020-01-13T17:21:28.223Z",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "retention" : 0,
+         "namespace" : null,
+         "reference" : "ASE_SNAPSHOT-67",
+         "type" : "ASESnapshot",
+         "consistency" : "CONSISTENT",
+         "version" : "15.7 SP137",
+         "temporary" : false,
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "container" : "ASE_DB_CONTAINER-14"
+      }
+   ],
+   "job" : null,
+   "type" : "ListResult",
+   "action" : null
+}

@@ -1,18 +1,63 @@
+## 2.4.5
+
+### Added
+- [fix for #100](https://github.com/delphix/dxtoolkit/issues/100) - Request for new dxtoolkit command that can do port validation
+- [fix for #120](https://github.com/delphix/dxtoolkit/issues/120) - Oracle and MS SQL support fixed and tested with Delphix 6.0
+
+
+### Changed
+- Since version 2.4.0 snapshot related commands were displaying a snapshots in wrong order from newest to oldest. Version 2.4.5 is fixing this issue and snapshot will be displayed from oldest to newest
+  like in all previous versions.
+  This will also fix all commands using a latest snapshot as a timestamp.
+- [fix for #106](https://github.com/delphix/dxtoolkit/issues/106) - fix for db_get_db_env -hostenv and -config does not work together
+- [fix for #114](https://github.com/delphix/dxtoolkit/issues/114) - dx_provision_vdb - provision vPDB with vCDB from detached source
+- [fix for #115](https://github.com/delphix/dxtoolkit/issues/115) - dx_get_bookmark fix for RAC databases
+
+## 2.4.4
+
+### Added
+- [fix for #100](https://github.com/delphix/dxtoolkit/issues/100) - Request for new dxtoolkit command that can do port validation
+
+### Changed
+- [fix for #105](https://github.com/delphix/dxtoolkit/issues/105) - dx_get_db_env: Get database name (the one in the instance) for SQL databases
+- [fix for #106](https://github.com/delphix/dxtoolkit/issues/106) - fix for db_get_db_env -hostenv and -config does not work together
+
+## 2.4.3
+
+### Changed
+- [fix for #110](https://github.com/delphix/dxtoolkit/issues/110) - Listener selection for provisioning database doesn't work with 5.2 and 5.3 engines
+- [fix for #108](https://github.com/delphix/dxtoolkit/issues/108) - add an option for dx_provision_db to use script for masking
+- [fix for #107](https://github.com/delphix/dxtoolkit/issues/107) - fix for dx_ctl_env - disable env fails
+
+## 2.4.2
+
+### Changed
+- [fix for #90](https://github.com/delphix/dxtoolkit/issues/90) - Allow dx_get_analytics -t all to ignore missing metrics. 2.4.2 will skip broken analytics unless parameter -stoponinvalid is specified
+- [fix for #103](https://github.com/delphix/dxtoolkit/issues/103) - Policy files can be loaded in newer engines now
+- [fix for #104](https://github.com/delphix/dxtoolkit/issues/104) - fix for vCDB and dx_get_db_env with -config
+
+
 ## 2.4.1
 
-Configuration files with an encrypted passwords has to be regenerated due
+Configuration files with an encrypted passwords created before version 2.4.0 has to be regenerated due
 to changes with encryption keys and adding a checksum to password encryption.
+Configuration files encrypted using version 2.4.0+ should work without any changes.
 
 ### Added
 
 - dx_get_engine_time script to display an engine time using a time zone defined in Delphix Engine
 - [fix for #84](https://github.com/delphix/dxtoolkit/issues/84) - shared / unshare action added to dx_ctl_js_bookmarks
 - [fix for #94](https://github.com/delphix/dxtoolkit/issues/94) - shared / unshare action added to dx_ctl_js_bookmarks
+- [fix for #96](https://github.com/delphix/dxtoolkit/issues/96) - support for changing a host in an environment added
+- [fix for #97](https://github.com/delphix/dxtoolkit/issues/97) - dx_ctl_users enhancement - adding a SSH key to user
 
 ### Changed
 - better support for log in errors ( cookie clean up )
 - dx_get_js_snapshots will skip a template bookmarks
-- [fix for #98](https://github.com/delphix/dxtoolkit/issues/98)fix for session user check if user has a domain specified
+- fix for disabled databases
+- [fix for #93](https://github.com/delphix/dxtoolkit/issues/93) - fix for file upload in dx_ctl_engine_upgrade. TODO: apply needs to detect engine reboot
+- [fix for #98](https://github.com/delphix/dxtoolkit/issues/98) - fix for session user check if user has a domain specified
+
 
 ## 2.4.0
 

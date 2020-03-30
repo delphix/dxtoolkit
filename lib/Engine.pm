@@ -941,20 +941,29 @@ sub getTime {
 
 # Procedure checkSSHconnectivity
 # parameters:
-# - minus - date current date minus minus minutes
-# return timezone of Delphix engine
+# -username - user name to check
+# -password - password
+# -hostip - ip of host to check
+# -port - port of host to check
+# return array (0 if OK, 1 if not OK, reason)
 
 sub checkSSHconnectivity {
    my $self = shift;
    my $username = shift;
    my $password = shift;
    my $host = shift;
+   my $port = shift;
 
    logger($self->{_debug}, "Entering Engine::checkSSHconnectivity",1);
+
+   if (!defined($port)) {
+     $port = 22;
+   }
 
    my %conn_hash = (
        "type" => "SSHConnectivity",
        "address" => $host,
+       "port" => $port,
        "credentials" => {
            "type" => "PasswordCredential",
            "password" => $password
@@ -975,8 +984,7 @@ sub checkSSHconnectivity {
    } else {
       $ret = 0;
    }
-
-   return $ret;
+   return ($ret, $result);
 }
 
 # Procedure checkConnectorconnectivity
@@ -1147,6 +1155,8 @@ sub getJSONResult {
 sub generateSupportBundle {
    my $self = shift;
    my $file = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::generateSupportBundle",1);
    my $timeout =    $self->{_ua}->timeout();
@@ -1160,10 +1170,40 @@ sub generateSupportBundle {
   #  }
 
 
+  my %allowed_types = (
+    "PHONEHOME" => 1,
+    "MDS" => 1,
+    "OS" => 1,
+    "CORE" => 1,
+    "LOG" => 1,
+    "PLUGIN_LOG" => 1,
+    "DROPBOX" => 1,
+    "STORAGE_TEST" => 1,
+    "MASKING" => 1,
+    "ALL" => 1
+  );
+
+  my $bundle_type;
+
+  if (defined($type)) {
+    if (defined($allowed_types{uc $type})) {
+      $bundle_type = uc $type;
+    } else {
+      print "Unknown type $type. Please specify a proper one. \n";
+      return 1;
+    }
+  } else {
+    $bundle_type = 'ALL';
+  }
+
   my %bundle_hash = (
     "type" => "SupportBundleGenerateParameters",
-    "bundleType" => "MASKING"
+    "bundleType" => $bundle_type
   );
+
+  if (defined($analytics)) {
+    $bundle_hash{"includeAnalyticsData"} = JSON::true;
+  }
 
   my $json = to_json(\%bundle_hash);
 
@@ -1205,13 +1245,45 @@ sub generateSupportBundle {
 sub uploadSupportBundle {
    my $self = shift;
    my $caseNumber = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::uploadSupportBundle",1);
 
+   my %allowed_types = (
+     "PHONEHOME" => 1,
+     "MDS" => 1,
+     "OS" => 1,
+     "CORE" => 1,
+     "LOG" => 1,
+     "PLUGIN_LOG" => 1,
+     "DROPBOX" => 1,
+     "STORAGE_TEST" => 1,
+     "MASKING" => 1,
+     "ALL" => 1
+   );
+
+   my $bundle_type;
+
+   if (defined($type)) {
+     if (defined($allowed_types{uc $type})) {
+       $bundle_type = uc $type;
+     } else {
+       print "Unknown type $type. Please specify a proper one. \n";
+       return undef;
+     }
+   } else {
+     $bundle_type = 'ALL';
+   }
 
    my %case_hash = (
-       "type" => "SupportBundleUploadParameters"
+       "type" => "SupportBundleUploadParameters",
+       "bundleType" => $bundle_type
    );
+
+   if (defined($analytics)) {
+     $case_hash{"includeAnalyticsData"} = JSON::true;
+   }
 
    if (defined($caseNumber)) {
       $case_hash{caseNumber} = 0 + $caseNumber;
@@ -1501,7 +1573,7 @@ sub uploadupdate {
     my $fsize = $size;
     # 6 for - char
     # 63 is Content-Disposition plus end of lines
-    $size = $size + 2 * (length $boundary) + 6 + (length $filename) + 63;
+    $size = $size + 2 * (length $boundary) + 6 + (length basename($filename)) + 63;
 
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
@@ -1519,7 +1591,6 @@ sub uploadupdate {
     # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
     # and it's providing a content of multipart/form-data request
     # it's simple implementation and probably not a best one
-
 
 
     my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);

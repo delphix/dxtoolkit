@@ -202,6 +202,99 @@ sub getProperties {
 }
 
 
+
+# Procedure getGenerateDatabaseList
+# parameters:
+# - engine object
+# - container ref
+# - databases object
+# - group object
+# Return array of array with database name / group pairs
+
+sub getGenerateDatabaseList {
+    my $self = shift;
+    my $engine_obj = shift;
+    my $reference = shift;
+    my $databases = shift;
+    my $groups = shift;
+
+    logger($self->{_debug}, "Entering JS_container_obj::getGenerateDatabaseList",1);
+
+    my $jsdatasources = new JS_datasource_obj ( $engine_obj , $reference, undef);
+    my @listarray;
+    for my $ds (@{$jsdatasources->getJSDataSourceList()}) {
+        my @dbarray;
+        push(@dbarray, $groups->getName($databases->getDB($jsdatasources->getJSDBContainer($ds))->getGroup()));
+        push(@dbarray, $databases->getDB($jsdatasources->getJSDBContainer($ds))->getName());
+        push(@listarray, \@dbarray);
+    }
+
+    return \@listarray;
+}
+
+
+# Procedure getDatabaseList
+# parameters:
+# - engine object
+# - container ref
+# - databases object
+# - group object
+# Return semicolumn sepratrated list of databases groups and names for container
+
+sub getDatabaseList {
+    my $self = shift;
+    my $engine_obj = shift;
+    my $reference = shift;
+    my $databases = shift;
+    my $groups = shift;
+
+
+    my $listarray = $self->getGenerateDatabaseList($engine_obj, $reference, $databases, $groups);
+    my $ret = join('; ' , map { join('/', @{$_}) } @{$listarray});
+    return $ret;
+
+}
+
+
+# Procedure getbackup
+# parameters:
+# - engine object
+# - container ref
+# - databases object
+# - group object
+# Return backup of container
+
+sub getbackup {
+    my $self = shift;
+    my $engine_obj = shift;
+    my $reference = shift;
+    my $databases = shift;
+    my $groups = shift;
+    my $templates = shift;
+    my $owners = shift;
+    my $output = shift;
+
+#   dx_ctl_js_container -d Landshark51 -action create -container_def "Analytics,testdx" -container_def "Analytics,autotest" -container_name cont2 -template_name template2 -container_owner js
+
+    my $ret = "dx_ctl_js_container -d " . $engine_obj->getEngineName() . " -action create -dontrefresh";
+
+    $ret = $ret . " -container_name \"" . $self->getName($reference) . "\"";
+    $ret = $ret . " -template_name \"" .$templates->getName($self->getJSContainerTemplate($reference)) . "\"";
+
+    for my $user (@{$owners}) {
+      $ret = $ret . " -container_owner \"" . $user . "\"";
+    }
+
+    my $listarray = $self->getGenerateDatabaseList($engine_obj, $reference, $databases, $groups);
+
+    for my $contdef (map { join(',', @{$_}) } @{$listarray}) {
+      $ret = $ret . " -container_def \"" . $contdef . "\" ";
+    }
+
+    $output->addLine( $ret );
+
+}
+
 # Procedure loadJSContainerList
 # parameters: none
 # Load a list of container objects from Delphix Engine

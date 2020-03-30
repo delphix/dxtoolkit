@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Copyright (c) 2014,2016 by Delphix. All rights reserved.
+# Copyright (c) 2014,2019 by Delphix. All rights reserved.
 #
 # Program Name : dx_ctl_env.pl
 # Description  : Get database and host information
@@ -48,6 +48,8 @@ GetOptions(
   'name|n=s' => \(my $envname),
   'reference|r=s' => \(my $reference),
   'action=s' => \(my $action),
+  'host=s' => \(my $host),
+  'newhost=s' => \(my $newhost),
   'username=s' => \(my $username),
   'authtype=s' => \(my $authtype),
   'password=s' => \(my $password),
@@ -58,6 +60,7 @@ GetOptions(
   'uniquename=s' => \(my $uniquename),
   'instancename=s' => \(my $instancename),
   'jdbc=s'     => \(my $jdbc),
+  'plugin_params=s' => \(my $plugin_params),
   'listenername=s' => \(my $listenername),
   'endpoint=s@' => \(my $endpoint),
   'bits=n' => \(my $bits),
@@ -98,12 +101,24 @@ if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq '
     (lc $action eq 'addrepo') || (lc $action eq 'deleterepo') ||
     (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') ||
     (lc $action eq 'addlistener') || (lc $action eq 'deletelistener') ||
-    (lc $action eq 'adduser') || (lc $action eq 'deleteuser')
+    (lc $action eq 'adduser') || (lc $action eq 'deleteuser') ||
+    (lc $action eq 'updatehost')
     ))
     {
       print "Unknown action $action\n";
       pod2usage(-verbose => 1,  -input=>\*DATA);
       exit (1);
+}
+
+if (lc $action eq 'updatehost') {
+  if (!defined($newhost)) {
+    print "New host has to be set\n";
+    exit 1;
+  }
+  if ((!defined($envname)) && (!defined($host))) {
+    print "Environment name or an existing host name has to be set for updatehost action\n";
+    exit 1;
+  }
 }
 
 if (lc $action eq 'addrepo') {
@@ -116,6 +131,14 @@ if (lc $action eq 'addrepo') {
 if ((lc $action eq 'addrepo') || (lc $action eq 'deleterepo')) {
   if (!defined($repopath)) {
     print "Repository path or instance has to be set\n";
+    exit 1;
+  }
+}
+
+
+if (defined($repotype)) {
+  if (!((lc $repotype eq 'oracle') || (lc $repotype eq 'vfiles') || (lc $repotype eq 'postgresql') || (lc $repotype eq 'db2') || (lc $repotype eq 'plugin'))) {
+    print "Unknown repository type $repotype\n";
     exit 1;
   }
 }
@@ -144,9 +167,11 @@ if (lc $action eq 'adddatabase') {
         print "vfilepath has to be set\n";
         exit 1;
       }
-    } else {
-      print "Repotype parameter $repotype unknown. Use oracle or vfiles\n";
-      exit 1;
+    } elsif (lc $repotype eq 'plugin') {
+      if (!defined($plugin_params)) {
+        print "plugin_params has to be set\n";
+        exit 1;
+      }
     }
   } else {
     print "Repotype parameter is required with adddatabase\n";
@@ -203,6 +228,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my @env_list;
   my @jobs;
+  my $hostupdate;
 
   if (defined($reference)) {
     push(@env_list, $reference);
@@ -227,7 +253,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     my $env_name = $environments->getName($envitem);
 
-    if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh')) {
+    if ((lc $action eq 'enable') || (lc $action eq 'disable') || (lc $action eq 'refresh') ||
+        (lc $action eq 'updatehost') ) {
 
       if ( $action eq 'enable' ) {
         if ( $environments->getStatus($envitem) eq 'enabled' ) {
@@ -252,6 +279,14 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ( $action eq 'refresh' ) {
         print "Refreshing environment $env_name \n";
         $jobno = $environments->refresh($envitem);
+      }
+
+      if ( lc $action eq 'updatehost' ) {
+        print "Checking environment for host update $env_name ";
+        $jobno = $environments->updatehost($envitem, $host, $newhost);
+        if (defined($jobno)) {
+          $hostupdate = 1;
+        }
       }
 
       if (defined ($jobno) ) {
@@ -305,7 +340,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Deleting repository $repopath from environment $env_name \n";
       my $repository_obj = new Repository_obj($engine_obj, $debug);
       if ($repository_obj->deleteRepository($envitem, $repopath)) {
-        print "Problem with adding repository \n";
+        print "Problem with deleting repository \n";
         $ret = $ret + 1;
       }
     }
@@ -327,18 +362,68 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $sourceconfig_obj = new SourceConfig_obj($engine_obj, $debug);
 
         if (lc $repotype eq 'oracle') {
-          if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, $uniquename, $instancename, $jdbc)) {
+          my %native_params = (
+            "uniquename" => $uniquename,
+            "instancename" => $instancename,
+            "jdbc" => $jdbc
+          );
+          if ($sourceconfig_obj->createSourceConfig('oracleSI', $repo->{reference}, $dbname, \%native_params)) {
             print "Can't add database $dbname \n";
             $ret = $ret + 1;
           } else {
             print "Database $dbname added into $repopath\n";
           }
         } elsif (lc $repotype eq 'vfiles') {
-          if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, undef, undef, undef, $vfilepath)) {
+          my %native_params = (
+            "path" => $vfilepath
+          );
+
+          my %plugin_params = ();
+
+          if ($sourceconfig_obj->createSourceConfig('vfiles', $repo->{reference}, $dbname, \%native_params)) {
             print "Can't add directory $vfilepath as $dbname \n";
             $ret = $ret + 1;
           } else {
             print "vFiles source $vfilepath added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'db2') {
+          my %native_params;
+          my %plugin_params_hash = (
+            "prettyName" => $dbname,
+            "dbName" => $dbname
+          );
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
+            print "Can't add DB2 $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "DB2 $dbname added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'postgresql') {
+          my %native_params;
+          my %plugin_params_hash = (
+            "prettyName" => $dbname
+          );
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
+            print "Can't add Postgresql $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "Postgresql $dbname added into environment $env_name\n";
+          }
+        } elsif (lc $repotype eq 'plugin') {
+          my $native_params;
+          my $plugin_params_hash;
+          eval {
+            $plugin_params_hash = from_json($plugin_params);
+          } or do {
+            my $e = $@;
+            print "Problem with JSON $e\n";
+          };
+
+          if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, $native_params, $plugin_params_hash)) {
+            print "Can't add plugin database $dbname \n";
+            $ret = $ret + 1;
+          } else {
+            print "Plugin database $dbname added into environment $env_name\n";
           }
         }
 
@@ -347,6 +432,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         print "Can't find repository path $repopath \n";
         $ret = $ret + 1;
       }
+
     }
 
     if ( lc $action eq 'deletedatabase' ) {
@@ -392,7 +478,6 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
       }
     }
-
   }
 
   if (defined($parallel) && (scalar(@jobs) > 0)) {
@@ -400,6 +485,11 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $pret = Toolkit_helpers::parallel_job(\@jobs);
       $ret = $ret + $pret;
     }
+  }
+
+  if ((lc $action eq 'updatehost') && (!defined($hostupdate))) {
+    # no environment found with a IP - need to report an error
+    $ret = $ret + 1;
   }
 
 }
@@ -413,7 +503,8 @@ __DATA__
 
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
             [ -name env_name | -reference reference ]
-            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
+            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener
+                   |deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
             [-dbname dbname]
             [-instancename instancename]
             [-uniquename db_unique_name]
@@ -423,8 +514,11 @@ __DATA__
             [-username name]
             [-authtype password|systemkey]
             [-password password]
-            [-repotype oracle|vfiles]
+            [-repotype oracle|vfiles|db2|postgresql|plugin]
             [-repopath ORACLE_HOME]
+            [-plugin_params JSON_parameters]
+            [-host name/ip of existing host to update]
+            [-newhost new name/ip of the host]
             [-help|? ]
             [-debug ]
 
@@ -457,7 +551,7 @@ A config file search order is as follow:
 
 =over 1
 
-=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener>
+=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
 Run an action specified for environments selected by filter or all environments deployed on Delphix Engine
 
 =back
@@ -502,11 +596,12 @@ Authentication type for user (use with adduser)
 =item B<-password password>
 Password for user (use with adduser)
 
-=item B<-repotype oracle|vfiles>
-Repository type to add (only Oracle and vFiles support for now - use with addrepo or adddatabase)
+=item B<-repotype oracle|vfiles|db2|postgresql|plugin>
+Repository type.
+The following types oracle and vfiles can be used to add repository manually.
 
 =item B<-repopath ORACLE_HOME>
-Oracle Home to add (use with addrepo)
+Repository name (Oracle Home, plugin name, vfiles directory)
 
 =item B<-bits 32|64>
 Oracle Home binary bit version (32/64)
@@ -516,6 +611,16 @@ Oracle Home version ex. 11.2.0.4 or 12.1.0.2
 
 =item B<-oraclebase path>
 Oracle Base path
+
+=item B<-host hostname/IP>
+Host name or IP from an environment to be updated.
+Not required if environment name is specified
+
+=item B<-newhost hostname/IP>
+New Host name or IP of host being updated
+
+=item B<-plugin_params JSON_parameters>
+New Host name or IP of host being updated
 
 =item B<-help>
 Print this screen
@@ -607,5 +712,38 @@ Delete a vfiles from environment
  dx_ctl_env -d Landshark51 -name LINUXSOURCE -action deletedatabase -dbname swingbench -repotype vfiles
  Deleting vfiles swingbench from environment LINUXSOURCE
  Database swingbench deleted from Unstructured Files
+
+Chaging an IP of the environment
+
+ dx_ctl_env -d 53 -name linuxsource -newhost 172.16.200.130 -action updatehost
+ Checking environment for host update linuxsource Starting job JOB-2850 for environment linuxsource.
+ 0 - 30 - 40 - 80 - 100
+ Job JOB-2850 finished with state: COMPLETED
+
+Chaging an IP of particular host
+
+ dx_ctl_env -d 53 -host 172.16.200.130 -newhost 172.16.180.129 -action updatehost
+ Checking environment for host update racattack121 Host with IP 172.16.200.130 not found
+ Checking environment for host update racattack Host with IP 172.16.200.130 not found
+ Checking environment for host update oracle18tgt Host with IP 172.16.200.130 not found
+ Checking environment for host update oracle18 Host with IP 172.16.200.130 not found
+ Checking environment for host update linuxsource Starting job JOB-2852 for environment linuxsource.
+ 0 - 30 - 40 - 80 - 100
+ Job JOB-2852 finished with state: COMPLETED
+ Checking environment for host update linuxtarget Host with IP 172.16.200.130 not found
+
+Adding the Postgresql database posttest into environment
+
+  dx_ctl_env -d 53 -name linuxsource -action adddatabase -dbname posttest -repotype postgresql -repopath "Postgres vFiles (9.6)"
+  Adding database posttest into Postgres vFiles (9.6) on environment linuxsource
+  Postgresql posttest added into environment linuxsource
+
+Adding the MySQL database using EDSI plugin
+
+  dx_ctl_env -d 53 -action adddatabase -repotype plugin -repopath "/usr/sbin (MySQL Community Server (GPL)) 5.6.29" \
+                   -dbname testmysql -name linuxtarget \
+                   -plugin_params  '{ "dbName": "testmysql", "baseDir":"/usr/sbin" }'
+  Adding database testmysql into /usr/sbin (MySQL Community Server (GPL)) 5.6.29 on environment linuxtarget
+  Plugin database testmysql added into environment linuxtarget
 
 =cut

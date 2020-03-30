@@ -92,6 +92,18 @@ sub setNames {
 }
 
 
+# Procedure setSSHkey
+# parameters:
+# - $sshkey
+
+sub setSSHkey {
+    my $self = shift;
+    my $sshkey = shift;
+
+    logger($self->{_debug}, "Entering User_obj::setSSHkey",1);
+    $self->{_new}->{publicKey} = $sshkey;
+}
+
 # Procedure getAuthType
 # Return:
 # - Native / LDAP
@@ -159,9 +171,70 @@ sub setTimeout {
 
 
     logger($self->{_debug}, "Entering User_obj::setTimeout",1);
-    $self->{_new}->{sessionTimeout} = $timeout + 0;
+    if ($timeout =~ /\d/) {
+      $self->{_new}->{sessionTimeout} = $timeout + 0;
+    }
     return 0;
 
+}
+
+
+# Procedure getTimeout
+#return timeout
+
+sub getTimeout {
+    my $self = shift;
+
+    logger($self->{_debug}, "Entering User_obj::getTimeout",1);
+    return $self->{_user}->{sessionTimeout};
+
+}
+
+# Procedure setApiUser
+# parameters:
+# - apiuser
+#return 0 if OK
+
+sub setApiUser {
+    my $self = shift;
+    my $apiuser = shift;
+
+    logger($self->{_debug}, "Entering User_obj::setApiUser",1);
+
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.10.3)) {
+      if (uc $apiuser eq 'Y') {
+        $self->{_new}->{apiUser} = JSON::true;
+      } elsif (uc $apiuser eq 'N') {
+        $self->{_new}->{apiUser} = JSON::false;
+      } else {
+        print("Wrong value for API user\n");
+        return 1;
+      }
+    }
+    return 0;
+
+}
+
+# Procedure getApiUser
+# parameters:
+# - apiuser
+#return Y or N or empty if not supported
+
+sub getApiUser {
+  my $self = shift;
+  my $apiuser = shift;
+
+  logger($self->{_debug}, "Entering User_obj::getApiUser",1);
+
+  if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.10.3)) {
+    if ($self->{_user}->{apiUser}) {
+      return 'Y';
+    } else {
+      return 'N';
+    }
+  } else {
+    return '';
+  }
 }
 
 
@@ -250,9 +323,26 @@ sub updateUser {
         $self->{_user_list}->getUserList();
         return 0;
     } else {
+        print("Problem with update: " . $result->{error}->{details} . "\n" );
         return 1;
     }
 }
+
+#TODO
+# -{"firstName":"Test","type":"User","emailAddress":"test.user@test.com","homePhoneNumber":"555-222-333","apiUser":false,"lastName":"User"}
+# ** POST http://172.16.180.136:80/resources/json/delphix/user/USER-3 ==> 200 OK
+#  -Response message: {
+#    "type" : "ErrorResult",
+#    "status" : "ERROR",
+#    "error" : {
+#       "id" : "exception.user.api.user.sso.disabled",
+#       "type" : "APIError",
+#       "diagnoses" : [],
+#       "details" : "Cannot create a user with the api user property unset when single sign-on is disabled.",
+#       "action" : "Enable single sign-on or set the api user property.",
+#       "commandOutput" : null
+#    }
+# }
 
 # Procedure updatePassword
 # parameters:
@@ -290,6 +380,7 @@ sub updatePassword {
         $self->{_user_list}->getUserList();
         return 0;
     } else {
+        print("Problem with password update: " . $result->{error}->{details} . "\n" );
         return 1;
     }
 }
