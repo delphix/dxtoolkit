@@ -106,18 +106,6 @@ my $ret = 0;
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
 
-#   client_id="0oa4qivm0j5dwndsk2p7"
-# client_secret="Krl-UymYE6OP-z_bhT5sAI0kSCPaz0u9VKtLhRTn"
-
-  my $token = $engine_obj->getSSOToken("0oa4qivm0j5dwndsk2p7", "Krl-UymYE6OP-z_bhT5sAI0kSCPaz0u9VKtLhRTn");
-  if (defined($token)) {
-    print "I have a token";
-    $token = $engine_obj->dlpx_connect($engine, $token);
-  } else {
-    print "Can't get token from token provider\n";
-    exit(-1);
-  }
-
   my $status = "UP";
   if ($engine_obj->dlpx_connect($engine)) {
     $status = "DOWN";

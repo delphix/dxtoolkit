@@ -145,6 +145,8 @@ sub load_config {
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
       $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
+      $engines{$name}{clientid}    = defined($host->{clientid}) ? $host->{clientid} : '';
+      $engines{$name}{clientsecret}    = defined($host->{clientsecret}) ? $host->{clientsecret} : '';
 
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
@@ -417,7 +419,6 @@ sub getApi {
 sub dlpx_connect {
    my $self = shift;
    my $engine = shift;
-   my $token = shift;
    logger($self->{_debug}, "Entering Engine::dlpx_connect",1);
 
    my $dlpxObject;
@@ -460,11 +461,36 @@ sub dlpx_connect {
    }
 
    $self->{_host} = $engine_config->{ip_address};
-   $self->{_user} = $engine_config->{username};
-   $self->{_password} = $engine_config->{password};
    $self->{_port} = $engine_config->{port};
    $self->{_protocol} = $engine_config->{protocol};
    $self->{_enginename} = $engine;
+
+
+   if (($engine_config->{username} ne '') && ($engine_config->{clientid} ne '')) {
+     print "Username and clientid in config file are mutually exclusive\n";
+     return 1;
+   }
+
+   if (($engine_config->{clientid} ne '') && ($engine_config->{clientsecret} eq '')) {
+     print "clientid needs clientsecret to be set\n";
+     return 1;
+   }
+
+   my $APIKEYS;
+
+   if ($engine_config->{username} ne '') {
+     $self->{_user} = $engine_config->{username};
+     $self->{_password} = $engine_config->{password};
+     $APIKEYS = 0;
+   } elsif ($engine_config->{clientid} ne '') {
+     $self->{_clientid} = $engine_config->{clientid};
+     $self->{_clientsecret} = $engine_config->{clientsecret};
+     $APIKEYS = 1;
+   } else {
+     print "Username and clientid are missing from config file\n";
+     return 1;
+   }
+
 
    undef $self->{timezone};
 
@@ -474,13 +500,28 @@ sub dlpx_connect {
       $self->{_ua}->show_progress( 1 );
    }
 
+   # if we are using API keys, session from cookies should be clean up
+   # so dxtoolkit will try to login using keys over and over
 
-   my ($ses_status, $ses_version) = $self->getSession();
+   my $ses_status;
+   my $ses_version;
+   my $token;
 
-   if ($ses_status > 1) {
-      print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
-      #logger($self->{_debug},"Can't check session status. Engine could be down.");
-      return 1;
+   if ($APIKEYS) {
+     $cookie_jar->clear();
+     $ses_status = 1;
+     $token = $self->getSSOToken($self->{_clientid}, $self->{_clientsecret});
+     if (!defined($token)) {
+       print "Can't get token from token provider\n";
+       return 1;
+     }
+   } else {
+     ($ses_status, $ses_version) = $self->getSession();
+     if ($ses_status > 1) {
+        print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
+        #logger($self->{_debug},"Can't check session status. Engine could be down.");
+        return 1;
+     }
    }
 
    if ($ses_status) {
@@ -496,57 +537,58 @@ sub dlpx_connect {
                logger($self->{_debug}, "Delphix version " . $self->{_dever} . " unknown");
                return 1;
             }
-         } else {
-            # use an Engine API
-            $self->session('1.3.0');
-            my $operation = "resources/json/delphix/about";
-            my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-            if ($result->{status} eq "OK") {
-               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
-                              . "." . $result->{result}->{apiVersion}->{micro};
-               $self->{_api} = $ses_version;
-            } else {
-               logger($self->{_debug}, "Can't determine Delphix API version" );
-               return 1;
-            }
-
-         }
-
-         if (defined($token)) {
-           # create session for token login
-           if ( $self->token_login($token, $ses_version)) {
-             print "token login to " . $self->{_host} . "  failed. \n";
-             $cookie_jar->clear();
-             $rc = 1;
-           } else {
-             logger($self->{_debug}, "token login to " . $self->{_host} . "  succeeded.");
-             $rc = 0;
-           }
-         } else {
-             # create a session first for user / password
-             if ( $self->session($ses_version) ) {
-                logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
-                $rc = 1;
-             } else {
-               # session is established - now login
-               if ($self->{_password} eq '') {
-                 # if no password provided and there is no open session
-                 $self->{_password} = $self->read_password();
-               }
-               if ( $self->login() ) {
-                   print "login to " . $self->{_host} . "  failed. \n";
-                   $cookie_jar->clear();
-                   $rc = 1;
-               } else {
-                   logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
-                   $rc = 0;
-               }
-             }
+       } else {
+          # use an Engine API
+          $self->session('1.3.0');
+          my $operation = "resources/json/delphix/about";
+          my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+          if ($result->{status} eq "OK") {
+             $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
+                            . "." . $result->{result}->{apiVersion}->{micro};
+             $self->{_api} = $ses_version;
+          } else {
+             logger($self->{_debug}, "Can't determine Delphix API version" );
+             return 1;
           }
+
+       }
+
+       if (defined($token)) {
+         # create session for token login
+         if ( $self->token_login($token, $ses_version)) {
+           print "token login to " . $self->{_host} . "  failed. \n";
+           $cookie_jar->clear();
+           $rc = 1;
+         } else {
+           logger($self->{_debug}, "token login to " . $self->{_host} . "  succeeded.");
+           $rc = 0;
+         }
+       } else {
+           # create a session first for user / password
+           if ( $self->session($ses_version) ) {
+              logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
+              $rc = 1;
+           } else {
+             # session is established - now login
+             if ($self->{_password} eq '') {
+               # if no password provided and there is no open session
+               $self->{_password} = $self->read_password();
+             }
+             if ( $self->login() ) {
+                 print "login to " . $self->{_host} . "  failed. \n";
+                 $cookie_jar->clear();
+                 $rc = 1;
+             } else {
+                 logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
+                 $rc = 0;
+             }
+           }
+        }
    } else {
       # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
       # check if session user is same like config user or someone is messing around
+
       if ( $self->getCurrentUser() eq $self->getUsername() ) {
         $self->{_api} = $ses_version;
         $rc = 0;
@@ -795,15 +837,7 @@ sub token_login {
 
   $request->content(to_json(\%mysession));
 
-
-
-
-
-  print Dumper $request;
-
   my $response = $self->{_ua}->request($request);
-
-  print Dumper $response;
 
   my $decoded_response;
   my $result;
@@ -1750,6 +1784,7 @@ sub getSSOToken {
     $request->authorization_basic($client_id, $client_secret);
     $request->content("grant_type=client_credentials&scope=groups");
 
+    logger($self->{_debug}, "calling " . Dumper $request, 2);
 
     my $decoded_response;
     my $result;
