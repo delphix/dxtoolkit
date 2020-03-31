@@ -28,6 +28,16 @@
 		"port" : "80",
 		"default" : "true",
 		"encrypted" : "true"
-	}
+	},
+	{ 
+                "hostname" : "marcinapi",
+                "ip_address" : "192.168.1.32",
+                "clientid" : "0oa6rs0js1f1zrueye",
+                "clientsecret" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
+                "port" : "80",
+                "default" : "true",
+                "encrypted" : "false",
+                "timeout" : "60"
+        }
 	]
 }

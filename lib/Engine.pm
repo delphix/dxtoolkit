@@ -145,6 +145,8 @@ sub load_config {
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
       $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
+      $engines{$name}{clientid}    = defined($host->{clientid}) ? $host->{clientid} : '';
+      $engines{$name}{clientsecret}    = defined($host->{clientsecret}) ? $host->{clientsecret} : '';
 
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
@@ -411,6 +413,7 @@ sub getApi {
 # Procedure dlpx_connect
 # parameters:
 # - engine - name of engine
+# - token - if API token should be used
 # return 0 if OK, 1 if failed
 
 sub dlpx_connect {
@@ -458,11 +461,36 @@ sub dlpx_connect {
    }
 
    $self->{_host} = $engine_config->{ip_address};
-   $self->{_user} = $engine_config->{username};
-   $self->{_password} = $engine_config->{password};
    $self->{_port} = $engine_config->{port};
    $self->{_protocol} = $engine_config->{protocol};
    $self->{_enginename} = $engine;
+
+
+   if (($engine_config->{username} ne '') && ($engine_config->{clientid} ne '')) {
+     print "Username and clientid in config file are mutually exclusive\n";
+     return 1;
+   }
+
+   if (($engine_config->{clientid} ne '') && ($engine_config->{clientsecret} eq '')) {
+     print "clientid needs clientsecret to be set\n";
+     return 1;
+   }
+
+   my $APIKEYS;
+
+   if ($engine_config->{username} ne '') {
+     $self->{_user} = $engine_config->{username};
+     $self->{_password} = $engine_config->{password};
+     $APIKEYS = 0;
+   } elsif ($engine_config->{clientid} ne '') {
+     $self->{_clientid} = $engine_config->{clientid};
+     $self->{_clientsecret} = $engine_config->{clientsecret};
+     $APIKEYS = 1;
+   } else {
+     print "Username and clientid are missing from config file\n";
+     return 1;
+   }
+
 
    undef $self->{timezone};
 
@@ -472,13 +500,28 @@ sub dlpx_connect {
       $self->{_ua}->show_progress( 1 );
    }
 
+   # if we are using API keys, session from cookies should be clean up
+   # so dxtoolkit will try to login using keys over and over
 
-   my ($ses_status, $ses_version) = $self->getSession();
+   my $ses_status;
+   my $ses_version;
+   my $token;
 
-   if ($ses_status > 1) {
-      print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
-      #logger($self->{_debug},"Can't check session status. Engine could be down.");
-      return 1;
+   if ($APIKEYS) {
+     $cookie_jar->clear();
+     $ses_status = 1;
+     $token = $self->getSSOToken($self->{_clientid}, $self->{_clientsecret});
+     if (!defined($token)) {
+       print "Can't get token from token provider\n";
+       return 1;
+     }
+   } else {
+     ($ses_status, $ses_version) = $self->getSession();
+     if ($ses_status > 1) {
+        print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
+        #logger($self->{_debug},"Can't check session status. Engine could be down.");
+        return 1;
+     }
    }
 
    if ($ses_status) {
@@ -494,45 +537,58 @@ sub dlpx_connect {
                logger($self->{_debug}, "Delphix version " . $self->{_dever} . " unknown");
                return 1;
             }
-         } else {
-            # use an Engine API
-            $self->session('1.3.0');
-            my $operation = "resources/json/delphix/about";
-            my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-            if ($result->{status} eq "OK") {
-               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
-                              . "." . $result->{result}->{apiVersion}->{micro};
-               $self->{_api} = $ses_version;
-            } else {
-               logger($self->{_debug}, "Can't determine Delphix API version" );
-               return 1;
-            }
+       } else {
+          # use an Engine API
+          $self->session('1.3.0');
+          my $operation = "resources/json/delphix/about";
+          my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+          if ($result->{status} eq "OK") {
+             $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
+                            . "." . $result->{result}->{apiVersion}->{micro};
+             $self->{_api} = $ses_version;
+          } else {
+             logger($self->{_debug}, "Can't determine Delphix API version" );
+             return 1;
+          }
 
+       }
+
+       if (defined($token)) {
+         # create session for token login
+         if ( $self->token_login($token, $ses_version)) {
+           print "token login to " . $self->{_host} . "  failed. \n";
+           $cookie_jar->clear();
+           $rc = 1;
+         } else {
+           logger($self->{_debug}, "token login to " . $self->{_host} . "  succeeded.");
+           $rc = 0;
          }
-
-         # create a session first
-         if ( $self->session($ses_version) ) {
-            logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
-            $rc = 1;
-         } else {
-           # session is established - now login
-           if ($self->{_password} eq '') {
-             # if no password provided and there is no open session
-             $self->{_password} = $self->read_password();
-           }
-           if ( $self->login() ) {
-               print "login to " . $self->{_host} . "  failed. \n";
-               $cookie_jar->clear();
-               $rc = 1;
+       } else {
+           # create a session first for user / password
+           if ( $self->session($ses_version) ) {
+              logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
+              $rc = 1;
            } else {
-               logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
-               $rc = 0;
+             # session is established - now login
+             if ($self->{_password} eq '') {
+               # if no password provided and there is no open session
+               $self->{_password} = $self->read_password();
+             }
+             if ( $self->login() ) {
+                 print "login to " . $self->{_host} . "  failed. \n";
+                 $cookie_jar->clear();
+                 $rc = 1;
+             } else {
+                 logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
+                 $rc = 0;
+             }
            }
-         }
+        }
    } else {
       # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
       # check if session user is same like config user or someone is messing around
+
       if ( $self->getCurrentUser() eq $self->getUsername() ) {
         $self->{_api} = $ses_version;
         $rc = 0;
@@ -741,6 +797,69 @@ sub login {
    }
 
    return $ret;
+
+
+}
+
+sub token_login {
+  my $self = shift;
+  my $token = shift;
+  my $version = shift;
+
+
+  my ($major,$minor,$micro) = split(/\./,$version);
+
+
+  my %mysession =
+  (
+    "type" => "APISession",
+    "version" => {
+       "type" => "APIVersion",
+       "major" => $major + 0,
+       "minor" => $minor + 0,
+       "micro" => $micro + 0
+     }
+  );
+
+  my $h = HTTP::Headers->new(
+    Content_Type        => 'application/json',
+    Authorization       => 'Bearer ' . $token
+  );
+
+  my $operation = "sso/virtualization/api/login";
+  my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
+  my $api_url = "$url/$operation";
+
+  my $request = HTTP::Request->new(
+    POST => $api_url,
+    $h
+  );
+
+  $request->content(to_json(\%mysession));
+
+  my $response = $self->{_ua}->request($request);
+
+  my $decoded_response;
+  my $result;
+  my $result_fmt;
+  my $retcode;
+
+  if ( $response->is_success ) {
+     $decoded_response = $response->decoded_content;
+     $result = decode_json($decoded_response);
+     $result_fmt = to_json($result, {pretty=>1});
+     logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+     $retcode = 0;
+  }
+  else {
+     logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+     logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+     if (($response->code == 401) || ($response->code == 403)) {
+       my $cookie_jar = $self->{_ua}->cookie_jar;
+       $cookie_jar->clear();
+     }
+     $retcode = 1;
+  }
 
 
 }
@@ -1621,6 +1740,72 @@ sub uploadupdate {
        logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
        $retcode = 1;
     }
+
+}
+
+
+# Procedure getSSOToken
+# parameters:
+# - client_id
+# - client_secret
+# Connect to SSO service and get a SSO token
+# 0 is all OK
+
+sub getSSOToken {
+    my $self = shift;
+    my $client_id = shift;
+    my $client_secret = shift;
+
+    my $sso_provider = 'https://delphix.okta.com/oauth2/default/v1/token';
+
+    logger($self->{_debug}, "Entering Engine::getSSOToken",1);
+
+
+    my $ua = LWP::UserAgent->new(keep_alive => 1);
+    $ua->agent("Delphix Perl Agent/0.1");
+    $ua->ssl_opts( verify_hostname => 0 );
+    $ua->timeout(15);
+
+    my $h = HTTP::Headers->new(
+      Accept              => 'application/json',
+      Connection          => 'keep-alive',
+      Content_Type        => 'application/x-www-form-urlencoded',
+      Cache_control       => 'no-cache'
+    );
+
+
+    my $request = HTTP::Request->new(
+      POST => $sso_provider,
+      $h
+    );
+
+
+
+    $request->authorization_basic($client_id, $client_secret);
+    $request->content("grant_type=client_credentials&scope=groups");
+
+    logger($self->{_debug}, "calling " . Dumper $request, 2);
+
+    my $decoded_response;
+    my $result;
+    my $result_fmt;
+    my $token;
+
+    my $response = $ua->request($request);
+
+    if ( $response->is_success ) {
+       $decoded_response = $response->decoded_content;
+       $result = decode_json($decoded_response);
+       $result_fmt = to_json($result, {pretty=>1});
+       logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+       $token = $result->{access_token};
+    }
+    else {
+       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+    }
+
+    return $token;
 
 }
 
