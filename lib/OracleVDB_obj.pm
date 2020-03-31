@@ -1508,7 +1508,7 @@ sub discoverPDB {
 
     if ($cdb->{'cdbType'} ne 'ROOT_CDB') {
       my %updatecdb = (
-        "type" => "OracleSIConfig",
+        "type" => $cdb->{"type"},
         "user" => $cdbuser,
         "credentials" => {
           "type" => "PasswordCredential",
