@@ -111,6 +111,7 @@ GetOptions(
   'vcdbuniqname=s' => \(my $vcdbuniqname),
   'vcdbinstname=s' => \(my $vcdbinstname),
   'vcdbtemplate=s' => \(my $vcdbtemplate),
+  'vcdbrac_instance=s@' => \(my $vcdbrac_instance),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -458,13 +459,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
   }
-  
-  
+
+
   if (defined($maskedbyscript)) {
     if ($db->setMaskingJob('script')) {
       $ret = $ret + 1;
       next;
-    }  
+    }
   }
 
   if (defined($maskingjob)) {
@@ -472,11 +473,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
     my $source_ref = $source->getReference();
     $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
-    
+
     if (!defined($job)) {
       $ret = $ret + 1;
-      next;  
-    }    
+      next;
+    }
   }
 
   # set autostart
@@ -561,7 +562,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
     if (defined($vcdbname)) {
-      $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate);
+      $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate, $vcdbrac_instance);
     }
 
 
@@ -706,6 +707,7 @@ __DATA__
                   [-vcdbuniqname vcdb_unique_name]
                   [-vcdbinstname vcdb_instance_name]
                   [-vcdbtemplate vcdb_template_name]
+                  [-vcdbrac_instance env_node,instance_name,instance_no]
                   [-help] [-debug]
 
 
@@ -829,6 +831,12 @@ Set a virtual CDB groupname
 =item B<-vcdbtemplate vcdb_template_name>
 Set a virtual CDB template
 
+=item B<-vcdbrac_instance env_node,instance_name,instance_no>
+Comma separated information about node name, instance name and instance number for a RAC vCDB provisioning
+Repeat option if you want to provide information for more nodes
+
+ex. -vcdbrac_instance node1,vCBD1,1 -vcdbrac_instance node2,vCBD2,2
+
 =item B<-noopen>
 Don't open database after provision (for Oracle)
 
@@ -853,7 +861,7 @@ Name of masking job to use during VDB provisioning
 =item B<-maskedbyscript>
 Database will be created as masked VDB but user is responsible
 to provide hooks with script to run custom masking
- 
+
 =item B<-retentionpolicy retention_policy>
 Retention policy name for VDB
 
@@ -907,15 +915,15 @@ Template name is an operational template name
 Allowed combinations:
 
  - hookname,template_name,OS_shell
- 
+
  - hookname,filename,OS_shell
- 
+
  - hookname,template_name
- 
+
  - hookname,filename
- 
+
  - template_name
- 
+
  - filename
 
 =item B<-configureclone [hookname,]template|filename[,OS_shell]>
