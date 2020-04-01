@@ -61,7 +61,7 @@ script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name
 
 my $expected_stdout = <<EOF;
 #Appliance,Env. name,Database,Group,Type,SourceDB,Repository,DB type,Version,Other
-local,marcinoracletgt.dcenter.delphix.com,pdbtest2,Analytics,VDB,PDBX1,/u01/app/ora12102/product/12.1.0/dbhome_1,oracle,12.1.0.2.0,-vcdbname vcdbtest -vcdbdbname VCDBTEST -vcdbinstname vcdbtest -vcdbuniqname vcdbtest -vcdbgroup "Analytics",-mntpoint "/mnt/provision"
+local,marcinoracletgt.dcenter.delphix.com,pdbtest2,Analytics,VDB,PDBX1,/u01/app/ora12102/product/12.1.0/dbhome_1,oracle,12.1.0.2.0,-vcdbinstname vcdbtest,-vcdbname vcdbtest -vcdbdbname VCDBTEST -vcdbuniqname vcdbtest -vcdbgroup "Analytics",-mntpoint "/mnt/provision"
 EOF
 
 script_stdout_is $expected_stdout, "list config pdbtest2 database results compare";
