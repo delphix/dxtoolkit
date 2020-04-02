@@ -155,11 +155,11 @@ jobs:
         cd D:\a\dxtoolkit\dxtoolkit\
       shell: powershell
 
-    - name: Upload enc
-      uses: actions/upload-artifact@v1
-      with:
-        name: windowsbuild-enc
-        path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
+    # - name: Upload enc
+    #   uses: actions/upload-artifact@v1
+    #   with:
+    #     name: windowsbuild-enc
+    #     path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
 
     - name: download perl
       run: |
