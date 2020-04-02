@@ -58,7 +58,7 @@ use Digest::MD5;
 use Sys::Hostname;
 use open qw(:std :utf8);
 use HTTP::Request::Common;
-
+use IO::Socket::SSL;
 
 
 use LWP::Protocol::http;
@@ -81,7 +81,10 @@ sub new
    $ua = LWP::UserAgent->new;
    #$ua = LWP::UserAgent->new(keep_alive => 1);
    $ua->agent("Delphix Perl Agent/0.1");
-   $ua->ssl_opts( verify_hostname => 0 );
+   $ua->ssl_opts(
+    SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
+    verify_hostname => 0
+   );
    $ua->timeout(15);
 
    my $self = {
@@ -137,20 +140,54 @@ sub load_config {
    for my $host ( @{$data->{data}} ) {
       my $name = $host->{hostname};
       logger($self->{_debug}, "Loading engine $name",2);
-      $engines{$name}{username}   = defined($host->{username}) ? $host->{username} : '';
-      $engines{$name}{ip_address} = defined($host->{ip_address}) ? $host->{ip_address} : '';
+
+      if (defined($host->{username}) && (defined($host->{clientid}))) {
+        print "Username and clientid in config entry " . $name . " are mutually exclusive\n";
+        next;
+      }
+
+      if ((!defined($host->{username})) && (!defined($host->{clientid}))) {
+        print "Username or clientid in config entry " . $name . " is required\n";
+        next;
+      }
+
+      if ((defined($host->{clientid})) && (!defined($host->{clientsecret}))) {
+        print "clientid needs clientsecret to be set in config entry " . $name . "\n";
+        next;
+      }
+
+      if (defined($host->{username})) {
+        $engines{$name}{username}   = $host->{username};
+        $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
+      }
+
+      if (defined($host->{clientid})) {
+        $engines{$name}{clientid} = $host->{clientid};
+        $engines{$name}{clientsecret} = $host->{clientsecret};
+      }
+
+      if (defined($host->{ip_address})) {
+        $engines{$name}{ip_address} = $host->{ip_address};
+      } else {
+        print "ip_address has to be set in config entry " . $name . "\n";
+        next;
+      }
+
+
       $engines{$name}{port}       = defined($host->{port}) ? $host->{port} : 80 ;
       $engines{$name}{default}    = defined($host->{default}) ? $host->{default} : 'false';
       $engines{$name}{protocol}   = defined($host->{protocol}) ? $host->{protocol} : 'http';
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
-      $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
-      $engines{$name}{clientid}    = defined($host->{clientid}) ? $host->{clientid} : '';
-      $engines{$name}{clientsecret}    = defined($host->{clientsecret}) ? $host->{clientsecret} : '';
 
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
-            $engines{$name}{password} = $self->decrypt($engines{$name});
+            if (defined($engines{$name}{password})) {
+              $engines{$name}{password} = $self->decrypt($engines{$name});
+            }
+            if (defined($engines{$name}{clientsecret})) {
+              $engines{$name}{clientsecret} = $self->decrypt($engines{$name});
+            }
         }
       }
    }
@@ -178,7 +215,11 @@ sub encrypt_config {
 
    for my $eng ( keys %{$engines} ) {
       if ($engines->{$eng}->{encrypted} eq 'true') {
-         $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared);
+        if (defined($engines->{$eng}->{password})) {
+          $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared, "password");
+        } elsif (defined($engines->{$eng}->{clientsecret})) {
+          $engines->{$eng}->{clientsecret} = $self->encrypt($engines->{$eng}, $shared, "key");
+        }
       }
       $engines->{$eng}->{hostname} = $eng;
       push (@engine_list, $engines->{$eng});
@@ -205,25 +246,41 @@ sub encrypt {
    my $self = shift;
    my $engine = shift;
    my $shared = shift;
+   my $what = shift;
    logger($self->{_debug}, "Entering Engine::encrypt",1);
    my $key;
 
+
+   my $keypart;
+   my $encfield;
+
+   if ($what eq 'password') {
+      $keypart = 'username';
+      $encfield = 'password';
+   } elsif ($what eq 'key') {
+      $keypart = 'clientid';
+      $encfield = 'clientsecret';
+   } else {
+     print "something is wrong with ecrypt\n";
+     exit 1;
+   }
+
    if (defined($shared)) {
-     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    } else {
      my $host = hostname;
-     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart} . $host;
    }
 
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   my $passmd5 = Digest::MD5::md5_hex($engine->{password});
-   my $wholeenc = $engine->{password} . $passmd5;
+   my $passmd5 = Digest::MD5::md5_hex($engine->{$encfield});
+   my $wholeenc = $engine->{$encfield} . $passmd5;
 
    my $ciphertext = $cipher->encrypt_hex($wholeenc);
    return $ciphertext;
@@ -243,15 +300,29 @@ sub decrypt {
 
    # decrypt with crc and hostname
 
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+   my $keypart;
+   my $encfield;
+
+   if (defined($engine->{password})) {
+      $keypart = 'username';
+      $encfield = 'password';
+   } elsif (defined($engine->{clientid})) {
+      $keypart = 'clientid';
+      $encfield = 'clientsecret';
+   } else {
+     print "something is wrong with decrypt\n";
+     exit 1;
+   }
+
+   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart} . $host;
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   my $fulldecrypt  = $cipher->decrypt_hex($engine->{password});
+   my $fulldecrypt  = $cipher->decrypt_hex($engine->{$encfield});
    my $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
    my $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
    my $afterdecrypt = Digest::MD5::md5_hex($plainpass);
@@ -264,15 +335,15 @@ sub decrypt {
 
    # decrypt with crc and no hostname
 
-   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    my $cipher_nohost = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{password});
+   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{$encfield});
    $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
    $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
    $afterdecrypt = Digest::MD5::md5_hex($plainpass);
@@ -284,14 +355,14 @@ sub decrypt {
    }
 
    # old method decryption
-   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
-   my $password = substr $engine->{password}, 1;
+   my $password = substr $engine->{$encfield}, 1;
    my $plaintext  = $cipher->decrypt_hex($password);
    return $plaintext;
 }
@@ -441,48 +512,26 @@ sub dlpx_connect {
    }
 
 
-   my $cookie_dir = File::Spec->tmpdir();
-   my $cookie_file = File::Spec->catfile($cookie_dir, "cookies." . getOSuser() . "." . $engine  );
 
-   my $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1, ignore_discard=>1);
-
-   $self->{_ua}->cookie_jar($cookie_jar);
-
-   $self->{_ua}->cookie_jar->save();
 
    my $osname = $^O;
 
-   logger($self->{_debug},"Cookie file " . $cookie_file,2);
 
-   if ( $osname ne 'MSWin32' ) {
-      chmod 0600, $cookie_file or die("Can't make cookie file secure.");
-   } else {
-      logger($self->{_debug},"Can't secure cookie. Windows machine");
-   }
+
+
 
    $self->{_host} = $engine_config->{ip_address};
    $self->{_port} = $engine_config->{port};
    $self->{_protocol} = $engine_config->{protocol};
    $self->{_enginename} = $engine;
 
-
-   if (($engine_config->{username} ne '') && ($engine_config->{clientid} ne '')) {
-     print "Username and clientid in config file are mutually exclusive\n";
-     return 1;
-   }
-
-   if (($engine_config->{clientid} ne '') && ($engine_config->{clientsecret} eq '')) {
-     print "clientid needs clientsecret to be set\n";
-     return 1;
-   }
-
    my $APIKEYS;
 
-   if ($engine_config->{username} ne '') {
+   if (defined($engine_config->{username})) {
      $self->{_user} = $engine_config->{username};
      $self->{_password} = $engine_config->{password};
      $APIKEYS = 0;
-   } elsif ($engine_config->{clientid} ne '') {
+   } elsif (defined($engine_config->{clientid})) {
      $self->{_clientid} = $engine_config->{clientid};
      $self->{_clientsecret} = $engine_config->{clientsecret};
      $APIKEYS = 1;
@@ -491,6 +540,28 @@ sub dlpx_connect {
      return 1;
    }
 
+   my $cookie_dir = File::Spec->tmpdir();
+   my $cookie_file = File::Spec->catfile($cookie_dir, "cookies." . getOSuser() . "." . $engine  );
+
+   my $cookie_jar;
+
+   if ($APIKEYS eq 0) {
+     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1, ignore_discard=>1);
+   } else {
+     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1);
+   }
+
+   $self->{_ua}->cookie_jar($cookie_jar);
+
+   $self->{_ua}->cookie_jar->save();
+
+   logger($self->{_debug},"Cookie file " . $cookie_file,2);
+
+   if ( $osname ne 'MSWin32' ) {
+      chmod 0600, $cookie_file or die("Can't make cookie file secure.");
+   } else {
+      logger($self->{_debug},"Can't secure cookie. Windows machine");
+   }
 
    undef $self->{timezone};
 
@@ -1784,7 +1855,9 @@ sub getSSOToken {
     $request->authorization_basic($client_id, $client_secret);
     $request->content("grant_type=client_credentials&scope=groups");
 
-    logger($self->{_debug}, "calling " . Dumper $request, 2);
+
+    logger($self->{_debug}, "calling " . Dumper $request->{_uri}, 2);
+
 
     my $decoded_response;
     my $result;
