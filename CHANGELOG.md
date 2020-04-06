@@ -1,5 +1,6 @@
 ## 2.4.6
 
+
 ### Added
 - Support for API Key from Central Management instead of username / password in the configuration file
 - Support for RAC vPDB in dx_provision_db and backup using dx_get_db_env
