@@ -58,7 +58,7 @@ use Digest::MD5;
 use Sys::Hostname;
 use open qw(:std :utf8);
 use HTTP::Request::Common;
-
+use IO::Socket::SSL;
 
 
 use LWP::Protocol::http;
@@ -81,7 +81,10 @@ sub new
    $ua = LWP::UserAgent->new;
    #$ua = LWP::UserAgent->new(keep_alive => 1);
    $ua->agent("Delphix Perl Agent/0.1");
-   $ua->ssl_opts( verify_hostname => 0 );
+   $ua->ssl_opts(
+    SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
+    verify_hostname => 0
+   );
    $ua->timeout(15);
 
    my $self = {
@@ -137,18 +140,54 @@ sub load_config {
    for my $host ( @{$data->{data}} ) {
       my $name = $host->{hostname};
       logger($self->{_debug}, "Loading engine $name",2);
-      $engines{$name}{username}   = defined($host->{username}) ? $host->{username} : '';
-      $engines{$name}{ip_address} = defined($host->{ip_address}) ? $host->{ip_address} : '';
+
+      if (defined($host->{username}) && (defined($host->{clientid}))) {
+        print "Username and clientid in config entry " . $name . " are mutually exclusive\n";
+        next;
+      }
+
+      if ((!defined($host->{username})) && (!defined($host->{clientid}))) {
+        print "Username or clientid in config entry " . $name . " is required\n";
+        next;
+      }
+
+      if ((defined($host->{clientid})) && (!defined($host->{clientsecret}))) {
+        print "clientid needs clientsecret to be set in config entry " . $name . "\n";
+        next;
+      }
+
+      if (defined($host->{username})) {
+        $engines{$name}{username}   = $host->{username};
+        $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
+      }
+
+      if (defined($host->{clientid})) {
+        $engines{$name}{clientid} = $host->{clientid};
+        $engines{$name}{clientsecret} = $host->{clientsecret};
+      }
+
+      if (defined($host->{ip_address})) {
+        $engines{$name}{ip_address} = $host->{ip_address};
+      } else {
+        print "ip_address has to be set in config entry " . $name . "\n";
+        next;
+      }
+
+
       $engines{$name}{port}       = defined($host->{port}) ? $host->{port} : 80 ;
       $engines{$name}{default}    = defined($host->{default}) ? $host->{default} : 'false';
       $engines{$name}{protocol}   = defined($host->{protocol}) ? $host->{protocol} : 'http';
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
-      $engines{$name}{password}   = defined($host->{password}) ? $host->{password} : '';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
-            $engines{$name}{password} = $self->decrypt($engines{$name});
+            if (defined($engines{$name}{password})) {
+              $engines{$name}{password} = $self->decrypt($engines{$name});
+            }
+            if (defined($engines{$name}{clientsecret})) {
+              $engines{$name}{clientsecret} = $self->decrypt($engines{$name});
+            }
         }
       }
    }
@@ -176,7 +215,11 @@ sub encrypt_config {
 
    for my $eng ( keys %{$engines} ) {
       if ($engines->{$eng}->{encrypted} eq 'true') {
-         $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared);
+        if (defined($engines->{$eng}->{password})) {
+          $engines->{$eng}->{password} = $self->encrypt($engines->{$eng}, $shared, "password");
+        } elsif (defined($engines->{$eng}->{clientsecret})) {
+          $engines->{$eng}->{clientsecret} = $self->encrypt($engines->{$eng}, $shared, "key");
+        }
       }
       $engines->{$eng}->{hostname} = $eng;
       push (@engine_list, $engines->{$eng});
@@ -203,25 +246,41 @@ sub encrypt {
    my $self = shift;
    my $engine = shift;
    my $shared = shift;
+   my $what = shift;
    logger($self->{_debug}, "Entering Engine::encrypt",1);
    my $key;
 
+
+   my $keypart;
+   my $encfield;
+
+   if ($what eq 'password') {
+      $keypart = 'username';
+      $encfield = 'password';
+   } elsif ($what eq 'key') {
+      $keypart = 'clientid';
+      $encfield = 'clientsecret';
+   } else {
+     print "something is wrong with ecrypt\n";
+     exit 1;
+   }
+
    if (defined($shared)) {
-     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    } else {
      my $host = hostname;
-     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+     $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart} . $host;
    }
 
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   my $passmd5 = Digest::MD5::md5_hex($engine->{password});
-   my $wholeenc = $engine->{password} . $passmd5;
+   my $passmd5 = Digest::MD5::md5_hex($engine->{$encfield});
+   my $wholeenc = $engine->{$encfield} . $passmd5;
 
    my $ciphertext = $cipher->encrypt_hex($wholeenc);
    return $ciphertext;
@@ -241,15 +300,29 @@ sub decrypt {
 
    # decrypt with crc and hostname
 
-   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username} . $host;
+   my $keypart;
+   my $encfield;
+
+   if (defined($engine->{password})) {
+      $keypart = 'username';
+      $encfield = 'password';
+   } elsif (defined($engine->{clientid})) {
+      $keypart = 'clientid';
+      $encfield = 'clientsecret';
+   } else {
+     print "something is wrong with decrypt\n";
+     exit 1;
+   }
+
+   my $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart} . $host;
    my $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   my $fulldecrypt  = $cipher->decrypt_hex($engine->{password});
+   my $fulldecrypt  = $cipher->decrypt_hex($engine->{$encfield});
    my $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
    my $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
    my $afterdecrypt = Digest::MD5::md5_hex($plainpass);
@@ -262,15 +335,15 @@ sub decrypt {
 
    # decrypt with crc and no hostname
 
-   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    my $cipher_nohost = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
 
-   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{password});
+   $fulldecrypt  = $cipher_nohost->decrypt_hex($engine->{$encfield});
    $plainpass = substr($fulldecrypt,0,length($fulldecrypt)-32);
    $checksum = substr($fulldecrypt,length($fulldecrypt)-32);
    $afterdecrypt = Digest::MD5::md5_hex($plainpass);
@@ -282,14 +355,14 @@ sub decrypt {
    }
 
    # old method decryption
-   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{username};
+   $key = $engine->{ip_address} . $dbutils::delkey . $engine->{$keypart};
    $cipher = Crypt::CBC->new(
       -key    => $key,
       -cipher => 'Blowfish',
-      -iv => substr($engine->{ip_address} . $engine->{username},0,8),
+      -iv => substr($engine->{ip_address} . $engine->{$keypart},0,8),
       -header=>'none'
    );
-   my $password = substr $engine->{password}, 1;
+   my $password = substr $engine->{$encfield}, 1;
    my $plaintext  = $cipher->decrypt_hex($password);
    return $plaintext;
 }
@@ -411,6 +484,7 @@ sub getApi {
 # Procedure dlpx_connect
 # parameters:
 # - engine - name of engine
+# - token - if API token should be used
 # return 0 if OK, 1 if failed
 
 sub dlpx_connect {
@@ -438,16 +512,48 @@ sub dlpx_connect {
    }
 
 
+
+
+   my $osname = $^O;
+
+
+
+
+
+   $self->{_host} = $engine_config->{ip_address};
+   $self->{_port} = $engine_config->{port};
+   $self->{_protocol} = $engine_config->{protocol};
+   $self->{_enginename} = $engine;
+
+   my $APIKEYS;
+
+   if (defined($engine_config->{username})) {
+     $self->{_user} = $engine_config->{username};
+     $self->{_password} = $engine_config->{password};
+     $APIKEYS = 0;
+   } elsif (defined($engine_config->{clientid})) {
+     $self->{_clientid} = $engine_config->{clientid};
+     $self->{_clientsecret} = $engine_config->{clientsecret};
+     $APIKEYS = 1;
+   } else {
+     print "Username and clientid are missing from config file\n";
+     return 1;
+   }
+
    my $cookie_dir = File::Spec->tmpdir();
    my $cookie_file = File::Spec->catfile($cookie_dir, "cookies." . getOSuser() . "." . $engine  );
 
-   my $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1, ignore_discard=>1);
+   my $cookie_jar;
+
+   if ($APIKEYS eq 0) {
+     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1, ignore_discard=>1);
+   } else {
+     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1);
+   }
 
    $self->{_ua}->cookie_jar($cookie_jar);
 
    $self->{_ua}->cookie_jar->save();
-
-   my $osname = $^O;
 
    logger($self->{_debug},"Cookie file " . $cookie_file,2);
 
@@ -457,13 +563,6 @@ sub dlpx_connect {
       logger($self->{_debug},"Can't secure cookie. Windows machine");
    }
 
-   $self->{_host} = $engine_config->{ip_address};
-   $self->{_user} = $engine_config->{username};
-   $self->{_password} = $engine_config->{password};
-   $self->{_port} = $engine_config->{port};
-   $self->{_protocol} = $engine_config->{protocol};
-   $self->{_enginename} = $engine;
-
    undef $self->{timezone};
 
    logger($self->{_debug},"connecting to: $engine ( IP/name : " . $self->{_host} . " )");
@@ -472,13 +571,28 @@ sub dlpx_connect {
       $self->{_ua}->show_progress( 1 );
    }
 
+   # if we are using API keys, session from cookies should be clean up
+   # so dxtoolkit will try to login using keys over and over
 
-   my ($ses_status, $ses_version) = $self->getSession();
+   my $ses_status;
+   my $ses_version;
+   my $token;
 
-   if ($ses_status > 1) {
-      print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
-      #logger($self->{_debug},"Can't check session status. Engine could be down.");
-      return 1;
+   if ($APIKEYS) {
+     $cookie_jar->clear();
+     $ses_status = 1;
+     $token = $self->getSSOToken($self->{_clientid}, $self->{_clientsecret});
+     if (!defined($token)) {
+       print "Can't get token from token provider\n";
+       return 1;
+     }
+   } else {
+     ($ses_status, $ses_version) = $self->getSession();
+     if ($ses_status > 1) {
+        print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
+        #logger($self->{_debug},"Can't check session status. Engine could be down.");
+        return 1;
+     }
    }
 
    if ($ses_status) {
@@ -494,45 +608,58 @@ sub dlpx_connect {
                logger($self->{_debug}, "Delphix version " . $self->{_dever} . " unknown");
                return 1;
             }
-         } else {
-            # use an Engine API
-            $self->session('1.3.0');
-            my $operation = "resources/json/delphix/about";
-            my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-            if ($result->{status} eq "OK") {
-               $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
-                              . "." . $result->{result}->{apiVersion}->{micro};
-               $self->{_api} = $ses_version;
-            } else {
-               logger($self->{_debug}, "Can't determine Delphix API version" );
-               return 1;
-            }
+       } else {
+          # use an Engine API
+          $self->session('1.3.0');
+          my $operation = "resources/json/delphix/about";
+          my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+          if ($result->{status} eq "OK") {
+             $ses_version = $result->{result}->{apiVersion}->{major} . "." . $result->{result}->{apiVersion}->{minor}
+                            . "." . $result->{result}->{apiVersion}->{micro};
+             $self->{_api} = $ses_version;
+          } else {
+             logger($self->{_debug}, "Can't determine Delphix API version" );
+             return 1;
+          }
 
+       }
+
+       if (defined($token)) {
+         # create session for token login
+         if ( $self->token_login($token, $ses_version)) {
+           print "token login to " . $self->{_host} . "  failed. \n";
+           $cookie_jar->clear();
+           $rc = 1;
+         } else {
+           logger($self->{_debug}, "token login to " . $self->{_host} . "  succeeded.");
+           $rc = 0;
          }
-
-         # create a session first
-         if ( $self->session($ses_version) ) {
-            logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
-            $rc = 1;
-         } else {
-           # session is established - now login
-           if ($self->{_password} eq '') {
-             # if no password provided and there is no open session
-             $self->{_password} = $self->read_password();
-           }
-           if ( $self->login() ) {
-               print "login to " . $self->{_host} . "  failed. \n";
-               $cookie_jar->clear();
-               $rc = 1;
+       } else {
+           # create a session first for user / password
+           if ( $self->session($ses_version) ) {
+              logger($self->{_debug}, "session authentication to " . $self->{_host} . " failed.");
+              $rc = 1;
            } else {
-               logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
-               $rc = 0;
+             # session is established - now login
+             if ($self->{_password} eq '') {
+               # if no password provided and there is no open session
+               $self->{_password} = $self->read_password();
+             }
+             if ( $self->login() ) {
+                 print "login to " . $self->{_host} . "  failed. \n";
+                 $cookie_jar->clear();
+                 $rc = 1;
+             } else {
+                 logger($self->{_debug}, "login to " . $self->{_host} . "  succeeded.");
+                 $rc = 0;
+             }
            }
-         }
+        }
    } else {
       # there is a valid session in cookie
       logger($self->{_debug}, "Session exists.");
       # check if session user is same like config user or someone is messing around
+
       if ( $self->getCurrentUser() eq $self->getUsername() ) {
         $self->{_api} = $ses_version;
         $rc = 0;
@@ -741,6 +868,69 @@ sub login {
    }
 
    return $ret;
+
+
+}
+
+sub token_login {
+  my $self = shift;
+  my $token = shift;
+  my $version = shift;
+
+
+  my ($major,$minor,$micro) = split(/\./,$version);
+
+
+  my %mysession =
+  (
+    "type" => "APISession",
+    "version" => {
+       "type" => "APIVersion",
+       "major" => $major + 0,
+       "minor" => $minor + 0,
+       "micro" => $micro + 0
+     }
+  );
+
+  my $h = HTTP::Headers->new(
+    Content_Type        => 'application/json',
+    Authorization       => 'Bearer ' . $token
+  );
+
+  my $operation = "sso/virtualization/api/login";
+  my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
+  my $api_url = "$url/$operation";
+
+  my $request = HTTP::Request->new(
+    POST => $api_url,
+    $h
+  );
+
+  $request->content(to_json(\%mysession));
+
+  my $response = $self->{_ua}->request($request);
+
+  my $decoded_response;
+  my $result;
+  my $result_fmt;
+  my $retcode;
+
+  if ( $response->is_success ) {
+     $decoded_response = $response->decoded_content;
+     $result = decode_json($decoded_response);
+     $result_fmt = to_json($result, {pretty=>1});
+     logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+     $retcode = 0;
+  }
+  else {
+     logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+     logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+     if (($response->code == 401) || ($response->code == 403)) {
+       my $cookie_jar = $self->{_ua}->cookie_jar;
+       $cookie_jar->clear();
+     }
+     $retcode = 1;
+  }
 
 
 }
@@ -1070,6 +1260,8 @@ sub getJSONResult {
 sub generateSupportBundle {
    my $self = shift;
    my $file = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::generateSupportBundle",1);
    my $timeout =    $self->{_ua}->timeout();
@@ -1083,10 +1275,40 @@ sub generateSupportBundle {
   #  }
 
 
+  my %allowed_types = (
+    "PHONEHOME" => 1,
+    "MDS" => 1,
+    "OS" => 1,
+    "CORE" => 1,
+    "LOG" => 1,
+    "PLUGIN_LOG" => 1,
+    "DROPBOX" => 1,
+    "STORAGE_TEST" => 1,
+    "MASKING" => 1,
+    "ALL" => 1
+  );
+
+  my $bundle_type;
+
+  if (defined($type)) {
+    if (defined($allowed_types{uc $type})) {
+      $bundle_type = uc $type;
+    } else {
+      print "Unknown type $type. Please specify a proper one. \n";
+      return 1;
+    }
+  } else {
+    $bundle_type = 'ALL';
+  }
+
   my %bundle_hash = (
     "type" => "SupportBundleGenerateParameters",
-    "bundleType" => "MASKING"
+    "bundleType" => $bundle_type
   );
+
+  if (defined($analytics)) {
+    $bundle_hash{"includeAnalyticsData"} = JSON::true;
+  }
 
   my $json = to_json(\%bundle_hash);
 
@@ -1128,13 +1350,45 @@ sub generateSupportBundle {
 sub uploadSupportBundle {
    my $self = shift;
    my $caseNumber = shift;
+   my $type = shift;
+   my $analytics = shift;
 
    logger($self->{_debug}, "Entering Engine::uploadSupportBundle",1);
 
+   my %allowed_types = (
+     "PHONEHOME" => 1,
+     "MDS" => 1,
+     "OS" => 1,
+     "CORE" => 1,
+     "LOG" => 1,
+     "PLUGIN_LOG" => 1,
+     "DROPBOX" => 1,
+     "STORAGE_TEST" => 1,
+     "MASKING" => 1,
+     "ALL" => 1
+   );
+
+   my $bundle_type;
+
+   if (defined($type)) {
+     if (defined($allowed_types{uc $type})) {
+       $bundle_type = uc $type;
+     } else {
+       print "Unknown type $type. Please specify a proper one. \n";
+       return undef;
+     }
+   } else {
+     $bundle_type = 'ALL';
+   }
 
    my %case_hash = (
-       "type" => "SupportBundleUploadParameters"
+       "type" => "SupportBundleUploadParameters",
+       "bundleType" => $bundle_type
    );
+
+   if (defined($analytics)) {
+     $case_hash{"includeAnalyticsData"} = JSON::true;
+   }
 
    if (defined($caseNumber)) {
       $case_hash{caseNumber} = 0 + $caseNumber;
@@ -1557,6 +1811,74 @@ sub uploadupdate {
        logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
        $retcode = 1;
     }
+
+}
+
+
+# Procedure getSSOToken
+# parameters:
+# - client_id
+# - client_secret
+# Connect to SSO service and get a SSO token
+# 0 is all OK
+
+sub getSSOToken {
+    my $self = shift;
+    my $client_id = shift;
+    my $client_secret = shift;
+
+    my $sso_provider = 'https://delphix.okta.com/oauth2/default/v1/token';
+
+    logger($self->{_debug}, "Entering Engine::getSSOToken",1);
+
+
+    my $ua = LWP::UserAgent->new(keep_alive => 1);
+    $ua->agent("Delphix Perl Agent/0.1");
+    $ua->ssl_opts( verify_hostname => 0 );
+    $ua->timeout(15);
+
+    my $h = HTTP::Headers->new(
+      Accept              => 'application/json',
+      Connection          => 'keep-alive',
+      Content_Type        => 'application/x-www-form-urlencoded',
+      Cache_control       => 'no-cache'
+    );
+
+
+    my $request = HTTP::Request->new(
+      POST => $sso_provider,
+      $h
+    );
+
+
+
+    $request->authorization_basic($client_id, $client_secret);
+    $request->content("grant_type=client_credentials&scope=groups");
+
+
+    logger($self->{_debug}, "calling " . Dumper $request->{_uri}, 2);
+
+
+    my $decoded_response;
+    my $result;
+    my $result_fmt;
+    my $token;
+
+    my $response = $ua->request($request);
+
+    if ( $response->is_success ) {
+       $decoded_response = $response->decoded_content;
+       $result = decode_json($decoded_response);
+       $result_fmt = to_json($result, {pretty=>1});
+       logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+       $token = $result->{access_token};
+    }
+    else {
+       logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+       logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+    }
+
+    return $token;
 
 }
 

@@ -10,7 +10,8 @@ RUN yum install -y centos-release-scl \
     && yum install -y openssl \
     && yum install -y gcc \
     && source scl_source enable rh-perl526 \
-    && cpanm JSON \
+    && cpanm JSON@4.02 \
+    && cpanm JSON::XS@4.02 \
     && cpanm Date::Manip \
     && cpanm DateTime::Event::Cron::Quartz \
     && cpanm DateTime::Format::DateParse \
@@ -28,7 +29,7 @@ RUN yum install -y centos-release-scl \
     && cpanm List::MoreUtils::PP \
     && cpanm Test::More \
     && cpanm Test::Script \
-    && cpanm Test::Files \ 
+    && cpanm Test::Files \
     && cpanm HTTP::Server::Simple::CGI \
     && cpanm Log::Log4perl
 

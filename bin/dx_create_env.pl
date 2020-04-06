@@ -55,6 +55,7 @@ GetOptions(
   'proxy=s' => \(my $proxy),
   'clustername=s' => \(my $crsname),
   'clusterloc=s' => \(my $crshome),
+  'nfsaddresses=s' => \(my $nfsaddresses),
   'port=n' => \(my $port),
   'asedbuser=s' => \(my $asedbuser),
   'asedbpass=s' => \(my $asedbpass),
@@ -151,7 +152,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $jobno;
 
   my $env = new Environment_obj ($engine_obj);
-  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref, $crsname, $crshome, $port, $asedbuser, $asedbpass);
+  $jobno = $env->createEnv($envtype,$envname,$host,$toolkitdir,$username,$authtype,$password, $proxy_ref, $crsname, $crshome, $port, $asedbuser, $asedbpass, $nfsaddresses);
 
 
   if (defined($jobno)) {
@@ -186,6 +187,7 @@ __DATA__
                    -username user_name -authtype password | systemkey [ -password password ]
                    [-clustername name]
                    [-clusterloc loc]
+                   [-nfsaddresses nfs_ip,...]
                    [-port port]
                    [-asedbuser user]
                    [-asedbpass password]
@@ -238,6 +240,9 @@ or location of Delphix Connector directory for Windows
 
 =item B<-proxy proxy>
 Connector host used for dSource or windows cluster
+
+=item B<-nfsaddresses nfs_ip,...>
+Comma separated list of NFS IP's added to an environment
 
 =item B<-username user_name>
 Server user name

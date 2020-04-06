@@ -176,7 +176,7 @@ sub getConfig
 
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
-              $config = join($joinsep,($config, "-vcdbtemplate $vcdbtempname"));
+              $config = join($joinsep,($config, "-vcdbtemplate \"$vcdbtempname\""));
             }
 
 
@@ -190,7 +190,22 @@ sub getConfig
               my $vcdbinstname = $instances->[-1]->{instanceName};
               my $vcdbname = $dbobj->getName();
               my $vcdbgroupname = $groups->getName($dbobj->getGroup());
-              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbinstname $vcdbinstname -vcdbuniqname $vcdbuniqname -vcdbgroup $vcdbgroupname"));
+
+              if ($dbobj->isRAC()) {
+                #rac
+                my $rac = '';
+                for my $inst (@{$instances}) {
+                  $rac = $rac . "-vcdbrac_instance " . $dbobj->getInstanceNode($inst->{instanceNumber}) . "," . $inst->{instanceName} . "," . $inst->{instanceNumber} . " ";
+                }
+                $config = join($joinsep,($config, $rac));
+              } else {
+                if ($instances ne 'UNKNOWN') {
+                  $config = join($joinsep,($config, "-vcdbinstname " . $instances->[-1]->{instanceName}));
+                }
+              }
+
+
+              $config = join($joinsep,($config, "-vcdbname $vcdbname -vcdbdbname $vcdbdbname -vcdbuniqname $vcdbuniqname -vcdbgroup \"$vcdbgroupname\""));
             } else {
               print "Something went wrong. No vCDB found.\n";
               $config = join($joinsep,($config, "vCDB parameters not found"));
@@ -219,7 +234,7 @@ sub getConfig
 
       if (defined($tempref)) {
         my $tempname = $templates->getTemplate($tempref)->{name};
-        $config = join($joinsep,($config, "-template $tempname"));
+        $config = join($joinsep,($config, "-template \"$tempname\""));
       }
       $config = join($joinsep,($config, "-mntpoint \"$mntpoint\""));
 
@@ -252,8 +267,8 @@ sub getConfig
         my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
         my $cdbname = $self->{_sourceconfig}->getName($cdbref);
         $config = join($joinsep,($config, "-cdbcont $cdbname"));
-        $config = join($joinsep,($config, "-cdbuser $cdbuser"));
-        $config = join($joinsep,($config, "-cdbpass Change_Me"));
+        $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
+        $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
       }
 
 
@@ -307,7 +322,6 @@ sub getInstances
     logger($self->{_debug}, "Entering OracleVDB_obj::getInstances",1);
     my @temparr;
     my $ret;
-
 
     if ( (defined($self->{sourceConfig}) ) && ($self->{sourceConfig} ne 'NA') ) {
         if (defined($self->{sourceConfig}->{instance})) {
@@ -1404,18 +1418,14 @@ sub attach_dsource
 
 sub setRacProvisioning {
     my $self = shift;
-
     my $instances = shift;
-
+    my $env = shift;
     my @instanceArray;
 
 
     my $environments = new Environment_obj($self->{_dlpxObject}, $self->{_debug});
-
-    my $env_nodes = $environments->getOracleClusterNode($self->{'_newenv'});
-
+    my $env_nodes = $environments->getOracleClusterNode($env);
     my $instance_base = $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"};
-
     my $instance_number = 1;
 
     if (defined ($instances) ) {
@@ -1432,7 +1442,7 @@ sub setRacProvisioning {
 
                 if (defined ($instance_numbers{$inst_no})) {
                     print "Instance number " . $inst_no . " has to be unique.\n";
-                    return 1;
+                    return undef;
                 }
 
                 $instance_numbers{$inst_no} = 1;
@@ -1446,7 +1456,7 @@ sub setRacProvisioning {
                 push (@instanceArray, \%inst);
             } else {
                 print "Node name " . $nodename . " not found.\n";
-                return 1;
+                return undef;
             }
         }
 
@@ -1466,14 +1476,15 @@ sub setRacProvisioning {
     }
 
 
+    return \@instanceArray;
 
-    $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = 'OracleRACConfig';
-    delete $self->{"NEWDB"}->{"sourceConfig"}->{"instance"};
-    $self->{"NEWDB"}->{"sourceConfig"}->{"instances"} = \@instanceArray;
-
-
-
-    return 0;
+    # $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = 'OracleRACConfig';
+    # delete $self->{"NEWDB"}->{"sourceConfig"}->{"instance"};
+    # $self->{"NEWDB"}->{"sourceConfig"}->{"instances"} = \@instanceArray;
+    #
+    #
+    #
+    # return 0;
 
 }
 
@@ -1509,7 +1520,7 @@ sub discoverPDB {
 
     if ($cdb->{'cdbType'} ne 'ROOT_CDB') {
       my %updatecdb = (
-        "type" => "OracleSIConfig",
+        "type" => $cdb->{"type"},
         "user" => $cdbuser,
         "credentials" => {
           "type" => "PasswordCredential",
@@ -1790,6 +1801,7 @@ sub setupVCDB {
     my $vcdbinstname = shift;
     my $vcdbuniqname = shift;
     my $vcdbtemplate = shift;
+    my $vcdbrac_instance = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setupVCDB",1);
 
     $self->{_vcdbname} = $vcdbname;
@@ -1798,7 +1810,8 @@ sub setupVCDB {
     $self->{_vcdbinstname} = $vcdbinstname;
     $self->{_vcdbuniqname} = $vcdbuniqname;
     $self->{_vcdbtemplate} = $vcdbtemplate;
-
+    $self->{_vcdbtemplate} = $vcdbtemplate;
+    $self->{_vcdbrac_instance} = $vcdbrac_instance;
 }
 
 
@@ -1846,13 +1859,28 @@ sub createVDB {
     logger($self->{_debug}, "Target environment type " . Dumper $self->{_newenvtype}, 2 );
 
     if ($self->{'_newenvtype'} eq 'OracleCluster') {
-        if ( $self->setRacProvisioning($instances) ) {
+      # target environment is RAC
+
+      if ($self->{_sourcedb}->{container}->{contentType} eq "NON_CDB") {
+        # non PDB RAC
+        my $instance_array = $self->setRacProvisioning($instances, $self->{'_newenv'} );
+        if ( ! defined($instance_array) ) {
             print "Problem with node names or instance numbers. Please double check.";
             return undef;
         }
-    } else {
 
+        $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = 'OracleRACConfig';
+        delete $self->{"NEWDB"}->{"sourceConfig"}->{"instance"};
+        $self->{"NEWDB"}->{"sourceConfig"}->{"instances"} = $instance_array;
+
+      } else {
+        $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = "OraclePDBConfig";
+      }
+    } else {
+      # target host is not RAC
+      # check config type of Parent
       my $configtype = $self->{_sourcedb}->getSourceConfigType();
+
 
       if ($configtype eq 'OracleRACConfig') {
         # source was RAC but target enviroment is not RAC
@@ -1872,6 +1900,9 @@ sub createVDB {
 
     }
 
+    #print Dumper $self->{"NEWDB"}->{"sourceConfig"};
+    #exit;
+
     logger($self->{_debug}, "Target sourceConfig type " . Dumper $self->{"NEWDB"}->{"sourceConfig"}->{"type"}, 2 );
 
     if ( $self->{"NEWDB"}->{"sourceConfig"}->{"type"} eq 'OraclePDBConfig') {
@@ -1885,6 +1916,10 @@ sub createVDB {
         $self->{"NEWDB"}->{"source"}->{"type"} = "OracleVirtualPdbSource";
       }
 
+      # clean up a instance parameter for vPDB
+      delete $self->{"NEWDB"}->{"sourceConfig"}->{"instance"};
+      delete $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"};
+      delete $self->{"NEWDB"}->{"sourceConfig"}->{"services"};
 
       if (defined($cdbname)) {
         # provision to existing CDB
@@ -1946,14 +1981,30 @@ sub createVDB {
               "type" => "OracleSIConfig",
               "repository" => $self->{"NEWDB"}->{"sourceConfig"}->{"repository"},
               "databaseName" => $self->{_vcdbdbname},
-              "uniqueName" => $vcdbuniqname,
-              "instance" => {
-                  "type" => "OracleInstance",
-                  "instanceNumber" => 1,
-                  "instanceName" => $vcdbinstname
-              }
+              "uniqueName" => $vcdbuniqname
           }
         );
+
+
+        if (defined($self->{_vcdbrac_instance})) {
+          # vcdb is RAC
+          my $instance_array = $self->setRacProvisioning($self->{_vcdbrac_instance}, $self->{'_newenv'} );
+          if ( ! defined($instance_array) ) {
+              print "Problem with node names or instance numbers. Please double check.";
+              return undef;
+          }
+          $virtcdbhash{"sourceConfig"}{"type"} = "OracleRACConfig";
+          $virtcdbhash{"sourceConfig"}{"instances"} = $instance_array;
+        } else {
+          # vcdb is  not RAC
+          $virtcdbhash{"sourceConfig"}{"instance"} = {
+              "type" => "OracleInstance",
+              "instanceNumber" => 1,
+              "instanceName" => $vcdbinstname
+          };
+
+        }
+
 
         if (defined($self->{_vcdbtemplate})) {
           my $vcdbtemplateref = $self->getTemplate($self->{_vcdbtemplate});
@@ -1972,7 +2023,6 @@ sub createVDB {
 
     my $operation = 'resources/json/delphix/database/provision';
     my $json_data = $self->getJSON();
-
     return $self->runJobOperation($operation,$json_data);
 
 }

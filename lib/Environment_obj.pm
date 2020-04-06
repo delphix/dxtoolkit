@@ -291,6 +291,7 @@ sub getConfig {
     if (!defined($toolkit)) {
       $toolkit = 'N/A';
     }
+
     my $proxy_ref = $self->getProxy($envitem);
     my $proxy;
     if ($proxy_ref eq 'N/A') {
@@ -313,7 +314,12 @@ sub getConfig {
 
     my $asedbuser =  $self->getASEUser($envitem);
     if ($asedbuser ne 'N/A') {
-      $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass ChangeMeDB"));
+      $config = join($joinsep,($config, "-asedbuser $asedbuser -asedbpass xxxxxxxx"));
+    }
+
+    my $nfsaddresses = $host_obj->getHostNFS($host_ref);
+    if ($nfsaddresses ne 'NA') {
+      $config = join($joinsep,($config, "-nfsaddresses $nfsaddresses"));
     }
 
     my $rest;
@@ -351,7 +357,7 @@ sub getBackup {
       $suffix = '.exe';
     }
 
-    my $backup = "dx_create_env$suffix -d $engine -envname $envname -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password ChangeMe ";
+    my $backup = "dx_create_env$suffix -d $engine -envname \"$envname\" -envtype $envtype -host $hostname -username \"$user\" -authtype $userauth -password xxxxxxxx";
     $backup = $backup . $self->getConfig($envitem, $host_obj, 1);
 
     return $backup;
@@ -977,9 +983,10 @@ sub runJobOperation {
         }
     } else {
         if (defined($result->{error})) {
-            print "Problem with job " . $result->{error}->{details} . "\n";
+            print "Problem with running job. Error " . Dumper $result->{error}->{details} ;
             logger($self->{_debug}, "Can't submit job for operation $operation",1);
             logger($self->{_debug}, $result->{error}->{action} ,1);
+            logger($self->{_debug}, Dumper $result->{error}->{details} ,2);
         } else {
             print "Unknown error. Try with debug flag\n";
         }
@@ -1023,6 +1030,7 @@ sub createEnv
     my $port = shift;
     my $asedbuser = shift;
     my $asedbpass = shift;
+    my $nfsaddresses = shift;
     logger($self->{_debug}, "Entering Environment_obj::createEnv",1);
 
     my @addr;
@@ -1054,6 +1062,12 @@ sub createEnv
             "toolkitPath" => $toolkit_path
         }
       );
+
+      if (defined($nfsaddresses)) {
+        my @iplist = split(',', $nfsaddresses);
+        $host{"host"}{"nfsAddressList"} = \@iplist;
+      }
+
     } elsif ($type eq 'windows') {
 
       if (!defined($port)) {
@@ -1108,6 +1122,7 @@ sub createEnv
       $env{"cluster"}{"type"} = "OracleCluster";
       $env{"cluster"}{"crsClusterName"} = $crsname;
       $env{"cluster"}{"crsClusterHome"} = $crsloc;
+      $env{"cluster"}{"name"} = $name;
 
       my @nodes;
 
@@ -1116,8 +1131,13 @@ sub createEnv
         "hostParameters" => \%host
       );
 
-      push (@nodes, \%node1);
-      $env{"nodes"} = \@nodes;
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.10.0)) {
+        push (@nodes, \%node1);
+        $env{"nodes"} = \@nodes;
+      } else {
+        # from 1.10.0 - we don't have array but single node
+        $env{"node"} = \%node1;
+      }
 
     } elsif ($type eq 'wincluster') {
       $env{"type"} = "WindowsClusterCreateParameters";

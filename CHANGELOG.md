@@ -1,3 +1,20 @@
+## 2.4.6
+
+### Added
+- Support for API Key from Central Management instead of username / password in the configuration file
+- Support for RAC vPDB in dx_provision_db and backup using dx_get_db_env
+- Support to backup Self Service metadata using dx_get_js_template and dx_get_js_container
+
+### Changed
+- Performance improvements for dxtoolkit build ( adding missing C based JSON parser )
+- [fix for #129](https://github.com/delphix/dxtoolkit/issues/129) - Snapshot loop fixed - issues with commands where there was more than 100 snapshots on the engine
+- [fix for #128](https://github.com/delphix/dxtoolkit/issues/128) - VDB creation in order from metadata backup
+- [fix for #127](https://github.com/delphix/dxtoolkit/issues/127) - adding missing double quotes
+- [fix for #125](https://github.com/delphix/dxtoolkit/issues/125) - Adding RAC environment fixed
+- [fix for #123](https://github.com/delphix/dxtoolkit/issues/123) - dx_ctl_bundle default support bundle changed to ALL plus option to specify bundle type
+- [fix for #121](https://github.com/delphix/dxtoolkit/issues/121) - dx_remove_db ignore wrong parameter fixed
+- [fix for #119](https://github.com/delphix/dxtoolkit/issues/119) - NFS addresses are exported with metadata backup using dx_get_env
+
 ## 2.4.5
 
 ### Added

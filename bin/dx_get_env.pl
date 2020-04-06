@@ -1,4 +1,4 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -163,6 +163,13 @@ for my $engine ( sort (@{$engine_list}) ) {
   } else {
     @env_list = $environments->getAllEnvironments();
   };
+
+  if (defined($backup)) {
+    # backup of environments should process list in creation order
+    # assumptions - environment no sequence is growing
+    # so sorting on that should solve dependency problem
+    @env_list = sort { Toolkit_helpers::sort_by_number($a, $b) } @env_list;
+  }
 
   # for filtered databases on current engine - display status
   for my $envitem ( @env_list ) {

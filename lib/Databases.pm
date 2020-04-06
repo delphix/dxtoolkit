@@ -428,6 +428,15 @@ sub getDBForHost
     for my $dbname ( $self->getDBList() ) {
         my $dbobj = $self->getDB($dbname);
 
+        if (defined($dbobj->getCDBContainerRef())) {
+          # database has a CDB container so it's a PDB and there is no instance info
+          # dbobj will be switch to container to show data
+
+          #my $contsourceconfig = $databases->{_sourceconfigs}->getSourceConfig($dbobj->getCDBContainerRef());
+          #print Dumper $contsourceconfig;
+          my $contsource = $self->{_source}->getSourceByConfig($dbobj->getCDBContainerRef());
+          $dbobj = $self->getDB($contsource->{container});
+        }
 
         if ( $dbobj->getHost() eq 'CLUSTER') {
             my $instances = $dbobj->getInstances();

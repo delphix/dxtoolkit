@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# TODO: replace encryption key 
+# TODO: replace encryption key
 
 export DELPHIX_OUTPUT=/github/workspace/dxtoolkit2
 export DXTOOLKIT_CONF=/github/workspace/test/dxtools.conf
 mkdir $DELPHIX_OUTPUT
 
-source scl_source enable rh-perl526 
+source scl_source enable rh-perl526
 
 echo "run tests"
 

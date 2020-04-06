@@ -311,6 +311,17 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
+
+
+  if (defined($backup)) {
+    # backup of VDB should process list in creation order
+    # assumptions - container no sequence is growing
+    # so sorting on that should solve dependency problem
+    @db_display_list = sort { Toolkit_helpers::sort_by_number($a, $b) } @db_display_list;
+  }
+
+
+
   # for filtered databases on current engine - display status
   for my $dbitem ( @db_display_list ) {
     my $dbobj = $databases->getDB($dbitem);

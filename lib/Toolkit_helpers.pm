@@ -29,7 +29,10 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.5';
+our $version = '2.4.6';
+
+my $tz = new Date::Manip::TZ;
+my $dt = new Date::Manip::Date;
 
 sub logger {
 	my $debug = shift;
@@ -756,8 +759,8 @@ sub convert_using_offset {
 	my $makeiso = shift;
   my $printoff = shift;
 
-	my $tz = new Date::Manip::TZ;
-	my $dt = new Date::Manip::Date;
+	#my $tz = new Date::Manip::TZ;
+	#my $dt = new Date::Manip::Date;
 	my ($err,$date,$offset,$isdst,$abbrev);
 
 	chomp($timestamp);
@@ -817,8 +820,8 @@ sub convert_timezone {
 	my $makeiso = shift;
   my $printoff = shift;
 
-	my $tz = new Date::Manip::TZ;
-	my $dt = new Date::Manip::Date;
+	# my $tz = new Date::Manip::TZ;
+	# my $dt = new Date::Manip::Date;
 	my ($err,$date,$offset,$isdst,$abbrev);
 
 	$dt->config("setdate","zone," . $src);
