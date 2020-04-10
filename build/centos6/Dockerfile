@@ -20,6 +20,7 @@ RUN source scl_source enable rh-perl524 \
     && cpanm JSON::PP@4.04 \
     && cpanm JSON::XS@4.02 \
     && cpanm Date::Manip@6.79 \
+    && cpanm Time::Seconds@1.3401 \
     # force requires after 1/1/2020 ?
     && cpanm -f Date::Parse@2.30 \
     && cpanm DateTime::Event::Cron::Quartz@0.05 \
