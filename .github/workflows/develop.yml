@@ -2,7 +2,7 @@ name: Perl application
 
 on:
   push:
-    branch:
+    branches:
       - "develop"
 
 jobs:

@@ -2,8 +2,6 @@ name: Perl application
 
 on:
   push:
-    branch:
-      - "master"
     tags:
       - "v*.*.*"
 
