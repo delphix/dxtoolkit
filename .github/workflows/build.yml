@@ -1,8 +1,10 @@
 name: Perl application
 
-on: 
+on:
   push:
-    tags: 
+    branch:
+      - "master"
+    tags:
       - "v*.*.*"
 
 jobs:
@@ -20,9 +22,9 @@ jobs:
         ENCKEY: ${{ secrets.ENCKEY }}
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/} 
+        SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
         echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
         echo "::set-env name=FILENAME::$FILENAME"
@@ -39,7 +41,7 @@ jobs:
 
 
   ubuntu:
-    needs: [centos7]    
+    needs: [centos7]
     runs-on: ubuntu-18.04
 
     steps:
@@ -49,7 +51,7 @@ jobs:
     # - name: Set up a Perl container
     #   run: |
     #     sudo apt-get update || exit 0
-    #     sudo apt-get install -y libpar-packer-perl 
+    #     sudo apt-get install -y libpar-packer-perl
     #     sudo apt-get install -y libjson-pp-perl
     #     sudo apt-get install -y libdate-manip-perl
     #     sudo apt-get install -y libdatetime-format-dateparse-perl
@@ -96,7 +98,7 @@ jobs:
         ENCKEY: ${{ secrets.ENCKEY }}
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
@@ -107,14 +109,14 @@ jobs:
       run: |
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
-    - name: Upload ubuntu 
+    - name: Upload ubuntu
       uses: actions/upload-artifact@v1
       with:
         name: ubuntubuild
         path: ${{ env.FILENAME }}
 
   centos6:
-    needs: [centos7]    
+    needs: [centos7]
     runs-on: ubuntu-latest
 
     steps:
@@ -128,7 +130,7 @@ jobs:
         ENCKEY: ${{ secrets.ENCKEY }}
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
@@ -139,14 +141,14 @@ jobs:
       run: |
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
-    - name: Upload centos 6 
+    - name: Upload centos 6
       uses: actions/upload-artifact@v1
       with:
         name: cento6build
         path: ${{ env.FILENAME }}
 
   Windows:
-    needs: [centos7]    
+    needs: [centos7]
     runs-on: windows-2016
 
     steps:
@@ -154,7 +156,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
         $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
         $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
@@ -187,7 +189,7 @@ jobs:
         Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
       shell: powershell
 
-    - name: build  
+    - name: build
       run: build\windows_compile.cmd
       shell: cmd
 
@@ -206,7 +208,7 @@ jobs:
 
 
   osx:
-    needs: [centos7]    
+    needs: [centos7]
     runs-on: macos-latest
 
     steps:
@@ -215,7 +217,7 @@ jobs:
 
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
         if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
           SOURCE_TAG=${GITHUB_REF#refs/tags/}
@@ -231,25 +233,28 @@ jobs:
     - name: install perl
       run: |
         brew install cpanminus
-        brew install openssl
-        cpanm JSON 
-        cpanm Date::Manip 
+        # brew install openssl
+        cpanm Crypt::CBC
+        cpanm Crypt::Blowfish
+        export OPENSSL_PREFIX=`brew --prefix openssl`
+        echo $OPENSSL_PREFIX
+        export LIBS="-d=$OPENSSL_PREFIX"
+        cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
+        cpanm JSON
+        cpanm Date::Manip
         # force requires after 1/1/2020 ?
         cpanm -f Date::Parse
-        cpanm DateTime::Event::Cron::Quartz 
-        cpanm DateTime::Format::DateParse 
-        cpanm Crypt::CBC 
-        cpanm Crypt::Blowfish 
-        cpanm Text::CSV 
-        cpanm LWP::UserAgent 
-        cpanm Net::SSLeay 
-        cpanm IO::Socket::SSL 
-        cpanm LWP::Protocol::https 
-        cpanm Term::ReadKey 
-        cpanm --configure-args="-d=/usr/local/opt/openssl" Filter::Crypto::Decrypt 
+        cpanm DateTime::Event::Cron::Quartz
+        cpanm DateTime::Format::DateParse
+        cpanm Text::CSV
+        cpanm LWP::UserAgent
+        cpanm Net::SSLeay
+        cpanm IO::Socket::SSL
+        cpanm LWP::Protocol::https
+        cpanm Term::ReadKey
         cpanm -f Archive::Zip
-        cpanm PAR::Packer 
-        cpanm List::MoreUtils::PP 
+        cpanm PAR::Packer
+        cpanm List::MoreUtils::PP
 
     - name: Compile
       run: |
@@ -317,7 +322,7 @@ jobs:
       uses: actions/download-artifact@v1
       with:
         name: windowsbuild
-        
+
     - name: Download ubuntu
       uses: actions/download-artifact@v1
       with:
@@ -330,12 +335,12 @@ jobs:
 
     - name: Say
       run: |
-        echo "HELLO" 
-        ls -l 
+        echo "HELLO"
+        ls -l
         ls -lR
 
     - name: Get the version
-      id: get_version 
+      id: get_version
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAMERH7="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
@@ -369,40 +374,40 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: cento6build/${{ env.FILENAMERH6 }}
         asset_name: ${{ env.FILENAMERH6 }}
         asset_content_type: application/tgz
 
     - name: Upload Release Asset
-      id: upload-release-asset2 
+      id: upload-release-asset2
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: cento7build/${{ env.FILENAMERH7 }}
         asset_name: ${{ env.FILENAMERH7 }}
         asset_content_type: application/tgz
 
     - name: Upload Release Asset
-      id: upload-release-asset3 
+      id: upload-release-asset3
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: ubuntubuild/${{ env.FILENAMEUBUNTU }}
         asset_name: ${{ env.FILENAMEUBUNTU }}
         asset_content_type: application/tgz
 
     - name: Upload Release Asset
-      id: upload-release-asset4 
+      id: upload-release-asset4
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: windowsbuild/${{ env.FILENAMEWIN }}
         asset_name: ${{ env.FILENAMEWIN }}
         asset_content_type: application/zip
@@ -413,7 +418,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: osxbuild/${{ env.FILENAMEOSX }}
         asset_name: ${{ env.FILENAMEOSX }}
         asset_content_type: application/tgz
