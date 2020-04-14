@@ -2,16 +2,8 @@ name: Perl application
 
 on:
   push:
-    branch:
-<<<<<<< HEAD
-      - master
-    tags:
-      - v*.*.*
-=======
-      - "master"
     tags:
       - "v*.*.*"
->>>>>>> develop
 
 jobs:
   centos7:
