@@ -214,7 +214,7 @@ jobs:
     - name: install perl
       run: |
         brew install cpanminus
-        brew install openssl
+        # brew install openssl
         cpanm JSON
         cpanm Date::Manip
         # force requires after 1/1/2020 ?
