@@ -8,13 +8,15 @@ RUN yum install -y centos-release-scl \
     && yum install -y rh-perl526-perl-DateTime.x86_64 \
     && yum install -y openssl-devel.x86_64 \
     && yum install -y openssl \
-    && yum install -y gcc \
-    && source scl_source enable rh-perl526 \
+    && yum install -y gcc
+
+RUN source scl_source enable rh-perl526 \
     && cpanm JSON@4.02 \
     && cpanm JSON::XS@4.02 \
     && cpanm Date::Manip \
     && cpanm DateTime::Event::Cron::Quartz \
     && cpanm DateTime::Format::DateParse \
+    && cpanm Time::Seconds@1.3401 \
     && cpanm Crypt::CBC \
     && cpanm Crypt::Blowfish \
     && cpanm Text::CSV \
