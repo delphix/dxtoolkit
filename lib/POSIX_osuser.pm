@@ -24,9 +24,7 @@ our @EXPORT = qw(getOSuser);  # symbols to export on request
 
 sub getOSuser {
   my $user = getpwuid($<);
-  if ($user == '')
-  {$user= 'delphix'}
-	#return POSIX::cuserid();
+ 	#return POSIX::cuserid();
   return $user;
 }
 
