@@ -29,7 +29,7 @@ RUN mkdir -p /github/workflow
 COPY entrypoint.sh /entrypoint.sh
 WORKDIR /github/workspace
 
-#ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 
 
