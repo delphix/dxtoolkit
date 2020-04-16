@@ -68,10 +68,6 @@ if ( $convert eq 'tocsv' ) {
 	convert_tocsv($csvfile, $configfile);
 } 
 
-if ( $convert eq 'todxconf' ) {
-	convert_todxconf($csvfile, $configfile);
-} 
-
 if ( ($convert eq 'todxconf' ) &&  !(defined(($conf_param_file)) ) ) {
 	convert_todxconf($csvfile, $configfile);
 } 
