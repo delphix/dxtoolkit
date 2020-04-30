@@ -8,13 +8,19 @@ export DXLOC={{ dxout }}
 
 PP={{ pploc }}
 
+{% if ansible_os_family == "Solaris" %}
+export SSLLIBS="-l /opt/csw/lib/libcrypto.so.1.0.0 -l /opt/csw/lib/libssl.so"
+{% else %}
+export SSLLIBS="-l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so"
+{% endif %}
+
 rm -rf $DXLOC
 mkdir $DXLOC
 
 cd {{ dxloc }}/bin
 
 {% if openssl is defined %}
-$PP -u -l /usr/lib64/libcrypto.so.10 -l /usr/lib64/libssl.so  -I {{ dxloc }}/lib/ -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/runner `ls dx_*.pl | xargs`
+$PP -u $SSLLIBS -I {{ dxloc }}/lib/ -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/runner `ls dx_*.pl | xargs`
 {% else %}
 $PP -u -I {{ dxloc }}/lib/ -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o $DXLOC/runner `ls dx_*.pl | xargs`
 {% endif %}
