@@ -45,15 +45,15 @@ GetOptions(
 'debug' => \(my $debug), 
 'convert=s' => \(my $convert),
 'csvfile|f=s' => \(my $csvfile),
+'text|c=s' => \(my $conf_param_file),
 'configfile|c=s' => \(my $configfile),
 'version|v' => \(my $print_version)   
 ) or pod2usage(-verbose => 1, -output=>\*STDERR);
 
-
 pod2usage(-verbose => 2, -output=>\*STDERR) && exit if $help;
 die  "$version\n" if $print_version;  
 
-if (! ( defined ($convert) && defined($csvfile) && defined($configfile) ) ) {
+if (! ( defined ($convert) && (defined($csvfile) || defined($conf_param_file)) && defined($configfile) ) ) {
 	print "Parameter convert is required.\n";
 	pod2usage(-verbose => 1, -output=>\*STDERR);
 	exit;
@@ -68,9 +68,14 @@ if ( $convert eq 'tocsv' ) {
 	convert_tocsv($csvfile, $configfile);
 } 
 
-if ( $convert eq 'todxconf' ) {
+if ( ($convert eq 'todxconf' ) &&  !(defined(($conf_param_file)) ) ) {
 	convert_todxconf($csvfile, $configfile);
 } 
+
+if ( ($convert eq 'todxconf')  &&  (defined($conf_param_file)))  {
+	convert_text_todxconf($conf_param_file, $configfile);
+} 
+
 
 
 ############################################################################
@@ -111,6 +116,67 @@ sub convert_todxconf {
 			push (@engine_list, \%engine);
 		}
 	}
+
+
+	my $time = strftime('%Y-%m-%d-%H-%M-%S',localtime);
+
+	if ( -e $configfile ) {
+		my $backupfile = $configfile . "." . $time;
+		copy ( $configfile, $backupfile ) or die ("Can't generate backup file $backupfile");
+		print "Old config file backup file name is $backupfile \n";
+	}
+
+	my %engine_json = (
+       data => \@engine_list
+	);
+
+	open (my $fh, ">", $configfile) or die ("Can't open new config file $configfile for write");
+	print $fh to_json(\%engine_json, {pretty=>1});
+	close $fh;
+    print "New config file $configfile created.\n";
+}
+
+sub convert_text_todxconf {
+	my $conf_param_file = shift; 
+	my $configfile = shift;
+	
+
+
+    my @engine_list;
+
+  
+	
+
+    	#chomp $line;
+		chomp $conf_param_file;
+       
+		
+		if  ( ! ($conf_param_file =~ m/^\#/g ) ) {
+
+			my ( $hostname, $ip_address, $port, $username, $password, $default, $protocol ) = split(',',$conf_param_file);
+			
+
+
+			if ( ! ( defined($hostname) && defined($ip_address) && defined($port) && defined($username) && defined($password) && defined($default) )) {
+				print "There is a problem with line $conf_param_file \n";
+				print "Not all fields defined. Exiting\n";
+				exit;
+			}
+
+			my %engine = (
+			    hostname => $hostname,
+			    username => $username,
+			    ip_address => $ip_address,
+			    password => $password,
+			    port => $port,
+			    default => $default,
+          		protocol => $protocol
+			);
+
+
+			push (@engine_list, \%engine);
+		}
+	#}
 
 
 	my $time = strftime('%Y-%m-%d-%H-%M-%S',localtime);
