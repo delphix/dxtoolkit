@@ -164,9 +164,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
     my $capacity_hash = $capacity->getDetailedDBUsage($dbitem, $details);
-
-    print Dumper $capacity_hash;
-
     if ((defined($capacity_hash->{snapshots_shared})) && ($capacity_hash->{snapshots_shared} eq 0) && ($capacity_hash->{snapshots_total} eq 0)) {
       # storage info not found - maybe database is deleted
       # skipping it
