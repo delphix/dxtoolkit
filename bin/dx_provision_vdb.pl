@@ -105,6 +105,7 @@ GetOptions(
   'maskingjob=s' => \(my $maskingjob),
   'maskedbyscript' => \(my $maskedbyscript),
   'noopen' => \(my $noopen),
+  'newdbid' => \(my $newdbid),
   'vcdbname=s' => \(my $vcdbname),
   'vcdbgroup=s' => \(my $vcdbgroup),
   'vcdbdbname=s' => \(my $vcdbdbname),
@@ -532,6 +533,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       $db->setNoOpenResetLogs();
     }
 
+    if (defined($newdbid)) {
+      $db->setNewDBID();
+    }
+
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {
         print "Template $template not found. VDB won't be created\n" ;
@@ -673,6 +678,7 @@ __DATA__
                   [-cdbuser username]
                   [-cdbpass password]
                   [-noopen]
+                  [-newdbid]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
                   [-configureclone [hookname,]template|filename[,OS_shell] ]
@@ -839,6 +845,9 @@ ex. -vcdbrac_instance node1,vCBD1,1 -vcdbrac_instance node2,vCBD2,2
 
 =item B<-noopen>
 Don't open database after provision (for Oracle)
+
+=item B<-newdbid>
+Generate a new DBID for a VDB (for Oracle)
 
 =item B<-archivelog yes/no>
 Create VDB in archivelog (yes - default) or noarchielog (no) (for Oracle)

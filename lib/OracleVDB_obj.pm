@@ -1068,6 +1068,17 @@ sub setNoOpenResetLogs {
 }
 
 
+# Procedure setNewDBID
+# parameters:
+# Set new DBID flag to generate a new dbid
+
+sub setNewDBID {
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setNewDBID",1);
+    $self->{"NEWDB"}->{"newDBID"} = JSON::true;
+}
+
+
 # Procedure setNoOpen
 # parameters:
 # Set no open database after v2p
