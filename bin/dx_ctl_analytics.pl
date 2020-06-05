@@ -237,22 +237,16 @@ A config file search order is as follow:
 - dxtools.conf from dxtoolkit location
 
 
-
-=over 4
-
 =item B<-type|t> Type: cpu|disk|nfs|iscsi|network|nfs-by-client|nfs-all|all|standard|comma separated names
 
 ex.
 
-=over 4
 
 =item B<-type all> - for all analytics
 
 =item B<-type standard> - for cpu,disk,network and nfs analytics
 
 =item B<-t cpu,disk> - for cpu and disk
-
-=back
 
 =item B<-action start|stop|restart|display|create|delete>
 
