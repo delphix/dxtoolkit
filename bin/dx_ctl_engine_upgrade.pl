@@ -98,7 +98,7 @@ if (lc $action eq 'upload')  {
   } else {
 
     my $namechek = basename($filename);
-    if ( ! (($file_version) = $namechek =~ /^delphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d.upgrade.tar.gz$/ )) {
+    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_]*[uU]pgrade\.tar[\.gz]*$/ )) {
       print "Filename is not matching delphix upgrade pattern \n";
       exit (1);
     }
@@ -110,6 +110,7 @@ if (lc $action eq 'upload')  {
 
   }
 }
+
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
