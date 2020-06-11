@@ -57,6 +57,7 @@ GetOptions(
   'stageinst=s' => \(my $stageinst),
   'stageenv=s' => \(my $stageenv),
   'dbuser=s'  => \(my $dbuser),
+  'dbusertype=s'  => \(my $dbusertype),
   'password=s'  => \(my $password),
   'cdbcont=s' => \(my $cdbcont),
   'cdbuser=s' => \(my $cdbuser),
@@ -232,7 +233,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       if ( $type eq 'oracle' ) {
         $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
       } else {
-        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression);
+        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression, $dbusertype);
       }
     } elsif ($action eq 'detach')  {
       $jobno = $source->detach_dsource();
@@ -260,7 +261,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
