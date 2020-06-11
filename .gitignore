@@ -1,0 +1,4 @@
+.DS*
+tools/*
+bin/dxtools.conf
+test/debug*
