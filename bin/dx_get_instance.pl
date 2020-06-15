@@ -123,6 +123,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
+    print Dumper $dbobj->getDBType();
+    print Dumper $dbobj->getName();
+
+
     my $dbname = $dbobj->getName();
     my $dbtype = $dbobj->getType();
 
@@ -134,6 +138,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       #print Dumper $contsourceconfig;
       my $contsource = $databases->{_source}->getSourceByConfig($dbobj->getCDBContainerRef());
       $dbobj = $databases->getDB($contsource->{container});
+    }
+
+    print Dumper $dbobj->getInstances();
+
+    if ($dbobj->getInstances() eq 'UNKNOWN') {
+      # Oracle is detached, so no information about instances, skip to next
+      next;
     }
 
     for my $inst ( @{$dbobj->getInstances()} ) {

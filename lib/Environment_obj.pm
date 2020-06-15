@@ -1596,4 +1596,21 @@ sub updatehost {
 
 }
 
+
+# Procedure getClusterHosts
+# parameters:
+# - reference
+# Return all host references for cluster
+
+sub getClusterHosts {
+    my $self = shift;
+    my $reference = shift;
+
+    my @clusternodes = @{$self->getClusterNodes($reference)};
+    my @nodestocheck = map { $self->{_environments}->{$_}->{host} } @clusternodes;
+
+    return @nodestocheck;
+
+}
+
 1;
