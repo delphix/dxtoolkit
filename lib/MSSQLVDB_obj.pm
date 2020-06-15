@@ -1377,4 +1377,16 @@ sub getDbUser
 }
 
 
+# Procedure getNodes
+# parameters: none
+# Return list of nodes from cluster
+
+sub getNodes
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getNodes",1);
+    return $self->{_environment}->getClusterHosts($self->{"environment"}->{reference});
+}
+
+
 1;
