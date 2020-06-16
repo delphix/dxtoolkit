@@ -430,7 +430,7 @@ Allowed values for MS SQL:
 TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL, NONE
 
 Allowed values for Sybase:
-NONE, ENABLED
+DISABLED, ENABLED
 
 =item B<-delphixmanaged yes/no>
 Use Delphix Manage backup mode for MS SQL

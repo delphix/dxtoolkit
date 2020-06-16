@@ -474,11 +474,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
     my $source_ref = $source->getReference();
     $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
-
     if (!defined($job)) {
       $ret = $ret + 1;
       next;
     }
+    $db->setMaskingJob($job);
   }
 
   # set autostart
@@ -934,6 +934,8 @@ Allowed combinations:
  - template_name
 
  - filename
+
+=over 1
 
 =item B<-configureclone [hookname,]template|filename[,OS_shell]>
 Configure Clone hook

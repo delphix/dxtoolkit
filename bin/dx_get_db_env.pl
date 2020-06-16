@@ -391,6 +391,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     } elsif (defined($backup)) {
 
+      if (($dbobj->getType() eq 'VDB') && $dbobj->getMasked() && ($dbobj->getMaskingJob() ne '')) {
+        # if VDB is masked and it's using a masking job
+        # dSource has to have a masking job assigned before VDB creation
+        $dbobj->backupmaskingassigment($engine, $output, $parentname, $parentgroup);
+      }
+
       #backup($engine, $dbobj, $output, $dsource_output, $groups, $parentname, $hostenv_line, $parentgroup, $templates);
       $dbobj->getBackup($engine, $output, $dsource_output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
 
