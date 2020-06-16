@@ -681,6 +681,47 @@ sub getBackup
     }
 }
 
+
+# Procedure backupmaskingassigment`
+# parameters:
+# -engine
+# -output
+# -backup - location for hooks
+# -groupname
+# -parentname
+# -parentgroup
+# -templates - handler to template object
+# Return a definition of backup metadata
+
+
+sub backupmaskingassigment
+{
+    my $self = shift;
+    my $engine = shift;
+    my $output = shift;
+    my $parentname = shift;
+    my $parentgroup = shift;
+    logger($self->{_debug}, "Entering VDB_obj::backupmaskingassigment",1);
+
+    my $suffix = '';
+    if ( $^O eq 'MSWin32' ) {
+      $suffix = '.exe';
+    }
+
+    my $jobname = $self->getMaskingJob();
+
+    if (defined($jobname) && ($jobname ne '')) {
+      my $restore_args = "dx_ctl_maskingjob$suffix -d $engine -action assign -dbname \"$parentname\" -group \"$parentgroup\" -name \"$jobname\" ";
+
+      $output->addLine(
+        $restore_args
+      );
+    }
+
+
+
+}
+
 # Procedure getVDBBackup`
 # parameters:
 # -engine
@@ -739,6 +780,21 @@ sub getVDBBackup
 
     $restore_args = $restore_args . " -envUser \"" . $self->getEnvironmentUserName() . "\" ";
     $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
+
+    my $masked = $self->getMasked();
+    my $maskingjob = $self->getMaskingJob();
+
+    if ($masked) {
+      my $masking;
+      if ($maskingjob eq '') {
+        # masked by script
+        $masking = "-maskedbyscript ";
+      } else {
+        # masked by job
+        $masking = "-maskingjob $maskingjob";
+      }
+      $restore_args = $restore_args . $masking;
+    }
 
     $restore_args = $restore_args . $self->getConfig($templates, 1, $groups);
 
@@ -2003,11 +2059,14 @@ sub getCommand {
     my $ret = shift;
     my $type = shift;
 
-
-    if ($type eq 'RunPowerShellOnSourceOperation') {
-      $ret =~ s/\r\n/<cr>/g;
+    if (defined($ret)) {
+      if ($type eq 'RunPowerShellOnSourceOperation') {
+        $ret =~ s/\r\n/<cr>/g;
+      } else {
+        $ret =~ s/\n/<cr>/g;
+      }
     } else {
-      $ret =~ s/\n/<cr>/g;
+      $ret = '';
     }
     return $ret;
 }
@@ -2023,6 +2082,10 @@ sub setHooksfromJSON {
     my $hook = shift;
     logger($self->{_debug}, "Entering VDB_obj::setHooksfromJSON",1);
 
+    # needs to remove a masking job hook from configure clone
+    # as it will cause a multiple jobs error
+    my @confClonearray = grep { $_->{type} ne 'RunMaskingJobOnSourceOperation' } @{$hook->{configureClone}};
+    $hook->{configureClone} = \@confClonearray;
     $self->{"NEWDB"}->{"source"}->{"operations"} = $hook;
 }
 
