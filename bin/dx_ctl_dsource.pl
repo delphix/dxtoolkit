@@ -189,6 +189,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if ((lc $action eq 'detach') || (lc $action eq 'update')) {
     my $databases = new Databases($engine_obj,$debug);
+
     my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
 
     if (!defined($source_ref)) {
@@ -203,15 +204,12 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       # only for sybase and mssql
       my $type = $source->getDBType();
-
-      if (($type eq 'sybase') || ($type eq 'mssql')) {
-        if ($action eq 'detach')  {
-          $jobno = $source->detach_dsource();
-        } elsif ($action eq 'update') {
-          $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
-        }
-        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+      if ($action eq 'detach')  {
+        $jobno = $source->detach_dsource();
+      } elsif (($type eq 'sybase') || ($type eq 'mssql')) {
+        $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
       }
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
     }
 
   } elsif ($action eq 'attach')  {
