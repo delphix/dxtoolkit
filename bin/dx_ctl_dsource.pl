@@ -43,6 +43,7 @@ my $version = $Toolkit_helpers::version;
 
 my $logsync = "no";
 my $compression = "no";
+my $dbusertype = 'database';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -57,7 +58,7 @@ GetOptions(
   'stageinst=s' => \(my $stageinst),
   'stageenv=s' => \(my $stageenv),
   'dbuser=s'  => \(my $dbuser),
-  'dbusertype=s'  => \(my $dbusertype),
+  'dbusertype=s'  => \($dbusertype),
   'password=s'  => \(my $password),
   'cdbcont=s' => \(my $cdbcont),
   'cdbuser=s' => \(my $cdbuser),
@@ -332,6 +333,7 @@ __DATA__
   [-mountbase mountpoint ]
   [-validatedsync mode ]
   [-delphixmanaged yes/no ]
+  [-dbusertype database|environment|domain]
   [-cdbcont container -cdbuser user -cdbpass password]
   [-debug ]
   [-version ]
@@ -444,6 +446,9 @@ Oracle only - CDB password for a PDB dSource
 
 =item B<-creategroup>
 Create a Delphix group if it doesn't exist
+
+=item B<-dbusertype database|environment|domain>
+Specify a database user type for MS SQL. Default value is database.
 
 =item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
 Add DB2 dSource with HADR support
