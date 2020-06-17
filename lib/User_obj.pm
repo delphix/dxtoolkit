@@ -290,8 +290,10 @@ sub setAuthentication {
 
     if ($type eq 'NATIVE') {
         $self->{_new}->{authenticationType} = 'NATIVE';
-        $self->{_new}->{credential}->{type} = 'PasswordCredential';
-        $self->{_new}->{credential}->{password} = $details;
+        if (defined($details) && ($details ne '')) {
+          $self->{_new}->{credential}->{type} = 'PasswordCredential';
+          $self->{_new}->{credential}->{password} = $details;
+        }
     }
     elsif ($type eq 'LDAP') {
         $self->{_new}->{authenticationType} = 'LDAP';
