@@ -321,6 +321,10 @@ sub setAuthorisation {
         $self->getAuthorizationList($self->{_debug});
         return 0;
     } else {
+        if (defined($result->{error})) {
+            print "Problem with setting privileges\n";
+            print $result->{error}->{details};
+        }
         return 1;
     }
 
