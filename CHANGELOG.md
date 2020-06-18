@@ -1,3 +1,19 @@
+## 2.4.7
+
+
+### Added
+- support for backup masked VDB [issue #140](https://github.com/delphix/dxtoolkit/issues/140)
+- Oracle VDB can be created with a new DBID flag
+- Allow dSource validate sync update (MS SQL / Sybase) by specifying a group [issue #135](https://github.com/delphix/dxtoolkit/issues/135)
+
+### Changed
+- [fix for #139](https://github.com/delphix/dxtoolkit/issues/139) - Fix to allows adding users without password when Engine configured with Central Management
+- [fix for #134](https://github.com/delphix/dxtoolkit/issues/134) [fix for #142](https://github.com/delphix/dxtoolkit/issues/142) - Fix on host filtering
+- [fix for #138](https://github.com/delphix/dxtoolkit/issues/138)  - Allow run inside container without username
+- [fix for #146](https://github.com/delphix/dxtoolkit/issues/146)  - Upload upgrade files from 6.0.X
+
+
+
 ## 2.4.6
 
 

@@ -391,6 +391,7 @@ sub addSource {
     my $validatedSyncMode = shift;
     my $delphixmanaged = shift;
     my $compression = shift;
+    my $dbusertype = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::addSource",1);
 
@@ -401,7 +402,7 @@ sub addSource {
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
         print "Username or password is invalid.\n";
         return undef;
     }
@@ -624,11 +625,6 @@ sub addSource {
                 "type" => "SourcingPolicy",
                 "logsyncEnabled" => $logsync_param
             },
-            "dbCredentials" => {
-                "type" => "PasswordCredential",
-                "password" => $password
-            },
-            "dbUser" => $dbuser,
             "environmentUser" => $source_os_ref,
             "sharedBackupLocations" => \@backup_loc,
             "sourceHostUser" => $source_os_ref,
@@ -665,6 +661,49 @@ sub addSource {
         }
 
     }
+
+
+    # moving database support here
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+       $dsource_params{"dbCredentials"} = {
+              "type" => "PasswordCredential",
+              "password" => $password};
+       $dsource_params{"dbUser"} = $dbuser;
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
+         $dsource_params{"linkData"}{"dbCredentials"} = {
+                           "type" => "PasswordCredential",
+                           "password" => $password
+                         };
+         $dsource_params{"linkData"}{"dbUser"} = $dbuser;
+     } else {
+         # 6.0.2 onwards
+
+         if (!defined($dbusertype)) {
+           print "MS SQL database user type is now required\n";
+           return undef;
+         }
+
+         $dsource_params{"linkData"}{"mssqlUser"}{"user"} = $dbuser;
+         if (lc $dbusertype eq 'database') {
+           $dsource_params{"linkData"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+           $dsource_params{"linkData"}{"mssqlUser"}{"password"} = {
+                             "type" => "PasswordCredential",
+                             "password" => $password
+                           };
+         } elsif (lc $dbusertype eq "environment") {
+           $dsource_params{"linkData"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+         } elsif (lc $dbusertype eq "domain") {
+           $dsource_params{"linkData"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+           $dsource_params{"linkData"}{"mssqlUser"}{"password"} = {
+                             "type" => "PasswordCredential",
+                             "password" => $password
+                           };
+         } else {
+           print "Unknown MS SQL database user type\n";
+           return undef;
+         }
+     }
 
 
     my $operation = 'resources/json/delphix/database/link';
@@ -1028,6 +1067,7 @@ sub attach_dsource
     my $vsm = shift;
     my $delphixmanaged = shift;
     my $compression = shift;
+    my $dbusertype = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::attachSource",1);
 
@@ -1038,7 +1078,7 @@ sub attach_dsource
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
         print "Username or password is invalid.\n";
         return undef;
     }
@@ -1197,6 +1237,49 @@ sub attach_dsource
 
     }
 
+
+   # moving database support here
+
+   if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+      $attach_data{"dbCredentials"} = {
+             "type" => "PasswordCredential",
+             "password" => $password};
+      $attach_data{"dbUser"} = $dbuser;
+   } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
+        $attach_data{"attachData"}{"dbCredentials"} = {
+                          "type" => "PasswordCredential",
+                          "password" => $password
+                        };
+        $attach_data{"attachData"}{"dbUser"} = $dbuser;
+    } else {
+        # 6.0.2 onwards
+
+        if (!defined($dbusertype)) {
+          print "MS SQL database user type is now required\n";
+          return undef;
+        }
+
+        $attach_data{"attachData"}{"mssqlUser"}{"user"} = $dbuser;
+        if (lc $dbusertype eq 'database') {
+          $attach_data{"attachData"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+          $attach_data{"attachData"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } elsif (lc $dbusertype eq "environment") {
+          $attach_data{"attachData"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+        } elsif (lc $dbusertype eq "domain") {
+          $attach_data{"attachData"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+          $attach_data{"attachData"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } else {
+          print "Unknown MS SQL database user type\n";
+          return undef;
+        }
+    }
+
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/attachSource";
     my $json_data = encode_json(\%attach_data);
 
@@ -1248,6 +1331,61 @@ sub setEncryption {
 
     return $ret;
 
+}
+
+# Procedure getDbUser
+# parameters: none
+# Return database user
+
+sub getDbUser
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getDbUser",1);
+    my $ret;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
+      # DB only ms sql user
+      if ($self->{sourceConfig} ne 'NA') {
+        if (defined($self->{sourceConfig}->{user})) {
+          $ret = $self->{sourceConfig}->{user};
+        } else {
+          $ret = 'N/A';
+        }
+      } else {
+        $ret = 'N/A';
+      }
+    } else {
+      # from 6.0.2
+      if ($self->{sourceConfig} ne 'NA') {
+        if ((defined($self->{sourceConfig}->{mssqlUser})) && (defined($self->{sourceConfig}->{mssqlUser}->{user}))) {
+          $ret = $self->{sourceConfig}->{mssqlUser}->{user};
+          if ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlDatabaseUser') {
+            $ret = $ret . " -dbusertype database ";
+          } elsif ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlEnvironmentUser') {
+            $ret = $ret . " -dbusertype environment ";
+          } elsif ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlDomainUser') {
+            $ret = $ret . " -dbusertype domain ";
+          }
+        } else {
+          $ret = 'N/A';
+        }
+      } else {
+        $ret = 'N/A';
+      }
+    }
+    return $ret;
+}
+
+
+# Procedure getNodes
+# parameters: none
+# Return list of nodes from cluster
+
+sub getNodes
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getNodes",1);
+    return $self->{_environment}->getClusterHosts($self->{"environment"}->{reference});
 }
 
 

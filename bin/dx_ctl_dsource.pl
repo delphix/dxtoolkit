@@ -43,6 +43,7 @@ my $version = $Toolkit_helpers::version;
 
 my $logsync = "no";
 my $compression = "no";
+my $dbusertype = 'database';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -57,6 +58,7 @@ GetOptions(
   'stageinst=s' => \(my $stageinst),
   'stageenv=s' => \(my $stageenv),
   'dbuser=s'  => \(my $dbuser),
+  'dbusertype=s'  => \($dbusertype),
   'password=s'  => \(my $password),
   'cdbcont=s' => \(my $cdbcont),
   'cdbuser=s' => \(my $cdbuser),
@@ -160,8 +162,8 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
     exit (1);
   }
 
-  if ( ! ( defined($dsourcename)  ) ) {
-    print "Options  -dsourcename is required to detach or update. \n";
+  if (( ! ( defined($group) ) ) && ( ! ( defined($dsourcename)  ) ) ) {
+    print "Options  -dsourcename or -group are required to detach or update. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
@@ -186,26 +188,32 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $groups = new Group_obj($engine_obj, $debug);
 
-  if (lc $action eq 'create') {
-    if (! defined($groups->getGroupByName($group))) {
-      if (defined($creategroup)) {
-        print "Creating not existing group - $group \n";
-        my $jobno = $groups->createGroup($group);
-        my $actionret = Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with group creation");
-        if ($actionret > 0) {
-          $ret = $ret + 1;
-          print "There was a problem with group creation. Skipping source actions on engine\n";
-          next;
-        }
-      } else {
-        print "Group $group for target database doesn't exist.\n Skipping source actions on engine.\n";
-        $ret = $ret + 1;
-        next;
-      }
-    }
-  }
+  if ((lc $action eq 'detach') || (lc $action eq 'update')) {
+    my $databases = new Databases($engine_obj,$debug);
 
-  if (($action eq 'attach') || ($action eq 'detach') || ($action eq 'update'))  {
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+
+    if (!defined($source_ref)) {
+      print "Source database not found.\n";
+      $ret = $ret + 1;
+      next;
+    }
+
+    for my $dbref (@{$source_ref}) {
+
+      my $source = ($databases->getDB($dbref));
+
+      # only for sybase and mssql
+      my $type = $source->getDBType();
+      if ($action eq 'detach')  {
+        $jobno = $source->detach_dsource();
+      } elsif (($type eq 'sybase') || ($type eq 'mssql')) {
+        $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
+      }
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+    }
+
+  } elsif ($action eq 'attach')  {
     my $databases = new Databases($engine_obj,$debug);
 
     my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
@@ -225,22 +233,39 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
+    # there will be only one database object in the list so we need to assign it to obj variable
     my $source = ($databases->getDB($source_ref->[0]));
 
-
-    if ($action eq 'attach') {
-      if ( $type eq 'oracle' ) {
-        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
-      } else {
-        $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression);
-      }
-    } elsif ($action eq 'detach')  {
-      $jobno = $source->detach_dsource();
-    } elsif ($action eq 'update') {
-      $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
+    if ( $type eq 'oracle' ) {
+      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
+    } else {
+      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression, $dbusertype);
     }
 
+
+    # you can attach only one dSource at the time so one job
+    $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+
   } elsif ($action eq 'create') {
+
+    # create a group for new dSource
+    if (! defined($groups->getGroupByName($group))) {
+      if (defined($creategroup)) {
+        print "Creating not existing group - $group \n";
+        my $jobno = $groups->createGroup($group);
+        my $actionret = Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with group creation");
+        if ($actionret > 0) {
+          $ret = $ret + 1;
+          print "There was a problem with group creation. Skipping source actions on engine\n";
+          next;
+        }
+      } else {
+        print "Group $group for target database doesn't exist.\n Skipping source actions on engine.\n";
+        $ret = $ret + 1;
+        next;
+      }
+    }
+
 
     if ( $type eq 'oracle' ) {
       my $db = new OracleVDB_obj($engine_obj,$debug);
@@ -260,7 +285,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
@@ -271,9 +296,12 @@ for my $engine ( sort (@{$engine_list}) ) {
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr);
     }
 
+    # we are adding only one dSource - so one job
+    $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+
   }
 
-  $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+
 
 }
 
@@ -305,6 +333,7 @@ __DATA__
   [-mountbase mountpoint ]
   [-validatedsync mode ]
   [-delphixmanaged yes/no ]
+  [-dbusertype database|environment|domain]
   [-cdbcont container -cdbuser user -cdbpass password]
   [-debug ]
   [-version ]
@@ -401,7 +430,7 @@ Allowed values for MS SQL:
 TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL, NONE
 
 Allowed values for Sybase:
-NONE, ENABLED
+DISABLED, ENABLED
 
 =item B<-delphixmanaged yes/no>
 Use Delphix Manage backup mode for MS SQL
@@ -417,6 +446,9 @@ Oracle only - CDB password for a PDB dSource
 
 =item B<-creategroup>
 Create a Delphix group if it doesn't exist
+
+=item B<-dbusertype database|environment|domain>
+Specify a database user type for MS SQL. Default value is database.
 
 =item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
 Add DB2 dSource with HADR support

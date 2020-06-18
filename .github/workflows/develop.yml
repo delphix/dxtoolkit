@@ -230,7 +230,8 @@ jobs:
         cpanm Text::CSV
         cpanm LWP::UserAgent
         cpanm Net::SSLeay
-        cpanm IO::Socket::SSL
+        cpanm Mozilla::CA@20180117
+        cpanm IO::Socket::SSL@2.068
         cpanm LWP::Protocol::https
         cpanm Term::ReadKey
         cpanm -f Archive::Zip

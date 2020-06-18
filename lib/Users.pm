@@ -335,7 +335,10 @@ sub addUser
     if ($newuser->createUser($username, $usertype)) {
       $ret = $ret + 1;
     } else {
-      $newuser->setAdmin(uc ($is_admin));
+      if ($newuser->setAdmin(uc ($is_admin))) {
+        print "Problem with setting admin role for user $username\n";
+        $ret = $ret + 1;
+      };
       $newuser->setJS(uc ($is_JS));
       if ($usertype eq 'SYSTEM') {
         print "User $username with sysadmin role created\n";

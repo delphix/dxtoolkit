@@ -428,30 +428,39 @@ sub getDBForHost
     for my $dbname ( $self->getDBList() ) {
         my $dbobj = $self->getDB($dbname);
 
-        if (defined($dbobj->getCDBContainerRef())) {
+        if (($dbobj->getDBType() eq 'oracle') && (defined($dbobj->getCDBContainerRef()))) {
           # database has a CDB container so it's a PDB and there is no instance info
           # dbobj will be switch to container to show data
 
-          #my $contsourceconfig = $databases->{_sourceconfigs}->getSourceConfig($dbobj->getCDBContainerRef());
-          #print Dumper $contsourceconfig;
           my $contsource = $self->{_source}->getSourceByConfig($dbobj->getCDBContainerRef());
           $dbobj = $self->getDB($contsource->{container});
         }
 
         if ( $dbobj->getHost() eq 'CLUSTER') {
-            my $instances = $dbobj->getInstances();
-            if (defined($instances)) {
-                if (defined($instance_number)) {
-                    if ($dbobj->getInstanceHost($instance_number) eq $host) {
-                        push (@dbs, $dbname)
-                    }
-                } else {
-                    for my $inst ( @{$dbobj->getInstances()} ) {
-                        if ($dbobj->getInstanceHost($inst->{instanceNumber}) eq $host) {
-                            push (@dbs, $dbname)
-                        }
-                    }
+
+            if ($dbobj->getDBType() eq 'oracle') {
+              my $instances = $dbobj->getInstances();
+              if (defined($instances)) {
+                  if (defined($instance_number)) {
+                      if ($dbobj->getInstanceHost($instance_number) eq $host) {
+                          push (@dbs, $dbname)
+                      }
+                  } else {
+                      for my $inst ( @{$dbobj->getInstances()} ) {
+                          if ($dbobj->getInstanceHost($inst->{instanceNumber}) eq $host) {
+                              push (@dbs, $dbname)
+                          }
+                      }
+                  }
+              }
+            } elsif ($dbobj->getDBType() eq 'mssql') {
+              my @nodearray = $dbobj->getNodes();
+              for my $node (@nodearray) {
+                if ($self->{_hosts}->getHostAddr($node) eq $host) {
+                  push(@dbs, $dbname);
                 }
+              }
+
             }
         } else {
             if ( $dbobj->getHost() eq $host ) {

@@ -105,6 +105,7 @@ GetOptions(
   'maskingjob=s' => \(my $maskingjob),
   'maskedbyscript' => \(my $maskedbyscript),
   'noopen' => \(my $noopen),
+  'newdbid' => \(my $newdbid),
   'vcdbname=s' => \(my $vcdbname),
   'vcdbgroup=s' => \(my $vcdbgroup),
   'vcdbdbname=s' => \(my $vcdbdbname),
@@ -473,11 +474,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $mjobs = new MaskingJob_obj($engine_obj, $debug);
     my $source_ref = $source->getReference();
     $job = $mjobs->verifyMaskingJobForContainer($source_ref, $maskingjob);
-
     if (!defined($job)) {
       $ret = $ret + 1;
       next;
     }
+    $db->setMaskingJob($job);
   }
 
   # set autostart
@@ -530,6 +531,10 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (defined($noopen)) {
       $db->setNoOpenResetLogs();
+    }
+
+    if (defined($newdbid)) {
+      $db->setNewDBID();
     }
 
     if ( defined($template) ) {
@@ -673,6 +678,7 @@ __DATA__
                   [-cdbuser username]
                   [-cdbpass password]
                   [-noopen]
+                  [-newdbid]
                   [-truncateLogOnCheckpoint]
                   [-archivelog yes/no]
                   [-configureclone [hookname,]template|filename[,OS_shell] ]
@@ -840,6 +846,9 @@ ex. -vcdbrac_instance node1,vCBD1,1 -vcdbrac_instance node2,vCBD2,2
 =item B<-noopen>
 Don't open database after provision (for Oracle)
 
+=item B<-newdbid>
+Generate a new DBID for a VDB (for Oracle)
+
 =item B<-archivelog yes/no>
 Create VDB in archivelog (yes - default) or noarchielog (no) (for Oracle)
 
@@ -925,6 +934,8 @@ Allowed combinations:
  - template_name
 
  - filename
+
+=over 1
 
 =item B<-configureclone [hookname,]template|filename[,OS_shell]>
 Configure Clone hook

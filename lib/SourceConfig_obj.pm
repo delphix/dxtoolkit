@@ -227,15 +227,58 @@ sub validateDBCredentials {
     my $reference = shift;
     my $username = shift;
     my $password = shift;
+    my $dbusertype = shift;
     my $ret;
 
     logger($self->{_debug}, "Entering SourceConfig_obj::validateDBCredentials",1);
 
-    my %sourceconfig_hash = (
-        "type" => "SourceConfigConnectivity",
-        "password" => $password,
-        "username" => $username
-    );
+    my %sourceconfig_hash;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
+      %sourceconfig_hash = (
+          "type" => "SourceConfigConnectivity",
+          "password" => $password,
+          "username" => $username
+      );
+    } else {
+      # 6.0.2 onwards, if we are on MS SQL do a job
+
+      if ($self->{_sourceconfigs}->{$reference}->{"type"} =~ /MSSql.*/) {
+        if (!defined($dbusertype)) {
+          print "MS SQL database user type is now required\n";
+          return 1;
+        }
+        %sourceconfig_hash = (
+            "type" => "MSSqlSourceConfigConnectivity",
+            "mssqlUser" => {}
+        );
+
+        $sourceconfig_hash{"mssqlUser"}{"user"} = $username;
+        if (lc $dbusertype eq 'database') {
+          $sourceconfig_hash{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+          $sourceconfig_hash{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } elsif (lc $dbusertype eq "environment") {
+          $sourceconfig_hash{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+        } elsif (lc $dbusertype eq "domain") {
+          $sourceconfig_hash{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+          $sourceconfig_hash{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+
+        }
+      } else {
+        %sourceconfig_hash = (
+            "type" => "SourceConfigConnectivity",
+            "password" => $password,
+            "username" => $username
+        );
+      }
+
+    }
 
     my $json_data = encode_json(\%sourceconfig_hash);
 
