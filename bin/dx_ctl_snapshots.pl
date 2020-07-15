@@ -86,12 +86,17 @@ if ( ( lc $action eq 'update') && (!defined($retention)) ) {
   exit (1);
 }
 
+my $w = ($retention =~ /^[[:digit:]]+$/);
+print Dumper !$w;
+
+
+
 if (defined($retention)) {
   if (lc $retention eq 'forever') {
     $retention = -1;
   } elsif (lc $retention eq 'policy') {
     $retention = 0;
-  } elsif (! isdigit($retention) ) {
+  } elsif (! ($retention =~ /^[[:digit:]]+$/x )) {
     print "Retention parameter has to be a integer or word 'forever' \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit(1);
