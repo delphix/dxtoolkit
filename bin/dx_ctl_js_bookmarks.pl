@@ -57,6 +57,7 @@ GetOptions(
   'template_name=s' => \(my $template_name),
   'container_name=s' => \(my $container_name),
   'bookmark_name=s' => \(my $bookmark_name),
+  'usefullname' => \(my $usefullname),
   'branch_name=s' => \(my $branch_name),
   'bookmark_branchname=s' => \(my $full_branchname),
   'bookmark_time=s' => \(my $bookmark_time),
@@ -95,8 +96,8 @@ if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'remo
 
 if (lc $action eq 'create') {
 
-  if (!defined($template_name) || (!defined($bookmark_name))) {
-    print "Options template_name and bookmark_name are required \n";
+  if (!defined($template_name) || (!(defined($bookmark_name)))) {
+    print "Options template_name and bookmark_name or bookmark_prefix are required \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
@@ -122,6 +123,12 @@ if (lc $action eq 'create') {
 
   if (defined($snapshots) && ( ! ( ( lc $snapshots eq 'all' ) || ( lc $snapshots eq 'both' ) || ( lc $snapshots eq 'first' ) || ( lc $snapshots eq 'last' ) ) ) ) {
     print "Option snapshot allow the following values all, both, first, last \n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
+
+  if ((( lc $snapshots eq 'all' ) || ( lc $snapshots eq 'both' )) && (defined($usefullname))) {
+    print "Snapshot option all or both can't run with usefullname flag \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
@@ -385,7 +392,7 @@ sub generate_snapshot_mapping {
   if ((lc $snapshots eq 'first') || (lc $snapshots eq 'both')) {
     # find a first snapshot which can be used for bookmark ( has been taken after template was created )
     for my $snapitem ( @{ $snapshot->getSnapshots() }) {
-      my $time = $snapshot->getSnapshotCreationTime($snapitem);
+      my $time = $snapshot->getStartPoint($snapitem);
       my $goodtime;
       if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
         $goodtime = $datasources->checkTime($datalayout_ref, $time);
@@ -396,7 +403,12 @@ sub generate_snapshot_mapping {
         my $timename = $time;
         $timename =~ s/T/ /;
         $timename =~ s/\....Z//;
-        $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
+        if (defined($usefullname)) {
+          $timename = $bookmark_name;
+        } else {
+          $timename = $bookmark_name . "-" . $timename
+        }
+        $bookmark_times_hash{$timename} = $time;
         last;
       }
     }
@@ -405,7 +417,7 @@ sub generate_snapshot_mapping {
   if ((lc $snapshots eq 'last') || (lc $snapshots eq 'both')) {
     my $last_time = (@{ $snapshot->getSnapshots() })[-1];
 
-    my $time = $snapshot->getSnapshotCreationTime($last_time);
+    my $time = $snapshot->getStartPoint($last_time);
     my $goodtime;
     if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
       $goodtime = $datasources->checkTime($datalayout_ref, $time);
@@ -417,13 +429,18 @@ sub generate_snapshot_mapping {
       my $timename = $time;
       $timename =~ s/T/ /;
       $timename =~ s/\....Z//;
-      $bookmark_times_hash{$bookmark_name . '-' . $timename} = $time;
+      if (defined($usefullname)) {
+        $timename = $bookmark_name;
+      } else {
+        $timename = $bookmark_name . "-" . $timename
+      }
+      $bookmark_times_hash{$timename} = $time;
     }
   }
 
   if (lc $snapshots eq 'all') {
     for my $snapitem ( @{ $snapshot->getSnapshots() }) {
-      my $time = $snapshot->getSnapshotCreationTime($snapitem);
+      my $time = $snapshot->getStartPoint($snapitem);
       my $goodtime;
       if (version->parse($engine_obj->getApi()) < version->parse(1.8.0)) {
         $goodtime = $datasources->checkTime($datalayout_ref, $time);
@@ -458,6 +475,7 @@ __DATA__
                         [-source source_name]
                         [-container_name container_name]
                         [-expireat timestamp ]
+                        [-usefullname]
                         [ --help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -507,7 +525,18 @@ Set templare for bookmark using template name
 Set container for bookmark using container name
 
 =item B<-bookmark_name bookmark_name>
-Set bookmark name
+Set bookmark name if bookmark is created using bookmark_time.
+When bookmarks are created using snapshot option,
+names will be generated using bookmark name as a prefix
+and snapshot time.
+
+This behaviour can be modified using usefullname flag
+
+=item B<-usefullname>
+If bookmarks are created using a snapshot last or snapshot first
+option, this flag will force a bookmark name to be set without
+adding a time of the snapshot
+
 
 =item B<-bookmark_time time>
 Set bookmark time. Allowed values:
@@ -536,13 +565,24 @@ Use snapshot from source to create bookmarks. Allowed values:
 
 =over 3
 
-=item B<-all> - create bookmarks for all snapshot of source created after template was created
+=item B<-all> - create bookmarks for all snapshot of source created after template was created.
+Bookmark names will be generated using this pattern: bookname_name-YYYY-MM-DDTHH:MI:SS.SSSZ
 
 =item B<-first> - create bookmark for a first snapshot of source after template was created
+Bookmark name will be generated using this pattern: bookname_name-YYYY-MM-DDTHH:MI:SS.SSSZ
+If the -usefullname parameter is used, bookmark name will be created without adding a snapshot time
 
 =item B<-last>  - create bookmark for a last snapshot of source after template was created
+Bookmark name will be generated using this pattern: bookname_name-YYYY-MM-DDTHH:MI:SS.SSSZ
+If the -usefullname parameter is used, bookmark name will be created without adding a snapshot time
+
+=item B<-both>  - create bookmark for a first and last snapshot of source after template was created
+Bookmark names will be generated using this pattern: bookname_name-YYYY-MM-DDTHH:MI:SS.SSSZ
 
 =back
+
+Bookmark will be created with a name following this pattern:
+
 
 =item B<-expireat timestamp>
 Set a bookmark expiration time using format "YYYY-MM-DD"
