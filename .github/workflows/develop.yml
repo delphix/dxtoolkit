@@ -235,6 +235,7 @@ jobs:
         cpanm LWP::Protocol::https
         cpanm Term::ReadKey
         cpanm -f Archive::Zip
+        cpanm utf8
         cpanm PAR::Packer
         cpanm List::MoreUtils::PP
 
