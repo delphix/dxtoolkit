@@ -46,49 +46,6 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
-    # - name: Set up a Perl container
-    #   run: |
-    #     sudo apt-get update || exit 0
-    #     sudo apt-get install -y libpar-packer-perl
-    #     sudo apt-get install -y libjson-pp-perl
-    #     sudo apt-get install -y libdate-manip-perl
-    #     sudo apt-get install -y libdatetime-format-dateparse-perl
-    #     sudo apt-get install -y libcrypt-cbc-perl
-    #     sudo apt-get install -y libcrypt-blowfish-perl
-    #     sudo apt-get install -y libtext-csv-perl
-    #     sudo apt-get install -y libtry-tiny-perl
-    #     sudo apt-get install -y libparse-http-useragent-perl
-    #     sudo apt-get install -y libnet-ssleay-perl
-    #     sudo apt-get install -y libio-socket-ssl-perl
-    #     sudo apt-get install -y libfilter-perl
-    #     sudo apt-get install -y libterm-readkey-perl
-    #     sudo apt-get install -y cpanminus
-    #     sudo apt-get install -y make
-    #     sudo apt-get install -y gcc
-    #     sudo apt-get install -y libssl-dev
-    #     sudo apt-get install -y libwww-perl
-    #     sudo cpanm DateTime::Event::Cron::Quartz
-    #     sudo cpanm Log::Syslog::Fast@0.65
-    #     sudo cpanm Filter::Crypto::Decrypt
-
-    # - name: Compile
-    #   run: |
-    #       mkdir /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
-
-    #       cd /home/runner/work/dxtoolkit/dxtoolkit/lib
-    #       mv dbutils.pm dbutils.orig.pm
-    #       cat dbutils.orig.pm | sed -e "s/put your encryption key here/${INPUT_ENCKEY}/" > dbutils.pm
-
-    #       cd /home/runner/work/dxtoolkit/dxtoolkit/bin
-    #       pp -u -l /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 -l /usr/lib/x86_64-linux-gnu/libssl.so.1.1 -I /home/runner/work/dxtoolkit/dxtoolkit/lib -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
-    #       -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2/runner `ls dx_*.pl | xargs`
-
-    #       cd /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
-    #       for i in /home/runner/work/dxtoolkit/dxtoolkit/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
-    #       ls -l /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit2
-    #       cd /home/runner/work/dxtoolkit/dxtoolkit/
-    #       tar czvf /home/runner/work/dxtoolkit/dxtoolkit/dxtoolkit.tar.gz dxtoolkit2/
-
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
       uses: docker://pioro/dxperlubuntu18:5.26
@@ -172,12 +129,6 @@ jobs:
         cd D:\a\dxtoolkit\dxtoolkit\
       shell: powershell
 
-    # - name: Upload enc
-    #   uses: actions/upload-artifact@v1
-    #   with:
-    #     name: windowsbuild-enc
-    #     path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
-
     - name: download perl
       run: |
         mkdir d:\a\perldownload
@@ -230,6 +181,9 @@ jobs:
 
     - name: install perl
       run: |
+        # have a static version of perl 5.30.2_1
+        brew uninstall --ignore-dependencies perl
+        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
         brew install cpanminus
         # brew install openssl
         cpanm Crypt::CBC

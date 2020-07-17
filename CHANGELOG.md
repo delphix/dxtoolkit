@@ -1,3 +1,13 @@
+## 2.4.8
+
+
+### Changed
+- [fix for #149](https://github.com/delphix/dxtoolkit/issues/149)  - dx_ctl_js_bookmarks appends date to bookmark name specified
+- [fix for #152](https://github.com/delphix/dxtoolkit/issues/152)  - dx_ctl_js_bookmarks: time point for -snapshots uses creationTime but that is before the first datapoint
+- [fix for #153](https://github.com/delphix/dxtoolkit/issues/153)  - "13-07-2020 isdigit is removed from perl"
+- [fix for #154](https://github.com/delphix/dxtoolkit/issues/154)  - "2020-07-16 -all switch is not working with different users"
+
+
 ## 2.4.7
 
 
