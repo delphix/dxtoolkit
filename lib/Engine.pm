@@ -766,19 +766,15 @@ sub getCurrentUser {
 
     logger($self->{_debug}, "Entering Engine::getCurrentUser",1);
 
-    if ($self->{_currentuser} eq '') {
+    my $operation = "resources/json/delphix/user/current";
+    my ($result, $result_fmt) = $self->getJSONResult($operation);
 
-      my $operation = "resources/json/delphix/user/current";
-      my ($result, $result_fmt) = $self->getJSONResult($operation);
-
-      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-          $ret = $result->{result};
-          $self->{_currentuser} = $ret->{name};
-          $self->{_currentusertype} = $ret->{userType};
-      } else {
-          print "No data returned for $operation. Try to increase timeout \n";
-      }
-
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $ret = $result->{result};
+        $self->{_currentuser} = $ret->{name};
+        $self->{_currentusertype} = $ret->{userType};
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
     }
 
     return $self->{_currentuser};
