@@ -23,14 +23,15 @@ RUN apt-get update \
     && cpanm Log::Syslog::Fast@0.65 \
     && cpanm Filter::Crypto::Decrypt 
 
-
+ARG INPUT_ENCKEY
+ENV INSIDE_INPUT_ENCKEY=$INPUT_ENCKEY
 RUN apt-get install -y git
 RUN mkdir -p /github
 RUN mkdir -p /dxtoolkit
 RUN cd /github; git clone https://github.com/delphix/dxtoolkit.git
 RUN cd /github/dxtoolkit/lib \
-    mv dbutils.pm dbutils.orig.pm \
-    cat dbutils.orig.pm | sed -e "s/put your encryption key here/${INPUT_ENCKEY}/" > dbutils.pm
+    && mv dbutils.pm dbutils.orig.pm \
+    && cat dbutils.orig.pm | sed -e "s/put your encryption key here/$INSIDE_INPUT_ENCKEY/" > dbutils.pm
 
 RUN cd /github/dxtoolkit/bin \
     && pp -u -I /github/dxtoolkit/lib -l /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 -l /usr/lib/x86_64-linux-gnu/libssl.so.1.1 -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
