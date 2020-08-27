@@ -1396,7 +1396,8 @@ sub attach_dsource
           "dbUser" => $dbuser,
           "environmentUser" => $source_os_ref
       );
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.2)) {
+      # including to 6.0.2
       %attach_data = (
           "type" => "AttachSourceParameters",
           "attachData" => {
@@ -1407,6 +1408,18 @@ sub attach_dsource
                   "password" => $password
                 },
                 "dbUser" => $dbuser,
+                "environmentUser" => $source_os_ref
+          }
+      );
+    } else {
+      # 6.0.3
+      %attach_data = (
+          "type" => "AttachSourceParameters",
+          "attachData" => {
+                "type" => "OracleAttachData",
+                "config" => $config->{reference},
+                "oracleFallbackCredentials" => $password,
+                "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
       );
@@ -1706,6 +1719,34 @@ sub addSource {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkData";
       }
 
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.2)) {
+      # including Delphix 6.0.2
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "OracleLinkFromExternal",
+            "config" => $config->{reference},
+            "sourcingPolicy" => {
+                "type" => "OracleSourcingPolicy",
+                "logsyncEnabled" => $logsync_param
+            },
+            "dbCredentials" => {
+                "type" => "PasswordCredential",
+                "password" => $password
+            },
+            "dbUser" => $dbuser,
+            "environmentUser" => $source_os_ref,
+            "linkNow" => JSON::true,
+            "compressedLinkingEnabled" => JSON::true
+        }
+      );
+
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+      }
+
     } else {
         # Delphix 6.0
         %dsource_params = (
@@ -1719,11 +1760,8 @@ sub addSource {
                   "type" => "OracleSourcingPolicy",
                   "logsyncEnabled" => $logsync_param
               },
-              "dbCredentials" => {
-                  "type" => "PasswordCredential",
-                  "password" => $password
-              },
-              "dbUser" => $dbuser,
+              "oracleFallbackCredentials" => $password,
+              "oracleFallbackUser" => $dbuser,
               "environmentUser" => $source_os_ref,
               "linkNow" => JSON::true,
               "compressedLinkingEnabled" => JSON::true
