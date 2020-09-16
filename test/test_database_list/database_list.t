@@ -25,9 +25,9 @@ script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv',  "lis
 my $expected_stdout = <<EOF;
 #Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time
 local,10.43.6.187,cdbkate,Analytics,CDB,,N/A,0.86,UNKNOWN,disabled,cdbkate,N/A,2019-12-30 03:26:13
-local,10.43.6.187,oratest,Analytics,VDB,marina,2019-12-30 03:20:58 PST,0.01,RUNNING,enabled,oratest,N/A,2019-12-30 03:21:37
-local,10.43.6.187,pdbtest,Analytics,VDB,PDBX1,2019-12-30 03:21:29 PST,0.00,UNKNOWN,disabled,N/A,N/A,2019-12-30 03:25:45
-local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,N/A,2019-12-30 03:36:52
+local,10.43.6.187,oratest,Analytics,VDB,marina,2019-12-30 03:20:58 PST,0.01,RUNNING,enabled,oratest,2019-12-30 03:20:58 PST,2019-12-30 03:21:37
+local,10.43.6.187,pdbtest,Analytics,VDB,PDBX1,2019-12-30 03:21:29 PST,0.00,UNKNOWN,disabled,N/A,2019-12-30 03:21:29 PST,2019-12-30 03:25:45
+local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,2019-12-30 03:31:23 PST,2019-12-30 03:36:52
 local,10.43.6.187,vcdbtest,Analytics,vCDB,carmel,N/A,0.02,RUNNING,enabled,vcdbtest,N/A,2019-12-30 03:36:52
 local,10.43.1.211,carmel,Sources,CDB,,N/A,0.90,UNKNOWN,disabled,carmel,N/A,2019-12-30 03:13:21
 local,10.43.1.211,marina,Sources,dSource,,N/A,0.60,RUNNING,enabled,marina,N/A,2019-12-30 03:09:05
@@ -51,7 +51,7 @@ script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name
 
 my $expected_stdout = <<EOF;
 #Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time
-local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,N/A,2019-12-30 03:36:52
+local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,2019-12-30 03:31:23 PST,2019-12-30 03:36:52
 EOF
 
 script_stdout_is $expected_stdout, "list pdbtest2 database results compare";

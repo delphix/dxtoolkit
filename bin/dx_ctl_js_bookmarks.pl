@@ -127,7 +127,7 @@ if (lc $action eq 'create') {
     exit (1);
   }
 
-  if ((( lc $snapshots eq 'all' ) || ( lc $snapshots eq 'both' )) && (defined($usefullname))) {
+  if (defined($snapshots) && ((( lc $snapshots eq 'all' ) || ( lc $snapshots eq 'both' )) && (defined($usefullname)))) {
     print "Snapshot option all or both can't run with usefullname flag \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
