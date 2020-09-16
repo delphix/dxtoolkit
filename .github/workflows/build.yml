@@ -211,7 +211,7 @@ jobs:
 
     - name: Compile
       run: |
-          CELL=`brew --prefix perl`
+          CELL=`brew --prefix pioro/repo/perl@5.30`
           OPENLIB=`brew --prefix openssl`
           CDIR=`pwd`
           export PP=${CELL}/bin/pp
