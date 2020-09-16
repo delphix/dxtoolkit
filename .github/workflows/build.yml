@@ -183,7 +183,8 @@ jobs:
       run: |
         # have a static version of perl 5.30.2_1
         brew uninstall --ignore-dependencies perl
-        brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
+        #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
+        brew install pioro/repo/perl@5.30
         brew install cpanminus
         # brew install openssl
         cpanm Crypt::CBC
