@@ -416,7 +416,7 @@ for my $engine ( sort (@{$engine_list}) ) {
             } else {
               $parenttime = $snaptime;
             }
-          } else {
+          } elsif (!defined($parenttime)) {
             $parenttime = 'N/A';
           }
 

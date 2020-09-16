@@ -1542,6 +1542,38 @@ sub read_password {
     return $pass;
 }
 
+
+# Procedure getLicenseUsage
+# parameters:
+# Return a hash with license usage { total: size, databases: [ database:size, ] }
+
+sub getLicenseUsage {
+    my $self = shift;
+
+    logger($self->{_debug}, "Entering Engine::getLicenseUsage",1);
+
+    my %res;
+
+    my $operation = "resources/json/delphix/usage/aggregateIngestedSize";
+    my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $res{"total"} = $result->{"result"}->{"aggregateIngestedSize"};
+        my @dblist;
+        my $type;
+        for my $db (@{$result->{"result"}->{"sourceIngestionData"}}) {
+          $db->{"containerType"} =~ s/_DB_CONTAINER//;
+          push(@dblist, { "name"=> $db->{"sourceName"}, "type"=>$db->{"containerType"}, "size"=> $db->{"ingestedSize"} });
+        }
+        $res{"databases"} = \@dblist;
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+
+
+    return \%res;
+
+}
+
 # Procedure getOSversionList
 # parameters:
 # Return an array of hash with of OS version deployed
