@@ -1411,7 +1411,7 @@ sub attach_dsource
                 "environmentUser" => $source_os_ref
           }
       );
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) == version->parse(1.11.3)) {
       # 6.0.3
       %attach_data = (
           "type" => "AttachSourceParameters",
