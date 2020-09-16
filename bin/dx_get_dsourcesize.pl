@@ -47,6 +47,7 @@ GetOptions(
   'format=s' => \(my $format),
   'group=s' => \(my $group),
   'host=s' => \(my $host),
+  'license' => \(my $license),
   'envname=s' => \(my $envname),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -76,19 +77,31 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
-
-$output->addHeader(
-  {'Appliance', 10},
-  {'Env name',  20},
-  {'Group',     15},
-  {'Database',  30},
-  {'Size [GB]', 30},
-  {"Status",    30},
-  {"Enabled",   30}
-);
+if ($license) {
+  $output->addHeader(
+    {'Appliance', 10},
+    {'Type',      40},
+    {'Database',  40},
+    {'Size [GB]', 30}
+  );
+} else {
+  $output->addHeader(
+    {'Appliance', 10},
+    {'Env name',  20},
+    {'Group',     15},
+    {'Database',  30},
+    {'Size [GB]', 30},
+    {"Status",    30},
+    {"Enabled",   30}
+  );
+}
 
 
 my $ret = 0;
+
+print "# Delphix can automatically calculate the usage for Oracle, SQL Server and ASE databases for each Delphix Engine.\n";
+print "# For other databases, and before the source is connected to the Delphix Engine\n";
+print "# you will need to run a query on the source system for the relevant data.\n";
 
 for my $engine ( sort (@{$engine_list}) ) {
   # main loop for all work
@@ -98,35 +111,61 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
-  # load objects for current engine
-  my $databases = new Databases( $engine_obj, $debug);
-  my $groups = new Group_obj($engine_obj, $debug);
+  if ($license) {
+    # use licence API
+    if (version->parse($engine_obj->getApi()) >= version->parse(1.10.3)) {
+      my $lic = $engine_obj->getLicenseUsage();
+      if (defined($lic->{"databases"})) {
+        for my $db ( @{$lic->{"databases"}}) {
+          $output->addLine(
+            $engine,
+            $db->{"type"},
+            $db->{"name"},
+            sprintf("%10.2f", $db->{"size"}/1024/1024/1024)
+          )
+        }
+      }
+    } else {
+      print "There is no license API. Results returned by non license API as using method described in CLI method in the Delphix Pricing Guide.\n";
+      print "For details please contact your Delphix account manager\n";
+      exit(1);
+    }
 
-  # filter implementation
+  } else {
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter('dSource', $group, $host, $dbname, $databases, $groups, $envname, undef, undef, undef, undef, undef, $debug);
-  if (! defined($db_list)) {
-    print "There is no DB selected to process on $engine . Please check filter definitions. \n";
-    $ret = $ret + 1;
-    next;
+    # load objects for current engine
+    my $databases = new Databases( $engine_obj, $debug);
+    my $groups = new Group_obj($engine_obj, $debug);
+
+    # filter implementation
+
+    my $db_list = Toolkit_helpers::get_dblist_from_filter('dSource', $group, $host, $dbname, $databases, $groups, $envname, undef, undef, undef, undef, undef, $debug);
+    if (! defined($db_list)) {
+      print "There is no DB selected to process on $engine . Please check filter definitions. \n";
+      $ret = $ret + 1;
+      next;
+    }
+
+    # for filtered databases on current engine - display status
+    for my $dbitem ( @{$db_list} ) {
+      my $dbobj = $databases->getDB($dbitem);
+
+      $output->addLine(
+        $engine,
+        $dbobj->getEnvironmentName(),
+        $groups->getName($dbobj->getGroup()),
+        $dbobj->getName(),
+        $dbobj->getRuntimeSize(),
+        $dbobj->getRuntimeStatus(),
+        $dbobj->getEnabled()
+      );
+
+
+    }
+
   }
 
-  # for filtered databases on current engine - display status
-  for my $dbitem ( @{$db_list} ) {
-    my $dbobj = $databases->getDB($dbitem);
 
-    $output->addLine(
-      $engine,
-      $dbobj->getEnvironmentName(),
-      $groups->getName($dbobj->getGroup()),
-      $dbobj->getName(),
-      $dbobj->getRuntimeSize(),
-      $dbobj->getRuntimeStatus(),
-      $dbobj->getEnabled()
-    );
-
-
-  }
 
 }
 
@@ -146,7 +185,12 @@ __DATA__
 
 =head1 DESCRIPTION
 
-Get the information about dSource sizes for ingestion model reporting.
+Get the information about dSource sizes. If you want to use those data for ingestion model reporting
+please use -license option of the script.
+
+Delphix can automatically calculate the usage for Oracle, SQL Server and ASE databases for each Delphix Engine.
+For other databases, and before the source is connected to the Delphix Engine,
+you will need to run a query on the source system for the relevant data.
 
 =head1 ARGUMENTS
 
