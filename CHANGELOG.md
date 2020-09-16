@@ -1,5 +1,14 @@
-## 2.4.8
+## 2.4.9
 
+### Added
+- dx_get_dsourcesize - flag -license added to display a license for ingestion model using a new API
+- dx_undo_db - new script to undo last rollback or refresh
+
+### Changed
+- dx_get_db_env: fix for displaying a parent time
+- dx_ctl_js_bookmarks: fix for snapshot parameter warning
+
+## 2.4.8
 
 ### Changed
 - [fix for #149](https://github.com/delphix/dxtoolkit/issues/149)  - dx_ctl_js_bookmarks appends date to bookmark name specified
