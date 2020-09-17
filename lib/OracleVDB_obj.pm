@@ -1585,7 +1585,13 @@ sub discoverPDB {
           return 1;
       }
 
+
+      # sleep to allow change to propagte for next API call ? 
+      sleep(10);
+
       $self->{_sourceconfig}->refresh();
+
+
       if ($self->{_sourceconfig}->getSourceConfig($cdb->{reference})->{'cdbType'} eq 'ROOT_CDB') {
         return 0;
       } else {
