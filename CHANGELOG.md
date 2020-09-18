@@ -1,5 +1,8 @@
 ## 2.4.9
 
+Configuration files with an encrypted passwords created before version 2.4.9 has to be regenerated due
+to change of the encryption key
+
 ### Added
 - dx_get_dsourcesize - flag -license added to display a license for ingestion model using a new API
 - dx_undo_db - new script to undo last rollback or refresh
