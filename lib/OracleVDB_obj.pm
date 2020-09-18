@@ -1411,7 +1411,7 @@ sub attach_dsource
                 "environmentUser" => $source_os_ref
           }
       );
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) == version->parse(1.11.3)) {
       # 6.0.3
       %attach_data = (
           "type" => "AttachSourceParameters",
@@ -1419,6 +1419,21 @@ sub attach_dsource
                 "type" => "OracleAttachData",
                 "config" => $config->{reference},
                 "oracleFallbackCredentials" => $password,
+                "oracleFallbackUser" => $dbuser,
+                "environmentUser" => $source_os_ref
+          }
+      );
+    } else {
+      # 6.0.4 and above so far
+      %attach_data = (
+          "type" => "AttachSourceParameters",
+          "attachData" => {
+                "type" => "OracleAttachData",
+                "config" => $config->{reference},
+                "oracleFallbackCredentials" => {
+                    "type" => "PasswordCredential",
+                    "password" => $password
+                  },
                 "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
@@ -1570,7 +1585,13 @@ sub discoverPDB {
           return 1;
       }
 
+
+      # sleep to allow change to propagte for next API call ? 
+      sleep(10);
+
       $self->{_sourceconfig}->refresh();
+
+
       if ($self->{_sourceconfig}->getSourceConfig($cdb->{reference})->{'cdbType'} eq 'ROOT_CDB') {
         return 0;
       } else {
@@ -1747,8 +1768,8 @@ sub addSource {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
 
-    } else {
-        # Delphix 6.0
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) == version->parse(1.11.3)) {
+        # Delphix 6.0.3
         %dsource_params = (
           "type" => "LinkParameters",
           "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -1771,6 +1792,35 @@ sub addSource {
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
+
+    } else {
+      # Delphix 6.0.4 and above - so far
+
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "OracleLinkFromExternal",
+            "config" => $config->{reference},
+            "sourcingPolicy" => {
+                "type" => "OracleSourcingPolicy",
+                "logsyncEnabled" => $logsync_param
+            },
+            "oracleFallbackCredentials" => {
+                "type" => "PasswordCredential",
+                "password" => $password
+            },
+            "oracleFallbackUser" => $dbuser,
+            "environmentUser" => $source_os_ref,
+            "linkNow" => JSON::true,
+            "compressedLinkingEnabled" => JSON::true
+        }
+    );
+
+    if ($config->{type} eq 'OraclePDBConfig') {
+      $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+    }
 
     }
 
