@@ -207,10 +207,18 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $type = $source->getDBType();
       if ($action eq 'detach')  {
         $jobno = $source->detach_dsource();
+        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
       } elsif (($type eq 'sybase') || ($type eq 'mssql')) {
         $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
+        if (defined($jobno)) {
+          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+        }
+        $jobno = $source->update_dsource_config( $stageenv, $stageinst );
+        if (defined($jobno)) {
+          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource config action");
+        }
       }
-      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+
     }
 
   } elsif ($action eq 'attach')  {
@@ -559,5 +567,24 @@ Updating a backup path and validated sync mode for Sybase
   dx_ctl_dsource -d Landshark5 -action update -validatedsync FULL -backup_dir "\\\\172.16.180.10\\loc1,\\\\172.16.180.10\\loc2" -dsourcename AdventureWorks2012
   Waiting for all actions to complete. Parent action is ACTION-20190
   Action completed with success
+
+
+Update a staging server and instace for Sybase or MS SQL
+
+  dx_ctl_dsource -d Landshark5 -action update -dsourcename pubs3 -backup_dir /u02/sybase_backup -stageinst LINUXTARGET -stageenv linuxtarget
+  Waiting for all actions to complete. Parent action is ACTION-8576
+  Action completed with success
+  Waiting for all actions to complete. Parent action is ACTION-8577
+  Action completed with success
+
+
+Update a staging server and instace for Sybase or MS SQL based on group
+
+  dx_ctl_dsource -d Landshark5 -action update -group SybaseSource -backup_dir /u02/sybase_backup -stageinst LINUXTARGET -stageenv linuxtarget
+  Waiting for all actions to complete. Parent action is ACTION-8593
+  Action completed with success
+  Waiting for all actions to complete. Parent action is ACTION-8594
+  Action completed with success
+
 
 =cut
