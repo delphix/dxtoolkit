@@ -30,8 +30,8 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
 
     - name: compress toolkit
