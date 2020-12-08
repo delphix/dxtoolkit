@@ -71,8 +71,8 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: compress toolkit
       run: |
@@ -109,8 +109,8 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: compress toolkit
       run: |
@@ -141,8 +141,8 @@ jobs:
           exit 1
         }
         $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
       shell: powershell
 
     - name: Fix encryption key
@@ -208,8 +208,8 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: install perl
       run: |
