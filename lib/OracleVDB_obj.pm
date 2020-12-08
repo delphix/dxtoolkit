@@ -259,6 +259,12 @@ sub getConfig
         $config = join($joinsep,($config, "-uniqname $unique"));
       }
 
+      my $cust = $self->getCustomEnv($joinsep);
+      if ($cust ne '') {
+        $config = join($joinsep,($config, $cust));
+      }
+
+
     } else {
       # dSource config for Oracle
       my $cdbref = $self->getCDBContainerRef();
@@ -1079,6 +1085,173 @@ sub setNewDBID {
 }
 
 
+# Procedure getCustomEnv
+# parameters:
+# - separator - join using comma or blank
+# Return a string with customer env
+
+sub getCustomEnv {
+    my $self = shift;
+    my $separator = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getCustomEnv",1);
+
+    my $customerenvarray = $self->{"source"}->{"customEnvVars"};
+    my $env_nodes;
+    my %node_names;
+
+
+    $env_nodes = $self->{_environment}->getOracleClusterNode($self->{"environment"}->{"reference"});
+    %node_names = map { $_->{reference} => $_->{name} } @{$env_nodes};
+
+    my $ret = '';
+
+    for my $entry (@{$customerenvarray}) {
+      if ($entry->{"type"} eq "OracleCustomEnvVarRACFile") {
+        my $entry_str = "-customerenvfile \"" . $entry->{"pathParameters"};
+        $entry_str = $entry_str . "," . $node_names{$entry->{"clusterNode"}} . " ";
+        $ret = join($separator, ($ret, $entry_str));
+      }
+
+      if ($entry->{"type"} eq "OracleCustomEnvVarSIFile") {
+        my $entry_str = "-customerenvfile \"" . $entry->{"pathParameters"}. "\" ";
+        $ret = join($separator, ($ret, $entry_str));
+      }
+
+      if ($entry->{"type"} eq "OracleCustomEnvVarRACPair") {
+        my $entry_str = "-customerenvpair \"" . $entry->{"varName"} . "\",\"" . $entry->{"varValue"} . "\"";
+        $entry_str = $entry_str . "," . $node_names{$entry->{"clusterNode"}} . " ";
+        $ret = join($separator, ($ret, $entry_str));
+      }
+
+      if ($entry->{"type"} eq "OracleCustomEnvVarSIPair") {
+        my $entry_str = "-customerenvpair \"" . $entry->{"varName"} . "\",\"" . $entry->{"varValue"} . "\" ";
+        $ret = join($separator, ($ret, $entry_str));
+      }
+
+    }
+
+
+    return $ret;
+
+}
+
+
+
+# Procedure setCustomEnv
+# parameters:
+# - custom_files - array of files
+# - custom_pair - array of customer pairs
+# Set a customer environment using files
+
+sub setCustomEnv {
+    my $self = shift;
+    my $custom_files = shift;
+    my $custom_pair = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setCustomEnvFiles",1);
+
+    my @customerenvarray;
+
+    my $env_nodes;
+    my %node_names;
+
+
+    if ($self->{'_newenvtype'} eq 'OracleCluster') {
+      $env_nodes = $self->{_environment}->getOracleClusterNode($self->{'_newenv'});
+      %node_names = map { $_->{name} => $_->{reference} } @{$env_nodes};
+    }
+
+    if (defined($custom_files)) {
+
+      for my $file (@{$custom_files}) {
+        if ($self->{'_newenvtype'} eq 'OracleCluster') {
+          # check if customer file has comma separation with node and if not set it for both nodes
+          if ($file =~ /,/) {
+            my @t = split(',', $file);
+            if (defined($node_names{$t[1]})) {
+              # node found by name
+              my %entry = (
+                "type" => "OracleCustomEnvVarRACFile",
+                "clusterNode" => $node_names{$t[1]},
+                "pathParameters" => $t[0]
+              );
+              push(@customerenvarray, \%entry);
+            } else {
+              # node name not found return error
+              print "Node name " . $t[1] . " not found\n";
+              return undef;
+            }
+          } else {
+            for my $nodename (keys(%node_names)) {
+              my %entry = (
+                "type" => "OracleCustomEnvVarRACFile",
+                "clusterNode" => $node_names{$nodename},
+                "pathParameters" => $file
+              );
+              push(@customerenvarray, \%entry);
+            }
+          }
+        } else {
+          my %entry = (
+            "type" => "OracleCustomEnvVarSIFile",
+            "pathParameters" => $file
+          );
+          push(@customerenvarray, \%entry);
+        }
+      }
+    }
+
+    if (defined($custom_pair)) {
+      for my $pair (@{$custom_pair}) {
+
+
+        if ($self->{'_newenvtype'} eq 'OracleCluster') {
+          my ($key, $value, $server) = split(',', $pair, 3);
+          if (defined($server)) {
+            if (defined($node_names{$server})) {
+              # node found by name
+              my %entry = (
+                "type" => "OracleCustomEnvVarRACPair",
+                "clusterNode" => $node_names{$server},
+                "varName" => $key,
+                "varValue" => $value
+              );
+              push(@customerenvarray, \%entry);
+            } else {
+              # node name not found return error
+              print "Node name " . $server . " not found\n";
+              return undef;
+            }
+          } else {
+            for my $nodename (keys(%node_names)) {
+              my %entry = (
+                "type" => "OracleCustomEnvVarRACPair",
+                "clusterNode" => $node_names{$nodename},
+                "varName" => $key,
+                "varValue" => $value
+              );
+              push(@customerenvarray, \%entry);
+            }
+          }
+        } else {
+          my ($key, $value) = split(',', $pair, 2);
+          my %entry = (
+            "type" => "OracleCustomEnvVarSIPair",
+            "varName" => $key,
+            "varValue" => $value
+          );
+          push(@customerenvarray, \%entry);;
+        }
+
+      }
+
+
+    }
+
+    $self->{"NEWDB"}->{"source"}->{"customEnvVars"} = \@customerenvarray;
+    return 1;
+}
+
+
 # Procedure setNoOpen
 # parameters:
 # Set no open database after v2p
@@ -1586,7 +1759,7 @@ sub discoverPDB {
       }
 
 
-      # sleep to allow change to propagte for next API call ? 
+      # sleep to allow change to propagte for next API call ?
       sleep(10);
 
       $self->{_sourceconfig}->refresh();
@@ -1934,7 +2107,6 @@ sub createVDB {
     my $instances = shift;
     my $cdbname = shift;
 
-
     logger($self->{_debug}, "Entering OracleVDB_obj::createVDB",1);
 
     if ( $self->setGroup($group) ) {
@@ -1975,6 +2147,8 @@ sub createVDB {
       } else {
         $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = "OraclePDBConfig";
       }
+
+
     } else {
       # target host is not RAC
       # check config type of Parent
@@ -1996,6 +2170,7 @@ sub createVDB {
 
       }
       $self->{"NEWDB"}->{"sourceConfig"}->{"type"} = $configtype;
+
 
     }
 
