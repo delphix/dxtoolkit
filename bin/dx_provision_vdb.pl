@@ -113,6 +113,8 @@ GetOptions(
   'vcdbinstname=s' => \(my $vcdbinstname),
   'vcdbtemplate=s' => \(my $vcdbtemplate),
   'vcdbrac_instance=s@' => \(my $vcdbrac_instance),
+  'customerenvfile=s@' => \(my $customerenvfile),
+  'customerenvpair=s@' => \(my $customerenvpair),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -537,6 +539,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       $db->setNewDBID();
     }
 
+
+
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {
         print "Template $template not found. VDB won't be created\n" ;
@@ -551,7 +555,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
-
+    if (defined($customerenvfile) or defined($customerenvpair)) {
+      my $r = $db->setCustomEnv($customerenvfile, $customerenvpair);
+      if (! defined($r)) {
+        $ret = $ret + 1;
+        next;
+      }
+    }
 
     $db->setName($targetname,$dbname, $uniqname, $instname);
 
@@ -714,6 +724,8 @@ __DATA__
                   [-vcdbinstname vcdb_instance_name]
                   [-vcdbtemplate vcdb_template_name]
                   [-vcdbrac_instance env_node,instance_name,instance_no]
+                  [-customerenvfile path_to_env_file[,nodename]]
+                  [-customerenvpair key,value[,nodename]]
                   [-help] [-debug]
 
 
@@ -909,6 +921,17 @@ Use an environment user "username" for provisioning database
 
 =item B<-autostart yes>
 Set VDB autostart flag to yes. Default is no
+
+=item B<-customerenvfile path_to_env_file[,nodename]>
+Set a customer environment file. Path_to_env_file is a path on the target server.
+In the cluster environment, nodename is a name of node there this environment file is placed.
+If there is no nodename in cluster environment, it will be implemented to all nodes.
+
+=item B<-customerenvpair key,value[,nodename]>
+Set a customer environment key:value pair. 
+In the cluster environment, nodename is a name of node there this environment file is placed.
+If there is no nodename in cluster environment, it will be implemented to all nodes.
+
 
 =back
 
