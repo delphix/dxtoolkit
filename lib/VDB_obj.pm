@@ -1031,6 +1031,76 @@ sub return_currentobj
     return $self->{_currentobj};
 }
 
+
+# Procedure update_dsource_config
+# parameters:
+# - stageenv - new staging environent name
+# - stageinst - new staging repository name
+
+sub update_dsource_config {
+    my $self = shift;
+    my $stageenv = shift;
+    my $stageinst = shift;
+
+
+    logger($self->{_debug}, "Entering VDB_obj::update_dsource_config",1);
+
+    my %sourceconfig_hash;
+    my $jobno;
+
+    my $update = 0;
+    my $dbtype = $self->getDBType();
+    my $staging_conf;
+
+    %sourceconfig_hash = (
+        "type" => $self->{sourceConfig}->{type}
+    );
+
+    if ( ($dbtype eq 'mssql') || ($dbtype eq 'sybase') ) {
+
+      if (defined($stageinst) || defined($stageenv)) {
+        if (defined($stageinst) && defined($stageenv)) {
+
+          # find a staging Source
+          my $staging_obj = $self->{_source}->getSource($self->{source}->{stagingSource});
+
+          # find a staging Source Config
+          $staging_conf = $self->{_sourceconfig}->getSourceConfig($staging_obj->{config});
+
+          # list all environments and repositories and find a one we are looking for
+          my $repoobj = $self->{_repository}->getRepository($staging_conf->{repository});
+          my $envnew_obj = $self->{_environment}->getEnvironmentByName($stageenv);
+          my $rep = $self->{_repository}->getRepositoryByNameForEnv($stageinst, $envnew_obj->{reference});
+
+          # for now we are using a primary user for a staging environment - a new development possible for other users
+          $sourceconfig_hash{repository} = $rep->{reference};
+          $sourceconfig_hash{environmentUser} = $envnew_obj->{primaryUser};
+
+          $update = 1;
+
+        } else {
+          print "Both staging instance and staging environment are required\n";
+          return undef;
+        }
+      }
+
+    }
+
+    if ($update eq 1) {
+      my $json_data = to_json(\%sourceconfig_hash);
+
+      logger($self->{_debug}, $json_data ,2);
+
+      my $operation = 'resources/json/delphix/sourceconfig/' . $staging_conf->{reference};
+      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
+    } else {
+      print "Nothing to update for 2nd part\n";
+    }
+
+    return $jobno;
+
+}
+
 # Procedure update_dsource
 # parameters:
 # - backup_dir (implemented for ms sql and sybase)
@@ -1079,7 +1149,7 @@ sub update_dsource {
       my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
       $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
     } else {
-      print "Nothing to update\n";
+      print "Nothing to update for 1st part\n";
     }
 
     return $jobno;
