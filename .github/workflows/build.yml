@@ -24,8 +24,8 @@ jobs:
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: compress toolkit
       run: |
@@ -57,8 +57,8 @@ jobs:
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: compress toolkit
       run: |
@@ -89,8 +89,8 @@ jobs:
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: compress toolkit
       run: |
@@ -115,8 +115,8 @@ jobs:
       run: |
         $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
         $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo "SOURCE_TAG=$SOURCE_TAG" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        echo "FILENAME=$FILENAME" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       shell: powershell
 
     - name: Fix encryption key
@@ -133,9 +133,11 @@ jobs:
       run: |
         mkdir d:\a\perldownload
         mkdir d:\a\perl
-        Invoke-WebRequest "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip" -OutFile "d:\a\perldownload\perl526.zip"
+        choco install wget -y
+        cd d:\a\perldownload
+        wget.exe "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip"
         dir d:\a\perldownload\
-        Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
+        Expand-Archive "d:\a\perldownload\strawberry-perl-5.26.3.1-64bit-portable.zip" -DestinationPath "d:\a\perl"
       shell: powershell
 
     - name: build
@@ -176,8 +178,8 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAME::$FILENAME"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
 
     - name: install perl
       run: |
@@ -301,12 +303,14 @@ jobs:
         FILENAMEUBUNTU="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
         FILENAMEWIN="dxtoolkit2-${SOURCE_TAG}-win64-installer.zip"
         FILENAMEOSX="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAMERH7::$FILENAMERH7"
-        echo "::set-env name=FILENAMERH6::$FILENAMERH6"
-        echo "::set-env name=FILENAMEUBUNTU::$FILENAMEUBUNTU"
-        echo "::set-env name=FILENAMEWIN::$FILENAMEWIN"
-        echo "::set-env name=FILENAMEOSX::$FILENAMEOSX"
+
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAMERH7=$FILENAMERH7 >> $GITHUB_ENV
+        echo FILENAMERH6=$FILENAMERH6 >> $GITHUB_ENV
+        echo FILENAMEUBUNTU=$FILENAMEUBUNTU >> $GITHUB_ENV
+        echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
+        echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
+
 
     - name: Create Release
       id: create_release
