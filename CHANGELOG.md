@@ -1,3 +1,9 @@
+## 2.4.10
+
+### Added
+- [fix for #164](https://github.com/delphix/dxtoolkit/issues/164)custom environment support for dx_provision_vdb
+- [fix for #145](https://github.com/delphix/dxtoolkit/issues/145)Staging environment updates via dx_ctl_dsource
+
 ## 2.4.9
 
 Configuration files with an encrypted passwords created before version 2.4.9 has to be regenerated due
