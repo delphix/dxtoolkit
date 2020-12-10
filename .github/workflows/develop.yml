@@ -165,9 +165,9 @@ jobs:
       run: |
         mkdir d:\a\perldownload
         mkdir d:\a\perl
-        choco install wget
+        choco install wget -y
         cd d:\a\perldownload
-        wget "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip" 
+        wget.exe "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip"
         dir d:\a\perldownload\
         Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
       shell: powershell
