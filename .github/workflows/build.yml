@@ -303,12 +303,14 @@ jobs:
         FILENAMEUBUNTU="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
         FILENAMEWIN="dxtoolkit2-${SOURCE_TAG}-win64-installer.zip"
         FILENAMEOSX="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-        echo "::set-env name=SOURCE_TAG::$SOURCE_TAG"
-        echo "::set-env name=FILENAMERH7::$FILENAMERH7"
-        echo "::set-env name=FILENAMERH6::$FILENAMERH6"
-        echo "::set-env name=FILENAMEUBUNTU::$FILENAMEUBUNTU"
-        echo "::set-env name=FILENAMEWIN::$FILENAMEWIN"
-        echo "::set-env name=FILENAMEOSX::$FILENAMEOSX"
+
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAMERH7=$FILENAMERH7 >> $GITHUB_ENV
+        echo FILENAMERH6=$FILENAMERH6 >> $GITHUB_ENV
+        echo FILENAMEUBUNTU=$FILENAMEUBUNTU >> $GITHUB_ENV
+        echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
+        echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
+
 
     - name: Create Release
       id: create_release
