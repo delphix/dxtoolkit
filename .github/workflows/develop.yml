@@ -142,7 +142,7 @@ jobs:
         }
         $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
         echo "SOURCE_TAG=$SOURCE_TAG" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-        echo "FILENAME=$FILENAME" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+        echo "FILENAME=$FILENAME" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       shell: powershell
 
     - name: Fix encryption key
