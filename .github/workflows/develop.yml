@@ -169,7 +169,7 @@ jobs:
         cd d:\a\perldownload
         wget.exe "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip"
         dir d:\a\perldownload\
-        Expand-Archive "d:\a\perldownload\perl526.zip" -DestinationPath "d:\a\perl"
+        Expand-Archive "d:\a\perldownload\strawberry-perl-5.26.3.1-64bit-portable.zip" -DestinationPath "d:\a\perl"
       shell: powershell
 
     - name: build
