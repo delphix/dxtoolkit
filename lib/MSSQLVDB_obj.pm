@@ -442,8 +442,8 @@ sub addSource {
         return undef;
     }
 
-    if ($dbusertype ne 'database') {
-      # for non database - we need to change dbuser into referencial
+    if ($dbusertype eq 'environment') {
+      # for environment - we need to change dbuser into referencial
       logger($self->{_debug}, "changing user into ref for non database",2);
       $dbuser = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$dbuser);
       logger($self->{_debug}, "new dbuser $dbuser",2);
