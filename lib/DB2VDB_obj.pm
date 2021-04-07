@@ -249,9 +249,32 @@ sub snapshot
             "type" => "AppDataSyncParameters"
     );
 
-    if (defined ($resync) ) {
-        $snapshot_type{"resync"} = JSON::true;
-    };
+    my $resync_value;
+
+    if (defined ($resync)) {
+      $resync_value = JSON::true
+    } else {
+      $resync_value = JSON::false
+    }
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.6)) {
+      # until 6.0.6
+      %snapshot_type = (
+              "type" => "AppDataSyncParameters",
+              "resync" => $resync_value
+      );
+
+    } else {
+      # 6.0.6 and higher
+      %snapshot_type = (
+              "type" => "AppDataSyncParameters",
+              "parameters" => {
+                "resync" => $resync_value
+              }
+      );
+
+    }
+
 
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }

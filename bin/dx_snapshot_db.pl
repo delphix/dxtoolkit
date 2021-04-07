@@ -147,7 +147,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } elsif ( $dbobj->getDBType() eq 'db2') {
       $jobno = $dbobj->snapshot($resync);
     }else {
-      $jobno = $dbobj->snapshot($usebackup);
+      $jobno = $dbobj->snapshot($usebackup, $resync);
     }
 
     if (defined ($jobno) ) {
@@ -274,6 +274,9 @@ For Oracle only - Force full an Oracle backup
 
 =item B<-doublesync>
 For Oracle only - Enable double sync
+
+=item B<-resync>
+For plugins supporting resync
 
 =item B<-help>
 Print this screen
