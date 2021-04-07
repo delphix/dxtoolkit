@@ -137,11 +137,17 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
   }
 
 
+
   if (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
-    print "Options -dbuser and -password are required for non vFiles dsources. \n";
-    pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);
+    if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
+      $dbuser = $source_os_user;
+    } else {
+      print "Options -dbuser and -password are required for non vFiles dsources. \n";
+      pod2usage(-verbose => 1,  -input=>\*DATA);
+      exit (1);
+    }
   }
+
 
   if (( lc $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
     print "Options -stage_os_user, -stageinst, -stageenv, -sourceinst, -sourceenv and -backup_dir are required. \n";
