@@ -460,6 +460,8 @@ sub getType {
       $ret = 'rac';
     }
 
+    logger($self->{_debug}, "Environment type is: " . $ret ,1);
+
     return $ret;
 }
 

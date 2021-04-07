@@ -121,7 +121,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $connfault = 0;
     my $result;
 
-    if ( $environments->getType($envitem) ne 'WindowsHostEnvironment' ) {
+
+    if ( $environments->getType($envitem) ne 'windows' ) {
 
       # check ssh connectivity
 
