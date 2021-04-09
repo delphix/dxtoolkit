@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,9 +48,9 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     if (!defined($dbonly)) {
       $self->loadHooksList($debug);
     }
@@ -59,14 +59,14 @@ sub new {
 
 
 # Procedure getHookByName
-# parameters: 
-# - name 
+# parameters:
+# - name
 # Return template reference for particular name
 
 sub getHookByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Op_template_obj::getHookByName",1);    
+    logger($self->{_debug}, "Entering Op_template_obj::getHookByName",1);
     my $ret;
 
 
@@ -74,7 +74,7 @@ sub getHookByName {
     for my $hookitem ( sort ( keys %{$self->{_hooks_templates}} ) ) {
 
         if ( $self->getName($hookitem) eq $name) {
-            $ret = $hookitem; 
+            $ret = $hookitem;
         }
     }
 
@@ -82,15 +82,15 @@ sub getHookByName {
 }
 
 # Procedure getHook
-# parameters: 
+# parameters:
 # - reference
 # Return hook template hash for specific hook template reference
 
 sub getHook {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Op_template_obj::getHook",1);    
+
+    logger($self->{_debug}, "Entering Op_template_obj::getHook",1);
 
     my $hooks = $self->{_hooks_templates};
     return defined ($hooks->{$reference}) ? $hooks->{$reference} : undef;
@@ -98,28 +98,28 @@ sub getHook {
 
 
 # Procedure getHookList
-# parameters: 
+# parameters:
 # Return hook template list
 
 sub getHookList {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Op_template_obj::getHookList",1);    
+
+    logger($self->{_debug}, "Entering Op_template_obj::getHookList",1);
     return keys %{$self->{_hooks_templates}};
 }
 
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return hook template name for specific hook template reference
 
 sub getName {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Op_template_obj::getName",1);   
+
+    logger($self->{_debug}, "Entering Op_template_obj::getName",1);
 
     my $hooks = $self->{_hooks_templates};
     return $hooks->{$reference}->{name};
@@ -127,15 +127,15 @@ sub getName {
 
 
 # Procedure getType
-# parameters: 
+# parameters:
 # - reference
 # Return hook type for specific hook template reference
 
 sub getType {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Op_template_obj::getType",1);   
+
+    logger($self->{_debug}, "Entering Op_template_obj::getType",1);
 
     my $hooks = $self->{_hooks_templates};
     my $type = $hooks->{$reference}->{operation}->{type};
@@ -145,6 +145,8 @@ sub getType {
         $ret = 'BASH';
     } elsif ($type eq 'RunPowerShellOnSourceOperation') {
         $ret = 'PS';
+    } elsif ($type eq 'RunDefaultPowerShellOnSourceOperation') {
+        $ret = 'PSD';
     } elsif ($type eq 'RunExpectOnSourceOperation') {
         $ret = 'EXPECT';
     } elsif ($type eq 'RunCommandOnSourceOperation') {
@@ -157,15 +159,15 @@ sub getType {
 }
 
 # Procedure getCommand
-# parameters: 
+# parameters:
 # - reference
 # Return hook command for specific hook template reference
 
 sub getCommand {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Op_template_obj::getCommand",1);   
+
+    logger($self->{_debug}, "Entering Op_template_obj::getCommand",1);
 
     my $hooks = $self->{_hooks_templates};
     my $ret = $hooks->{$reference}->{operation}->{command};
@@ -180,7 +182,7 @@ sub getCommand {
 
 
 # Procedure exportHookTemplate
-# parameters: 
+# parameters:
 # - reference
 # - location - directory
 # Return 0 if no errors
@@ -190,7 +192,7 @@ sub exportHookTemplate {
     my $reference = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::exportHookTemplate",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::exportHookTemplate",1);
 
     my $hooks = $self->{_hooks_templates};
 
@@ -218,7 +220,7 @@ sub exportHookTemplate {
 
 
 # Procedure exportDBHooks
-# parameters: 
+# parameters:
 # - database object
 # - location - directory
 # Return 0 if no errors
@@ -228,11 +230,11 @@ sub exportDBHooks {
     my $dbobj = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::exportDBHooks",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::exportDBHooks",1);
 
 
     my $hooks = $dbobj->{source}->{operations};
-    
+
     if (defined($hooks)) {
       my $dbname = $dbobj->getName();
       my $filename =  $location . "/" . $dbname . ".dbhooks";
@@ -245,7 +247,7 @@ sub exportDBHooks {
 
 
 # Procedure exportHook
-# parameters: 
+# parameters:
 # - hook - content of hook to export
 # - location - filename
 # Return 0 if no errors
@@ -255,7 +257,7 @@ sub exportHook {
     my $hook = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::exportHook",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::exportHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
 
@@ -267,7 +269,7 @@ sub exportHook {
 
 
 # Procedure exportHookScript
-# parameters: 
+# parameters:
 # - reference
 # - location - directory
 # Return 0 if no errors
@@ -277,7 +279,7 @@ sub exportHookScript {
     my $reference = shift;
     my $filename = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::exportHookScript",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::exportHookScript",1);
 
     my $hooks = $self->{_hooks_templates};
 
@@ -302,7 +304,7 @@ sub exportHookScript {
 
 
 # Procedure importHookTemplate
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -310,7 +312,7 @@ sub importHookTemplate {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::importHookTemplate",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::importHookTemplate",1);
 
     my $filename =  $location;
 
@@ -321,7 +323,7 @@ sub importHookTemplate {
     local $/ = undef;
     my $json = JSON->new();
     $loadedHook = $json->decode(<$FD>);
-    
+
     close $FD;
 
 
@@ -343,7 +345,7 @@ sub importHookTemplate {
 
     my $operation = 'resources/json/delphix/source/operationTemplate';
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Import completed\n";
@@ -356,7 +358,7 @@ sub importHookTemplate {
 
 
 # Procedure updateHook
-# parameters: 
+# parameters:
 # - location - file name
 # Return 0 if no errors
 
@@ -364,7 +366,7 @@ sub updateHookTemplate {
     my $self = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::updateHookTemplate",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::updateHookTemplate",1);
 
     my $filename =  $location;
 
@@ -375,7 +377,7 @@ sub updateHookTemplate {
     local $/ = undef;
     my $json = JSON->new();
     $loadedHook = $json->decode(<$FD>);
-    
+
     close $FD;
 
     delete $loadedHook->{reference};
@@ -397,7 +399,7 @@ sub updateHookTemplate {
 
     my $operation = 'resources/json/delphix/source/operationTemplate/' . $reference;
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Update completed\n";
@@ -410,7 +412,7 @@ sub updateHookTemplate {
 
 
 # Procedure updateHookScript
-# parameters: 
+# parameters:
 # - hook ref
 # - location - file name
 # Return 0 if no errors
@@ -420,14 +422,14 @@ sub updateHookScript {
     my $reference = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Op_template_obj::updateHookScript",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::updateHookScript",1);
 
     my $filename =  $location;
 
 
     open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
     my @script = <$FD>;
-    close($FD);  
+    close($FD);
     my $oneline = join('', @script);
 
     $self->loadHooksList();
@@ -451,7 +453,7 @@ sub updateHookScript {
 
     my $operation = 'resources/json/delphix/source/operationTemplate/' . $reference;
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     if ($result->{status} eq 'OK') {
         print " Update completed\n";
@@ -466,10 +468,10 @@ sub updateHookScript {
 # parameters: none
 # Load a list of hooks objects from Delphix Engine
 
-sub loadHooksList 
+sub loadHooksList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Op_template_obj::loadHooksList",1);   
+    logger($self->{_debug}, "Entering Op_template_obj::loadHooksList",1);
 
     my $operation = "resources/json/delphix/source/operationTemplate";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -482,7 +484,7 @@ sub loadHooksList
 
         for my $hookitem (@res) {
             $hooks->{$hookitem->{reference}} = $hookitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }

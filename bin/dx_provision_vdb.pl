@@ -928,7 +928,7 @@ In the cluster environment, nodename is a name of node there this environment fi
 If there is no nodename in cluster environment, it will be implemented to all nodes.
 
 =item B<-customerenvpair key,value[,nodename]>
-Set a customer environment key:value pair. 
+Set a customer environment key:value pair.
 In the cluster environment, nodename is a name of node there this environment file is placed.
 If there is no nodename in cluster environment, it will be implemented to all nodes.
 
@@ -957,6 +957,14 @@ Allowed combinations:
  - template_name
 
  - filename
+
+
+OS sheel allowed:
+- BASH - to force bash
+- SHELL - to use default OS user shell
+- PS - to force PowerShell 2
+- PSD - to use default PowerShell 
+
 
 =over 1
 
