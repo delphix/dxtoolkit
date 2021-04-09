@@ -374,6 +374,10 @@ sub getAuthorizationList
         my $authorizations = $self->{_authorizations};
 
         for my $authitem (@res) {
+            if (defined($authitem->{namespace})) {
+              logger($self->{_debug}, "skip replicated authorization: " . $authitem->{reference});
+              next;
+            }
             $authorizations->{$authitem->{reference}} = $authitem;
         }
     } else {
