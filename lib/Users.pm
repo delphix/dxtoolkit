@@ -263,10 +263,14 @@ sub getUserList
 
 
         for my $useritem (@res) {
-            my $user = new User_obj($self->{_dlpxObject}, $self, $self->{_debug});
-            $user->{_databases} = $databases;
-            $user->{_user} = $useritem;
-            $self->{_users}->{$useritem->{reference}} = $user;
+          if (defined($useritem->{namespace})) {
+            logger($self->{_debug}, "skip replicated user: " . $useritem->{reference});
+            next;
+          }
+          my $user = new User_obj($self->{_dlpxObject}, $self, $self->{_debug});
+          $user->{_databases} = $databases;
+          $user->{_user} = $useritem;
+          $self->{_users}->{$useritem->{reference}} = $user;
         }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
@@ -303,9 +307,12 @@ sub addUser
       return 1;
     }
 
-    if ( (! defined($email) ) || ( $email  eq '') ) {
-        print "Email address is required fpr user $username\n";
-        return 1;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+      if ( (! defined($email) ) || ( $email  eq '') ) {
+          print "Email address is required fpr user $username\n";
+          return 1;
+      }
     }
 
     my $newuser = new User_obj($self->{_dlpxObject}, $self, $self->{_debug});
