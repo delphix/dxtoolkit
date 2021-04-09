@@ -402,10 +402,7 @@ sub addSource {
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
+
 
     if ( $self->setGroup($group) ) {
         print "Group $group not found. dSource won't be created\n";
@@ -442,6 +439,18 @@ sub addSource {
     if (!defined($source_os_ref)) {
         logger($self->{_debug}, "Source OS user $source_osuser not found",2);
         print "Source OS user $source_osuser not found\n";
+        return undef;
+    }
+
+    if ($dbusertype eq 'environment') {
+      # for environment - we need to change dbuser into referencial
+      logger($self->{_debug}, "changing user into ref for non database",2);
+      $dbuser = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$dbuser);
+      logger($self->{_debug}, "new dbuser $dbuser",2);
+    }
+
+    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
+        print "Username or password is invalid.\n";
         return undef;
     }
 

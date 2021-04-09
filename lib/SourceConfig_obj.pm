@@ -316,9 +316,18 @@ sub setCredentials {
         if (!defined($username)) {
             $username = $self->getDBUser($reference);
         }
-        if ($self->validateDBCredentials($reference, $username, $password)) {
-            print "Password check failed.\n";
-            return 1;
+
+        if ($self->{_sourceconfigs}->{$reference}->{"type"} =~ /MSSql.*/) {
+          # database type is hardcoded - there is no password for other types
+          if ($self->validateDBCredentials($reference, $username, $password, 'database')) {
+              print "Password check failed.\n";
+              return 1;
+          }
+        } else {
+          if ($self->validateDBCredentials($reference, $username, $password)) {
+              print "Password check failed.\n";
+              return 1;
+          }
         }
     }
 

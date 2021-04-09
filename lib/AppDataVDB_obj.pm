@@ -255,6 +255,7 @@ sub snapshot
 {
     my $self = shift;
     my $frombackup = shift;
+    my $resync = shift;
     logger($self->{_debug}, "Entering AppDataVDB_obj::snapshot",1);
 
     if (! defined ($frombackup) ) {
@@ -263,10 +264,31 @@ sub snapshot
 
     my %snapshot_type;
 
-    %snapshot_type = (
-            "type" => "AppDataSyncParameters",
-            "resync" => JSON::false
-    );
+    my $resync_value;
+
+    if (defined ($resync)) {
+      $resync_value = JSON::true
+    } else {
+      $resync_value = JSON::false
+    }
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.6)) {
+      # until 6.0.6
+      %snapshot_type = (
+              "type" => "AppDataSyncParameters",
+              "resync" => $resync_value
+      );
+
+    } else {
+      # 6.0.6 and higher
+      %snapshot_type = (
+              "type" => "AppDataSyncParameters",
+              "parameters" => {
+                "resync" => $resync_value
+              }
+      );
+
+    }
 
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
@@ -414,8 +436,8 @@ sub addSource {
       if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.6.0)) {
           $dsource_params{"source"}{"parameters"} = {};
       }
-    } else {
-
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.5)) {
+      # until 6.0.5
       %dsource_params = (
         "type" => "LinkParameters",
         "group" => $self->{"NEWDB"}->{"container"}->{"group"},
@@ -429,6 +451,26 @@ sub addSource {
             "parameters" => {}
         }
       );
+    } else {
+      # for 6.0.6 and higher
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "AppDataDirectLinkData",
+            "config" => $config->{reference},
+            "environmentUser" => $source_os_ref,
+            "excludes" => \@excludes,
+            "followSymlinks" => \@followarray,
+            "parameters" => {},
+            "syncParameters" => {
+              "type"=> "AppDataSyncParameters",
+              "parameters" => {}
+            }
+        }
+      );
+
     }
 
     my $operation = 'resources/json/delphix/database/link';

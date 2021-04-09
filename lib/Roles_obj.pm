@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +32,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -48,23 +48,23 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     $self->getRolesList($debug);
     return $self;
 }
 
 
 # Procedure getRoleByName
-# parameters: 
-# - name 
+# parameters:
+# - name
 # Return role reference for particular name
 
 sub getRoleByName {
     my $self = shift;
     my $name = shift;
-    logger($self->{_debug}, "Entering Role_obj::getRoleByName",1);    
+    logger($self->{_debug}, "Entering Role_obj::getRoleByName",1);
     my $ret;
 
     #print Dumper $$config;
@@ -72,7 +72,7 @@ sub getRoleByName {
     for my $roleitem ( sort ( keys %{$self->{_roles}} ) ) {
 
         if ( lc $self->getName($roleitem) eq lc $name) {
-            $ret = $self->getRole($roleitem); 
+            $ret = $self->getRole($roleitem);
         }
     }
 
@@ -80,30 +80,30 @@ sub getRoleByName {
 }
 
 # Procedure getRole
-# parameters: 
+# parameters:
 # - reference
 # Return role hash for specific role reference
 
 sub getRole {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Role_obj::getRole",1);    
+
+    logger($self->{_debug}, "Entering Role_obj::getRole",1);
 
     my $roles = $self->{_roles};
     return $roles->{$reference}
 }
 
 # Procedure getName
-# parameters: 
+# parameters:
 # - reference
 # Return role name for specific role reference
 
 sub getName {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Role_obj::getName",1);   
+
+    logger($self->{_debug}, "Entering Role_obj::getName",1);
 
     my $roles = $self->{_roles};
     return $roles->{$reference}->{name};
@@ -113,10 +113,10 @@ sub getName {
 # parameters: none
 # Load a list of role objects from Delphix Engine
 
-sub getRolesList 
+sub getRolesList
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering Role_obj::getRolesList",1);   
+    logger($self->{_debug}, "Entering Role_obj::getRolesList",1);
 
     my $operation = "resources/json/delphix/role";
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
@@ -125,8 +125,12 @@ sub getRolesList
         my $roles = $self->{_roles};
 
         for my $roleitem (@res) {
+            if (defined($roleitem->{namespace})) {
+              logger($self->{_debug}, "skip replicated role: " . $roleitem->{reference});
+              next;
+            }
             $roles->{$roleitem->{reference}} = $roleitem;
-        } 
+        }
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
