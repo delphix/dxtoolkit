@@ -180,7 +180,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   };
 
 
-  if (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
+  if (((lc $action eq 'attach') || (lc $action eq 'create')) && (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) ) {
     # no db user exceptions
     if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
       $dbuser = $source_os_user;
