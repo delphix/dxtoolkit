@@ -1,3 +1,22 @@
+## 2.4.11
+
+### Added
+- Simplified connection support for Oracle in 6.0.7 engines - no need to add dbuser and password in dSource operations
+- Certified with 6.0.7
+
+### Changed
+
+
+- [fix for #165](https://github.com/delphix/dxtoolkit/issues/165) MS SQL ingestion using AD account
+- [fix for #167](https://github.com/delphix/dxtoolkit/issues/167) Change password fixed for Windows
+- [fix for #170](https://github.com/delphix/dxtoolkit/issues/170) Documentation fix
+- [fix for #176](https://github.com/delphix/dxtoolkit/issues/176) Password verification fix
+- [fix for #177](https://github.com/delphix/dxtoolkit/issues/177) Snapshot for vFiles and dSource ingestion fix
+- [fix for #178](https://github.com/delphix/dxtoolkit/issues/178) Users command dx_get_users and dx_ctl_users to process only local users
+- [fix for #179](https://github.com/delphix/dxtoolkit/issues/179) Default PowerShell support for hooks
+
+
+
 ## 2.4.10
 
 ### Added
