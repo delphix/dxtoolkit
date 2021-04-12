@@ -27,6 +27,12 @@ jobs:
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAME=$FILENAME >> $GITHUB_ENV
 
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        gzip dxtoolkit.tar
+
     - name: compress toolkit
       run: |
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
@@ -60,6 +66,12 @@ jobs:
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAME=$FILENAME >> $GITHUB_ENV
 
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        gzip dxtoolkit.tar
+
     - name: compress toolkit
       run: |
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
@@ -91,6 +103,13 @@ jobs:
         FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        gzip dxtoolkit.tar
+
 
     - name: compress toolkit
       run: |
@@ -143,6 +162,12 @@ jobs:
     - name: build
       run: build\windows_compile.cmd
       shell: cmd
+
+    - name: add examples
+      run: |
+        copy D:\a\dxtoolkit\dxtoolkit\bin\dxtools.conf.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
+        copy D:\a\dxtoolkit\dxtoolkit\bin\dxusers.csv.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
+
 
     - name: compress toolkit
       run: |
@@ -245,6 +270,8 @@ jobs:
           echo   echo \$i >> install.sh
           echo   ln -sf runner \$i >> install.sh
           echo done >> install.sh
+
+          cp ${CDIR}/dxtools.conf.example ${CDIR}/dxusers.csv.example ${CDIR}/dxtoolkit2
 
 
           cd ${CDIR}

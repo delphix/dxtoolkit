@@ -540,6 +540,7 @@ __DATA__
                   [-masking]
                   [-parentlast l|p]
                   [-config]
+                  [-configtype s|d]
                   [-backup path]
                   [-hostenv h|e]
                   [-format csv|json ]
@@ -619,6 +620,9 @@ Instance number
 
 =item B<-config>
 Display a config of databases (db type, version, instance / Oracle home) plus others
+
+=item B<-configtype>
+Display a config of databases including a database name on server
 
 =item B<-masking>
 Display a masking status of databases plus a masking job

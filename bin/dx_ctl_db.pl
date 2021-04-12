@@ -351,11 +351,12 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_db    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname |  -olderthan date]
+              [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date | -dsource dsource_name | -envname env_name]
               [-instance inst_no]
               <-action start|stop|enable|disable>
               [-restore filename]
               [-force false|onfailure|only]
+              [-parallel n]
               [-help|? ]
               [-debug ]
 
@@ -402,12 +403,17 @@ Host Name
 =item B<-type>
 Type (dsource|vdb)
 
+=item B<-instancename>
+Instance name - ( can be used only for Oracle RAC )
+
+=item B<-dsource>
+dSource Name - Action will be taken against children of specified dSource.
+
 =item B<-envname>
 Environment name
 
-=item B<-instancename instname>
-Instance name ( can be used only for Oracle RAC )
-
+=item B<-olderthan>
+Date - Filter based on objects older than given date
 
 =back
 

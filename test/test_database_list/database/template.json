@@ -1,26 +1,29 @@
 {
    "status" : "OK",
-   "action" : null,
-   "type" : "ListResult",
-   "total" : 1,
-   "overflow" : false,
    "result" : [
       {
+         "sourceType" : "OracleVirtualSource",
          "type" : "DatabaseTemplate",
-         "namespace" : null,
-         "name" : "vdb_temp_1",
          "reference" : "DATABASE_TEMPLATE-1",
          "description" : null,
+         "namespace" : null,
+         "name" : "testvdbtemplate",
          "parameters" : {
+            "nls_territory" : "'AMERICA'",
             "memory_target" : "1073741824",
-            "open_cursors" : "300",
             "log_archive_format" : "'%t_%s_%r.dbf'",
             "remote_login_passwordfile" : "'EXCLUSIVE'",
-            "compatible" : "'12.1.0.2.0'",
-            "processes" : "300"
-         },
-         "sourceType" : "OracleVirtualSource"
+            "nls_language" : "'AMERICAN'",
+            "processes" : "300",
+            "compatible" : "'19.0.0'",
+            "open_cursors" : "300",
+            "memory_max_target" : "1073741824"
+         }
       }
    ],
-   "job" : null
+   "type" : "ListResult",
+   "total" : 1,
+   "job" : null,
+   "overflow" : false,
+   "action" : null
 }

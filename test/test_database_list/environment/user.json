@@ -1,38 +1,38 @@
 {
-   "job" : null,
-   "total" : 2,
-   "overflow" : false,
    "status" : "OK",
-   "action" : null,
-   "type" : "ListResult",
    "result" : [
       {
-         "groupId" : 500,
-         "userId" : 500,
-         "credential" : {
-            "publicKey" : "********",
-            "privateKey" : "********",
-            "type" : "KeyPairCredential"
-         },
-         "namespace" : null,
-         "type" : "EnvironmentUser",
+         "reference" : "HOST_USER-1",
          "environment" : "UNIX_HOST_ENVIRONMENT-1",
-         "name" : "ora12102",
-         "reference" : "HOST_USER-1"
+         "namespace" : null,
+         "name" : "oracle",
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "publicKey" : "********",
+            "privateKey" : "********"
+         },
+         "userId" : 0,
+         "groupId" : 0,
+         "type" : "EnvironmentUser"
       },
       {
-         "groupId" : 500,
+         "type" : "EnvironmentUser",
+         "groupId" : 0,
+         "userId" : 0,
          "credential" : {
             "publicKey" : "********",
             "privateKey" : "********",
             "type" : "KeyPairCredential"
          },
+         "name" : "oracle",
          "namespace" : null,
-         "type" : "EnvironmentUser",
-         "userId" : 500,
-         "name" : "ora12102",
-         "reference" : "HOST_USER-2",
-         "environment" : "UNIX_HOST_ENVIRONMENT-2"
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "reference" : "HOST_USER-2"
       }
-   ]
+   ],
+   "type" : "ListResult",
+   "action" : null,
+   "overflow" : false,
+   "total" : 2,
+   "job" : null
 }

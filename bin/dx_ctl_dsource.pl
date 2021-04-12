@@ -28,6 +28,7 @@ use File::Basename;
 use Pod::Usage;
 use FindBin;
 use Data::Dumper;
+use version;
 
 my $abspath = $FindBin::Bin;
 
@@ -39,7 +40,7 @@ use Group_obj;
 use Toolkit_helpers;
 use FileMap;
 
-my $version = $Toolkit_helpers::version;
+my $dxversion = $Toolkit_helpers::version;
 
 my $logsync = "no";
 my $compression = "no";
@@ -84,7 +85,7 @@ GetOptions(
 
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
-die  "$version\n" if $print_version;
+die  "$dxversion\n" if $print_version;
 
 
 my $engine_obj = new Engine ($dever, $debug);
@@ -138,17 +139,6 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
 
 
 
-  if (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) {
-    if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
-      $dbuser = $source_os_user;
-    } else {
-      print "Options -dbuser and -password are required for non vFiles dsources. \n";
-      pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);
-    }
-  }
-
-
   if (( lc $type eq 'sybase' ) && ( ! ( defined($stage_os_user) && defined($stageinst) && defined($stageenv) && defined($backup_dir) && defined($sourceinst) && defined($sourceenv) ) ) ) {
     print "Options -stage_os_user, -stageinst, -stageenv, -sourceinst, -sourceenv and -backup_dir are required. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -188,6 +178,25 @@ for my $engine ( sort (@{$engine_list}) ) {
     $ret = $ret + 1;
     next;
   };
+
+
+  if (((lc $action eq 'attach') || (lc $action eq 'create')) && (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) ) {
+    # no db user exceptions
+    if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
+      $dbuser = $source_os_user;
+    } elsif (lc $type eq 'oracle') {
+        if ( ! (version->parse($engine_obj->getApi()) >= version->parse(1.11.7) ) ) {
+          print "Options -dbuser and -password are required for Oracle for version lower than 6.0.7 \n";
+          pod2usage(-verbose => 1,  -input=>\*DATA);
+          exit (1)
+        }
+    } else {
+      print "Options -dbuser and -password are required for non vFiles dsources. \n";
+      pod2usage(-verbose => 1,  -input=>\*DATA);
+      exit (1);
+    }
+  }
+
 
   my $db;
   my $jobno;

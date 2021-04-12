@@ -1,404 +1,563 @@
 {
-   "job" : null,
-   "overflow" : false,
-   "total" : 14,
-   "action" : null,
-   "status" : "OK",
    "type" : "ListResult",
+   "total" : 21,
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "status" : "OK",
    "result" : [
       {
-         "services" : [
-            {
-               "type" : "OracleService",
-               "discovered" : true,
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=vcdbtest)))"
-            }
-         ],
-         "environmentUser" : "HOST_USER-2",
-         "type" : "OracleSIConfig",
-         "repository" : "ORACLE_INSTALL-3",
-         "user" : "c##delphix",
-         "databaseName" : "VCDBTEST",
-         "uniqueName" : "vcdbtest",
-         "linkingEnabled" : true,
-         "cdbType" : "ROOT_CDB",
-         "nonSysCredentials" : null,
-         "reference" : "ORACLE_SINGLE_CONFIG-14",
-         "name" : "vcdbtest",
-         "nonSysUser" : null,
-         "instance" : {
-            "instanceName" : "vcdbtest",
-            "instanceNumber" : 1,
-            "type" : "OracleInstance"
-         },
+         "tdeKeystorePassword" : null,
          "discovered" : true,
-         "namespace" : null,
+         "user" : null,
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1",
+         "linkingEnabled" : true,
          "credentials" : {
             "type" : "PasswordCredential",
-            "password" : "********"
-         }
-      },
-      {
+            "password" : null
+         },
+         "type" : "OracleSIConfig",
          "services" : [
             {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMSHSRF517)))",
                "type" : "OracleService",
-               "discovered" : true,
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=cdbkate)))"
+               "discovered" : true
             }
          ],
-         "environmentUser" : "HOST_USER-2",
-         "type" : "OracleSIConfig",
-         "repository" : "ORACLE_INSTALL-3",
-         "databaseName" : "CDBKATE",
-         "user" : "c##delphix",
-         "linkingEnabled" : true,
-         "uniqueName" : "cdbkate",
-         "cdbType" : "ROOT_CDB",
-         "nonSysCredentials" : null,
-         "reference" : "ORACLE_SINGLE_CONFIG-5",
-         "name" : "cdbkate",
-         "nonSysUser" : null,
          "instance" : {
             "type" : "OracleInstance",
-            "instanceName" : "cdbkate",
-            "instanceNumber" : 1
-         },
-         "discovered" : true,
-         "namespace" : null,
-         "credentials" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         }
-      },
-      {
-         "cdbType" : "NON_CDB",
-         "uniqueName" : "oratest",
-         "linkingEnabled" : false,
-         "nonSysCredentials" : null,
-         "discovered" : true,
-         "namespace" : null,
-         "nonSysUser" : null,
-         "instance" : {
-            "instanceName" : "oratest",
             "instanceNumber" : 1,
-            "type" : "OracleInstance"
+            "instanceName" : "CDOMSHSRF517"
          },
-         "name" : "oratest",
-         "reference" : "ORACLE_SINGLE_CONFIG-10",
-         "credentials" : {
-            "password" : "********",
-            "type" : "PasswordCredential"
-         },
-         "environmentUser" : "HOST_USER-2",
-         "services" : [
-            {
-               "type" : "OracleService",
-               "discovered" : true,
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=oratest)))"
-            }
-         ],
-         "type" : "OracleSIConfig",
-         "user" : "delphix",
-         "databaseName" : "ORATEST",
-         "repository" : "ORACLE_INSTALL-3"
-      },
-      {
-         "nonSysCredentials" : null,
-         "linkingEnabled" : true,
-         "uniqueName" : "carmel",
+         "databaseName" : "CDOMSHSR",
+         "reference" : "ORACLE_SINGLE_CONFIG-3",
          "cdbType" : "ROOT_CDB",
-         "credentials" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         },
-         "name" : "carmel",
-         "reference" : "ORACLE_SINGLE_CONFIG-2",
          "nonSysUser" : null,
-         "instance" : {
-            "instanceName" : "carmel",
-            "instanceNumber" : 1,
-            "type" : "OracleInstance"
-         },
-         "discovered" : true,
-         "namespace" : null,
-         "services" : [
-            {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=carmel)))",
-               "type" : "OracleService",
-               "discovered" : true
-            }
-         ],
-         "environmentUser" : "HOST_USER-1",
-         "repository" : "ORACLE_INSTALL-1",
-         "databaseName" : "CARMEL",
-         "user" : "c##delphix",
-         "type" : "OracleSIConfig"
-      },
-      {
-         "reference" : "ORACLE_SINGLE_CONFIG-1",
-         "name" : "marina",
-         "discovered" : true,
-         "namespace" : null,
-         "nonSysUser" : null,
-         "instance" : {
-            "instanceName" : "marina",
-            "instanceNumber" : 1,
-            "type" : "OracleInstance"
-         },
-         "credentials" : {
-            "password" : "********",
-            "type" : "PasswordCredential"
-         },
-         "uniqueName" : "marina",
-         "linkingEnabled" : true,
-         "cdbType" : "NON_CDB",
+         "uniqueName" : "CDOMSHSRF517",
          "nonSysCredentials" : null,
-         "type" : "OracleSIConfig",
-         "repository" : "ORACLE_INSTALL-1",
-         "user" : "delphix",
-         "databaseName" : "MARINA",
-         "services" : [
-            {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=marina)))",
-               "type" : "OracleService",
-               "discovered" : true
-            }
-         ],
-         "environmentUser" : "HOST_USER-1"
-      },
-      {
-         "services" : [
-            {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=cdbmarie)))",
-               "type" : "OracleService",
-               "discovered" : true
-            }
-         ],
-         "environmentUser" : "HOST_USER-2",
-         "repository" : "ORACLE_INSTALL-4",
-         "databaseName" : "CDBMARIE",
-         "user" : null,
-         "type" : "OracleSIConfig",
-         "nonSysCredentials" : null,
-         "linkingEnabled" : true,
-         "uniqueName" : "cdbmarie",
-         "cdbType" : "UNKNOWN",
-         "credentials" : null,
-         "name" : "cdbmarie",
-         "reference" : "ORACLE_SINGLE_CONFIG-6",
-         "instance" : {
-            "instanceName" : "cdbmarie",
-            "instanceNumber" : 1,
-            "type" : "OracleInstance"
-         },
-         "nonSysUser" : null,
-         "discovered" : true,
+         "name" : "CDOMSHSRF517",
          "namespace" : null
       },
       {
-         "reference" : "ORACLE_SINGLE_CONFIG-4",
-         "name" : "seaside",
-         "instance" : {
-            "type" : "OracleInstance",
-            "instanceName" : "seaside",
-            "instanceNumber" : 1
-         },
-         "nonSysUser" : null,
-         "discovered" : true,
-         "namespace" : null,
-         "credentials" : null,
-         "uniqueName" : "seaside",
-         "linkingEnabled" : true,
-         "cdbType" : "UNKNOWN",
-         "nonSysCredentials" : null,
-         "type" : "OracleSIConfig",
-         "repository" : "ORACLE_INSTALL-2",
-         "databaseName" : "SEASIDE",
          "user" : null,
+         "discovered" : true,
+         "tdeKeystorePassword" : null,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "linkingEnabled" : true,
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "reference" : "ORACLE_SINGLE_CONFIG-11",
+         "databaseName" : "CDOMSHTG",
+         "instance" : {
+            "instanceNumber" : 1,
+            "instanceName" : "CDOMSHTGA4CB",
+            "type" : "OracleInstance"
+         },
          "services" : [
             {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=seaside)))",
+               "discovered" : true,
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMSHTGA4CB)))"
+            }
+         ],
+         "type" : "OracleSIConfig",
+         "namespace" : null,
+         "name" : "CDOMSHTGA4CB",
+         "nonSysCredentials" : null,
+         "uniqueName" : "CDOMSHTGA4CB",
+         "nonSysUser" : null,
+         "cdbType" : "ROOT_CDB"
+      },
+      {
+         "cdbType" : "ROOT_CDB",
+         "uniqueName" : "CDOMLOTG2E25",
+         "nonSysUser" : null,
+         "name" : "CDOMLOTG2E25",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "type" : "OracleSIConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMLOTG2E25)))",
                "discovered" : true,
                "type" : "OracleService"
             }
          ],
-         "environmentUser" : "HOST_USER-1"
+         "reference" : "ORACLE_SINGLE_CONFIG-10",
+         "databaseName" : "CDOMLOTG",
+         "instance" : {
+            "instanceName" : "CDOMLOTG2E25",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         },
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "discovered" : true,
+         "tdeKeystorePassword" : null,
+         "user" : null
       },
       {
          "nonSysCredentials" : null,
-         "cdbType" : "UNKNOWN",
-         "linkingEnabled" : true,
-         "uniqueName" : "monterey",
-         "credentials" : null,
-         "nonSysUser" : null,
-         "instance" : {
-            "instanceNumber" : 1,
-            "instanceName" : "monterey",
-            "type" : "OracleInstance"
-         },
-         "discovered" : true,
+         "name" : "DBOMSR3A85E9",
          "namespace" : null,
-         "name" : "monterey",
-         "reference" : "ORACLE_SINGLE_CONFIG-3",
-         "environmentUser" : "HOST_USER-1",
+         "nonSysUser" : null,
+         "uniqueName" : "DBOMSR3A85E9",
+         "cdbType" : "NON_CDB",
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceName" : "DBOMSR3A85E9",
+            "instanceNumber" : 1
+         },
+         "reference" : "ORACLE_SINGLE_CONFIG-1",
+         "databaseName" : "DBOMSR3A",
          "services" : [
             {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=monterey)))",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=DBOMSR3A85E9)))",
                "type" : "OracleService",
                "discovered" : true
             }
          ],
-         "databaseName" : "MONTEREY",
+         "type" : "OracleSIConfig",
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1",
          "user" : null,
-         "repository" : "ORACLE_INSTALL-2",
-         "type" : "OracleSIConfig"
+         "tdeKeystorePassword" : null,
+         "discovered" : true
       },
       {
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-14",
-         "repository" : "ORACLE_INSTALL-3",
-         "credentials" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         },
-         "databaseName" : "PDBTEST2",
-         "user" : "delphix",
-         "name" : "PDBTEST2",
-         "reference" : "ORACLE_PDB_CONFIG-15",
-         "nonSysUser" : null,
-         "discovered" : true,
          "namespace" : null,
-         "type" : "OraclePDBConfig",
+         "name" : "CDOMLOSRCA1D",
+         "nonSysCredentials" : null,
+         "uniqueName" : "CDOMLOSRCA1D",
+         "nonSysUser" : null,
+         "cdbType" : "ROOT_CDB",
+         "databaseName" : "CDOMLOSR",
+         "reference" : "ORACLE_SINGLE_CONFIG-2",
+         "instance" : {
+            "instanceNumber" : 1,
+            "instanceName" : "CDOMLOSRCA1D",
+            "type" : "OracleInstance"
+         },
          "services" : [
             {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBTEST2)))",
+               "type" : "OracleService",
                "discovered" : true,
-               "type" : "OracleService"
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMLOSRCA1D)))"
             }
          ],
-         "nonSysCredentials" : null,
-         "environmentUser" : "HOST_USER-2",
-         "linkingEnabled" : false
-      },
-      {
-         "nonSysUser" : null,
-         "namespace" : null,
-         "discovered" : true,
-         "type" : "OraclePDBConfig",
-         "reference" : "ORACLE_PDB_CONFIG-7",
-         "name" : "PDBX1",
+         "type" : "OracleSIConfig",
          "credentials" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
+            "password" : null,
+            "type" : "PasswordCredential"
          },
-         "databaseName" : "PDBX1",
-         "user" : "delphix",
-         "repository" : "ORACLE_INSTALL-1",
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
          "linkingEnabled" : true,
          "environmentUser" : "HOST_USER-1",
+         "repository" : "ORACLE_INSTALL-1",
+         "user" : null,
+         "discovered" : true,
+         "tdeKeystorePassword" : null
+      },
+      {
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "discovered" : true,
+         "tdeKeystorePassword" : null,
+         "user" : null,
+         "cdbType" : "ROOT_CDB",
+         "uniqueName" : "VCDB",
+         "nonSysUser" : null,
+         "name" : "VCDB",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "type" : "OracleSIConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=VCDB)))",
+               "type" : "OracleService",
+               "discovered" : true
+            }
+         ],
+         "databaseName" : "VCDB",
+         "reference" : "ORACLE_SINGLE_CONFIG-21",
+         "instance" : {
+            "instanceName" : "VCDB",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         }
+      },
+      {
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "discovered" : true,
+         "tdeKeystorePassword" : null,
+         "user" : null,
+         "uniqueName" : "oratest",
+         "nonSysUser" : null,
+         "cdbType" : "NON_CDB",
+         "namespace" : null,
+         "name" : "oratest",
+         "nonSysCredentials" : null,
          "services" : [
             {
                "discovered" : true,
                "type" : "OracleService",
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBX1)))"
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=oratest)))"
             }
          ],
+         "type" : "OracleSIConfig",
+         "databaseName" : "oratest",
+         "reference" : "ORACLE_SINGLE_CONFIG-18",
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "oratest"
+         }
+      },
+      {
+         "nonSysCredentials" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "name" : "CDOMLOSRCA1DPDB3",
+         "namespace" : null,
+         "nonSysUser" : null,
+         "reference" : "ORACLE_PDB_CONFIG-6",
+         "databaseName" : "CDOMLOSRCA1DPDB3",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB3)))",
+               "type" : "OracleService",
+               "discovered" : true
+            }
+         ],
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1",
+         "user" : null,
+         "discovered" : true
+      },
+      {
+         "discovered" : true,
+         "user" : null,
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1",
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB1)))"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "reference" : "ORACLE_PDB_CONFIG-7",
+         "databaseName" : "CDOMSHSRF517PDB1",
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "namespace" : null,
+         "name" : "CDOMSHSRF517PDB1"
+      },
+      {
+         "discovered" : true,
+         "user" : null,
+         "environmentUser" : "HOST_USER-1",
+         "repository" : "ORACLE_INSTALL-1",
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB2)))",
+               "type" : "OracleService",
+               "discovered" : true
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMSHSRF517PDB2",
+         "reference" : "ORACLE_PDB_CONFIG-8",
+         "nonSysUser" : null,
+         "name" : "CDOMSHSRF517PDB2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "namespace" : null,
          "nonSysCredentials" : null
       },
       {
-         "linkingEnabled" : true,
-         "environmentUser" : "HOST_USER-1",
-         "services" : [
-            {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBX2)))",
-               "type" : "OracleService",
-               "discovered" : true
-            }
-         ],
-         "nonSysCredentials" : null,
          "type" : "OraclePDBConfig",
-         "discovered" : true,
-         "namespace" : null,
-         "nonSysUser" : null,
-         "name" : "PDBX2",
-         "reference" : "ORACLE_PDB_CONFIG-8",
-         "user" : null,
-         "databaseName" : "PDBX2",
-         "credentials" : null,
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
-         "repository" : "ORACLE_INSTALL-1"
-      },
-      {
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
-         "repository" : "ORACLE_INSTALL-1",
-         "databaseName" : "PDBX3",
-         "credentials" : null,
-         "user" : null,
-         "reference" : "ORACLE_PDB_CONFIG-9",
-         "name" : "PDBX3",
-         "nonSysUser" : null,
-         "type" : "OraclePDBConfig",
-         "discovered" : true,
-         "namespace" : null,
-         "nonSysCredentials" : null,
          "services" : [
             {
                "discovered" : true,
                "type" : "OracleService",
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBX3)))"
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB3)))"
             }
          ],
+         "reference" : "ORACLE_PDB_CONFIG-9",
+         "databaseName" : "CDOMSHSRF517PDB3",
+         "nonSysUser" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "name" : "CDOMSHSRF517PDB3",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "discovered" : true,
+         "user" : null,
          "environmentUser" : "HOST_USER-1",
-         "linkingEnabled" : true
+         "repository" : "ORACLE_INSTALL-1",
+         "linkingEnabled" : true,
+         "credentials" : null
       },
       {
          "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "discovered" : true,
+         "user" : null,
+         "nonSysUser" : null,
+         "name" : "CDOMLOTG2E25PDB1",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "type" : "OraclePDBConfig",
          "services" : [
             {
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBKATE)))",
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB1)))"
+            }
+         ],
+         "databaseName" : "CDOMLOTG2E25PDB1",
+         "reference" : "ORACLE_PDB_CONFIG-12"
+      },
+      {
+         "discovered" : true,
+         "user" : null,
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB2)))",
                "type" : "OracleService",
                "discovered" : true
             }
          ],
-         "nonSysCredentials" : null,
-         "linkingEnabled" : true,
-         "databaseName" : "PDBKATE",
-         "user" : null,
-         "credentials" : null,
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-5",
-         "repository" : "ORACLE_INSTALL-3",
+         "reference" : "ORACLE_PDB_CONFIG-13",
+         "databaseName" : "CDOMLOTG2E25PDB2",
          "nonSysUser" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "name" : "CDOMLOTG2E25PDB2",
          "namespace" : null,
-         "discovered" : true,
-         "type" : "OraclePDBConfig",
-         "name" : "PDBKATE",
-         "reference" : "ORACLE_PDB_CONFIG-11"
+         "nonSysCredentials" : null
       },
       {
-         "name" : "PDBTEST",
-         "reference" : "ORACLE_PDB_CONFIG-13",
-         "nonSysUser" : null,
+         "databaseName" : "CDOMLOTG2E25PDB3",
+         "reference" : "ORACLE_PDB_CONFIG-14",
          "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB3)))",
+               "type" : "OracleService",
+               "discovered" : true
+            }
+         ],
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "name" : "CDOMLOTG2E25PDB3",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "user" : null,
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2"
+      },
+      {
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB1)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-15",
+         "databaseName" : "CDOMSHTGA4CBPDB1",
+         "nonSysUser" : null,
+         "namespace" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "name" : "CDOMSHTGA4CBPDB1",
+         "nonSysCredentials" : null,
+         "discovered" : true,
+         "user" : null,
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : null
+      },
+      {
+         "nonSysUser" : null,
+         "name" : "CDOMSHTGA4CBPDB2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB2)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-16",
+         "databaseName" : "CDOMSHTGA4CBPDB2",
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "discovered" : true,
+         "user" : null
+      },
+      {
+         "linkingEnabled" : true,
+         "credentials" : null,
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "user" : null,
          "discovered" : true,
          "namespace" : null,
-         "repository" : "ORACLE_INSTALL-3",
-         "cdbConfig" : "ORACLE_SINGLE_CONFIG-5",
-         "user" : "delphix",
-         "databaseName" : "PDBTEST",
-         "credentials" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         },
-         "linkingEnabled" : false,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "name" : "CDOMSHTGA4CBPDB3",
          "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "reference" : "ORACLE_PDB_CONFIG-17",
+         "databaseName" : "CDOMSHTGA4CBPDB3",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB3)))"
+            }
+         ]
+      },
+      {
          "services" : [
             {
                "discovered" : true,
                "type" : "OracleService",
-               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBTEST)))"
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB1)))"
             }
          ],
-         "environmentUser" : "HOST_USER-2"
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMLOSRCA1DPDB1",
+         "reference" : "ORACLE_PDB_CONFIG-4",
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "namespace" : null,
+         "name" : "CDOMLOSRCA1DPDB1",
+         "discovered" : true,
+         "user" : null,
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1",
+         "credentials" : null,
+         "linkingEnabled" : true
+      },
+      {
+         "databaseName" : "CDOMLOSRCA1DPDB2",
+         "reference" : "ORACLE_PDB_CONFIG-5",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB2)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "nonSysCredentials" : null,
+         "namespace" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "name" : "CDOMLOSRCA1DPDB2",
+         "nonSysUser" : null,
+         "user" : "delphix",
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-1"
+      },
+      {
+         "user" : null,
+         "discovered" : true,
+         "credentials" : null,
+         "linkingEnabled" : true,
+         "repository" : "ORACLE_INSTALL-2",
+         "environmentUser" : "HOST_USER-2",
+         "reference" : "ORACLE_PDB_CONFIG-20",
+         "databaseName" : "PDBTEST1",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBTEST1)))",
+               "type" : "OracleService",
+               "discovered" : true
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "nonSysCredentials" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "name" : "PDBTEST1",
+         "namespace" : null,
+         "nonSysUser" : null
+      },
+      {
+         "linkingEnabled" : true,
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "environmentUser" : "HOST_USER-2",
+         "repository" : "ORACLE_INSTALL-2",
+         "user" : "delphix",
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-21",
+         "name" : "PDBTEST2",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "databaseName" : "PDBTEST2",
+         "reference" : "ORACLE_PDB_CONFIG-22",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=PDBTEST2)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ]
       }
    ]
 }

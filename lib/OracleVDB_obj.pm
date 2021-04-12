@@ -272,9 +272,15 @@ sub getConfig
 
         my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
         my $cdbname = $self->{_sourceconfig}->getName($cdbref);
-        $config = join($joinsep,($config, "-cdbcont $cdbname"));
-        $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
-        $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
+
+        if (defined($cdbuser)) {
+          $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
+          $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
+          $config = join($joinsep,($config, "-cdbcont $cdbname"));
+        }
+
+
+
       }
 
 
@@ -1100,8 +1106,10 @@ sub getCustomEnv {
     my %node_names;
 
 
-    $env_nodes = $self->{_environment}->getOracleClusterNode($self->{"environment"}->{"reference"});
-    %node_names = map { $_->{reference} => $_->{name} } @{$env_nodes};
+    if ( $self->{_environment}->getType($self->{"environment"}->{"reference"}) eq 'rac' ) {
+      $env_nodes = $self->{_environment}->getOracleClusterNode($self->{"environment"}->{"reference"});
+      %node_names = map { $_->{reference} => $_->{name} } @{$env_nodes};
+    }
 
     my $ret = '';
 
@@ -1814,9 +1822,12 @@ sub addSource {
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-        print "Username or password is invalid or database is down.\n";
-        return undef;
+
+    if (defined($dbuser)) {
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+          print "Username or password is invalid or database is down.\n";
+          return undef;
+      }
     }
 
     if ( $self->setGroup($group) ) {
@@ -1969,31 +1980,54 @@ sub addSource {
     } else {
       # Delphix 6.0.4 and above - so far
 
-      %dsource_params = (
-        "type" => "LinkParameters",
-        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
-        "name" => $dsource_name,
-        "linkData" => {
-            "type" => "OracleLinkFromExternal",
-            "config" => $config->{reference},
-            "sourcingPolicy" => {
-                "type" => "OracleSourcingPolicy",
-                "logsyncEnabled" => $logsync_param
-            },
-            "oracleFallbackCredentials" => {
-                "type" => "PasswordCredential",
-                "password" => $password
-            },
-            "oracleFallbackUser" => $dbuser,
-            "environmentUser" => $source_os_ref,
-            "linkNow" => JSON::true,
-            "compressedLinkingEnabled" => JSON::true
-        }
-    );
+      if (defined($dbuser)) {
 
-    if ($config->{type} eq 'OraclePDBConfig') {
-      $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
-    }
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "oracleFallbackCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "oracleFallbackUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true
+          }
+        );
+
+      } else {
+
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "config" => $config->{reference},
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true
+          }
+        );
+
+      }
+
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+      }
 
     }
 

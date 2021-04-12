@@ -854,7 +854,11 @@ sub getdSourceBackup
     my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
     my $dbuser = $self->getDbUser();
 
-    $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx -logsync $logsync";
+    if ($dbuser ne 'N/A') {
+      $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+    }
+
+    $restore_args = $restore_args . " -logsync $logsync";
 
     $restore_args = $restore_args . $self->getConfig(undef, 1);
 
@@ -2398,6 +2402,8 @@ sub setHook {
           $hookOStype = 'RunExpectOnSourceOperation';
         } elsif (lc $ostype eq 'ps') {
           $hookOStype = 'RunPowerShellOnSourceOperation';
+        } elsif (lc $ostype eq 'psd') {
+          $hookOStype = 'RunDefaultPowerShellOnSourceOperation';
         } else {
           $hookOStype = 'RunBashOnSourceOperation';
         }
@@ -2882,7 +2888,7 @@ sub createVDB {
         return undef;
     }
 
-    print Dumper $self->{"NEWDB"}->{"source"};
+    #print Dumper $self->{"NEWDB"}->{"source"};
 
     delete $self->{"NEWDB"}->{"sourceConfig"}->{"linkingEnabled"};
 

@@ -1,0 +1,59 @@
+{
+   "result" : {
+      "locales" : [
+         "en-US",
+         "en-US-psaccent"
+      ],
+      "engineType" : "VIRTUALIZATION",
+      "toggleableFeatures" : [
+         "ANALYTICSINPHONEHOME",
+         "ATTACH_ST_CONVERTED_TO_PDB",
+         "INSTALLEDPOWERSHELL",
+         "KERBEROS",
+         "MINIMALPHONEHOME",
+         "MSSQLHOOKS",
+         "ORACLEBEQUEATHCONNECTIONS",
+         "ORACLECLONETIMEFLOW",
+         "ORACLEMTTDE"
+      ],
+      "buildVersion" : {
+         "patch" : 0,
+         "micro" : 7,
+         "type" : "VersionInfo",
+         "major" : 6,
+         "minor" : 0
+      },
+      "productType" : "standard",
+      "ssoEnabled" : false,
+      "theme" : {
+         "name" : "Default",
+         "actionDescription" : "Default",
+         "reference" : "THEME-0",
+         "namespace" : null,
+         "authorizationParent" : "DOMAIN",
+         "authorizationRoot" : false,
+         "changedProperties" : null,
+         "namespaceDataDependency" : false,
+         "type" : "NamedUserObject",
+         "stringId" : null,
+         "id" : 0
+      },
+      "apiVersion" : {
+         "minor" : 11,
+         "major" : 1,
+         "type" : "APIVersion",
+         "micro" : 7
+      },
+      "configured" : true,
+      "buildTitle" : "Dynamic Data Platform 6.0.7.0",
+      "currentLocale" : "en-US",
+      "productName" : "Dynamic Data Platform",
+      "buildTimestamp" : "2021-03-08T18:16:51.000Z",
+      "enabledFeatures" : [],
+      "type" : "PublicSystemInfo"
+   },
+   "action" : null,
+   "type" : "OKResult",
+   "job" : null,
+   "status" : "OK"
+}

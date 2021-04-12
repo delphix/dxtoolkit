@@ -1,10 +1,10 @@
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ use JSON;
 use Toolkit_helpers qw (logger);
 
 # constructor
-# parameters 
+# parameters
 # - dlpxObject - connection to DE
 # - debug - debug flag (debug on if defined)
 
@@ -45,9 +45,9 @@ sub new {
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
-    
+
     bless($self,$classname);
-    
+
     if (!defined($dbonly)) {
       $self->loadHooksList($debug);
     }
@@ -58,15 +58,15 @@ sub new {
 
 
 # Procedure getType
-# parameters: 
+# parameters:
 # - reference
 # Return hook type for specific hook template reference
 
 sub getType {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Hook_obj::getType",1);   
+
+    logger($self->{_debug}, "Entering Hook_obj::getType",1);
 
     my $hooks = $self->{_hooks_templates};
     my $type = $hooks->{$reference}->{operation}->{type};
@@ -76,6 +76,8 @@ sub getType {
         $ret = 'BASH';
     } elsif ($type eq 'RunPowerShellOnSourceOperation') {
         $ret = 'PS';
+    } elsif ($type eq 'RunDefaultPowerShellOnSourceOperation') {
+        $ret = 'PSD';
     } elsif ($type eq 'RunExpectOnSourceOperation') {
         $ret = 'EXPECT';
     } elsif ($type eq 'RunCommandOnSourceOperation') {
@@ -88,15 +90,15 @@ sub getType {
 }
 
 # Procedure getCommand
-# parameters: 
+# parameters:
 # - reference
 # Return hook command for specific hook template reference
 
 sub getCommand {
     my $self = shift;
     my $reference = shift;
-    
-    logger($self->{_debug}, "Entering Hook_obj::getCommand",1);   
+
+    logger($self->{_debug}, "Entering Hook_obj::getCommand",1);
 
     my $hooks = $self->{_hooks_templates};
     my $ret = $hooks->{$reference}->{operation}->{command};
@@ -112,7 +114,7 @@ sub getCommand {
 
 
 # Procedure exportDBHooks
-# parameters: 
+# parameters:
 # - database object
 # - location - directory
 # Return 0 if no errors
@@ -122,11 +124,11 @@ sub exportDBHooks {
     my $dbobj = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Hook_obj::exportDBHooks",1);   
+    logger($self->{_debug}, "Entering Hook_obj::exportDBHooks",1);
 
 
     my $hooks = $dbobj->{source}->{operations};
-    
+
     if (defined($hooks)) {
       my $dbname = $dbobj->getName();
       my $filename =  $location . "/" . $dbname . ".dbhooks";
@@ -139,7 +141,7 @@ sub exportDBHooks {
 
 
 # Procedure importDBHooks
-# parameters: 
+# parameters:
 # - database object
 # - filename - filename
 # Return 0 if no errors
@@ -149,7 +151,7 @@ sub importDBHooks {
     my $dbobj = shift;
     my $filename = shift;
 
-    logger($self->{_debug}, "Entering Hook_obj::importDBHooks",1);   
+    logger($self->{_debug}, "Entering Hook_obj::importDBHooks",1);
 
     my $hooks = $dbobj->{source}->{operations};
     my $source = $dbobj->{source}->{reference};
@@ -163,9 +165,9 @@ sub importDBHooks {
     local $/ = undef;
     my $json = JSON->new();
     $loadedHook = $json->decode(<$FD>);
-    
+
     close $FD;
-    
+
     print "Importing hooks from $filename into database $dbname \n";
 
     my $operation = 'resources/json/delphix/source/' . $source;
@@ -181,7 +183,7 @@ sub importDBHooks {
 
     my $json_data = to_json(\%hooks_hash);
 
-    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);  
+    my ($result, $result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
 
     #print Dumper $result_fmt;
 
@@ -197,7 +199,7 @@ sub importDBHooks {
 
 
 # Procedure exportHook
-# parameters: 
+# parameters:
 # - hook - content of hook to export
 # - location - filename
 # Return 0 if no errors
@@ -207,7 +209,7 @@ sub exportHook {
     my $hook = shift;
     my $location = shift;
 
-    logger($self->{_debug}, "Entering Hook_obj::exportHook",1);   
+    logger($self->{_debug}, "Entering Hook_obj::exportHook",1);
 
     open (my $FD, '>', "$location") or die ("Can't open file $location : $!");
 
@@ -219,7 +221,7 @@ sub exportHook {
 
 
 # Procedure exportHookScript
-# parameters: 
+# parameters:
 # - reference
 # - location - directory
 # Return 0 if no errors
@@ -229,7 +231,7 @@ sub exportHookScript {
     my $reference = shift;
     my $filename = shift;
 
-    logger($self->{_debug}, "Entering Hook_obj::exportHookScript",1);   
+    logger($self->{_debug}, "Entering Hook_obj::exportHookScript",1);
 
     my $hooks = $self->{_hooks_templates};
 
