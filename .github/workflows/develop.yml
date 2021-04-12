@@ -303,7 +303,7 @@ jobs:
           echo   ln -sf runner \$i >> install.sh
           echo done >> install.sh
 
-          cp ${CDIR}/dxtools.conf.example ${CDIR}/dxusers.csv.example ${CDIR}/dxtoolkit2
+          cp ${CDIR}/bin/dxtools.conf.example ${CDIR}/bin/dxusers.csv.example ${CDIR}/dxtoolkit2
 
 
           cd ${CDIR}
