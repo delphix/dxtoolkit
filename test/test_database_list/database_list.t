@@ -24,14 +24,15 @@ script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv',  "lis
 
 my $expected_stdout = <<EOF;
 #Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time
-local,10.43.6.187,cdbkate,Analytics,CDB,,N/A,0.86,UNKNOWN,disabled,cdbkate,N/A,2019-12-30 03:26:13
-local,10.43.6.187,oratest,Analytics,VDB,marina,2019-12-30 03:20:58 PST,0.01,RUNNING,enabled,oratest,2019-12-30 03:20:58 PST,2019-12-30 03:21:37
-local,10.43.6.187,pdbtest,Analytics,VDB,PDBX1,2019-12-30 03:21:29 PST,0.00,UNKNOWN,disabled,N/A,2019-12-30 03:21:29 PST,2019-12-30 03:25:45
-local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,2019-12-30 03:31:23 PST,2019-12-30 03:36:52
-local,10.43.6.187,vcdbtest,Analytics,vCDB,carmel,N/A,0.02,RUNNING,enabled,vcdbtest,N/A,2019-12-30 03:36:52
-local,10.43.1.211,carmel,Sources,CDB,,N/A,0.90,UNKNOWN,disabled,carmel,N/A,2019-12-30 03:13:21
-local,10.43.1.211,marina,Sources,dSource,,N/A,0.60,RUNNING,enabled,marina,N/A,2019-12-30 03:09:05
-local,NA,PDBX1,Sources,detached,,N/A,0.27,NA,N/A,N/A,N/A,2019-12-30 03:13:21
+local,10.110.247.60,CDOMLOSRCA1D,Sources,CDB,,N/A,1.30,RUNNING,enabled,CDOMLOSRCA1D,N/A,2021-04-09 07:52:20
+local,10.110.247.60,CDOMLOSRCA1DPDB1,Sources,dSource,,N/A,0.23,RUNNING,enabled,N/A,N/A,2021-04-09 07:52:20
+local,NA,CDOMLOSRCA1DPDB2,Sources,detached,,N/A,0.23,NA,N/A,N/A,N/A,2021-04-09 08:43:06
+local,10.110.230.248,CDOMLOTG2E25,Sources,CDB,,N/A,1.51,RUNNING,enabled,CDOMLOTG2E25,N/A,2021-04-09 08:45:26
+local,10.110.247.60,DBOMSR3A85E9,Sources,dSource,,N/A,0.68,RUNNING,enabled,DBOMSR3A85E9,N/A,2021-04-09 07:25:52
+local,10.110.230.248,oratest,Sources,VDB,DBOMSR3A85E9,2021-04-09 10:26:47 EDT,0.57,RUNNING,enabled,oratest,2021-04-09 10:26:47 EDT,2021-04-09 08:44:20
+local,10.110.230.248,PDBTEST1,Sources,VDB,CDOMLOSRCA1DPDB1,2021-04-09 10:54:15 EDT,0.08,RUNNING,enabled,N/A,2021-04-09 10:54:15 EDT,2021-04-09 08:45:21
+local,10.110.230.248,PDBTEST2,Sources,VDB,CDOMLOSRCA1DPDB2,2021-04-09 11:44:14 EDT,0.08,RUNNING,enabled,N/A,2021-04-09 11:44:14 EDT,2021-04-09 08:46:16
+local,10.110.230.248,VCDB,Sources,vCDB,CDOMLOSRCA1D,N/A,0.67,RUNNING,enabled,VCDB,N/A,2021-04-09 08:46:16
 EOF
 
 script_stdout_is $expected_stdout, "list databades results compare";
@@ -47,31 +48,31 @@ my $other_file = File::Spec->catfile( "./backup_metadata_dsource_orig.txt" );
 compare_ok($some_file, $other_file, "backup dsource file looks OK");
 
 
-script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2',"list pdbtest2 database"]);
+script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','PDBTEST2',"list pdbtest2 database"]);
 
 my $expected_stdout = <<EOF;
 #Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time
-local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,2019-12-30 03:31:23 PST,0.00,RUNNING,enabled,N/A,2019-12-30 03:31:23 PST,2019-12-30 03:36:52
+local,10.110.230.248,PDBTEST2,Sources,VDB,CDOMLOSRCA1DPDB2,2021-04-09 11:44:14 EDT,0.08,RUNNING,enabled,N/A,2021-04-09 11:44:14 EDT,2021-04-09 08:46:16
 EOF
 
 script_stdout_is $expected_stdout, "list pdbtest2 database results compare";
 
 
-script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2','-config', "list config pdbtest2 database"]);
+script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','PDBTEST2','-config', "list config pdbtest2 database"]);
 
 my $expected_stdout = <<EOF;
 #Appliance,Env. name,Database,Group,Type,SourceDB,Repository,DB type,Version,Other
-local,marcinoracletgt.dcenter.delphix.com,pdbtest2,Analytics,VDB,PDBX1,/u01/app/ora12102/product/12.1.0/dbhome_1,oracle,12.1.0.2.0,-vcdbinstname vcdbtest,-vcdbname vcdbtest -vcdbdbname VCDBTEST -vcdbuniqname vcdbtest -vcdbgroup "Analytics",-mntpoint "/mnt/provision"
+local,marcinoratgt.dlpxdc.co,PDBTEST2,Sources,VDB,CDOMLOSRCA1DPDB2,/u01/app/oracle/product/19.0.0.0/dbhome_1,oracle,19.3.0.0.0,-vcdbinstname VCDB,-vcdbname VCDB -vcdbdbname VCDB -vcdbuniqname VCDB -vcdbgroup "Sources",-mntpoint "/mnt/provision"
 EOF
 
 script_stdout_is $expected_stdout, "list config pdbtest2 database results compare";
 
 
-script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2','-config','-configtype','d', "list config 2 pdbtest2 database"]);
+script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','PDBTEST2','-config','-configtype','d', "list config 2 pdbtest2 database"]);
 
 my $expected_stdout = <<EOF;
 #Appliance,Hostname,Database,Group,Type,SourceDB,Repository,DB type,Version,Server DB name
-local,10.43.6.187,pdbtest2,Analytics,VDB,PDBX1,/u01/app/ora12102/product/12.1.0/dbhome_1,oracle,12.1.0.2.0,PDBTEST2
+local,10.110.230.248,PDBTEST2,Sources,VDB,CDOMLOSRCA1DPDB2,/u01/app/oracle/product/19.0.0.0/dbhome_1,oracle,19.3.0.0.0,PDBTEST2
 EOF
 
 script_stdout_is $expected_stdout, "list config 2 pdbtest2 database results compare";

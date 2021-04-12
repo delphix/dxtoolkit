@@ -1106,8 +1106,10 @@ sub getCustomEnv {
     my %node_names;
 
 
-    $env_nodes = $self->{_environment}->getOracleClusterNode($self->{"environment"}->{"reference"});
-    %node_names = map { $_->{reference} => $_->{name} } @{$env_nodes};
+    if ( $self->{_environment}->getType($self->{"environment"}->{"reference"}) eq 'rac' ) {
+      $env_nodes = $self->{_environment}->getOracleClusterNode($self->{"environment"}->{"reference"});
+      %node_names = map { $_->{reference} => $_->{name} } @{$env_nodes};
+    }
 
     my $ret = '';
 

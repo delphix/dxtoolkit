@@ -1,114 +1,116 @@
 {
-   "job" : null,
-   "status" : "OK",
    "action" : null,
-   "type" : "ListResult",
    "overflow" : false,
    "total" : 2,
+   "job" : null,
+   "type" : "ListResult",
    "result" : [
       {
-         "address" : "10.43.1.211",
-         "toolkitPath" : "/u01/app/toolkit",
          "oracleJdbcKeystorePassword" : null,
-         "type" : "UnixHost",
-         "dspTruststorePassword" : null,
-         "dateAdded" : "2019-12-24T14:03:58.823Z",
-         "sshPort" : 22,
-         "javaHome" : null,
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
-         "dspTruststorePath" : null,
-         "name" : "10.43.1.211",
-         "nfsAddressList" : [],
-         "reference" : "UNIX_HOST-1",
-         "dspKeystorePath" : null,
-         "namespace" : null,
-         "hostRuntime" : {
-            "available" : true,
-            "notAvailableReason" : null,
-            "type" : "HostRuntime",
-            "availableTimestamp" : "2019-12-30T12:14:18.505Z",
-            "traceRouteInfo" : {
-               "type" : "TracerouteInfo",
-               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.362 ms  0.295 ms  0.278 ms"
-            }
-         },
-         "dspKeystorePassword" : null,
          "hostConfiguration" : {
-            "lastUpdated" : "2019-12-24T14:04:30.502Z",
-            "machine" : {
-               "memorySize" : 16726491136,
-               "type" : "HostMachine",
-               "platform" : "x86_64"
-            },
+            "powerShellVersion" : null,
+            "lastUpdated" : "2021-04-09T12:29:27.190Z",
             "type" : "HostConfiguration",
             "discovered" : true,
             "lastRefreshed" : null,
             "operatingSystem" : {
-               "type" : "HostOS",
-               "timezone" : "America/Los_Angeles,PST-0800",
+               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
+               "kernel" : null,
                "name" : "Linux",
-               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
                "distribution" : "RedHat",
-               "release" : "2.6.32-431.el6.x86_64",
-               "kernel" : null
-            }
-         },
-         "dspKeystoreAlias" : null,
-         "sshVerificationStrategy" : {
-            "type" : "SshAcceptAlways"
-         }
-      },
-      {
-         "javaHome" : null,
-         "sshPort" : 22,
-         "dateAdded" : "2019-12-24T14:06:56.888Z",
-         "dspTruststorePassword" : null,
-         "type" : "UnixHost",
-         "oracleJdbcKeystorePassword" : null,
-         "address" : "10.43.6.187",
-         "toolkitPath" : "/u01/app/toolkit",
-         "dspKeystoreAlias" : null,
-         "sshVerificationStrategy" : {
-            "type" : "SshAcceptAlways"
-         },
-         "hostRuntime" : {
-            "traceRouteInfo" : {
-               "networkHops" : "1  10.43.17.71 (10.43.17.71)  0.300 ms  0.316 ms  0.436 ms",
-               "type" : "TracerouteInfo"
+               "release" : "3.10.0-1127.el7.x86_64",
+               "type" : "HostOS",
+               "timezone" : "America/New_York,EDT-0400"
             },
-            "availableTimestamp" : "2019-12-30T12:14:18.484Z",
-            "type" : "HostRuntime",
-            "notAvailableReason" : null,
-            "available" : true
-         },
-         "dspKeystorePassword" : null,
-         "hostConfiguration" : {
-            "type" : "HostConfiguration",
-            "discovered" : true,
             "machine" : {
                "type" : "HostMachine",
-               "memorySize" : 16726491136,
-               "platform" : "x86_64"
-            },
-            "lastUpdated" : "2019-12-24T15:12:55.298Z",
-            "operatingSystem" : {
-               "distribution" : "RedHat",
-               "version" : "Red Hat Enterprise Linux Server release 6.5 (Santiago)",
-               "kernel" : null,
-               "release" : "2.6.32-431.el6.x86_64",
-               "type" : "HostOS",
-               "timezone" : "US/Pacific,PST-0800",
-               "name" : "Linux"
-            },
-            "lastRefreshed" : "2019-12-24T15:12:55.279Z"
+               "platform" : "x86_64",
+               "memorySize" : 8199618560
+            }
          },
-         "dspKeystorePath" : null,
-         "namespace" : null,
+         "toolkitPath" : "/u01/app/toolkit",
          "nfsAddressList" : [],
-         "name" : "10.43.6.187",
-         "reference" : "UNIX_HOST-2",
+         "hostRuntime" : {
+            "notAvailableReason" : null,
+            "traceRouteInfo" : {
+               "type" : "TracerouteInfo",
+               "networkHops" : ""
+            },
+            "type" : "HostRuntime",
+            "availableTimestamp" : "2021-04-12T08:51:30.629Z",
+            "available" : true
+         },
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "dspKeystoreAlias" : null,
+         "dspTruststorePassword" : null,
+         "javaHome" : null,
+         "reference" : "UNIX_HOST-1",
+         "dateAdded" : "2021-04-09T12:28:48.237Z",
+         "type" : "UnixHost",
+         "dspKeystorePath" : null,
+         "sshPort" : 22,
+         "name" : "10.110.247.60",
+         "namespace" : null,
+         "dspKeystorePassword" : null,
          "dspTruststorePath" : null,
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1"
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "address" : "10.110.247.60"
+      },
+      {
+         "dspTruststorePassword" : null,
+         "reference" : "UNIX_HOST-2",
+         "javaHome" : null,
+         "dateAdded" : "2021-04-09T12:29:57.890Z",
+         "type" : "UnixHost",
+         "dspKeystorePath" : null,
+         "sshPort" : 22,
+         "namespace" : null,
+         "name" : "10.110.230.248",
+         "dspKeystorePassword" : null,
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "dspTruststorePath" : null,
+         "address" : "10.110.230.248",
+         "hostConfiguration" : {
+            "machine" : {
+               "platform" : "x86_64",
+               "memorySize" : 8199622656,
+               "type" : "HostMachine"
+            },
+            "discovered" : true,
+            "lastRefreshed" : null,
+            "lastUpdated" : "2021-04-09T12:30:15.767Z",
+            "powerShellVersion" : null,
+            "type" : "HostConfiguration",
+            "operatingSystem" : {
+               "type" : "HostOS",
+               "release" : "3.10.0-1127.el7.x86_64",
+               "timezone" : "America/New_York,EDT-0400",
+               "kernel" : null,
+               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
+               "name" : "Linux",
+               "distribution" : "RedHat"
+            }
+         },
+         "oracleJdbcKeystorePassword" : null,
+         "toolkitPath" : "/u01/app/toolkit",
+         "nfsAddressList" : [],
+         "hostRuntime" : {
+            "available" : true,
+            "notAvailableReason" : null,
+            "traceRouteInfo" : {
+               "networkHops" : "",
+               "type" : "TracerouteInfo"
+            },
+            "availableTimestamp" : "2021-04-12T08:51:30.706Z",
+            "type" : "HostRuntime"
+         },
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "dspKeystoreAlias" : null
       }
-   ]
+   ],
+   "status" : "OK"
 }
