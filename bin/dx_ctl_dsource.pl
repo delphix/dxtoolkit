@@ -70,6 +70,7 @@ GetOptions(
   'dumppwd=s' => \(my $dumppwd),
   'mountbase=s' => \(my $mountbase),
   'logsync=s' => \($logsync),
+  'logsyncmode=s' => \(my $logsyncmode),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
   'hadr=s' => \(my $hadr),
@@ -221,18 +222,40 @@ for my $engine ( sort (@{$engine_list}) ) {
       # only for sybase and mssql
       my $type = $source->getDBType();
       if ($action eq 'detach')  {
+        # detach dSource
         $jobno = $source->detach_dsource();
-        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
-      } elsif (($type eq 'sybase') || ($type eq 'mssql')) {
-        $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
-        if (defined($jobno)) {
-          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource detach");
+      } else {
+        # update dSource
+        if ((lc $type eq 'sybase') || (lc $type eq 'mssql')) {
+          $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+          }
+          $jobno = $source->update_dsource_config( $stageenv, $stageinst );
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource config update");
+          }
+          if (defined($logsync)) {
+            $jobno = $source->setLogSync($logsync);
+            if (defined($jobno)) {
+              $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+            }
+          }
+        } elsif (lc $type eq 'oracle') {
+          $jobno = $source->update_dsource($backup_dir, $logsync, $logsyncmode);
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+          }
+        } else {
+          print "Update action not supported for dSource type $type\n";
+          $ret = $ret + 1;
         }
-        $jobno = $source->update_dsource_config( $stageenv, $stageinst );
-        if (defined($jobno)) {
-          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource config action");
-        }
+
       }
+
+
+
 
     }
 
@@ -348,6 +371,7 @@ __DATA__
   -source_os_user osusername
   [-creategroup]
   [-logsync yes/no ]
+  [-logsyncmode redo|arch]
   [-stageinst staging_inst ]
   [-stageenv staging_env ]
   [-stage_os_user staging_osuser ]
@@ -440,6 +464,10 @@ for MS SQL dSource.
 =item B<-logsync yes/no>
 Enable or no LogSync for dSource. Default LogSync is disabled.
 
+=item B<-logsyncmode redo|arch>
+LogSync mode for Oracle only - allowed values redo to use redo/archivlog logsync
+or arch for Archive log only
+
 =item B<-dumppwd password>
 Password for backup used to create dsource
 
@@ -447,7 +475,7 @@ Password for backup used to create dsource
 For Sybase only - mount point for staging server
 
 =item B<-validatedsync mode>
-Set validated sync mode.
+Set validated sync mode for MS SQL and Sybase
 
 Allowed values for MS SQL:
 TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL, NONE
