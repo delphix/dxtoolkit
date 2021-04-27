@@ -968,6 +968,55 @@ sub getValidatedMode {
 
 }
 
+# Procedure getLogSync
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSync
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getLogSync",1);
+    return $self->{container}->{runtime}->{logSyncActive} ? 'ACTIVE' : 'INACTIVE';
+}
+
+
+# Procedure setLogSync
+# parameters:
+# - logsync - yes/no
+# Enable of Log Sync
+
+sub setLogSync
+{
+    my $self = shift;
+    my $logsync = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setLogSync",1);
+
+
+    my $type = $self->{container}->{type};
+
+    my %logsynchash = (
+        "type"=> $type,
+        "sourcingPolicy"=> {
+            "type"=> "SourcingPolicy"
+        }
+    );
+
+    if (lc $logsync eq 'yes') {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+    } else {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
+    }
+
+
+    my $ref = $self->{container}->{reference};
+
+    my $operation = "resources/json/delphix/database/" . $ref;
+    my $payload = to_json(\%logsynchash);
+
+    return $self->runJobOperation($operation,$payload,'ACTION');
+}
+
+
 # Procedure setValidatedMode
 # parameters:
 # source - source hash
@@ -1349,7 +1398,7 @@ sub setEncryption {
 sub getDbUser
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getDbUser",1);
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getDbUser",1);
     my $ret;
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
@@ -1393,8 +1442,64 @@ sub getDbUser
 sub getNodes
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getNodes",1);
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getNodes",1);
     return $self->{_environment}->getClusterHosts($self->{"environment"}->{reference});
+}
+
+
+# Procedure update_dsource
+# parameters:
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::update_dsource",1);
+
+    my %source_hash;
+    my $jobno;
+
+    my $update = 0;
+    my $dbtype = $self->getDBType();
+
+    %source_hash = (
+        "type" => $self->{source}->{type}
+    );
+
+
+
+    if (defined($backup_dir)) {
+      $self->setBackupPath(\%source_hash, $backup_dir);
+      $update = 1;
+    }
+
+    if (defined($validatedsync)) {
+      if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
+        return undef;
+      }
+      $update = 1;
+    }
+
+
+    if ($update eq 1) {
+      my $json_data = to_json(\%source_hash);
+
+      logger($self->{_debug}, $json_data ,2);
+
+      my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
+      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
+    } else {
+      print "Nothing to update for 1st part\n";
+    }
+
+    return $jobno;
+
 }
 
 

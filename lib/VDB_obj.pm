@@ -478,16 +478,8 @@ sub getReference
     return $self->{container}->{reference};
 }
 
-# Procedure getLogSync
-# parameters: none
-# Return status of Log Sync
 
-sub getLogSync
-{
-    my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
-    return $self->{container}->{runtime}->{logSyncActive} ? 'ACTIVE' : 'INACTIVE';
-}
+
 
 # Procedure getGroup
 # parameters: none
@@ -1119,44 +1111,8 @@ sub update_dsource {
 
 
     logger($self->{_debug}, "Entering VDB_obj::update_dsource",1);
-
-    my %source_hash;
-    my $jobno;
-
-    my $update = 0;
-    my $dbtype = $self->getDBType();
-
-    %source_hash = (
-        "type" => $self->{source}->{type}
-    );
-
-    if ( ($dbtype eq 'mssql') || ($dbtype eq 'sybase') ) {
-
-      if (defined($backup_dir)) {
-        $self->setBackupPath(\%source_hash, $backup_dir);
-        $update = 1;
-      }
-
-      if (defined($validatedsync)) {
-        if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
-          return undef;
-        }
-        $update = 1;
-      }
-    }
-
-    if ($update eq 1) {
-      my $json_data = to_json(\%source_hash);
-
-      logger($self->{_debug}, $json_data ,2);
-
-      my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
-      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
-    } else {
-      print "Nothing to update for 1st part\n";
-    }
-
-    return $jobno;
+    print "Update of this dSource type is not implemented\n";
+    return undef;
 
 }
 
