@@ -315,6 +315,11 @@ sub addSource {
 
     my $stagingrepo = $self->{"NEWDB"}->{"sourceConfig"}->{"repository"};
 
+    if ($self->{_repository}->check_and_enable_staging($stagingrepo) ne 0) {
+      print "Problem with enabling staging environment\n";
+      return undef;
+    }
+
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
 
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);

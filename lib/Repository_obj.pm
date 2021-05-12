@@ -325,5 +325,51 @@ sub deleteRepository
     }
 }
 
+# Procedure check_and_enable_staging
+# parameters:
+# - reporef - new staging repository name
+
+sub check_and_enable_staging {
+    my $self = shift;
+    my $reporef = shift;
+
+    my $ret;
+    if ($self->{_repositories}->{$reporef}->{staging} eq JSON::false) {
+        my $type = $self->{_repositories}->{$reporef}->{type};
+        my %payload = (
+          "type" => $type,
+          "staging" => JSON::true
+        );
+        my $json_data = to_json(\%payload, {pretty=>1});
+        my $operation = "resources/json/delphix/repository/" . $reporef;
+
+        my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+        my $jobno;
+
+        if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+            $self->{_currentobj} = $result->{result};
+            $jobno = $result->{action};
+        } else {
+            if (defined($result->{error})) {
+                print "Problem with starting job\n";
+                print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+                logger($self->{_debug}, "Can't submit job for operation $operation",1);
+                logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+                logger($self->{_debug}, $result->{error}->{action} ,1);
+            } else {
+                print "Unknown error. Try with debug flag\n";
+            }
+        }
+        my $actionret = Toolkit_helpers::waitForAction($self->{_dlpxObject}, $jobno, "Action completed with success", "There were problems with enabling staging");
+        $ret = $actionret;
+    } else {
+      $ret = 0;
+    }
+
+    return $ret;
+
+
+}
+
 
 1;
