@@ -42,7 +42,6 @@ use FileMap;
 
 my $dxversion = $Toolkit_helpers::version;
 
-my $logsync = "no";
 my $compression = "no";
 my $dbusertype = 'database';
 
@@ -69,7 +68,7 @@ GetOptions(
   'backup_dir=s' => \(my $backup_dir),
   'dumppwd=s' => \(my $dumppwd),
   'mountbase=s' => \(my $mountbase),
-  'logsync=s' => \($logsync),
+  'logsync=s' => \(my $logsync),
   'logsyncmode=s' => \(my $logsyncmode),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
@@ -310,6 +309,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         next;
       }
+    }
+
+
+    if (!defined($logsync)) {
+      $logsync = 'no';
     }
 
 

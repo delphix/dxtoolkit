@@ -1028,6 +1028,7 @@ sub return_currentobj
 }
 
 
+
 # Procedure update_dsource_config
 # parameters:
 # - stageenv - new staging environent name
@@ -1066,7 +1067,23 @@ sub update_dsource_config {
           # list all environments and repositories and find a one we are looking for
           my $repoobj = $self->{_repository}->getRepository($staging_conf->{repository});
           my $envnew_obj = $self->{_environment}->getEnvironmentByName($stageenv);
+
+          if (! defined($envnew_obj)) {
+            print "Environment $stageenv not found\n";
+            return undef;
+          }
+
           my $rep = $self->{_repository}->getRepositoryByNameForEnv($stageinst, $envnew_obj->{reference});
+
+          if (! defined($rep)) {
+            print "Repository $stageinst not found\n";
+            return undef;
+          }
+
+          if ($self->{_repository}->check_and_enable_staging($rep->{reference}) ne 0) {
+            print "Problem with enabling staging environment\n";
+            return undef;
+          }
 
           # for now we are using a primary user for a staging environment - a new development possible for other users
           $sourceconfig_hash{repository} = $rep->{reference};
