@@ -1312,26 +1312,31 @@ sub undo
     logger($self->{_debug}, "Entering VDB_obj::undo",1);
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/undo";
     #print Dumper $json_data;
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-    if (defined($result->{status})) {
-        if ($result->{status} eq 'OK') {
-          return $result->{job}
-        } else {
-          if (defined($result->{error})) {
-              print "Problem with starting job\n";
-              print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-              logger($self->{_debug}, "Can't submit job for operation $operation",1);
-              logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-              logger($self->{_debug}, $result->{error}->{action} ,1);
-          } else {
-              print "Unknown error. Try with debug flag\n";
-          }
-          return undef;
-        }
 
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status})) {
+          if ($result->{status} eq 'OK') {
+            return $result->{job}
+          } else {
+            if (defined($result->{error})) {
+                print "Problem with starting job\n";
+                print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+                logger($self->{_debug}, "Can't submit job for operation $operation",1);
+                logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+                logger($self->{_debug}, $result->{error}->{action} ,1);
+            } else {
+                print "Unknown error. Try with debug flag\n";
+            }
+            return undef;
+          }
+
+      } else {
+          print "Undo API call failure \n";
+          return undef;
+      }
     } else {
-        print "Undo API call failure \n";
-        return undef;
+      return $self->runJobOperation($operation,'{}');
     }
 }
 
