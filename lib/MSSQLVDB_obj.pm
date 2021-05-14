@@ -744,7 +744,7 @@ sub addSource {
                            "password" => $password
                          };
          $dsource_params{"linkData"}{"dbUser"} = $dbuser;
-     } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
+     } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
          # 6.0.2 onwards to 6.0.7
 
          if (!defined($dbusertype)) {
