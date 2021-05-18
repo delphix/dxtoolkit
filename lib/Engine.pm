@@ -180,6 +180,12 @@ sub load_config {
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
+      # for external password support
+
+      $engines{$name}{passwordvar}    = $host->{passwordvar};
+      $engines{$name}{passwordscript} = $host->{passwordscript};
+      $engines{$name}{additionalopt}  = $host->{additionalopt};
+
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
             if (defined($engines{$name}{password})) {
@@ -538,6 +544,34 @@ sub dlpx_connect {
    } else {
      print "Username and clientid are missing from config file\n";
      return 1;
+   }
+
+
+   if ((defined($engine_config->{passwordvar})) && ($engine_config->{passwordvar} ne ""))  {
+     logger($self->{_debug}, "Password variable $engine_config->{passwordvar} used to get password");
+     if (defined($ENV{$engine_config->{passwordvar}})) {
+       $self->{_password} = $ENV{$engine_config->{passwordvar}};
+     } else {
+       print "Password variable $engine_config->{passwordvar} not set\n";
+       logger($self->{_debug}, "Password variable $engine_config->{passwordvar} not set");
+       return 1;
+     }
+   } elsif ((defined($engine_config->{passwordscript})) && ($engine_config->{passwordscript} ne "")) {
+     logger($self->{_debug}, "Password script  $engine_config->{passwordscript} used to get password");
+     my $line = $engine_config->{passwordscript} . " " . $self->{_enginename} . " " . $engine_config->{username} . " " . $engine_config->{ip_address};
+     if ((defined($engine_config->{additionalopt})) && ($engine_config->{additionalopt} ne "")) {
+       $line = $line . " " . $engine_config->{additionalopt};
+     }
+     logger($self->{_debug}, "Script command line $line");
+     if (! -f "$engine_config->{passwordscript}") {
+       print "Password script $engine_config->{passwordscript} doesn't exist\n";
+       logger($self->{_debug}, "Password script $engine_config->{passwordscript} doesn't exist");
+       return 1;
+     }
+
+     my $out = qx|$line|;
+     $out =~ s/^\s+|\s+$//g;
+     $self->{_password} = $out;
    }
 
    my $cookie_dir = File::Spec->tmpdir();
