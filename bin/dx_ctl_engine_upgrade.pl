@@ -146,12 +146,14 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $jobstart = Toolkit_helpers::timestamp("-0min", $engine_obj);
 
-    my $rc = $engine_obj->uploadupdate($filename);
+    my $rc = $engine_obj->uploadupdate60($filename);
 
     if ($rc ne 0) {
       $ret = $ret + $rc;
       next;
     }
+
+    exit;
 
     print "Checking status of upload verification job\n";
 
