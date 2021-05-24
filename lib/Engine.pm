@@ -1700,15 +1700,6 @@ sub uploadupdate {
     my $url = $self->{_protocol} . '://' . $self->{_host} ;
     my $api_url = "$url/resources/json/system/uploadUpgrade";
 
-    $self->{_ua}->proxy([
-         [ 'http' ] => 'http://127.0.0.1:8888/',
-    ]);
-
-    my ($r,$r_fmt, $rcode) = $self->getJSONResult("resources/json/system/uploadUpgrade?file=Delphix_6.0.8.0_2021-05-07-22-28_Standard_Upgrade.tar");
-    print Dumper $r;
-
-
-
     my $size = -s $filename;
     my $boundary = HTTP::Request::Common::boundary(10);
 
@@ -1717,8 +1708,6 @@ sub uploadupdate {
     # 63 is Content-Disposition plus end of lines
     $size = $size + 2 * (length $boundary) + 6 + (length basename($filename)) + 63;
 
-    $boundary = "-----------------------------36497293608260705052636266395";
-    $size = 775;
 
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
@@ -1731,9 +1720,6 @@ sub uploadupdate {
     );
 
 
-
-    $request->protocol('HTTP/1.1');
-
     # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
     # without loading all in memory but it's very slow as it's using 2k chunks
     # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
@@ -1741,7 +1727,7 @@ sub uploadupdate {
     # it's simple implementation and probably not a best one
 
 
-    my $content_provider_ref = &content_provider_60($filename, $size, $boundary, $self, $fsize);
+    my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);
     $request->content($content_provider_ref);
 
 
@@ -1823,87 +1809,6 @@ sub uploadupdate {
       }
     }
 
-
-
-    sub content_provider_601 {
-      my $filename = shift;
-      my $size = shift;
-      my $boundary = shift;
-      my $self = shift;
-      my $fsize = shift;
-      # we need to send 4 parts - a boundary start, content description, file content, boundary end
-      my @content_part = ( 'b', 'c', 'f', 'e' );
-      my $total = 0;
-      my $report = 0;
-      my $end = 0;
-      my $end2 = 0;
-      my $real  = 0;
-      $| = 1;
-
-      my $fh;
-      open $fh, $filename;
-      binmode $fh;
-
-      return sub {
-        my $buf;
-
-        # print Dumper $content_part[0];
-        # print Dumper "----";
-        # print Dumper $total;
-
-        if (!defined($content_part[0])) {
-          if ($end eq 0) {
-            printf "%5.1f\n", 100;
-            $end = 1;
-          }
-          return undef;
-        }
-
-        if ($content_part[0] eq 'e') {
-          $buf = "\r\n--" . $boundary . "--\r\n";
-          shift @content_part;
-          #print Dumper $buf;
-        } elsif ($content_part[0] eq 'b') {
-          $buf = "--" . $boundary . "\r\n";
-          shift @content_part;
-          #print Dumper $buf;
-          # my $buf2;
-          # my $rc = sysread($fh, $buf2, 1048576);
-          # $buf = $buf . $buf2;
-          # $total = $total + length $buf2;
-          # print Dumper $total;
-        } elsif ($content_part[0] eq 'c') {
-          $buf = "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n\r\n";
-          shift @content_part;
-          #print Dumper $buf;
-        } elsif ($content_part[0] eq 'f') {
-          my $rc = sysread($fh, $buf, 1048576);
-          $total = $total + length $buf;
-          #print Dumper $total;
-          # print Dumper $rc;
-          if (($total / $fsize * 100) > $report) {
-            if (($total / $fsize * 100) eq 100) {
-              printf "%5.1f\n ", 100;
-              $end = 1;
-            } else {
-              printf "%5.1f - ", $total / $fsize * 100;
-              $report = $report + 10;
-            }
-
-            }
-            if ($rc ne 1048576) {
-              shift @content_part;
-            }
-
-          #print Dumper $buf;
-        }
-        $real = $real + length $buf;
-        #print Dumper $buf;
-        return $buf;
-      }
-    }
-
-
     my $response = $self->{_ua}->request($request);
 
     my $decoded_response;
@@ -1953,9 +1858,14 @@ sub uploadupdate60 {
     my $url = $self->{_protocol} . '://' . $self->{_host} ;
     my $api_url = "$url/resources/json/system/uploadUpgrade";
     #
-    $self->{_ua}->proxy([
-         [ 'http' ] => 'http://127.0.0.1:8888/',
-    ]);
+    # $self->{_ua}->proxy([
+    #      [ 'http' ] => 'http://127.0.0.1:8888/',
+    # ]);
+
+
+
+    #$self->{_ua}->add_handler("request_send",  sub { shift->dump; return });
+    #$self->{_ua}->add_handler("response_done", sub { shift->dump; return });
 
     my ($r,$r_fmt, $rcode) = $self->getJSONResult("resources/json/system/uploadUpgrade?file=$filename");
     print Dumper $r;
@@ -1970,8 +1880,8 @@ sub uploadupdate60 {
     open $fh, $filename;
     binmode $fh;
 
-    #my $chunksize = 1024000000;
-    my $maxchunksize = 100;
+    my $maxchunksize = 1024000000;
+    #my $maxchunksize = 10240;
 
     #my $maxpartsize = 3;
 
@@ -1982,18 +1892,21 @@ sub uploadupdate60 {
     my $total = 0;
 
 
-    #my $maxread = 1048576;
-    my $maxread = 10;
+    my $maxread = 1024000;
+    #my $maxread = 1024;
 
 
     for my $part (0..$noofparts) {
 
         # example = 825
 
+        # 299 content
+
         if (($fsize-$total) > $maxchunksize) {
-          $size = $maxchunksize + 6 * (length $boundary) + (length basename($filename)) + 379 + length ($maxchunksize) + length ($maxchunksize) + length($fsize);
+          # $size = $maxchunksize + 6 * (length $boundary) + 6 * (2) + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($maxchunksize) + length($fsize) + 18;
+          $size = $maxchunksize + 6 * (length $boundary) + 6 * 2 + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($maxchunksize) + length($fsize) + length($part);
         } else {
-          $size = ($fsize-$total) + 6 * (length $boundary) + (length basename($filename)) + 379 + length ($maxchunksize) + length ($fsize-$total) + length($fsize);
+          $size = ($fsize-$total) + 6 * (length $boundary) + 6 * 2 + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($fsize-$total) + length($fsize) + length($part);
         }
 
 
@@ -2003,7 +1916,7 @@ sub uploadupdate60 {
         # for manual test
         #$size = 826;
 
-
+        print Dumper "sizes";
         print Dumper "#######";
         print Dumper $size;
         print Dumper $total;
@@ -2056,14 +1969,14 @@ sub uploadupdate60 {
           my $chunksize = 0;
           $| = 1;
 
-          print Dumper "entry to content_provider_60";
-          print Dumper $part;
-          print Dumper $maxchunksize;
+          # print Dumper "entry to content_provider_60";
+          # print Dumper $part;
+          # print Dumper $maxchunksize;
 
           return sub {
             my $buf;
 
-            print Dumper \@content_part;
+            #print Dumper \@content_part;
 
             if (!defined($content_part[0])) {
               print Dumper "Kaniex";
@@ -2077,7 +1990,7 @@ sub uploadupdate60 {
             if ($content_part[0] eq 'a') {
               # each bondary has -- at the beginning - not sure why
               $buf = "--" . $boundary. "\r\n";
-              $buf = $buf . "Content-Disposition: form-data; name=\"file\"; filename=\"" . $filename . "\"\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n";
               $buf = $buf . "Content-Type: application/octet-stream\r\n\r\n";
               # print Dumper $buf;
               # print Dumper "HIPCIO PO A";
@@ -2100,16 +2013,16 @@ sub uploadupdate60 {
               }
 
               if (${$total} eq ($part*$maxchunksize)) {
-                print Dumper "total chunk size reach";
-                print Dumper "#######";
-                print Dumper $part;
-                print Dumper ${$total};
-                print Dumper "#######";
+                # print Dumper "total chunk size reach";
+                # print Dumper "#######";
+                # print Dumper $part;
+                # print Dumper ${$total};
+                # print Dumper "#######";
                 shift @content_part;
               }
 
               if ($rc ne $maxread) {
-                print Dumper "rc not maxread";
+                # print Dumper "rc not maxread";
                 shift @content_part;
               }
             } elsif ($content_part[0] eq 'c') {
@@ -2133,15 +2046,16 @@ sub uploadupdate60 {
             if ($buf eq '') {
               return undef;
             }
-            print Dumper "wyscie";
-            print Dumper $buf;
+            # print Dumper "wyscie";
+            #print Dumper $buf;
             return $buf;
           }
         }
 
-
+        #print Dumper "HIPPO2";
         my $response = $self->{_ua}->request($request);
-
+        #print Dumper "HIPPO3";
+        #print Dumper $response;
         my $decoded_response;
         my $result_fmt;
         my $retcode;
