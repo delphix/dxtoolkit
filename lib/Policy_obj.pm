@@ -339,6 +339,7 @@ sub exportPolicy {
 
     $name =~ s/\//_/g;
     $name =~ s/\\/_/g;
+    $name =~ s/\s/_/g;
 
     my $filename =  $location . "/" . $name . ".policy";
 
@@ -448,7 +449,7 @@ sub applyMapping {
 
             if ($loadedMapping->{$groupname}->{$policytype}->{inherited} eq 'DIRECT_APPLIED' ) {
                 print "Applying policy " . $loadedMapping->{$groupname}->{$policytype}->{name} . " to group " . $groupname ;
-                if ($self->applyPolicy($policyref, $groupref)) {
+                if ($self->applyPolicy($policyref, $groupref->{"reference"})) {
                     return 1;
                 };
             }
@@ -599,10 +600,13 @@ sub importPolicy {
 sub updatePolicy {
     my $self = shift;
     my $location = shift;
+    my $skipdefault = shift;
 
     logger($self->{_debug}, "Entering Policy_obj::updatePolicy",1);
 
     my $filename =  $location;
+
+
 
     my $loadedPolicy;
 
@@ -630,6 +634,14 @@ sub updatePolicy {
     if (! defined($self->getPolicyByName($loadedPolicy->{name}))) {
         print "Policy " . $loadedPolicy->{name} . " from file $filename doesn't exist. Can't update.\n";
         return 1;
+    }
+
+    if ($skipdefault) {
+      if ($loadedPolicy->{name} =~ /Default/) {
+        print "Skipping default policy " . $loadedPolicy->{name} . "\n";
+        logger($self->{_debug}, "Skipping default policy " . $loadedPolicy->{name},2);
+        return 0;
+      } 
     }
 
     my $reference = $self->getPolicyByName($loadedPolicy->{name});

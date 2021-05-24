@@ -1,6 +1,14 @@
 ## 2.4.11
 
 ### Added
+- skipdefault flag added to dx_ctl_policy to skip updating existing default polices
+
+### Changed
+- fix for applying policy to group
+
+## 2.4.11
+
+### Added
 - Simplified connection support for Oracle in 6.0.7 engines - no need to add dbuser and password in dSource operations
 - Certified with 6.0.7
 
