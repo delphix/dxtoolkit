@@ -39,6 +39,8 @@ use Group_obj;
 
 my $version = $Toolkit_helpers::version;
 
+my $skipdefault = 0;
+
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
@@ -46,6 +48,7 @@ GetOptions(
   'indir=s' => \(my $indir),
   'import' => \(my $import),
   'update' => \(my $update),
+  'skipdefault' => \($skipdefault),
   'mapping=s' => \(my $mapping),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -129,7 +132,7 @@ for my $engine ( sort (@{$engine_list}) ) {
                 $ret = $ret + 1;
               }
             } elsif (defined($update)) {
-              if ($policy->updatePolicy($filename)) {
+              if ($policy->updatePolicy($filename, $skipdefault)) {
                 print "Problem with update policy from file $filename\n";
                 $ret = $ret + 1;
               }
@@ -151,7 +154,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_policy   [ -engine|d <delphix identifier> | -all ] [ -configfile file ]-import | -update | -mapping mapping_file [ -filename filename | -indir dir]  [ -help|? ] [ -debug ]
+ dx_ctl_policy   [ -engine|d <delphix identifier> | -all ]
+                 [ -configfile file ]
+                 -import | -update [ -filename filename | -indir dir]
+                 -mapping mapping_file
+                 [-skipdefault]
+                 [ -help|? ]
+                 [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -198,6 +207,9 @@ Template filename
 =item B<-indir>
 Location of imported templates files
 
+=item B<-skipdefault>
+Skip update of the default polices - if used with -update option.
+By default all default polices are updated.
 
 =item B<-help>
 Print this screen
@@ -226,18 +238,37 @@ Import polices from /tmp/policy directory into engine.
 Update existing polices using files from directory /tmp/policy
 
  dx_ctl_policy -d Landshark43 -update -indir /tmp/policy
- Updating policy Default Retention from file /tmp/policy/Default Retention.policy. Update completed Updating policy Default Snapshot from file /tmp/policy/Default Snapshot.policy. Update completed Updating policy Default SnapSync from file /tmp/policy/Default SnapSync.policy. Update completed Updating policy jsontest from file /tmp/policy/jsontest.policy. Update completed
+ Updating policy Default Retention from file /tmp/policy/Default Retention.policy.
+ Update completed Updating policy Default Snapshot from file /tmp/policy/Default Snapshot.policy.
+ Update completed Updating policy Default SnapSync from file /tmp/policy/Default SnapSync.policy.
+ Update completed Updating policy jsontest from file /tmp/policy/jsontest.policy. Update completed
  Updating policy marcintest from file /tmp/policy/marcintest.policy. Update completed
  Updating policy test from file /tmp/policy/test.policy. Update completed
  Updating policy www from file /tmp/policy/www.policy. Update completed
 
+
+Update existing polices using files from directory /tmp/policy but skip default policy
+
+ dx_ctl_policy -d 603 -update -indir /tmp/policy -skipdefault
+ Skipping default policy Default Snapshot
+ Updating policy ret1 from file /tmp/policy/ret1.policy. Update completed
+ Skipping default policy Default SnapSync
+ Skipping default policy Default Retention
+ Updating policy ret2 from file /tmp/policy/ret2.policy. Update completed
+
 Apply polices to Delphix Engine objects using a mapping file
 
- dx_ctl_policy -d Landshark43 -mapping /tmp/policy/mapping.Landshark Database Masking in group Analytics doesn't exist. Skipping Database Masking in group Analytics doesn't exist. Skipping Database racdb in group Sources doesn't exist. Skipping
+ dx_ctl_policy -d Landshark43 -mapping /tmp/policy/mapping.Landshark
+ Database Masking in group Analytics doesn't exist. Skipping
+ Database Masking in group Analytics doesn't exist. Skipping
+ Database racdb in group Sources doesn't exist. Skipping
  Database racdb in group Sources doesn't exist. Skipping
  Applying policy Default Retention to database Employee Oracle 11G DB
  Apply completed
  Applying policy Default SnapSync to database Employee Oracle 11G DB
  Apply completed
+
+
+
 
 =cut
