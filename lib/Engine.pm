@@ -1886,7 +1886,7 @@ sub uploadupdate60 {
     my $self = shift;
     my $filename = shift;
 
-    logger($self->{_debug}, "Entering Engine::uploadupdate",1);
+    logger($self->{_debug}, "Entering Engine::uploadupdate60",1);
     #local $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
 
     my $url = $self->{_protocol} . '://' . $self->{_host} ;
@@ -1901,8 +1901,9 @@ sub uploadupdate60 {
     #$self->{_ua}->add_handler("request_send",  sub { shift->dump; return });
     #$self->{_ua}->add_handler("response_done", sub { shift->dump; return });
 
-    my ($r,$r_fmt, $rcode) = $self->getJSONResult("resources/json/system/uploadUpgrade?file=$filename");
-    print Dumper $r;
+    # this will return a size of partially upload file
+    #my ($r,$r_fmt, $rcode) = $self->getJSONResult("resources/json/system/uploadUpgrade?file=$filename");
+    #print Dumper $r;
 
 
 
@@ -1915,7 +1916,7 @@ sub uploadupdate60 {
     binmode $fh;
 
     my $maxchunksize = 1024000000;
-    #my $maxchunksize = 10240;
+    #my $maxchunksize = 10240000;
 
     #my $maxpartsize = 3;
 
@@ -1929,6 +1930,11 @@ sub uploadupdate60 {
     my $maxread = 1024000;
     #my $maxread = 1024;
 
+
+    logger($self->{_debug}, "maxchunksize $maxchunksize",2);
+    logger($self->{_debug}, "maxread $maxread",2);
+    logger($self->{_debug}, "noofparts $noofparts",2);
+    logger($self->{_debug}, "Start loop",2);
 
     for my $part (0..$noofparts) {
 
@@ -1950,11 +1956,8 @@ sub uploadupdate60 {
         # for manual test
         #$size = 826;
 
-        print Dumper "sizes";
-        print Dumper "#######";
-        print Dumper $size;
-        print Dumper $total;
-        print Dumper "#######";
+        logger($self->{_debug}, "request size $size",2);
+        logger($self->{_debug}, "total size $total",2);
 
         #$boundary = "-------------------------------36497293608260705052636266395";
 
@@ -1978,9 +1981,7 @@ sub uploadupdate60 {
         # and it's providing a content of multipart/form-data request
         # it's simple implementation and probably not a best one
 
-        print Dumper "HIPCIO";
-
-        my $content_provider_ref = &content_provider_60($fh, $filename, $size, $boundary, $self, $fsize, $part+1, $maxchunksize, \$total);
+        my $content_provider_ref = &content_provider_60($fh, $filename, $size, $boundary, $self, $fsize, $part+1, $maxchunksize, \$total, $maxread);
         $request->content($content_provider_ref);
 
 
@@ -1994,6 +1995,7 @@ sub uploadupdate60 {
           my $part = shift;
           my $maxchunksize = shift;
           my $total = shift;
+          my $maxread = shift;
           # we need to send 4 parts - a boundary start, content description, file content, boundary end
           my @content_part = ( 'a', 'b', 'c' );
           my $report = 0;
@@ -2013,7 +2015,7 @@ sub uploadupdate60 {
             #print Dumper \@content_part;
 
             if (!defined($content_part[0])) {
-              print Dumper "Kaniex";
+              logger($self->{_debug}, "end of the part - nothing more to send",2);;
               return undef;
             }
 
@@ -2037,10 +2039,10 @@ sub uploadupdate60 {
               # print Dumper $rc;
               if ((${$total} / $fsize * 100) > $report) {
                 if ((${$total} / $fsize * 100) eq 100) {
-                  #printf "%5.1f\n ", 100;
+                  printf "%5.1f\n ", 100;
                   $end = 1;
                 } else {
-                  #printf "%5.1f - ", $total / $fsize * 100;
+                  printf "%5.1f - ", ${$total} / $fsize * 100;
                   $report = $report + 10;
                 }
 
@@ -2102,11 +2104,18 @@ sub uploadupdate60 {
            $result_fmt = to_json($result, {pretty=>1});
            logger($self->{_debug}, "Response message: " . $result_fmt, 2);
            if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-             print "\nFile upload completed without issues.\n";
-             $retcode = 0;
+             if ( (int($noofparts)+1) eq ($part + 1)) {
+               print "\nFile upload completed without issues.\n";
+               $retcode = 0;
+             } else {
+               logger($self->{_debug}, "Part $part finished",2);
+             }
+
+
            } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
              print "\nFile upload issues\n";
              print "Try the operation again. If the problem persists, contact Delphix support.\n";
+             logger($self->{_debug}, "Part $part of " . (int($noofparts)+1),2);
              $retcode = 1;
            }
 
