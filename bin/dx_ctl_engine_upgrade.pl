@@ -159,7 +159,6 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
-    exit;
 
     print "Checking status of upload verification job\n";
 
