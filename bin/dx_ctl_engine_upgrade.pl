@@ -216,7 +216,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $job = $jobs->getJob($refresh[-1]);
       $retjob = $job->waitForJob();
       if ($retjob eq 'COMPLETED') {
-        print "Verification job $job finished\n";
+        print "Verification job " . $refresh[-1] . " finished\n";
       } else {
         $ret = $ret + 1;
       }
