@@ -1873,6 +1873,9 @@ sub uploadupdate {
        $retcode = 1;
     }
 
+
+    return $retcode;
+
 }
 
 
@@ -1930,6 +1933,7 @@ sub uploadupdate60 {
     my $maxread = 1024000;
     #my $maxread = 1024;
 
+    my $retcode;
 
     logger($self->{_debug}, "maxchunksize $maxchunksize",2);
     logger($self->{_debug}, "maxread $maxread",2);
@@ -2094,7 +2098,6 @@ sub uploadupdate60 {
         #print Dumper $response;
         my $decoded_response;
         my $result_fmt;
-        my $retcode;
         my $result;
 
         if ( $response->is_success ) {
@@ -2127,6 +2130,8 @@ sub uploadupdate60 {
            $retcode = 1;
         }
     }
+
+    return $retcode;
 }
 
 
