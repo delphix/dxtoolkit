@@ -134,9 +134,19 @@ sub getdSourceBackup
 
     my $osuser = $self->getOSUser();
 
+    my $exludes = $self->getExludelist();
+
     $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
     $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" ";
     $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
+
+    if (scalar(@{$exludes}) > 0) {
+      $exclude_str = '';
+      for my $i (@{$exludes}) {
+          $exclude_str = $exclude_str . "-exclude \"" . $i . "\" ";
+      }
+      $restore_args = $restore_args . $exclude_str;
+    }
 
     $output->addLine(
       $restore_args
@@ -374,6 +384,7 @@ sub createVDB {
 # - source_osuser - name of source OS user
 # - dsource_name - name of dsource in environment
 # - group - dsource  group
+# - exclude - exclude list
 # Start job to add AppData dSource
 # all above parameters are required. Additional parameters should by set by setXXXX procedures before this one is called
 # Return job number if provisioning has been started, otherwise return undef
@@ -386,6 +397,7 @@ sub addSource {
     my $source_osuser = shift;
     my $dsource_name = shift;
     my $group = shift;
+    my $exclude = shift;
 
 
     logger($self->{_debug}, "Entering AppDataVDB_obj::addSource",1);
@@ -412,7 +424,7 @@ sub addSource {
     }
 
     my @followarray;
-    my @excludes;
+    #my @excludes;
     my %dsource_params;
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
@@ -427,7 +439,7 @@ sub addSource {
           "source" => {
               "type" => "AppDataLinkedDirectSource",
               "config" => $config->{reference},
-              "excludes" => \@excludes,
+              "excludes" => $exclude,
               "followSymlinks" => \@followarray
           },
           "environmentUser" => $source_os_ref
@@ -446,7 +458,7 @@ sub addSource {
             "type" => "AppDataDirectLinkData",
             "config" => $config->{reference},
             "environmentUser" => $source_os_ref,
-            "excludes" => \@excludes,
+            "excludes" => $exclude,
             "followSymlinks" => \@followarray,
             "parameters" => {}
         }
@@ -461,7 +473,7 @@ sub addSource {
             "type" => "AppDataDirectLinkData",
             "config" => $config->{reference},
             "environmentUser" => $source_os_ref,
-            "excludes" => \@excludes,
+            "excludes" => $exclude,
             "followSymlinks" => \@followarray,
             "parameters" => {},
             "syncParameters" => {
@@ -501,6 +513,20 @@ sub setName {
     $self->{"NEWDB"}->{"sourceConfig"}->{"path"} = $dbname;
 
 }
+
+
+# Procedure getExludelist
+# parameters: none
+# Return an array with combained list of excludes
+
+sub getExludelist
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering AppDataVDB_obj::getExludelist",1);
+    my $exludearray = $self->{source}->{excludes};
+    return $exludearray;
+}
+
 
 # Procedure getAdditionalMountpoints
 # parameters: none

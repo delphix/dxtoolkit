@@ -72,6 +72,7 @@ GetOptions(
   'logsyncmode=s' => \(my $logsyncmode),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
+  'exclude=s@' => \(my $exclude),
   'hadr=s' => \(my $hadr),
   'compression=s' => \($compression),
   'type=s' => \(my $type),
@@ -339,7 +340,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group, $exclude);
     }
     elsif ($type eq 'db2') {
       my $db = new DB2VDB_obj($engine_obj,$debug);
@@ -386,6 +387,7 @@ __DATA__
   [-delphixmanaged yes/no ]
   [-dbusertype database|environment|domain]
   [-cdbcont container -cdbuser user -cdbpass password]
+  [-exclude path]
   [-debug ]
   [-version ]
   [-help|? ]
@@ -512,6 +514,9 @@ Parameter hadrTargetList is optional.
 ex.
 hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001
 
+=item B<-exclude path>
+Exclude path for vFiles dSources
+
 
 =back
 
@@ -601,6 +606,14 @@ Adding a DB2 dSource with HADR
                        -sourcename R74D105E  -dsourcename R74D105E -group Untitled -backup_dir "/db2backup" \
                        -hadr "hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001"
  Waiting for all actions to complete. Parent action is ACTION-1879
+ Action completed with success
+
+
+Adding a vFiles dSource
+
+ dx_ctl_dsource -d test -action create -group "Untitled" -creategroup -dsourcename "vtest"  -type vFiles -sourcename "vtest" -sourceinst "Unstructured Files" \
+                -sourceenv "marcintgt" -source_os_user "delphix" -exclude "dir1/dir2" -exclude "dir3"
+ Waiting for all actions to complete. Parent action is ACTION-2919
  Action completed with success
 
 Updating a backup path and validated sync mode for Sybase
