@@ -98,7 +98,7 @@ if (lc $action eq 'upload')  {
   } else {
 
     my $namechek = basename($filename);
-    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_]*[uU]pgrade\.tar[\.gz]*$/ )) {
+    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
       print "Filename is not matching delphix upgrade pattern \n";
       exit (1);
     }
