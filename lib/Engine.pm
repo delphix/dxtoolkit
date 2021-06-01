@@ -180,6 +180,12 @@ sub load_config {
       $engines{$name}{encrypted}  = defined($host->{encrypted}) ? $host->{encrypted} : 'false';
       $engines{$name}{timeout}    = defined($host->{timeout}) ? $host->{timeout} : 60;
 
+      # for external password support
+
+      $engines{$name}{passwordvar}    = $host->{passwordvar};
+      $engines{$name}{passwordscript} = $host->{passwordscript};
+      $engines{$name}{additionalopt}  = $host->{additionalopt};
+
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
             if (defined($engines{$name}{password})) {
@@ -538,6 +544,34 @@ sub dlpx_connect {
    } else {
      print "Username and clientid are missing from config file\n";
      return 1;
+   }
+
+
+   if ((defined($engine_config->{passwordvar})) && ($engine_config->{passwordvar} ne ""))  {
+     logger($self->{_debug}, "Password variable $engine_config->{passwordvar} used to get password");
+     if (defined($ENV{$engine_config->{passwordvar}})) {
+       $self->{_password} = $ENV{$engine_config->{passwordvar}};
+     } else {
+       print "Password variable $engine_config->{passwordvar} not set\n";
+       logger($self->{_debug}, "Password variable $engine_config->{passwordvar} not set");
+       return 1;
+     }
+   } elsif ((defined($engine_config->{passwordscript})) && ($engine_config->{passwordscript} ne "")) {
+     logger($self->{_debug}, "Password script  $engine_config->{passwordscript} used to get password");
+     my $line = $engine_config->{passwordscript} . " " . $self->{_enginename} . " " . $engine_config->{username} . " " . $engine_config->{ip_address};
+     if ((defined($engine_config->{additionalopt})) && ($engine_config->{additionalopt} ne "")) {
+       $line = $line . " " . $engine_config->{additionalopt};
+     }
+     logger($self->{_debug}, "Script command line $line");
+     if (! -f "$engine_config->{passwordscript}") {
+       print "Password script $engine_config->{passwordscript} doesn't exist\n";
+       logger($self->{_debug}, "Password script $engine_config->{passwordscript} doesn't exist");
+       return 1;
+     }
+
+     my $out = qx|$line|;
+     $out =~ s/^\s+|\s+$//g;
+     $self->{_password} = $out;
    }
 
    my $cookie_dir = File::Spec->tmpdir();
@@ -1708,6 +1742,7 @@ sub uploadupdate {
     # 63 is Content-Disposition plus end of lines
     $size = $size + 2 * (length $boundary) + 6 + (length basename($filename)) + 63;
 
+
     my $h = HTTP::Headers->new(
       Content_Length      => $size,
       Connection          => 'keep-alive',
@@ -1728,7 +1763,6 @@ sub uploadupdate {
 
     my $content_provider_ref = &content_provider($filename, $size, $boundary, $self, $fsize);
     $request->content($content_provider_ref);
-
 
 
     sub content_provider {
@@ -1809,7 +1843,6 @@ sub uploadupdate {
       }
     }
 
-
     my $response = $self->{_ua}->request($request);
 
     my $decoded_response;
@@ -1840,7 +1873,267 @@ sub uploadupdate {
        $retcode = 1;
     }
 
+
+    return $retcode;
+
 }
+
+
+# Procedure uploadupdate
+# parameters:
+# - filename
+# return result of upload
+# 0 is all OK
+
+sub uploadupdate60 {
+    my $self = shift;
+    my $filename = shift;
+
+    logger($self->{_debug}, "Entering Engine::uploadupdate60",1);
+    #local $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
+
+    my $url = $self->{_protocol} . '://' . $self->{_host} ;
+    my $api_url = "$url/resources/json/system/uploadUpgrade";
+    #
+    # $self->{_ua}->proxy([
+    #      [ 'http' ] => 'http://127.0.0.1:8888/',
+    # ]);
+
+
+
+    #$self->{_ua}->add_handler("request_send",  sub { shift->dump; return });
+    #$self->{_ua}->add_handler("response_done", sub { shift->dump; return });
+
+    # this will return a size of partially upload file
+    #my ($r,$r_fmt, $rcode) = $self->getJSONResult("resources/json/system/uploadUpgrade?file=$filename");
+    #print Dumper $r;
+
+
+
+    my $fsize = -s $filename;
+    my $boundary = HTTP::Request::Common::boundary(8);
+    $boundary = "-------------------------------" . $boundary;
+
+    my $fh;
+    open $fh, $filename;
+    binmode $fh;
+
+    my $maxchunksize = 1024000000;
+    #my $maxchunksize = 10240000;
+
+    #my $maxpartsize = 3;
+
+    my $noofparts = $fsize / $maxchunksize;
+
+    my $size;
+
+    my $total = 0;
+
+
+    my $maxread = 1024000;
+    #my $maxread = 1024;
+
+    my $retcode;
+
+    logger($self->{_debug}, "maxchunksize $maxchunksize",2);
+    logger($self->{_debug}, "maxread $maxread",2);
+    logger($self->{_debug}, "noofparts $noofparts",2);
+    logger($self->{_debug}, "Start loop",2);
+
+    for my $part (0..$noofparts) {
+
+        # example = 825
+
+        # 299 content
+
+        if (($fsize-$total) > $maxchunksize) {
+          # $size = $maxchunksize + 6 * (length $boundary) + 6 * (2) + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($maxchunksize) + length($fsize) + 18;
+          $size = $maxchunksize + 6 * (length $boundary) + 6 * 2 + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($maxchunksize) + length($fsize) + length($part);
+        } else {
+          $size = ($fsize-$total) + 6 * (length $boundary) + 6 * 2 + 21 * 2 + 2 + (length basename($filename)) + 299 + length ($maxchunksize) + length ($fsize-$total) + length($fsize) + length($part);
+        }
+
+
+
+
+
+        # for manual test
+        #$size = 826;
+
+        logger($self->{_debug}, "request size $size",2);
+        logger($self->{_debug}, "total size $total",2);
+
+        #$boundary = "-------------------------------36497293608260705052636266395";
+
+        my $h = HTTP::Headers->new(
+          Content_Length      => $size,
+          Connection          => 'keep-alive',
+          Content_Type        => 'multipart/form-data; boundary=' . $boundary
+        );
+
+        my $request = HTTP::Request->new(
+          POST => $api_url, $h
+        );
+
+
+
+        $request->protocol('HTTP/1.1');
+
+        # Perl $HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1 allows to load any file size
+        # without loading all in memory but it's very slow as it's using 2k chunks
+        # content provider procedure is develop instead of using DYNAMIC_FILE_UPLOAD
+        # and it's providing a content of multipart/form-data request
+        # it's simple implementation and probably not a best one
+
+        my $content_provider_ref = &content_provider_60($fh, $filename, $size, $boundary, $self, $fsize, $part+1, $maxchunksize, \$total, $maxread);
+        $request->content($content_provider_ref);
+
+
+        sub content_provider_60 {
+          my $fh = shift;
+          my $filename = shift;
+          my $size = shift;
+          my $boundary = shift;
+          my $self = shift;
+          my $fsize = shift;
+          my $part = shift;
+          my $maxchunksize = shift;
+          my $total = shift;
+          my $maxread = shift;
+          # we need to send 4 parts - a boundary start, content description, file content, boundary end
+          my @content_part = ( 'a', 'b', 'c' );
+          my $report = 0;
+          my $end = 0;
+          my $end2 = 0;
+          my $real  = 0;
+          my $chunksize = 0;
+          $| = 1;
+
+          # print Dumper "entry to content_provider_60";
+          # print Dumper $part;
+          # print Dumper $maxchunksize;
+
+          return sub {
+            my $buf;
+
+            #print Dumper \@content_part;
+
+            if (!defined($content_part[0])) {
+              logger($self->{_debug}, "end of the part - nothing more to send",2);;
+              return undef;
+            }
+
+            # print Dumper $content_part[0];
+            # print Dumper "----";
+            # print Dumper $total;
+
+            if ($content_part[0] eq 'a') {
+              # each bondary has -- at the beginning - not sure why
+              $buf = "--" . $boundary. "\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"file\"; filename=\"" . basename($filename) . "\"\r\n";
+              $buf = $buf . "Content-Type: application/octet-stream\r\n\r\n";
+              # print Dumper $buf;
+              # print Dumper "HIPCIO PO A";
+              shift @content_part;
+            } elsif ($content_part[0] eq 'b') {
+              # set file position
+              my $rc = sysread($fh, $buf, $maxread);
+              ${$total} = ${$total} + length $buf;
+              $chunksize = $chunksize + length $buf;
+              # print Dumper $rc;
+              if ((${$total} / $fsize * 100) > $report) {
+                if ((${$total} / $fsize * 100) eq 100) {
+                  printf "%5.1f\n ", 100;
+                  $end = 1;
+                } else {
+                  printf "%5.1f - ", ${$total} / $fsize * 100;
+                  $report = $report + 10;
+                }
+
+              }
+
+              if (${$total} eq ($part*$maxchunksize)) {
+                # print Dumper "total chunk size reach";
+                # print Dumper "#######";
+                # print Dumper $part;
+                # print Dumper ${$total};
+                # print Dumper "#######";
+                shift @content_part;
+              }
+
+              if ($rc ne $maxread) {
+                # print Dumper "rc not maxread";
+                shift @content_part;
+              }
+            } elsif ($content_part[0] eq 'c') {
+              $buf = "\r\n" . "--" . $boundary. "\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"_chunkSize\"\r\n\r\n";
+              $buf = $buf . $maxchunksize . "\r\n";
+              $buf = $buf . "--" . $boundary. "\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"_currentChunkSize\"\r\n\r\n";
+              $buf = $buf . $chunksize. "\r\n";
+              $buf = $buf . "--" . $boundary. "\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"_chunkNumber\"\r\n\r\n";
+              $buf = $buf . ($part - 1) . "\r\n";
+              $buf = $buf . "--" . $boundary. "\r\n";
+              $buf = $buf . "Content-Disposition: form-data; name=\"_totalSize\"\r\n\r\n";
+              $buf = $buf . $fsize . "\r\n";
+              $buf = $buf . "--" . $boundary. "--\r\n";
+              shift @content_part;
+            }
+
+            $real = $real + length $buf;
+            if ($buf eq '') {
+              return undef;
+            }
+            # print Dumper "wyscie";
+            #print Dumper $buf;
+            return $buf;
+          }
+        }
+
+        #print Dumper "HIPPO2";
+        my $response = $self->{_ua}->request($request);
+        #print Dumper "HIPPO3";
+        #print Dumper $response;
+        my $decoded_response;
+        my $result_fmt;
+        my $result;
+
+        if ( $response->is_success ) {
+
+           $decoded_response = $response->decoded_content;
+           $result = decode_json($decoded_response);
+           $result_fmt = to_json($result, {pretty=>1});
+           logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+           if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+             if ( (int($noofparts)+1) eq ($part + 1)) {
+               print "\nFile upload completed without issues.\n";
+               $retcode = 0;
+             } else {
+               logger($self->{_debug}, "Part $part finished",2);
+             }
+
+
+           } elsif (defined($result->{result}) && ($result->{result} eq 'failed')) {
+             print "\nFile upload issues\n";
+             print "Try the operation again. If the problem persists, contact Delphix support.\n";
+             logger($self->{_debug}, "Part $part of " . (int($noofparts)+1),2);
+             $retcode = 1;
+           }
+
+
+        }
+        else {
+           logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+           logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+           $retcode = 1;
+        }
+    }
+
+    return $retcode;
+}
+
 
 
 # Procedure getSSOToken
@@ -1909,6 +2202,40 @@ sub getSSOToken {
     return $token;
 
 }
+
+# this is good test
+# sub content_provider_60_manual {
+#   my $filename = shift;
+#   my $size = shift;
+#   my $boundary = shift;
+#   my $self = shift;
+#   my $fsize = shift;
+#   $| = 1;
+#   my $buf = "---------------------------------36497293608260705052636266395\r
+# Content-Disposition: form-data; name=\"file\"; filename=\"Delphix_6.0.8.0_2021-05-07-22-28_Standard_Upgrade.tar\"\r
+# Content-Type: application/octet-stream\r
+# \r
+# 123
+# \r
+# ---------------------------------36497293608260705052636266395\r
+# Content-Disposition: form-data; name=\"_chunkSize\"\r
+# \r
+# 1024000000\r
+# ---------------------------------36497293608260705052636266395\r
+# Content-Disposition: form-data; name=\"_currentChunkSize\"\r
+# \r
+# 4\r
+# ---------------------------------36497293608260705052636266395\r
+# Content-Disposition: form-data; name=\"_chunkNumber\"\r
+# \r
+# 0\r
+# ---------------------------------36497293608260705052636266395\r
+# Content-Disposition: form-data; name=\"_totalSize\"\r
+# \r
+# 4\r
+# ---------------------------------36497293608260705052636266395--\r\n";
+#   return $buf;
+# }
 
 # End of package
 1;

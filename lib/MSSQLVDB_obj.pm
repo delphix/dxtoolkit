@@ -611,8 +611,8 @@ sub addSource {
           }
 
 
-    } else {
-      ### for 5.2.5
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+      ### from 5.2.5 to 6.0.7
 
       my @backup_loc;
 
@@ -669,6 +669,65 @@ sub addSource {
           $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
         }
 
+    } else {
+      ### from 6.0.8
+      my @backup_loc;
+
+      if (defined($backup_dir)) {
+
+        @backup_loc = split(',', $backup_dir);
+
+        #push(@backup_loc, $backup_dir);
+      }
+
+      %dsource_params = (
+        "type" => "LinkParameters",
+        "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+        "name" => $dsource_name,
+        "linkData" => {
+            "type" => "MSSqlLinkData",
+            "syncStrategy" => {
+              "config" => $config->{reference}
+            },
+            "sourcingPolicy" => {
+                "type" => "SourcingPolicy",
+                "logsyncEnabled" => $logsync_param
+            },
+            "sourceHostUser" => $source_os_ref,
+            "pptHostUser" => $stage_osuser_ref,
+            "pptRepository"=> $stagingrepo
+          }
+        );
+
+
+
+        if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+          my $compression_json = JSON::false;
+
+          if (lc $compression eq "yes") {
+            $compression_json = JSON::true;
+          }
+          $dsource_params{"linkData"}{"syncStrategy"}{"type"} = "MSSqlDelphixManagedSyncStrategy";
+          $dsource_params{"linkData"}{"syncStrategy"}{"compressionEnabled"} = $compression_json;
+          $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNewCopyOnlyFullBackupSyncParameters";
+          $dsource_params{"linkData"}{"syncParameters"}{"compressionEnabled"} = $compression_json;
+        } else {
+
+          if (defined($validatedSyncMode)) {
+            $dsource_params{"linkData"}{"syncStrategy"}{"type"} = "MSSqlExternalManagedSourceSyncStrategy";
+            $dsource_params{"linkData"}{"syncStrategy"}{"validatedSyncMode"} = $vsm;
+            $dsource_params{"linkData"}{"syncStrategy"}{"sharedBackupLocations"} = \@backup_loc;
+          } else {
+            $dsource_params{"linkData"}{"syncStrategy"}{"type"} = "MSSqlExternalManagedSourceSyncStrategy";
+            $dsource_params{"linkData"}{"syncStrategy"}{"validatedSyncMode"} = "NONE";
+            $dsource_params{"linkData"}{"syncStrategy"}{"sharedBackupLocations"} = \@backup_loc;
+          }
+          $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlExistingMostRecentBackupSyncParameters";
+        }
+
+        if (defined($dumppwd)) {
+          $dsource_params{"linkData"}{encryptionKey} = $dumppwd;
+        }
     }
 
 
@@ -685,8 +744,8 @@ sub addSource {
                            "password" => $password
                          };
          $dsource_params{"linkData"}{"dbUser"} = $dbuser;
-     } else {
-         # 6.0.2 onwards
+     } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+         # 6.0.2 onwards to 6.0.7
 
          if (!defined($dbusertype)) {
            print "MS SQL database user type is now required\n";
@@ -712,6 +771,34 @@ sub addSource {
            print "Unknown MS SQL database user type\n";
            return undef;
          }
+     } else {
+       # from 6.0.8
+       if (!defined($dbusertype)) {
+         print "MS SQL database user type is now required\n";
+         return undef;
+       }
+
+       $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
+       if (lc $dbusertype eq 'database') {
+         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                           "type" => "PasswordCredential",
+                           "password" => $password
+                         };
+       } elsif (lc $dbusertype eq "environment") {
+         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+       } elsif (lc $dbusertype eq "domain") {
+         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                           "type" => "PasswordCredential",
+                           "password" => $password
+                         };
+       } else {
+         print "Unknown MS SQL database user type\n";
+         return undef;
+       }
+
+
      }
 
 
@@ -968,6 +1055,55 @@ sub getValidatedMode {
 
 }
 
+# Procedure getLogSync
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSync
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getLogSync",1);
+    return $self->{container}->{runtime}->{logSyncActive} ? 'ACTIVE' : 'INACTIVE';
+}
+
+
+# Procedure setLogSync
+# parameters:
+# - logsync - yes/no
+# Enable of Log Sync
+
+sub setLogSync
+{
+    my $self = shift;
+    my $logsync = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::setLogSync",1);
+
+
+    my $type = $self->{container}->{type};
+
+    my %logsynchash = (
+        "type"=> $type,
+        "sourcingPolicy"=> {
+            "type"=> "SourcingPolicy"
+        }
+    );
+
+    if (lc $logsync eq 'yes') {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+    } else {
+        $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
+    }
+
+
+    my $ref = $self->{container}->{reference};
+
+    my $operation = "resources/json/delphix/database/" . $ref;
+    my $payload = to_json(\%logsynchash);
+
+    return $self->runJobOperation($operation,$payload,'ACTION');
+}
+
+
 # Procedure setValidatedMode
 # parameters:
 # source - source hash
@@ -1087,10 +1223,7 @@ sub attach_dsource
         return undef;
     }
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
+
 
     if ( $self->setEnvironment($env) ) {
         print "Staging environment $env not found. dSource won't be attached\n";
@@ -1114,6 +1247,19 @@ sub attach_dsource
     }
 
     my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
+
+    if ($dbusertype eq 'environment') {
+      # for environment - we need to change dbuser into referencial
+      logger($self->{_debug}, "changing user into ref for non database",2);
+      $dbuser = $source_os_ref;
+      logger($self->{_debug}, "new dbuser $dbuser",2);
+    }
+
+
+    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
+        print "Username or password is invalid.\n";
+        return undef;
+    }
 
     if (!defined($stage_osuser_ref)) {
         print "Source OS user $stage_osuser not found\n";
@@ -1172,8 +1318,8 @@ sub attach_dsource
               "validatedSyncMode" => $vsm
           }
       );
-    } else {
-      # 5.2.5 and above
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+      # 5.2.5 until 6.0.7
       my @backup_loc;
 
       if (defined($backup_dir)) {
@@ -1238,6 +1384,72 @@ sub attach_dsource
               $attach_data{"attachData"}{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
             }
           }
+        } else {
+          $attach_data{"attachData"}{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+        }
+      }
+
+      print "After job will be completed please go to Configuration > Data Management to make updates to your Netbackup configuration.\n";
+
+
+    } else {
+      #  6.0.8 and above
+
+      my @backup_loc;
+
+      if (defined($backup_dir)) {
+
+        @backup_loc = split(',', $backup_dir);
+
+        #push(@backup_loc, $backup_dir);
+      }
+
+      %attach_data = (
+          "type" => "AttachSourceParameters",
+          "attachData" =>  {
+              "type" => "MSSqlAttachData",
+              "operations" => \%operations,
+              "sharedBackupLocations" => \@backup_loc,
+              "pptRepository" => $stagingrepo,
+              "sourceHostUser" => $source_os_ref,
+              "pptHostUser" => $stage_osuser_ref,
+              "syncStrategy" => {
+                "config" => $config->{reference},
+              }
+          }
+      );
+
+      if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+        my $compression_json = JSON::false;
+
+        if (lc $compression eq "yes") {
+          $compression_json = JSON::true;
+        }
+        $attach_data{"attachData"}{"syncStrategy"}{"type"} = "MSSqlDelphixManagedSyncStrategy";
+        $attach_data{"attachData"}{"syncStrategy"}{"compressionEnabled"} = $compression_json;
+      } else {
+        if (defined($vsm)) {
+          $vsm = uc $vsm;
+
+          my %vsmvalid = (
+            'TRANSACTION_LOG'=>1,
+            'FULL'=>1,
+            'FULL_OR_DIFFERENTIAL'=>1,
+            'NONE'=>1
+          );
+
+          if (!defined($vsmvalid{$vsm})) {
+            print "Validated sync mode is invalid for MS SQL\n";
+            return undef;
+          }
+
+          $attach_data{"attachData"}{"syncStrategy"}->{type} = 'MSSqlExternalManagedSourceSyncStrategy';
+          $attach_data{"attachData"}{"syncStrategy"}->{validatedSyncMode} = $vsm;
+          $attach_data{"attachData"}{"syncStrategy"}{"sharedBackupLocations"} = \@backup_loc;
+
+        } else {
+          $attach_data{"attachData"}{"syncStrategy"}->{type} = 'MSSqlExternalManagedSourceSyncStrategy';
+          $attach_data{"attachData"}{"syncStrategy"}->{validatedSyncMode} = "NONE";
         }
       }
 
@@ -1260,8 +1472,8 @@ sub attach_dsource
                           "password" => $password
                         };
         $attach_data{"attachData"}{"dbUser"} = $dbuser;
-    } else {
-        # 6.0.2 onwards
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+        # 6.0.2 onwards to 6.0.7
 
         if (!defined($dbusertype)) {
           print "MS SQL database user type is now required\n";
@@ -1287,6 +1499,32 @@ sub attach_dsource
           print "Unknown MS SQL database user type\n";
           return undef;
         }
+    } else {
+      # 6.0.8 and above
+      if (!defined($dbusertype)) {
+        print "MS SQL database user type is now required\n";
+        return undef;
+      }
+
+      $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
+      if (lc $dbusertype eq 'database') {
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                          "type" => "PasswordCredential",
+                          "password" => $password
+                        };
+      } elsif (lc $dbusertype eq "environment") {
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+      } elsif (lc $dbusertype eq "domain") {
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                          "type" => "PasswordCredential",
+                          "password" => $password
+                        };
+      } else {
+        print "Unknown MS SQL database user type\n";
+        return undef;
+      }
     }
 
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/attachSource";
@@ -1349,7 +1587,7 @@ sub setEncryption {
 sub getDbUser
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getDbUser",1);
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getDbUser",1);
     my $ret;
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.2)) {
@@ -1393,8 +1631,64 @@ sub getDbUser
 sub getNodes
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getNodes",1);
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getNodes",1);
     return $self->{_environment}->getClusterHosts($self->{"environment"}->{reference});
+}
+
+
+# Procedure update_dsource
+# parameters:
+# - backup_dir (implemented for ms sql and sybase)
+# - logsync (implemented for oracle)
+# - validatedsync  (implemented for ms sql and sybase)
+
+sub update_dsource {
+    my $self = shift;
+    my $backup_dir = shift;
+    my $logsync = shift;
+    my $validatedsync = shift;
+
+
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::update_dsource",1);
+
+    my %source_hash;
+    my $jobno;
+
+    my $update = 0;
+    my $dbtype = $self->getDBType();
+
+    %source_hash = (
+        "type" => $self->{source}->{type}
+    );
+
+
+
+    if (defined($backup_dir)) {
+      $self->setBackupPath(\%source_hash, $backup_dir);
+      $update = 1;
+    }
+
+    if (defined($validatedsync)) {
+      if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
+        return undef;
+      }
+      $update = 1;
+    }
+
+
+    if ($update eq 1) {
+      my $json_data = to_json(\%source_hash);
+
+      logger($self->{_debug}, $json_data ,2);
+
+      my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
+      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
+    } else {
+      print "Nothing to update for 1st part\n";
+    }
+
+    return $jobno;
+
 }
 
 

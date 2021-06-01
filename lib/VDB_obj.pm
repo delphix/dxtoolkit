@@ -478,16 +478,8 @@ sub getReference
     return $self->{container}->{reference};
 }
 
-# Procedure getLogSync
-# parameters: none
-# Return status of Log Sync
 
-sub getLogSync
-{
-    my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
-    return $self->{container}->{runtime}->{logSyncActive} ? 'ACTIVE' : 'INACTIVE';
-}
+
 
 # Procedure getGroup
 # parameters: none
@@ -1036,6 +1028,7 @@ sub return_currentobj
 }
 
 
+
 # Procedure update_dsource_config
 # parameters:
 # - stageenv - new staging environent name
@@ -1074,7 +1067,23 @@ sub update_dsource_config {
           # list all environments and repositories and find a one we are looking for
           my $repoobj = $self->{_repository}->getRepository($staging_conf->{repository});
           my $envnew_obj = $self->{_environment}->getEnvironmentByName($stageenv);
+
+          if (! defined($envnew_obj)) {
+            print "Environment $stageenv not found\n";
+            return undef;
+          }
+
           my $rep = $self->{_repository}->getRepositoryByNameForEnv($stageinst, $envnew_obj->{reference});
+
+          if (! defined($rep)) {
+            print "Repository $stageinst not found\n";
+            return undef;
+          }
+
+          if ($self->{_repository}->check_and_enable_staging($rep->{reference}) ne 0) {
+            print "Problem with enabling staging environment\n";
+            return undef;
+          }
 
           # for now we are using a primary user for a staging environment - a new development possible for other users
           $sourceconfig_hash{repository} = $rep->{reference};
@@ -1119,44 +1128,8 @@ sub update_dsource {
 
 
     logger($self->{_debug}, "Entering VDB_obj::update_dsource",1);
-
-    my %source_hash;
-    my $jobno;
-
-    my $update = 0;
-    my $dbtype = $self->getDBType();
-
-    %source_hash = (
-        "type" => $self->{source}->{type}
-    );
-
-    if ( ($dbtype eq 'mssql') || ($dbtype eq 'sybase') ) {
-
-      if (defined($backup_dir)) {
-        $self->setBackupPath(\%source_hash, $backup_dir);
-        $update = 1;
-      }
-
-      if (defined($validatedsync)) {
-        if ($self->setValidatedMode(\%source_hash, $validatedsync)) {
-          return undef;
-        }
-        $update = 1;
-      }
-    }
-
-    if ($update eq 1) {
-      my $json_data = to_json(\%source_hash);
-
-      logger($self->{_debug}, $json_data ,2);
-
-      my $operation = 'resources/json/delphix/source/' . $self->{source}->{reference};
-      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
-    } else {
-      print "Nothing to update for 1st part\n";
-    }
-
-    return $jobno;
+    print "Update of this dSource type is not implemented\n";
+    return undef;
 
 }
 
@@ -1339,26 +1312,31 @@ sub undo
     logger($self->{_debug}, "Entering VDB_obj::undo",1);
     my $operation = "resources/json/delphix/database/" . $self->{container}->{reference} . "/undo";
     #print Dumper $json_data;
-    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
-    if (defined($result->{status})) {
-        if ($result->{status} eq 'OK') {
-          return $result->{job}
-        } else {
-          if (defined($result->{error})) {
-              print "Problem with starting job\n";
-              print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-              logger($self->{_debug}, "Can't submit job for operation $operation",1);
-              logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-              logger($self->{_debug}, $result->{error}->{action} ,1);
-          } else {
-              print "Unknown error. Try with debug flag\n";
-          }
-          return undef;
-        }
 
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.8)) {
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      if (defined($result->{status})) {
+          if ($result->{status} eq 'OK') {
+            return $result->{job}
+          } else {
+            if (defined($result->{error})) {
+                print "Problem with starting job\n";
+                print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+                logger($self->{_debug}, "Can't submit job for operation $operation",1);
+                logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+                logger($self->{_debug}, $result->{error}->{action} ,1);
+            } else {
+                print "Unknown error. Try with debug flag\n";
+            }
+            return undef;
+          }
+
+      } else {
+          print "Undo API call failure \n";
+          return undef;
+      }
     } else {
-        print "Undo API call failure \n";
-        return undef;
+      return $self->runJobOperation($operation,'{}');
     }
 }
 

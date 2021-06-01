@@ -42,7 +42,6 @@ use FileMap;
 
 my $dxversion = $Toolkit_helpers::version;
 
-my $logsync = "no";
 my $compression = "no";
 my $dbusertype = 'database';
 
@@ -69,9 +68,11 @@ GetOptions(
   'backup_dir=s' => \(my $backup_dir),
   'dumppwd=s' => \(my $dumppwd),
   'mountbase=s' => \(my $mountbase),
-  'logsync=s' => \($logsync),
+  'logsync=s' => \(my $logsync),
+  'logsyncmode=s' => \(my $logsyncmode),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
+  'exclude=s@' => \(my $exclude),
   'hadr=s' => \(my $hadr),
   'compression=s' => \($compression),
   'type=s' => \(my $type),
@@ -221,18 +222,40 @@ for my $engine ( sort (@{$engine_list}) ) {
       # only for sybase and mssql
       my $type = $source->getDBType();
       if ($action eq 'detach')  {
+        # detach dSource
         $jobno = $source->detach_dsource();
-        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
-      } elsif (($type eq 'sybase') || ($type eq 'mssql')) {
-        $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
-        if (defined($jobno)) {
-          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
+        $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource detach");
+      } else {
+        # update dSource
+        if ((lc $type eq 'sybase') || (lc $type eq 'mssql')) {
+          $jobno = $source->update_dsource($backup_dir, $logsync, $validatedsync);
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+          }
+          $jobno = $source->update_dsource_config( $stageenv, $stageinst );
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource config update");
+          }
+          if (defined($logsync)) {
+            $jobno = $source->setLogSync($logsync);
+            if (defined($jobno)) {
+              $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+            }
+          }
+        } elsif (lc $type eq 'oracle') {
+          $jobno = $source->update_dsource($backup_dir, $logsync, $logsyncmode);
+          if (defined($jobno)) {
+            $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource update");
+          }
+        } else {
+          print "Update action not supported for dSource type $type\n";
+          $ret = $ret + 1;
         }
-        $jobno = $source->update_dsource_config( $stageenv, $stageinst );
-        if (defined($jobno)) {
-          $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource config action");
-        }
+
       }
+
+
+
 
     }
 
@@ -290,6 +313,11 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
 
+    if (!defined($logsync)) {
+      $logsync = 'no';
+    }
+
+
     if ( $type eq 'oracle' ) {
       my $db = new OracleVDB_obj($engine_obj,$debug);
 
@@ -312,7 +340,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group, $exclude);
     }
     elsif ($type eq 'db2') {
       my $db = new DB2VDB_obj($engine_obj,$debug);
@@ -348,6 +376,7 @@ __DATA__
   -source_os_user osusername
   [-creategroup]
   [-logsync yes/no ]
+  [-logsyncmode redo|arch]
   [-stageinst staging_inst ]
   [-stageenv staging_env ]
   [-stage_os_user staging_osuser ]
@@ -358,6 +387,7 @@ __DATA__
   [-delphixmanaged yes/no ]
   [-dbusertype database|environment|domain]
   [-cdbcont container -cdbuser user -cdbpass password]
+  [-exclude path]
   [-debug ]
   [-version ]
   [-help|? ]
@@ -440,6 +470,10 @@ for MS SQL dSource.
 =item B<-logsync yes/no>
 Enable or no LogSync for dSource. Default LogSync is disabled.
 
+=item B<-logsyncmode redo|arch>
+LogSync mode for Oracle only - allowed values redo to use redo/archivlog logsync
+or arch for Archive log only
+
 =item B<-dumppwd password>
 Password for backup used to create dsource
 
@@ -447,7 +481,7 @@ Password for backup used to create dsource
 For Sybase only - mount point for staging server
 
 =item B<-validatedsync mode>
-Set validated sync mode.
+Set validated sync mode for MS SQL and Sybase
 
 Allowed values for MS SQL:
 TRANSACTION_LOG, FULL, FULL_OR_DIFFERENTIAL, NONE
@@ -479,6 +513,9 @@ Parameter hadrTargetList is optional.
 
 ex.
 hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001
+
+=item B<-exclude path>
+Exclude path for vFiles dSources
 
 
 =back
@@ -569,6 +606,14 @@ Adding a DB2 dSource with HADR
                        -sourcename R74D105E  -dsourcename R74D105E -group Untitled -backup_dir "/db2backup" \
                        -hadr "hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001"
  Waiting for all actions to complete. Parent action is ACTION-1879
+ Action completed with success
+
+
+Adding a vFiles dSource
+
+ dx_ctl_dsource -d test -action create -group "Untitled" -creategroup -dsourcename "vtest"  -type vFiles -sourcename "vtest" -sourceinst "Unstructured Files" \
+                -sourceenv "marcintgt" -source_os_user "delphix" -exclude "dir1/dir2" -exclude "dir3"
+ Waiting for all actions to complete. Parent action is ACTION-2919
  Action completed with success
 
 Updating a backup path and validated sync mode for Sybase

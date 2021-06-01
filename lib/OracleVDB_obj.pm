@@ -267,6 +267,12 @@ sub getConfig
 
     } else {
       # dSource config for Oracle
+
+      my $logsyncmode = $self->getLogSyncMode();
+      if ($logsyncmode ne 'unknown') {
+        $config = join($joinsep,($config, "-logsyncmode $logsyncmode"));
+      }
+
       my $cdbref = $self->getCDBContainerRef();
       if (defined($cdbref)) {
 
@@ -1270,6 +1276,63 @@ sub setNoOpen {
     $self->{"NEWDB"}->{"openDatabase"} = JSON::false;
 }
 
+# Procedure getLogSync
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSync
+{
+    my $self = shift;
+    my $ret;
+    my $cdbref = $self->getCDBContainerRef();
+    my $dbobj;
+
+    if (defined($cdbref)) {
+      my $cdbsource = $self->{_source}->getSourceByConfig($cdbref);
+      $dbobj = $self->{_databases}->getDB($cdbsource->{container});
+    } else {
+      $dbobj = $self;
+    }
+
+    $ret = $dbobj->{container}->{sourcingPolicy}->{logsyncEnabled} ? 'ACTIVE' : 'INACTIVE';
+
+    logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
+    return $ret;
+}
+
+# Procedure getLogSyncMode
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSyncMode
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getLogSyncMode",1);
+    my $ret;
+    my $dbobj;
+    my $cdbref = $self->getCDBContainerRef();
+    if (defined($cdbref)) {
+      my $cdbsource = $self->{_source}->getSourceByConfig($cdbref);
+      $dbobj = $self->{_databases}->getDB($cdbsource->{container});
+    } else {
+      $dbobj = $self;
+    }
+
+    if (defined($dbobj->{container}->{sourcingPolicy}) ) {
+      if ($dbobj->{container}->{sourcingPolicy}->{logsyncMode} eq 'ARCHIVE_ONLY_MODE') {
+        $ret = 'arch';
+      } elsif ($dbobj->{container}->{sourcingPolicy}->{logsyncMode} eq 'ARCHIVE_REDO_MODE') {
+        $ret = 'redo';
+      } else {
+        $ret = 'unknown';
+      }
+    } else {
+      return 'unknown';
+    }
+    return $ret;
+}
+
+
 # Procedure setLogSync
 # parameters:
 # - logsync - yes/no
@@ -1279,6 +1342,7 @@ sub setLogSync
 {
     my $self = shift;
     my $logsync = shift;
+    my $logsyncmode = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setLogSync",1);
 
     my %logsynchash = (
@@ -1290,6 +1354,18 @@ sub setLogSync
 
     if (lc $logsync eq 'yes') {
         $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::true;
+        if (defined($logsyncmode)) {
+          # ARCHIVE_ONLY_MODE  ARCHIVE_REDO_MODE
+          if (lc $logsyncmode eq 'arch') {
+            $logsynchash{"sourcingPolicy"}{"logsyncMode"} = 'ARCHIVE_ONLY_MODE';
+          } elsif (lc $logsyncmode eq 'redo') {
+            $logsynchash{"sourcingPolicy"}{"logsyncMode"} = 'ARCHIVE_REDO_MODE';
+          } else {
+            print "Unknown logsyncmode - exiting\n";
+            return undef;
+          }
+        }
+
     } else {
         $logsynchash{"sourcingPolicy"}{"logsyncEnabled"} = JSON::false;
     }
@@ -1319,14 +1395,14 @@ sub update_dsource {
     my $self = shift;
     my $backup_dir = shift;
     my $logsync = shift;
-    my $validatedsync = shift;
+    my $logsyncmode = shift;
 
     my $jobno;
 
     logger($self->{_debug}, "Entering OracleVDB_obj::update_dsource",1);
 
     if (defined($logsync)) {
-      $jobno = $self->setLogSync($logsync);
+      $jobno = $self->setLogSync($logsync, $logsyncmode);
     } else {
       print "Nothing to update\n";
     }

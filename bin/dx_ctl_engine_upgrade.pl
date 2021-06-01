@@ -98,7 +98,7 @@ if (lc $action eq 'upload')  {
   } else {
 
     my $namechek = basename($filename);
-    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_]*[uU]pgrade\.tar[\.gz]*$/ )) {
+    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
       print "Filename is not matching delphix upgrade pattern \n";
       exit (1);
     }
@@ -146,12 +146,19 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $jobstart = Toolkit_helpers::timestamp("-0min", $engine_obj);
 
-    my $rc = $engine_obj->uploadupdate($filename);
+    my $rc;
+
+    if (version->parse($engine_obj->getApi()) > version->parse(1.10.6)) {
+      $rc = $engine_obj->uploadupdate60($filename);
+    } else {
+      $rc = $engine_obj->uploadupdate($filename);
+    }
 
     if ($rc ne 0) {
       $ret = $ret + $rc;
       next;
     }
+
 
     print "Checking status of upload verification job\n";
 
@@ -209,7 +216,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $job = $jobs->getJob($refresh[-1]);
       $retjob = $job->waitForJob();
       if ($retjob eq 'COMPLETED') {
-        print "Verification job $job finished\n";
+        print "Verification job " . $refresh[-1] . " finished\n";
       } else {
         $ret = $ret + 1;
       }
