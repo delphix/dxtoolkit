@@ -1,10 +1,16 @@
-## 2.4.11
+## 2.4.12
 
 ### Added
 - skipdefault flag added to dx_ctl_policy to skip updating existing default polices
+- [fix for #180](https://github.com/delphix/dxtoolkit/issues/180) - exclude parameter added to dx_ctl_dsource to ingest vfiles with exclude list
+- support for password passed through environment variable - see example config file
+- support for password passed via external script - see example config file
 
 ### Changed
 - fix for applying policy to group
+- fix to uploading upgrade in engines in version 6.0.X
+- fix for same users in DOMAIN and SYSTEM with dash in name
+- [fix for #181](https://github.com/delphix/dxtoolkit/issues/181) Fix for disable / enbable LogSync
 
 ## 2.4.11
 
