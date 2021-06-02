@@ -339,10 +339,6 @@ jobs:
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
 
-    - name: Checkoutcode
-      uses: actions/checkout@v1
-
-
     # - name: Create Release
     #   id: create_release
     #   uses: ncipollo/release-action@v1
