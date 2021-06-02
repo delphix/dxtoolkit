@@ -349,8 +349,7 @@ jobs:
         release_name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        body: "To jest tekst
-               2nd linia"
+
 
     - name: Upload Release Asset
       id: upload-release-asset1
