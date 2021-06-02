@@ -360,6 +360,8 @@ jobs:
         UP=`curl -s -k -X POST -H "Content-Type:application/json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
         -d '{"tag_name": "${{ env.SOURCE_TAG }}", "name":"Release ${{ env.SOURCE_TAG }}","body":"this is a test release", "prerelease":"true", "draft":"true"}' \
          https://api.github.com/repos/delphix/dxtoolkit/releases | jq ''.upload_url`
+        echo $?
+        echo $UP
         echo upload_url=$UP >> $GITHUB_ENV
       shell: bash
 
