@@ -338,20 +338,19 @@ jobs:
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
 
+    - name: Checkoutcode
+      uses: actions/checkout@v1
+
 
     - name: Create Release
       id: create_release
-      uses: actions/checkout@v1
       uses: ncipollo/release-action@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-
+        
     - name: Upload Release Asset
       id: upload-release-asset1
       uses: actions/upload-release-asset@v1.0.1
