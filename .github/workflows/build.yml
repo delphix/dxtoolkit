@@ -357,7 +357,7 @@ jobs:
         # -d '{"tag_name": "${{ env.SOURCE_TAG }}", "name":"Release ${{ env.SOURCE_TAG }}","body":"this is a test release", "prerelease": true, "draft": true}' \
         #  https://api.github.com/repos/delphix/dxtoolkit/releases `
         curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest"
-        UP=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest" | jq ''.upload_url`
+        UP=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest" | jq ''.upload_url | sed -e 's/{\?name,label}//' `
         echo $?
         echo $UP
         echo upload_url=$UP >> $GITHUB_ENV
