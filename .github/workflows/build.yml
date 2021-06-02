@@ -121,168 +121,168 @@ jobs:
         name: cento6build
         path: ${{ env.FILENAME }}
 
-  Windows:
-    needs: [centos7]
-    runs-on: windows-2016
-
-    steps:
-    - name: checkout dxtoolkit code
-      uses: actions/checkout@master
-
-    - name: Get the version
-      id: get_version
-      run: |
-        $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
-        $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
-        echo "SOURCE_TAG=$SOURCE_TAG" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "FILENAME=$FILENAME" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-      shell: powershell
-
-    - name: Fix encryption key
-      run: |
-        cd D:\a\dxtoolkit\dxtoolkit\lib
-        ls -l dbutils.pm
-        mv dbutils.pm dbutils.orig.pm
-        $raw = (Get-Content -path .\dbutils.orig.pm -Raw) -replace 'put your encryption key here','${{ secrets.ENCKEY_WINDOWS }}'
-        Set-Content -Path .\dbutils.pm -Value $raw
-        cd D:\a\dxtoolkit\dxtoolkit\
-      shell: powershell
-
-    - name: download perl
-      run: |
-        mkdir d:\a\perldownload
-        mkdir d:\a\perl
-        choco install wget -y
-        cd d:\a\perldownload
-        wget.exe "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip"
-        dir d:\a\perldownload\
-        Expand-Archive "d:\a\perldownload\strawberry-perl-5.26.3.1-64bit-portable.zip" -DestinationPath "d:\a\perl"
-      shell: powershell
-
-    - name: build
-      run: build\windows_compile.cmd
-      shell: cmd
-
-    - name: add examples
-      run: |
-        copy D:\a\dxtoolkit\dxtoolkit\bin\dxtools.conf.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
-        copy D:\a\dxtoolkit\dxtoolkit\bin\dxusers.csv.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
-
-
-    - name: compress toolkit
-      run: |
-        $NAME = "d:\a\dxtoolkit\dxtoolkit\${{ env.FILENAME }}"
-        echo ${NAME}
-        Compress-Archive -Path d:\a\dxtoolkit\dxtoolkit\dxtoolkit2 -DestinationPath ${NAME}
-      shell: powershell
-
-    - name: Upload windows
-      uses: actions/upload-artifact@v1
-      with:
-        name: windowsbuild
-        path: ${{ env.FILENAME }}
-
-
-  osx:
-    needs: [centos7]
-    runs-on: macos-latest
-
-    steps:
-    - name: checkout dxtoolkit code
-      uses: actions/checkout@master
-
-
-    - name: Get the version
-      id: get_version
-      run: |
-        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
-          SOURCE_TAG=${GITHUB_REF#refs/tags/}
-        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
-          SOURCE_TAG=${GITHUB_REF#refs/heads/}
-        else
-          exit 1
-        fi
-        FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
-        echo FILENAME=$FILENAME >> $GITHUB_ENV
-
-    - name: install perl
-      run: |
-        # have a static version of perl 5.30.2_1
-        brew uninstall --ignore-dependencies perl
-        #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
-        brew install pioro/repo/perl@5.30
-        brew install cpanminus
-        # brew install openssl
-        cpanm Crypt::CBC
-        cpanm Crypt::Blowfish
-        export OPENSSL_PREFIX=`brew --prefix openssl`
-        echo $OPENSSL_PREFIX
-        export LIBS="-d=$OPENSSL_PREFIX"
-        cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
-        cpanm JSON
-        cpanm Date::Manip
-        # force requires after 1/1/2020 ?
-        cpanm -f Date::Parse
-        cpanm DateTime::Event::Cron::Quartz
-        cpanm DateTime::Format::DateParse
-        cpanm Text::CSV
-        cpanm LWP::UserAgent
-        cpanm Net::SSLeay
-        cpanm IO::Socket::SSL
-        cpanm LWP::Protocol::https
-        cpanm Term::ReadKey
-        cpanm -f Archive::Zip
-        cpanm PAR::Packer
-        cpanm List::MoreUtils::PP
-
-    - name: Compile
-      run: |
-          CELL=`brew --prefix pioro/repo/perl@5.30`
-          OPENLIB=`brew --prefix openssl`
-          CDIR=`pwd`
-          export PP=${CELL}/bin/pp
-          export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
-          echo $LIBS
-          mkdir dxtoolkit2
-          cd ./lib
-          mv dbutils.pm dbutils.orig.pm
-          cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
-          cd ../bin
-          $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
-          -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
-          cd ${CDIR}/dxtoolkit2
-          #for i in ${CDIR}/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
-
-          echo #!/bin/bash > install.sh
-          echo LIST_OF_SCRIPTS=\( >> install.sh
-
-          for i in ${CDIR}/bin/dx_*.pl ; do
-              name=`basename -s .pl $i`;
-              echo $name >> install.sh
-          done
-
-          echo \) >> install.sh
-          echo >> install.sh
-          echo >> install.sh
-          echo for i in \"\$\{LIST_OF_SCRIPTS\[\@\]\}\" >> install.sh
-          echo do >> install.sh
-          echo   echo \$i >> install.sh
-          echo   ln -sf runner \$i >> install.sh
-          echo done >> install.sh
-
-          cp ${CDIR}/bin/dxtools.conf.example ${CDIR}/bin/dxusers.csv.example ${CDIR}/dxtoolkit2
-
-
-          cd ${CDIR}
-          ls -l ./dxtoolkit2
-          tar czvf ${{ env.FILENAME }} dxtoolkit2/
-
-    - name: Upload OSX
-      uses: actions/upload-artifact@v1
-      with:
-        name: osxbuild
-        path: ${{ env.FILENAME }}
+  # Windows:
+  #   needs: [centos7]
+  #   runs-on: windows-2016
+  #
+  #   steps:
+  #   - name: checkout dxtoolkit code
+  #     uses: actions/checkout@master
+  #
+  #   - name: Get the version
+  #     id: get_version
+  #     run: |
+  #       $SOURCE_TAG = ${env:GITHUB_REF} -replace 'refs\/tags\/', ''
+  #       $FILENAME="dxtoolkit2-" + $SOURCE_TAG + "-win64-installer.zip"
+  #       echo "SOURCE_TAG=$SOURCE_TAG" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+  #       echo "FILENAME=$FILENAME" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+  #     shell: powershell
+  #
+  #   - name: Fix encryption key
+  #     run: |
+  #       cd D:\a\dxtoolkit\dxtoolkit\lib
+  #       ls -l dbutils.pm
+  #       mv dbutils.pm dbutils.orig.pm
+  #       $raw = (Get-Content -path .\dbutils.orig.pm -Raw) -replace 'put your encryption key here','${{ secrets.ENCKEY_WINDOWS }}'
+  #       Set-Content -Path .\dbutils.pm -Value $raw
+  #       cd D:\a\dxtoolkit\dxtoolkit\
+  #     shell: powershell
+  #
+  #   - name: download perl
+  #     run: |
+  #       mkdir d:\a\perldownload
+  #       mkdir d:\a\perl
+  #       choco install wget -y
+  #       cd d:\a\perldownload
+  #       wget.exe "http://strawberryperl.com/download/5.26.3.1/strawberry-perl-5.26.3.1-64bit-portable.zip"
+  #       dir d:\a\perldownload\
+  #       Expand-Archive "d:\a\perldownload\strawberry-perl-5.26.3.1-64bit-portable.zip" -DestinationPath "d:\a\perl"
+  #     shell: powershell
+  #
+  #   - name: build
+  #     run: build\windows_compile.cmd
+  #     shell: cmd
+  #
+  #   - name: add examples
+  #     run: |
+  #       copy D:\a\dxtoolkit\dxtoolkit\bin\dxtools.conf.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
+  #       copy D:\a\dxtoolkit\dxtoolkit\bin\dxusers.csv.example d:\a\dxtoolkit\dxtoolkit\dxtoolkit2
+  #
+  #
+  #   - name: compress toolkit
+  #     run: |
+  #       $NAME = "d:\a\dxtoolkit\dxtoolkit\${{ env.FILENAME }}"
+  #       echo ${NAME}
+  #       Compress-Archive -Path d:\a\dxtoolkit\dxtoolkit\dxtoolkit2 -DestinationPath ${NAME}
+  #     shell: powershell
+  #
+  #   - name: Upload windows
+  #     uses: actions/upload-artifact@v1
+  #     with:
+  #       name: windowsbuild
+  #       path: ${{ env.FILENAME }}
+  #
+  #
+  # osx:
+  #   needs: [centos7]
+  #   runs-on: macos-latest
+  #
+  #   steps:
+  #   - name: checkout dxtoolkit code
+  #     uses: actions/checkout@master
+  #
+  #
+  #   - name: Get the version
+  #     id: get_version
+  #     run: |
+  #       if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+  #         SOURCE_TAG=${GITHUB_REF#refs/tags/}
+  #       elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+  #         SOURCE_TAG=${GITHUB_REF#refs/heads/}
+  #       else
+  #         exit 1
+  #       fi
+  #       FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
+  #       echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+  #       echo FILENAME=$FILENAME >> $GITHUB_ENV
+  #
+  #   - name: install perl
+  #     run: |
+  #       # have a static version of perl 5.30.2_1
+  #       brew uninstall --ignore-dependencies perl
+  #       #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
+  #       brew install pioro/repo/perl@5.30
+  #       brew install cpanminus
+  #       # brew install openssl
+  #       cpanm Crypt::CBC
+  #       cpanm Crypt::Blowfish
+  #       export OPENSSL_PREFIX=`brew --prefix openssl`
+  #       echo $OPENSSL_PREFIX
+  #       export LIBS="-d=$OPENSSL_PREFIX"
+  #       cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
+  #       cpanm JSON
+  #       cpanm Date::Manip
+  #       # force requires after 1/1/2020 ?
+  #       cpanm -f Date::Parse
+  #       cpanm DateTime::Event::Cron::Quartz
+  #       cpanm DateTime::Format::DateParse
+  #       cpanm Text::CSV
+  #       cpanm LWP::UserAgent
+  #       cpanm Net::SSLeay
+  #       cpanm IO::Socket::SSL
+  #       cpanm LWP::Protocol::https
+  #       cpanm Term::ReadKey
+  #       cpanm -f Archive::Zip
+  #       cpanm PAR::Packer
+  #       cpanm List::MoreUtils::PP
+  #
+  #   - name: Compile
+  #     run: |
+  #         CELL=`brew --prefix pioro/repo/perl@5.30`
+  #         OPENLIB=`brew --prefix openssl`
+  #         CDIR=`pwd`
+  #         export PP=${CELL}/bin/pp
+  #         export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
+  #         echo $LIBS
+  #         mkdir dxtoolkit2
+  #         cd ./lib
+  #         mv dbutils.pm dbutils.orig.pm
+  #         cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+  #         cd ../bin
+  #         $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
+  #         -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
+  #         cd ${CDIR}/dxtoolkit2
+  #         #for i in ${CDIR}/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
+  #
+  #         echo #!/bin/bash > install.sh
+  #         echo LIST_OF_SCRIPTS=\( >> install.sh
+  #
+  #         for i in ${CDIR}/bin/dx_*.pl ; do
+  #             name=`basename -s .pl $i`;
+  #             echo $name >> install.sh
+  #         done
+  #
+  #         echo \) >> install.sh
+  #         echo >> install.sh
+  #         echo >> install.sh
+  #         echo for i in \"\$\{LIST_OF_SCRIPTS\[\@\]\}\" >> install.sh
+  #         echo do >> install.sh
+  #         echo   echo \$i >> install.sh
+  #         echo   ln -sf runner \$i >> install.sh
+  #         echo done >> install.sh
+  #
+  #         cp ${CDIR}/bin/dxtools.conf.example ${CDIR}/bin/dxusers.csv.example ${CDIR}/dxtoolkit2
+  #
+  #
+  #         cd ${CDIR}
+  #         ls -l ./dxtoolkit2
+  #         tar czvf ${{ env.FILENAME }} dxtoolkit2/
+  #
+  #   - name: Upload OSX
+  #     uses: actions/upload-artifact@v1
+  #     with:
+  #       name: osxbuild
+  #       path: ${{ env.FILENAME }}
 
 
   release:
@@ -350,7 +350,8 @@ jobs:
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        
+        tag: ${{ env.SOURCE_TAG }}
+
     - name: Upload Release Asset
       id: upload-release-asset1
       uses: actions/upload-release-asset@v1.0.1
