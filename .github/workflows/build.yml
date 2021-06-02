@@ -301,20 +301,20 @@ jobs:
       with:
         name: cento6build
 
-    - name: Download windows
-      uses: actions/download-artifact@v1
-      with:
-        name: windowsbuild
+    # - name: Download windows
+    #   uses: actions/download-artifact@v1
+    #   with:
+    #     name: windowsbuild
 
     - name: Download ubuntu
       uses: actions/download-artifact@v1
       with:
         name: ubuntubuild
 
-    - name: Download osx
-      uses: actions/download-artifact@v1
-      with:
-        name: osxbuild
+    # - name: Download osx
+    #   uses: actions/download-artifact@v1
+    #   with:
+    #     name: osxbuild
 
     - name: Say
       run: |
@@ -386,24 +386,24 @@ jobs:
         asset_name: ${{ env.FILENAMEUBUNTU }}
         asset_content_type: application/tgz
 
-    - name: Upload Release Asset
-      id: upload-release-asset4
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: windowsbuild/${{ env.FILENAMEWIN }}
-        asset_name: ${{ env.FILENAMEWIN }}
-        asset_content_type: application/zip
-
-    - name: Upload Release Asset
-      id: upload-release-asset5
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: osxbuild/${{ env.FILENAMEOSX }}
-        asset_name: ${{ env.FILENAMEOSX }}
-        asset_content_type: application/tgz
+    # - name: Upload Release Asset
+    #   id: upload-release-asset4
+    #   uses: actions/upload-release-asset@v1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+    #     asset_path: windowsbuild/${{ env.FILENAMEWIN }}
+    #     asset_name: ${{ env.FILENAMEWIN }}
+    #     asset_content_type: application/zip
+    #
+    # - name: Upload Release Asset
+    #   id: upload-release-asset5
+    #   uses: actions/upload-release-asset@v1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+    #     asset_path: osxbuild/${{ env.FILENAMEOSX }}
+    #     asset_name: ${{ env.FILENAMEOSX }}
+    #     asset_content_type: application/tgz
