@@ -44,82 +44,82 @@ jobs:
         path: ${{ env.FILENAME }}
 
 
-  ubuntu:
-    needs: [centos7]
-    runs-on: ubuntu-18.04
-
-    steps:
-    - name: checkout dxtoolkit code
-      uses: actions/checkout@master
-
-    - name: Set up a Perl container
-      #uses: pioro/dxtoolkit@develop
-      uses: docker://pioro/dxperlubuntu18:5.26
-      with:
-        ENCKEY: ${{ secrets.ENCKEY }}
-
-    - name: Get the version
-      id: get_version
-      run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/}
-        FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
-        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
-        echo FILENAME=$FILENAME >> $GITHUB_ENV
-
-    - name: add examples
-      run: |
-        gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
-        gzip dxtoolkit.tar
-
-    - name: compress toolkit
-      run: |
-        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
-
-    - name: Upload ubuntu
-      uses: actions/upload-artifact@v1
-      with:
-        name: ubuntubuild
-        path: ${{ env.FILENAME }}
-
-  centos6:
-    needs: [centos7]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: checkout dxtoolkit code
-      uses: actions/checkout@master
-
-    - name: Set up a Perl container
-      #uses: pioro/dxtoolkit@develop
-      uses: docker://pioro/dxperlcent6:5.26
-      with:
-        ENCKEY: ${{ secrets.ENCKEY }}
-
-    - name: Get the version
-      id: get_version
-      run: |
-        SOURCE_TAG=${GITHUB_REF#refs/tags/}
-        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
-        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
-        echo FILENAME=$FILENAME >> $GITHUB_ENV
-
-    - name: add examples
-      run: |
-        gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
-        gzip dxtoolkit.tar
-
-
-    - name: compress toolkit
-      run: |
-        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
-
-    - name: Upload centos 6
-      uses: actions/upload-artifact@v1
-      with:
-        name: cento6build
-        path: ${{ env.FILENAME }}
+  # ubuntu:
+  #   needs: [centos7]
+  #   runs-on: ubuntu-18.04
+  #
+  #   steps:
+  #   - name: checkout dxtoolkit code
+  #     uses: actions/checkout@master
+  #
+  #   - name: Set up a Perl container
+  #     #uses: pioro/dxtoolkit@develop
+  #     uses: docker://pioro/dxperlubuntu18:5.26
+  #     with:
+  #       ENCKEY: ${{ secrets.ENCKEY }}
+  #
+  #   - name: Get the version
+  #     id: get_version
+  #     run: |
+  #       SOURCE_TAG=${GITHUB_REF#refs/tags/}
+  #       FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
+  #       echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+  #       echo FILENAME=$FILENAME >> $GITHUB_ENV
+  #
+  #   - name: add examples
+  #     run: |
+  #       gzip -d dxtoolkit.tar.gz
+  #       tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+  #       gzip dxtoolkit.tar
+  #
+  #   - name: compress toolkit
+  #     run: |
+  #       mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+  #
+  #   - name: Upload ubuntu
+  #     uses: actions/upload-artifact@v1
+  #     with:
+  #       name: ubuntubuild
+  #       path: ${{ env.FILENAME }}
+  #
+  # centos6:
+  #   needs: [centos7]
+  #   runs-on: ubuntu-latest
+  #
+  #   steps:
+  #   - name: checkout dxtoolkit code
+  #     uses: actions/checkout@master
+  #
+  #   - name: Set up a Perl container
+  #     #uses: pioro/dxtoolkit@develop
+  #     uses: docker://pioro/dxperlcent6:5.26
+  #     with:
+  #       ENCKEY: ${{ secrets.ENCKEY }}
+  #
+  #   - name: Get the version
+  #     id: get_version
+  #     run: |
+  #       SOURCE_TAG=${GITHUB_REF#refs/tags/}
+  #       FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
+  #       echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+  #       echo FILENAME=$FILENAME >> $GITHUB_ENV
+  #
+  #   - name: add examples
+  #     run: |
+  #       gzip -d dxtoolkit.tar.gz
+  #       tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+  #       gzip dxtoolkit.tar
+  #
+  #
+  #   - name: compress toolkit
+  #     run: |
+  #       mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+  #
+  #   - name: Upload centos 6
+  #     uses: actions/upload-artifact@v1
+  #     with:
+  #       name: cento6build
+  #       path: ${{ env.FILENAME }}
 
   # Windows:
   #   needs: [centos7]
@@ -288,7 +288,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
   #  needs: [centos6, centos7, windows, ubuntu, osx]
-    needs: [centos6, centos7, ubuntu]
+    needs: [centos7]
+    permissions:
+      contents: write
     steps:
 
     - name: Download centos7
@@ -296,20 +298,20 @@ jobs:
       with:
         name: cento7build
 
-    - name: Download centos6
-      uses: actions/download-artifact@v1
-      with:
-        name: cento6build
+    # - name: Download centos6
+    #   uses: actions/download-artifact@v1
+    #   with:
+    #     name: cento6build
 
     # - name: Download windows
     #   uses: actions/download-artifact@v1
     #   with:
     #     name: windowsbuild
 
-    - name: Download ubuntu
-      uses: actions/download-artifact@v1
-      with:
-        name: ubuntubuild
+    # - name: Download ubuntu
+    #   uses: actions/download-artifact@v1
+    #   with:
+    #     name: ubuntubuild
 
     # - name: Download osx
     #   uses: actions/download-artifact@v1
@@ -339,62 +341,63 @@ jobs:
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
 
-    # - name: Create Release
-    #   id: create_release
-    #   uses: ncipollo/release-action@v1
-    #   with:
-    #     token: ${{ secrets.GITHUB_TOKEN }}
-    #     name: Release ${{ env.SOURCE_TAG }}
-    #     draft: true
-    #     prerelease: true
-    #     tag: ${{ env.SOURCE_TAG }}
-
-
     - name: Create Release
       id: create_release
-      run: |
-        # UP=`curl -s -k -X POST -H "Content-Type:application/json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-        # -d '{"tag_name": "${{ env.SOURCE_TAG }}", "name":"Release ${{ env.SOURCE_TAG }}","body":"this is a test release", "prerelease": true, "draft": true}' \
-        #  https://api.github.com/repos/delphix/dxtoolkit/releases `
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest"
-        UP=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest" | jq ''.upload_url | sed -e 's/{?name,label}//' `
-        echo $?
-        echo $UP
-        echo upload_url=$UP >> $GITHUB_ENV
-      shell: bash
-
-    - name: Upload Release Asset
-      id: upload-release-asset1
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: ncipollo/release-action@v1
       with:
-        upload_url: https://uploads.github.com/repos/delphix/dxtoolkit/releases/44026577/assets{?name,label} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: cento6build/${{ env.FILENAMERH6 }}
-        asset_name: ${{ env.FILENAMERH6 }}
-        asset_content_type: application/tgz
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: Release ${{ env.SOURCE_TAG }}
+        draft: true
+        prerelease: true
+        artifacts: "cento7build/${{ env.FILENAMERH7 }}"
+        tag: ${{ env.SOURCE_TAG }}
 
-    - name: Upload Release Asset
-      id: upload-release-asset2
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: cento7build/${{ env.FILENAMERH7 }}
-        asset_name: ${{ env.FILENAMERH7 }}
-        asset_content_type: application/tgz
 
-    - name: Upload Release Asset
-      id: upload-release-asset3
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ubuntubuild/${{ env.FILENAMEUBUNTU }}
-        asset_name: ${{ env.FILENAMEUBUNTU }}
-        asset_content_type: application/tgz
+    # - name: Create Release
+    #   id: create_release
+    #   run: |
+    #     # UP=`curl -s -k -X POST -H "Content-Type:application/json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+    #     # -d '{"tag_name": "${{ env.SOURCE_TAG }}", "name":"Release ${{ env.SOURCE_TAG }}","body":"this is a test release", "prerelease": true, "draft": true}' \
+    #     #  https://api.github.com/repos/delphix/dxtoolkit/releases `
+    #     curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest"
+    #     UP=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/delphix/dxtoolkit/releases/latest" | jq ''.upload_url | sed -e 's/{?name,label}//' `
+    #     echo $?
+    #     echo $UP
+    #     echo upload_url=$UP >> $GITHUB_ENV
+    #   shell: bash
+    #
+    # - name: Upload Release Asset
+    #   id: upload-release-asset1
+    #   uses: actions/upload-release-asset@v1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: https://uploads.github.com/repos/delphix/dxtoolkit/releases/44026577/assets{?name,label} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+    #     asset_path: cento6build/${{ env.FILENAMERH6 }}
+    #     asset_name: ${{ env.FILENAMERH6 }}
+    #     asset_content_type: application/tgz
+    #
+    # - name: Upload Release Asset
+    #   id: upload-release-asset2
+    #   uses: actions/upload-release-asset@v1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+    #     asset_path: cento7build/${{ env.FILENAMERH7 }}
+    #     asset_name: ${{ env.FILENAMERH7 }}
+    #     asset_content_type: application/tgz
+    #
+    # - name: Upload Release Asset
+    #   id: upload-release-asset3
+    #   uses: actions/upload-release-asset@v1.0.1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+    #     asset_path: ubuntubuild/${{ env.FILENAMEUBUNTU }}
+    #     asset_name: ${{ env.FILENAMEUBUNTU }}
+    #     asset_content_type: application/tgz
 
     # - name: Upload Release Asset
     #   id: upload-release-asset4
