@@ -348,5 +348,5 @@ jobs:
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }}"
+        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }}"
         tag: ${{ env.SOURCE_TAG }}
