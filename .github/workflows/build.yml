@@ -288,6 +288,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     needs: [centos6, centos7, windows, ubuntu, osx]
+    permissions:
+      contents: write
     steps:
 
     - name: Download centos7
@@ -338,71 +340,13 @@ jobs:
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
 
-
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1.0.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ env.SOURCE_TAG }}
-        release_name: Release ${{ env.SOURCE_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        body: "To jest tekst
-               2nd linia"
-
-    - name: Upload Release Asset
-      id: upload-release-asset1
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: cento6build/${{ env.FILENAMERH6 }}
-        asset_name: ${{ env.FILENAMERH6 }}
-        asset_content_type: application/tgz
-
-    - name: Upload Release Asset
-      id: upload-release-asset2
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: cento7build/${{ env.FILENAMERH7 }}
-        asset_name: ${{ env.FILENAMERH7 }}
-        asset_content_type: application/tgz
-
-    - name: Upload Release Asset
-      id: upload-release-asset3
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ubuntubuild/${{ env.FILENAMEUBUNTU }}
-        asset_name: ${{ env.FILENAMEUBUNTU }}
-        asset_content_type: application/tgz
-
-    - name: Upload Release Asset
-      id: upload-release-asset4
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: windowsbuild/${{ env.FILENAMEWIN }}
-        asset_name: ${{ env.FILENAMEWIN }}
-        asset_content_type: application/zip
-
-    - name: Upload Release Asset
-      id: upload-release-asset5
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: osxbuild/${{ env.FILENAMEOSX }}
-        asset_name: ${{ env.FILENAMEOSX }}
-        asset_content_type: application/tgz
+        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }}"
+        tag: ${{ env.SOURCE_TAG }}
