@@ -185,6 +185,7 @@ sub load_config {
       $engines{$name}{passwordvar}    = $host->{passwordvar};
       $engines{$name}{passwordscript} = $host->{passwordscript};
       $engines{$name}{additionalopt}  = $host->{additionalopt};
+      $engines{$name}{prevalidate}    = defined($host->{prevalidate}) ? $host->{prevalidate} : 'false';
 
       if (!defined($nodecrypt)) {
         if ($engines{$name}{encrypted} eq "true") {
@@ -477,6 +478,56 @@ sub getUsername {
    return $ret;
 }
 
+
+# Procedure extended_password
+# parameters:
+
+
+sub extended_password {
+  my $self = shift;
+  my $engine_config = shift;
+
+  logger($self->{_debug}, "Entering Engine::extended_password",1);
+  if ((defined($engine_config->{passwordvar})) && ($engine_config->{passwordvar} ne ""))  {
+    logger($self->{_debug}, "Password variable $engine_config->{passwordvar} used to get password");
+    if (defined($ENV{$engine_config->{passwordvar}})) {
+      $self->{_password} = $ENV{$engine_config->{passwordvar}};
+    } else {
+      print "Password variable $engine_config->{passwordvar} not set\n";
+      logger($self->{_debug}, "Password variable $engine_config->{passwordvar} not set");
+      return 1;
+    }
+  } elsif ((defined($engine_config->{passwordscript})) && ($engine_config->{passwordscript} ne "")) {
+    logger($self->{_debug}, "Password script  $engine_config->{passwordscript} used to get password");
+    my $line = $engine_config->{passwordscript} . " " . $self->{_enginename} . " " . $engine_config->{username} . " " . $engine_config->{ip_address};
+    if ((defined($engine_config->{additionalopt})) && ($engine_config->{additionalopt} ne "")) {
+      $line = $line . " " . $engine_config->{additionalopt};
+    }
+    logger($self->{_debug}, "Script command line $line");
+    if (! -f "$engine_config->{passwordscript}") {
+      print "Password script $engine_config->{passwordscript} doesn't exist\n";
+      logger($self->{_debug}, "Password script $engine_config->{passwordscript} doesn't exist");
+      return 1;
+    }
+
+    if (! -x "$engine_config->{passwordscript}") {
+      print "Password script $engine_config->{passwordscript} is not executable\n";
+      logger($self->{_debug}, "Password script $engine_config->{passwordscript} is not executable");
+      return 1;
+    }
+
+    my $out = qx|$line|;
+    if ( $? ne 0) {
+      return 1;
+    }
+    $out =~ s/^\s+|\s+$//g;
+    $self->{_password} = $out;
+  }
+
+  return 0;
+
+}
+
 # Procedure getApi
 # parameters:
 # Return api version
@@ -547,31 +598,12 @@ sub dlpx_connect {
    }
 
 
-   if ((defined($engine_config->{passwordvar})) && ($engine_config->{passwordvar} ne ""))  {
-     logger($self->{_debug}, "Password variable $engine_config->{passwordvar} used to get password");
-     if (defined($ENV{$engine_config->{passwordvar}})) {
-       $self->{_password} = $ENV{$engine_config->{passwordvar}};
-     } else {
-       print "Password variable $engine_config->{passwordvar} not set\n";
-       logger($self->{_debug}, "Password variable $engine_config->{passwordvar} not set");
+   if ($engine_config->{prevalidate} eq 'true') {
+     logger($self->{_debug},"prevalidate set to true. checking variable and script for password");
+     if ( $self->extended_password($engine_config) ) {
+       print "Error with extended password support. Skipping engine\n";
        return 1;
      }
-   } elsif ((defined($engine_config->{passwordscript})) && ($engine_config->{passwordscript} ne "")) {
-     logger($self->{_debug}, "Password script  $engine_config->{passwordscript} used to get password");
-     my $line = $engine_config->{passwordscript} . " " . $self->{_enginename} . " " . $engine_config->{username} . " " . $engine_config->{ip_address};
-     if ((defined($engine_config->{additionalopt})) && ($engine_config->{additionalopt} ne "")) {
-       $line = $line . " " . $engine_config->{additionalopt};
-     }
-     logger($self->{_debug}, "Script command line $line");
-     if (! -f "$engine_config->{passwordscript}") {
-       print "Password script $engine_config->{passwordscript} doesn't exist\n";
-       logger($self->{_debug}, "Password script $engine_config->{passwordscript} doesn't exist");
-       return 1;
-     }
-
-     my $out = qx|$line|;
-     $out =~ s/^\s+|\s+$//g;
-     $self->{_password} = $out;
    }
 
    my $cookie_dir = File::Spec->tmpdir();
@@ -632,6 +664,15 @@ sub dlpx_connect {
    if ($ses_status) {
       # there is no session in cookie
       # new session needs to be established
+
+      if ($engine_config->{prevalidate} eq 'false') {
+        logger($self->{_debug},"prevalidate set to false. checking variable and script for password as session doesn't exist");
+        if ( $self->extended_password($engine_config) ) {
+          print "Error with extended password support. Skipping engine\n";
+          return 1;
+        }
+      }
+
 
       if (defined($self->{_dever})) {
             if (defined($api_list{$self->{_dever}})) {

@@ -1,62 +1,63 @@
 {
 	"data":[
-	{
-		"hostname" : "Landshark",
-		"ip_address" : "delphix01",
-		"username" : "admin",
-		"password" : "delphix",
-		"port" : "80",
-		"default" : "false",
-		"encrypted" : "false",
-		"timeout" : "60"
-	},
-	{
-		"hostname" : "Landshark2",
-		"ip_address" : "delphix02",
-		"username" : "admin",
-		"password" : "delphix",
-		"port" : "443",
-		"default" : "true",
-		"encrypted" : "false",
-    "protocol" : "https"
-	},
-	{
-		"hostname" : "Delphix32",
-		"ip_address" : "192.168.1.32",
-		"username" : "admin",
-		"password" : "#papapaewiru32472931u12",
-		"port" : "80",
-		"default" : "true",
-		"encrypted" : "true"
-	},
-	{
-		"hostname" : "Delphix32",
-		"ip_address" : "192.168.1.32",
-		"username" : "admin",
-		"passwordvar" : "DELPASS",
-		"port" : "80",
-		"default" : "true",
-		"encrypted" : "false"
-	},
-	{
-		"hostname" : "Delphix32",
-		"ip_address" : "192.168.1.32",
-		"username" : "admin",
-		"passwordscript" : "/home/delphix/givemepass.sh",
-		"additionalopt" : "safefordelphix32",
-		"port" : "80",
-		"default" : "true",
-		"encrypted" : "false"
-	},
-	{
-	"hostname" : "marcinapi",
-	"ip_address" : "192.168.1.32",
-	"clientid" : "0oa6rs0js1f1zrueye",
-	"clientsecret" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-	"port" : "80",
-	"default" : "true",
-	"encrypted" : "false",
-	"timeout" : "60"
-  }
+		{
+			"hostname" : "Landshark",
+			"ip_address" : "delphix01",
+			"username" : "admin",
+			"password" : "delphix",
+			"port" : "80",
+			"default" : "false",
+			"encrypted" : "false",
+			"timeout" : "60"
+		},
+		{
+			"hostname" : "Landshark2",
+			"ip_address" : "delphix02",
+			"username" : "admin",
+			"password" : "delphix",
+			"port" : "443",
+			"default" : "true",
+			"encrypted" : "false",
+			"protocol" : "https"
+		},
+		{
+			"hostname" : "Delphix32",
+			"ip_address" : "192.168.1.32",
+			"username" : "admin",
+			"password" : "#papapaewiru32472931u12",
+			"port" : "80",
+			"default" : "true",
+			"encrypted" : "true"
+		},
+		{
+			"hostname" : "Delphix32",
+			"ip_address" : "192.168.1.32",
+			"username" : "admin",
+			"passwordvar" : "DELPASS",
+			"port" : "80",
+			"default" : "true",
+			"encrypted" : "false"
+		},
+		{
+			"hostname" : "Delphix32",
+			"ip_address" : "192.168.1.32",
+			"username" : "admin",
+			"passwordscript" : "/home/delphix/givemepass.sh",
+			"additionalopt" : "safefordelphix32",
+			"prevalidate" : "false",
+			"port" : "80",
+			"default" : "true",
+			"encrypted" : "false"
+		},
+		{
+			"hostname" : "marcinapi",
+			"ip_address" : "192.168.1.32",
+			"clientid" : "0oa6rs0js1f1zrueye",
+			"clientsecret" : "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+			"port" : "80",
+			"default" : "true",
+			"encrypted" : "false",
+			"timeout" : "60"
+	  }
 	]
 }
