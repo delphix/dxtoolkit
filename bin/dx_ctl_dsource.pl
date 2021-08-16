@@ -178,7 +178,7 @@ if ( (defined($commserver)) && ( ! ( defined($commsourceclient) && defined($comm
 my %commvault;
 
 if (defined($commserver)) {
-  $commvault = {
+  %commvault = {
     'commserveHostName' => $commserver,
     'sourceClientName' => $commsourceclient,
     'stagingClientName' => $commstagingclient
