@@ -175,7 +175,7 @@ if ( (defined($commserver)) && ( ! ( defined($commsourceclient) && defined($comm
   exit (1);
 }
 
-my $commvault;
+my %commvault;
 
 if (defined($commserver)) {
   $commvault = {
@@ -355,7 +355,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, $commvault);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, \%commvault);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
