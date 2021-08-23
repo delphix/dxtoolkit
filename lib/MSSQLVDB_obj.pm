@@ -645,9 +645,9 @@ sub addSource {
 
 
 
-        if (defined($commvault)) {
+        if (defined($commvault->{"commserveHostName"})) {
            $commvault->{"type"} = "MSSqlCommvaultConfig";
-           $dsource_params{"linkData"}{"syncStrategy"}{"mssqlCommvaultConfig"} = $commvault;
+           $dsource_params{"linkData"}{"mssqlCommvaultConfig"} = $commvault;
         }
 
 
@@ -706,7 +706,7 @@ sub addSource {
           }
         );
 
-        if (defined($commvault)) {
+        if (defined($commvault->{"commserveHostName"})) {
            $commvault->{"type"} = "MSSqlCommvaultConfig";
            $dsource_params{"linkData"}{"syncStrategy"}{"mssqlCommvaultConfig"} = $commvault;
         }
