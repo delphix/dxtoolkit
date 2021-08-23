@@ -503,7 +503,7 @@ __DATA__
 
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
             [ -name env_name | -reference reference ]
-            -acton <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener
+            -action <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener
                    |deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
             [-dbname dbname]
             [-instancename instancename]
