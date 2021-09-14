@@ -510,10 +510,13 @@ sub extended_password {
       return 1;
     }
 
-    if (! -x "$engine_config->{passwordscript}") {
-      print "Password script $engine_config->{passwordscript} is not executable\n";
-      logger($self->{_debug}, "Password script $engine_config->{passwordscript} is not executable");
-      return 1;
+    my $osname = $^O;
+    if ( $osname ne 'MSWin32' ) {
+      if (! -x "$engine_config->{passwordscript}") {
+        print "Password script $engine_config->{passwordscript} is not executable\n";
+        logger($self->{_debug}, "Password script $engine_config->{passwordscript} is not executable");
+        return 1;
+      }
     }
 
     my $out = qx|$line|;

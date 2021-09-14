@@ -302,7 +302,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       $bookmark_name = $bookmarks->getName($bookmarkitem);
 
-      if (lc $action eq 'delete') {
+      if (lc $action eq 'remove') {
         my $jobno = $bookmarks->deleteBookmark($bookmarkitem);
         $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Bookmark $bookmark_name deleted", "Problem with deleting bookmark $bookmark_name")
 

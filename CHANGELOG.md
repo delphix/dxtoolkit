@@ -1,3 +1,13 @@
+## 2.4.13
+
+### Added
+- Support for Commvault in adding MSSQL dSource
+
+### Changed
+- remove bookmark in self service fix
+- fix for snapshot size reporting
+
+
 ## 2.4.12
 
 ### Added

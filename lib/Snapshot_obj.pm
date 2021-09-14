@@ -173,7 +173,13 @@ sub getSnapshotName {
     my $self = shift;
     my $reference = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotName",1);
-    return $self->{_snapshots}->{$reference}->{name};
+    my $ret;
+    if (defined($self->{_snapshots}->{$reference}->{name})) {
+      $ret = $self->{_snapshots}->{$reference}->{name};
+    } else {
+      $ret = 'No snapshot data'
+    }
+    return $ret;
 }
 
 
@@ -392,7 +398,18 @@ sub getSnapshotTimeZone {
     my $self = shift;
     my $reference = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimeZone",1);
+
+    if (!defined($self->{_snapshots}->{$reference})) {
+      return 'N/A';
+    }
+
     my $ts = $self->{_snapshots}->{$reference}->{timezone} ;
+
+    if (!defined($self->{_snapshots}->{$reference}->{timezone})) {
+      return 'N/A';
+    }
+
+    #print Dumper $self->{_snapshots}->{$reference};
     logger($self->{_debug}, "Snapshot timezone returned by DE $ts",1);
     chomp($ts);
     my @temp = split(',',$ts);

@@ -72,6 +72,9 @@ GetOptions(
   'logsyncmode=s' => \(my $logsyncmode),
   'validatedsync=s' => \(my $validatedsync),
   'delphixmanaged=s' => \(my $delphixmanaged),
+  'commserver=s' => \(my $commserver),
+  'commsourceclient=s' => \(my $commsourceclient),
+  'commstagingclient=s' => \(my $commstagingclient),
   'exclude=s@' => \(my $exclude),
   'hadr=s' => \(my $hadr),
   'compression=s' => \($compression),
@@ -164,6 +167,22 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
+}
+
+if ( (defined($commserver)) && ( ! ( defined($commsourceclient) && defined($commstagingclient) ) ) ) {
+  print "Options -commserver requires commsourceclient and commstagingclient to be configured\n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+my %commvault;
+
+if (defined($commserver)) {
+  %commvault = (
+    'commserveHostName' => $commserver,
+    'sourceClientName' => $commsourceclient,
+    'stagingClientName' => $commstagingclient
+  );
 }
 
 
@@ -336,7 +355,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, \%commvault);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
@@ -387,6 +406,9 @@ __DATA__
   [-delphixmanaged yes/no ]
   [-dbusertype database|environment|domain]
   [-cdbcont container -cdbuser user -cdbpass password]
+  [-commserver Commvault servername]
+  [-commsourceclient Commvault client name]
+  [-commstagingclient Commvault staging name]
   [-exclude path]
   [-debug ]
   [-version ]
@@ -506,6 +528,15 @@ Create a Delphix group if it doesn't exist
 
 =item B<-dbusertype database|environment|domain>
 Specify a database user type for MS SQL. Default value is database.
+
+=item B<-commserver Commvault servername>
+Commvault server name
+
+=item B<-commsourceclient Commvault client name>
+Commvault client name
+
+=item B<-commstagingclient Commvault staging name>
+Commvault staging name
 
 =item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
 Add DB2 dSource with HADR support

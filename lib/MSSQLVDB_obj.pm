@@ -392,6 +392,7 @@ sub addSource {
     my $delphixmanaged = shift;
     my $compression = shift;
     my $dbusertype = shift;
+    my $commvault = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::addSource",1);
 
@@ -644,6 +645,12 @@ sub addSource {
 
 
 
+        if (defined($commvault->{"commserveHostName"})) {
+           $commvault->{"type"} = "MSSqlCommvaultConfig";
+           $dsource_params{"linkData"}{"mssqlCommvaultConfig"} = $commvault;
+        }
+
+
         if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
           my $compression_json = JSON::false;
 
@@ -699,6 +706,10 @@ sub addSource {
           }
         );
 
+        if (defined($commvault->{"commserveHostName"})) {
+           $commvault->{"type"} = "MSSqlCommvaultConfig";
+           $dsource_params{"linkData"}{"syncStrategy"}{"mssqlCommvaultConfig"} = $commvault;
+        }
 
 
         if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
