@@ -5,6 +5,7 @@
 
 ### Changed
 - remove bookmark in self service fix
+- fix for snapshot size reporting
 
 
 ## 2.4.12
