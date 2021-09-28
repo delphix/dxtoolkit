@@ -257,13 +257,18 @@ sub get_dblist_from_filter {
 	my $instance = shift;
 	my $instancename = shift;
 	my $creation_time = shift;
+	my $repository_name = shift;
 	my $debug = shift;
 
 	my @db_list;
 
 	logger($debug, "Entering Toolkit_helpers::get_dblist_from_filter",1);
-	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s, dSource - %s" , defined($type) ? $type : 'N/A' ,
-		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A', defined($dsource) ? $dsource : 'N/A');
+	my $msg = sprintf("Toolkit_helpers::get_dblist_from_filter arguments type - %s, group - %s, host - %s, dbname - %s, dSource - %s, instance - %s, instancename - %s, \
+	                  creation time - %s, reponame - %s",
+	                 defined($type) ? $type : 'N/A' ,
+		               defined($group) ? $group : 'N/A' , defined($host) ? $host : 'N/A' , defined($dbname) ? $dbname : 'N/A', defined($dsource) ? $dsource : 'N/A',
+									 defined($instance) ? $instance : 'N/A', defined($instancename) ? $instancename : 'N/A', defined($creation_time) ? $creation_time : 'N/A',
+									 defined($repository_name) ? $repository_name : 'N/A');
 	logger($debug, $msg ,1);
 
 	# get all DB
@@ -348,6 +353,16 @@ sub get_dblist_from_filter {
    		logger($debug, "list of DB after creation filter" ,1);
    		logger($debug, join(",", @{$ret}) ,1);
  	 }
+
+	 if ( defined($repository_name) ) {
+     	# get all DB from one env
+     	my @repolist =  ( $databases->getDBForRepository($repository_name) );
+ 		  logger($debug, "list of DB on repo" ,1);
+     	logger($debug, join(",", @repolist) ,1);
+   		$ret = filter_array($ret, \@repolist);
+   		logger($debug, "list of DB after repo filter" ,1);
+   		logger($debug, join(",", @{$ret}) ,1);
+   	}
 
 	 if ( defined($dbname) ) {
 	 		my @namefilter;

@@ -54,6 +54,7 @@ GetOptions(
   'envname=s' => \(my $envname),
   'instancename=s' => \(my $instancename),
   'olderthan=s' => \(my $creationtime),
+  'reponame=s' => \(my $repositoryname),
   'restore=s' => \(my $restore),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -134,7 +135,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $zulutime = Toolkit_helpers::convert_to_utc($creationtime, $engine_obj->getTimezone(), undef, 1);
   }
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $instancename, $zulutime, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, undef, $instance, $instancename, $zulutime, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -352,7 +353,7 @@ __DATA__
 
  dx_ctl_db    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
               [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date | -dsource dsource_name | -envname env_name]
-              [-instance inst_no]
+              [-instance inst_no][-reponame OracleHome/MSSQLInstance/SybaseInstance]
               <-action start|stop|enable|disable>
               [-restore filename]
               [-force false|onfailure|only]
@@ -414,6 +415,9 @@ Environment name
 
 =item B<-olderthan>
 Date - Filter based on objects older than given date
+
+=item B<-reponame name>
+Filter using reponame
 
 =back
 

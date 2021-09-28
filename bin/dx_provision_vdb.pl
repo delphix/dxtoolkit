@@ -239,7 +239,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (defined($sourcename)) {
 
-    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $srcgroup, undef, $sourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, undef, $debug);
 
     if (!defined($source_ref)) {
       print "Source database not found.\n";
@@ -963,7 +963,7 @@ OS sheel allowed:
 - BASH - to force bash
 - SHELL - to use default OS user shell
 - PS - to force PowerShell 2
-- PSD - to use default PowerShell 
+- PSD - to use default PowerShell
 
 
 =over 1

@@ -46,6 +46,7 @@ GetOptions(
   'group=s'  => \(my $group),
   'type=s' => \(my $type),
   'host=s' => \(my $host),
+  'reponame=s' => \(my $repositoryname),
   'autostart=s' => \(my $autostart),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -98,7 +99,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter('VDB', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter('VDB', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -159,6 +160,9 @@ Database Name
 
 =item B<-host>
 Host Name
+
+=item B<-reponame name>
+Filter using reponame
 
 =item B<-autostart yes|no>
 Set autostart to yes or no value

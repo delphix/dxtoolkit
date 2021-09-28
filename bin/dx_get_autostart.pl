@@ -45,6 +45,7 @@ GetOptions(
   'dbname=s' => \(my $dbname),
   'group=s'  => \(my $group),
   'host=s' => \(my $host),
+  'reponame=s' => \(my $repositoryname),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -101,7 +102,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter('VDB', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter('VDB', $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -163,6 +164,9 @@ Database Name
 
 =item B<-host>
 Host Name
+
+=item B<-reponame name>
+Filter using reponame
 
 =back
 

@@ -110,7 +110,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         exit (1);
       }
 
-      my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, trim($single_source[0]), undef, trim($single_source[1]), $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+      my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, trim($single_source[0]), undef, trim($single_source[1]), $databases, $groups, undef, undef, undef, undef, undef, undef, undef, $debug);
 
       if ((! defined($source_ref)) || (scalar(@{$source_ref}) < 1)) {
         print "Database " . trim($single_source[0]) . "/". trim($single_source[1]) . " not found\n";

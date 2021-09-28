@@ -70,6 +70,7 @@ GetOptions(
   'envname=s' => \(my $envname),
   'instance=n' => \(my $instance),
   'instancename=s' => \(my $instancename),
+  'reponame=s' => \(my $repositoryname),
   'debug:i' => \(my $debug),
   'parentlast=s' =>  \($parentlast),
   'hostenv=s' =>  \($hostenv),
@@ -279,7 +280,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $zulutime = Toolkit_helpers::convert_to_utc($creationtime, $engine_obj->getTimezone(), undef, 1);
   }
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $zulutime, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $zulutime, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -596,10 +597,13 @@ Environment name
 Dsource name
 
 =item B<-instancename instname>
-Instance name
+Instance name (Oracle)
 
 =item B<-rdbms oracle|sybase|db2|mssql|vFiles>
 Filter by RDBMS type - this filter is implemented only in dx_get_db_env
+
+=item B<-reponame name>
+Filter using reponame
 
 =back
 
