@@ -599,6 +599,27 @@ sub getDBByCreationTime
     return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() } ( @dbs );
 }
 
+# Procedure getDBForRepository
+# parameters: repo name
+# Return list of database names which are provisioned using repo
+
+sub getDBForRepository
+{
+    my $self = shift;
+    my $repo = shift;
+    my @dbs;
+
+    logger($self->{_debug}, "Entering Databases::getDBForRepository",1);
+    for my $dbname ( $self->getDBList() ) {
+        my $dbobj = $self->getDB($dbname);
+        if ( $dbobj->getHome() eq $repo) {
+            push (@dbs, $dbname)
+        }
+    }
+
+    return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() }  ( @dbs );
+}
+
 # Procedure getPrimaryDB
 # Return list of database ref which are primary
 

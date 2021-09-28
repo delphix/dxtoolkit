@@ -60,6 +60,7 @@ GetOptions(
   'envname=s' => \(my $envname),
   'instance=n' => \(my $instance),
   'instancename=s' => \(my $instancename),
+  'reponame=s' => \(my $repositoryname),
   'parent_engine=s' => \(my $parent_engine),
   'printhierarchy:s' => \(my $printhierarchy),
   'debug:i' => \(my $debug),
@@ -168,7 +169,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, undef, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -411,6 +412,9 @@ Dsource name
 
 =item B<-instancename instname>
 Instance name
+
+=item B<-reponame name>
+Filter using reponame
 
 =back
 

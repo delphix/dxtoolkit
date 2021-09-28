@@ -286,7 +286,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       for my $ds ( @{$jsdatasources->getJSDataSourceList()} ) {
         my $dsource = $jsdatasources->getJSDBContainer($ds);
-        my $vdb_ref = Toolkit_helpers::get_dblist_from_filter(undef, $single_cont[0], undef, $single_cont[1], $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+        my $vdb_ref = Toolkit_helpers::get_dblist_from_filter(undef, $single_cont[0], undef, $single_cont[1], $databases, $groups, undef, undef, undef, undef, undef, undef, undef, $debug);
 
         if ((!defined($vdb_ref)) || (scalar(@{$vdb_ref}) < 1)) {
           print "VDB $single_cont[0]/$single_cont[1] not found \n";
