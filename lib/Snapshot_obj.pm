@@ -47,7 +47,7 @@ sub new {
     my $debug = shift;
     my $startDate = shift;
     my $endDate = shift;
-    my $timezone = shift;
+    my $snapshotref = shift;
     logger($debug, "Entering Snapshot_obj::constructor",1);
 
 
@@ -60,12 +60,15 @@ sub new {
         _debug => $debug,
         _startDate => $startDate,
         _endDate => $endDate,
-        _timezone => $timezone
+        _timezone => ''
     };
 
     bless($self,$classname);
 
-    $self->getSnapshotList($debug);
+    if (not defined($snapshotref)) {
+      $self->getSnapshotList($debug);
+    }
+
     return $self;
 }
 
@@ -1111,6 +1114,34 @@ sub getSnapshotList
           print "No data returned for $operation. Try to increase timeout \n";
           exit 1;
       }
+    }
+
+}
+
+
+# Procedure getSnapshotPerRef
+# parameters:
+# - snapshot_ref - load single snapshot
+# Load single snapshot object from Delphix Engine
+
+sub getSnapshotPerRef
+{
+    my $self = shift;
+    my $snapshot_ref = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotPerRef",1);
+    my $operation = "resources/json/delphix/snapshot/" . $snapshot_ref;
+
+    my $operationroot;
+
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        my $res = $result->{result};
+        $self->{_snapshots}->{$res->{reference}} = $res;
+    } else {
+        print "Can't load snapshot \n";
+        return 1;
     }
 
 }

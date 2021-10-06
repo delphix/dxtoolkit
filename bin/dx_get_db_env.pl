@@ -265,7 +265,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $templates = new Template_obj($engine_obj, $debug);
   } else {
     if (lc $parentlast eq 'p') {
-      $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
+      $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef, 1);
     }
     $capacity = new Capacity_obj($engine_obj, $debug);
     $capacity->LoadDatabases();
@@ -407,6 +407,16 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
+          if (defined($snapshots)) {
+            if ($snapshots->getSnapshotPerRef($parentsnap) == 1) {
+              print "Problem with loading snapshot\n";
+              $ret = $ret + 1;
+              next
+            }
+          } else {
+            print "Snapshot object not created\n";
+            $ret = $ret + 1;
+          }
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
           $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
           if (defined($parenttime) && ($parenttime eq 'N/A')) {
