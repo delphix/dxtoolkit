@@ -271,7 +271,7 @@ jobs:
     - name: Compile
       run: |
           CELL=`brew --prefix pioro/repo/perl@5.30`
-          OPENLIB=`brew --prefix openssl`
+          OPENLIB=`brew --prefix openssl@1.1`
           CDIR=`pwd`
           export PP=${CELL}/bin/pp
           export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
