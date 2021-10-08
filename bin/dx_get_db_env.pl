@@ -34,6 +34,7 @@ use Data::Dumper;
 use File::Spec;
 
 
+
 my $abspath = $FindBin::Bin;
 
 use lib '../lib';
@@ -48,6 +49,7 @@ use Snapshot_obj;
 use Hook_obj;
 use MaskingJob_obj;
 use OracleVDB_obj;
+use Toolkit_helpers qw (logger);
 
 my $version = $Toolkit_helpers::version;
 
@@ -436,8 +438,14 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $crtime;
 
       if (defined($dbobj->getCreationTime())) {
-        $crtime = Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $engine_obj->getTimezone())
+        my $tz = $engine_obj->getTimezone();
+        $crtime = Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $tz);
+        if (! defined($crtime)) {
+          logger($debug, "Creation time - Timezone coversion issue $tz",2);
+          $crtime = "N/A";
+        }
       } else {
+        logger($debug, "Creation time - not defined",2);
         $crtime = 'N/A';
       }
 

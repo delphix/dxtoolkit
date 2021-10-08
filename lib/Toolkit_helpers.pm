@@ -760,6 +760,43 @@ sub extractErrorFromHash {
 }
 
 
+sub timezone_fix {
+	my $timezone = shift;
+	# fixes for timezones supported by Delphix but not recognized by Perl
+	if ($timezone eq 'Etc/Zulu') {
+			$timezone = 'UTC';
+	}
+	if ($timezone eq 'Zulu') {
+			$timezone = 'UTC';
+	}
+	if ($timezone eq 'Etc/Universal') {
+			$timezone = 'UTC';
+	}
+	if ($timezone eq 'Universal') {
+			$timezone = 'UTC';
+	}
+	if ($timezone eq 'Etc/Greenwich') {
+			$timezone = 'GMT';
+	}
+	if ($timezone eq 'Greenwich') {
+			$timezone = 'GMT';
+	}
+	if ($timezone eq 'GMT0') {
+			$timezone = 'GMT';
+	}
+	if ($timezone eq 'Etc/GMT0') {
+			$timezone = 'GMT';
+	}
+	if ($timezone eq 'Etc/GMT-0') {
+			$timezone = 'GMT';
+	}
+	if ($timezone eq 'Etc/GMT+0') {
+			$timezone = 'GMT';
+	}
+
+	return $timezone;
+}
+
 sub  trim {
 	my $s = shift;
 	$s =~ s/^\s+|\s+$//g;
@@ -887,6 +924,9 @@ sub convert_from_utc {
 	my $timezone = shift;
 	my $printtz = shift;
   my $printoff = shift;
+
+	$timezone = timezone_fix($timezone);
+
   if ( $timezone =~ /GMT([+|-]\d\d)\:(\d\d)/ ) {
 		return convert_using_offset($timestamp, 'UTC', $timezone, $printtz, undef, $printoff);
 	} else {
@@ -899,6 +939,9 @@ sub convert_to_utc {
 	my $timezone = shift;
 	my $printtz = shift;
 	my $doiso = shift;
+
+	$timezone = timezone_fix($timezone);
+
 	if ( $timezone =~ /GMT([+|-]\d\d)\:(\d\d)/ ) {
 		return convert_using_offset($timestamp, $timezone, 'UTC', $printtz, $doiso);
 	} else {
