@@ -244,10 +244,9 @@ jobs:
         brew install pioro/repo/perl@5.30
         brew install cpanminus
         brew install openssl@1.1
-        brew switch openssl 1.1
         cpanm Crypt::CBC
         cpanm Crypt::Blowfish
-        export OPENSSL_PREFIX=`brew --prefix openssl`
+        export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
         export LIBS="-d=$OPENSSL_PREFIX"
         cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
