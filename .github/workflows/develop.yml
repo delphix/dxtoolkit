@@ -243,8 +243,8 @@ jobs:
         #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
         brew install pioro/repo/perl@5.30
         brew install cpanminus
-        brew install openssl@1.1.1l
-        brew switch openssl 1.1.1l
+        brew install openssl@1.1
+        brew switch openssl 1.1
         cpanm Crypt::CBC
         cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl`
