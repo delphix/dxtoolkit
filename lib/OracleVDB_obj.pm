@@ -2053,8 +2053,8 @@ sub addSource {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
 
-    } else {
-      # Delphix 6.0.4 and above - so far
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
+      # Delphix 6.0.4 to 6.0.10
 
       if (defined($dbuser)) {
 
@@ -2104,6 +2104,65 @@ sub addSource {
       if ($config->{type} eq 'OraclePDBConfig') {
         $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
       }
+
+    } else {
+      # Delphix 6.0.11 and higher - so far
+
+      if (defined($dbuser)) {
+
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "oracleFallbackCredentials" => {
+                  "type" => "PasswordCredential",
+                  "password" => $password
+              },
+              "oracleFallbackUser" => $dbuser,
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true,
+              "syncStrategy" => {
+                  "type" => "OracleSourceBasedSyncStrategy",
+                  "config" => $config->{reference}
+              }
+          }
+        );
+
+      } else {
+
+        %dsource_params = (
+          "type" => "LinkParameters",
+          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "name" => $dsource_name,
+          "linkData" => {
+              "type" => "OracleLinkFromExternal",
+              "sourcingPolicy" => {
+                  "type" => "OracleSourcingPolicy",
+                  "logsyncEnabled" => $logsync_param
+              },
+              "environmentUser" => $source_os_ref,
+              "linkNow" => JSON::true,
+              "compressedLinkingEnabled" => JSON::true,
+              "syncStrategy" => {
+                  "type" => "OracleSourceBasedSyncStrategy",
+                  "config" => $config->{reference}
+              }
+          }
+        );
+
+      }
+
+      if ($config->{type} eq 'OraclePDBConfig') {
+        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+      }
+
 
     }
 

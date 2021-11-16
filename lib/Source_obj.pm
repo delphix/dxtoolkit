@@ -139,12 +139,26 @@ sub getSourceConfig {
     my $container = shift;
 
     logger($self->{_debug}, "Entering Source_obj::getSourceConfig",1);
+
     my $sources = $self->{_sources};
     my $ret;
     if (defined($sources->{$container})) {
+      if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
+        # engine until 6.0.10
+        logger($self->{_debug}, "getSourceConfig - API <= 1.11.10",2);
         $ret = $sources->{$container}->{'config'};
+      } else {
+        # API changed and config is moved to syncStrategy but only for MSSqlLinkedSource
+        if ($sources->{$container}->{'type'} eq 'MSSqlLinkedSource') {
+          logger($self->{_debug}, "getSourceConfig - API >= 1.11.11 - MSSQL",2);
+          $ret = $sources->{$container}->{'syncStrategy'}->{'config'};
+        } else {
+          logger($self->{_debug}, "getSourceConfig - API >= 1.11.11 - others",2);
+          $ret = $sources->{$container}->{'config'};
+        }
+      }
     } else {
-        $ret = 'NA';
+      $ret = 'NA';
     }
 
     return $ret;
