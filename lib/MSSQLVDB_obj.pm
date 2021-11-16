@@ -1145,12 +1145,22 @@ sub setValidatedMode {
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       $source->{validatedSyncMode} = $vsm;
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.10)) {
+      # up to 6.0.10
       if ($vsm ne 'NONE') {
         $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
         $source->{ingestionStrategy}->{validatedSyncMode} = $vsm;
       } else {
         $source->{ingestionStrategy}->{type} = 'NoBackupIngestionStrategy';
+      }
+    } else {
+      # Delphix 6.0.11 or higher
+      if ($vsm ne 'NONE') {
+        $source->{syncStrategy}->{type} = "MSSqlExternalManagedSourceSyncStrategy";
+        $source->{syncStrategy}->{validatedSyncMode} = $vsm;
+      } else {
+        $source->{syncStrategy}->{type} = "MSSqlExternalManagedSourceSyncStrategy";
+        $source->{syncStrategy}->{validatedSyncMode} = 'NONE';
       }
     }
 
