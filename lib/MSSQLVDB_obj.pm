@@ -1145,7 +1145,7 @@ sub setValidatedMode {
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       $source->{validatedSyncMode} = $vsm;
-    } elsif (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.10)) {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
       # up to 6.0.10
       if ($vsm ne 'NONE') {
         $source->{ingestionStrategy}->{type} = 'ExternalBackupIngestionStrategy';
