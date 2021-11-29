@@ -455,7 +455,7 @@ sub getType {
     } elsif ($ret eq 'WindowsHostEnvironment') {
       $ret = 'windows';
     } elsif ($ret eq 'WindowsCluster') {
-      $ret = 'windows-cluster';
+      $ret = 'wincluster';
     }elsif ($ret eq 'OracleCluster') {
       $ret = 'rac';
     }
