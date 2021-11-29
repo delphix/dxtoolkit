@@ -324,7 +324,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     @db_display_list = sort { Toolkit_helpers::sort_by_number($a, $b) } @db_display_list;
   }
 
-
+  my $snaploaded = 0;
 
   # for filtered databases on current engine - display status
   for my $dbitem ( @db_display_list ) {
@@ -418,7 +418,10 @@ for my $engine ( sort (@{$engine_list}) ) {
                 next
               }
             } else {
-              $snapshots->getSnapshotList();
+              if (! $snaploaded) {
+                $snapshots->getSnapshotList();
+                $snaploaded = 1;
+              }
             }
           } else {
             print "Snapshot object not created\n";
