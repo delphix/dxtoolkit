@@ -136,6 +136,9 @@ if (defined($parent_engine)) {
   $groups_parent = new Group_obj($engine_parent, $debug);
 
   $snapshots_parent = new Snapshot_obj($engine_parent, undef, undef, $debug);
+  $snapshots_parent->getSnapshotList($databases_parent->getDBList());
+
+
   $timeflows_parent = new Timeflow_obj($engine_parent, undef, $debug);
   $replication_parent = new Replication_obj ($engine_parent, $debug);
 }
@@ -154,7 +157,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $databases = new Databases( $engine_obj, $debug);
   my $groups = new Group_obj($engine_obj, $debug);
 
-  my $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
+
   my $timeflows = new Timeflow_obj($engine_obj, undef, $debug);
 
 
@@ -176,6 +179,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   }
 
+  my $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
+  $snapshots->getSnapshotList($db_list);
 
   my %dbs = (
     'l' => $databases,

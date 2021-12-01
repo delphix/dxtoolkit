@@ -388,6 +388,7 @@ sub generate_snapshot_mapping {
 
   my $cont = $datasources->getJSDBContainer($ds_ref);
   my $snapshot = new Snapshot_obj ( $engine_obj, $cont, 1, undef );
+  $snapshot->getSnapshotList($cont);
 
   if ((lc $snapshots eq 'first') || (lc $snapshots eq 'both')) {
     # find a first snapshot which can be used for bookmark ( has been taken after template was created )

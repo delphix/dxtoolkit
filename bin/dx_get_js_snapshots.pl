@@ -185,6 +185,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       # load database snapshots for parent
       my $dbobj = $databases->getDB($dbref);
       my $snapshots = new Snapshot_obj( $engine_obj, $dbobj->getParentContainer(), undef, $debug);
+      $snapshots->getSnapshotList(keys %dbarray);
 
       # for all timeflows generate timeflow range for bookmarks,
       # find a matching operation from container based on name of timeflow
@@ -269,6 +270,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       # load container database snapshots
       my $cont_snapshots = new Snapshot_obj( $engine_obj, $dbref, undef, $debug);
+      $cont_snapshots->getSnapshotList($dbref);
       #
       $bookmarks = new JS_bookmark_obj ( $engine_obj, undef, $workcon, $debug );
 
