@@ -33,5 +33,8 @@ do
   cd ..
 done
 
+
+FINALRC=0
+
 echo $FINALRC
 exit $FINALRC
