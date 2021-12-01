@@ -65,9 +65,9 @@ sub new {
 
     bless($self,$classname);
 
-    if (not defined($snapshotref)) {
-      $self->getSnapshotList($debug);
-    }
+    # if (not defined($snapshotref)) {
+    #   $self->getSnapshotList($debug);
+    # }
 
     return $self;
 }
@@ -989,9 +989,10 @@ sub getSnapshotSize {
 sub getVDBTimezone
 {
     my $self = shift;
+    my $container = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getVDBTimezone",1);
 
-    my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $self->{_container};
+    my $timezone_op = "resources/json/delphix/snapshot?pageSize=1&database=" . $container;
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($timezone_op);
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         my @res = @{$result->{result}};
@@ -1015,7 +1016,7 @@ sub getVDBTimezone
 # parameters: - none
 # Load snapshot objects from Delphix Engine
 
-sub getSnapshotList
+sub getSnapshotList_1
 {
     my $self = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList",1);
@@ -1097,15 +1098,45 @@ sub getSnapshotList
 
               my @res = @{$result->{result}};
 
+
+
+              @res = sort { Toolkit_helpers::sort_by_number($a->{reference}, $b->{reference}) } @res;
+
+
+
               my $snapshots = $self->{_snapshots};
+
+              my $current_tech = "";
+              my $item;
+              my $tech_change_snap = undef;
 
               for my $snapitem (@res) {
                   $snapshots->{$snapitem->{reference}} = $snapitem;
                   #push(@snapshot_order, $snapitem->{reference});
                   unshift @snapshot_order, $snapitem->{reference};
+                  print Dumper $snapitem->{reference};
+
+                  if ($current_tech eq "") {
+                    ($current_tech) = $snapitem->{reference} =~ /(\S*)_SNAPSHOT-\d*/ ;
+                  } else {
+                    ($item) = $snapitem->{reference} =~ /(\S*)_SNAPSHOT-\d*/ ;
+                    if ($item ne $current_tech) {
+                      $tech_change_snap = $snapitem->{latestChangePoint}->{timestamp};
+                    }
+                  }
+
               }
 
-              $pageoffset = $self->{_snapshots}->{$snapshot_order[0]}->{latestChangePoint}->{timestamp};
+              print Dumper "next toDate";
+
+              if (defined($tech_change_snap)) {
+                $pageoffset = $tech_change_snap
+              } else {
+                $pageoffset = $self->{_snapshots}->{$res[0]->{reference}}->{latestChangePoint}->{timestamp};
+              }
+              print Dumper $pageoffset;
+
+
 
               $self->{_snapshot_list} = \@snapshot_order;
               $self->{_snapshots} = $snapshots;
@@ -1117,6 +1148,150 @@ sub getSnapshotList
     }
 
 }
+
+
+sub getSnapshotList
+{
+    my $self = shift;
+    my $databases = shift;
+
+    my @cont_list;
+
+    # if (defined($self->{_container})) {
+    #   push @cont_list, $self->{_container};
+    # } else {
+    #   # we need to take all containers
+    #
+    #
+    # }
+
+    if (ref($databases) eq 'ARRAY') {
+      @cont_list = @{$databases};
+    } else {
+      push @cont_list, $self->{_container};
+    }
+
+    my @all_snaps;
+
+    for my $c (@cont_list) {
+      my $arr = $self->getSnapshotList_worker($c);
+      push (@all_snaps, @{$arr});
+    }
+
+
+
+    @all_snaps = sort { Toolkit_helpers::sort_by_number($a, $b) } @all_snaps;
+    $self->{_snapshot_list} = \@all_snaps;
+
+}
+
+
+# Procedure getSnapshotList
+# parameters: - none
+# Load snapshot objects from Delphix Engine
+
+sub getSnapshotList_worker
+{
+    my $self = shift;
+    my $container = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotList_worker",1);
+    my $operation = "resources/json/delphix/snapshot";
+    my $operationroot;
+
+    my $pagesize = 100;
+    my $total;
+    my $sofar = 0;
+    my $pageoffset = 0;
+
+
+    if (defined($self->{_traverseTimeflows})) {
+        $operation = $operation . "?database=" . $container . "&traverseTimeflows=true";
+    } else {
+        $operation = $operation . "?database=" . $container ;
+    }
+
+    if (defined($self->{_startDate}) || defined($self->{_endDate})  ) {
+        # timezone check
+        $self->getVDBTimezone($container);
+    }
+
+    if (defined($self->{_startDate}) && defined($self->{_timezone}) ) {
+        my $startDate = Toolkit_helpers::convert_to_utc($self->{_startDate}, $self->{_timezone},0,1);
+        if (defined($startDate)) {
+            $operation = $operation . "&fromDate=" . $startDate;
+        } else {
+            print "Can't parse or convert start date to GMT\n";
+            exit 1;
+        }
+    }
+
+    if (defined($self->{_endDate}) && defined($self->{_timezone}) ) {
+        my $endDate = Toolkit_helpers::convert_to_utc($self->{_endDate}, $self->{_timezone},0,1);
+        if (defined($endDate)) {
+            $operation = $operation . "&toDate=" . $endDate
+        } else {
+            print "Can't convert end date to GMT\n";
+            exit 1;
+        }
+    }
+
+    $operationroot = $operation . "&pageSize=$pagesize";
+    $operation = $operationroot . "&pageOffset=$pageoffset";
+
+
+
+    # start pagination
+
+
+
+    my @snapshot_order;
+    my $pageloop = 1;
+
+    while ( $pageloop ) {
+
+      if ($sofar != 0) {
+        $operation = $operationroot . "&pageOffset=$pageoffset"
+      }
+
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+      $total = $result->{total};
+
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+          # total is not workig like expected with filters
+          # this will stop loop if page is not returning pagesize objects
+          if (scalar(@{$result->{result}}) == $pagesize) {
+            $sofar = $sofar + scalar(@{$result->{result}});
+          } else {
+            $sofar = $sofar + scalar(@{$result->{result}});
+            $pageloop = 0;
+          }
+
+          if ( scalar(@{$result->{result}}) ) {
+
+              my @res = @{$result->{result}};
+              my $snapshots = $self->{_snapshots};
+
+              for my $snapitem (@res) {
+                  $snapshots->{$snapitem->{reference}} = $snapitem;
+                  #push(@snapshot_order, $snapitem->{reference});
+                  unshift @snapshot_order, $snapitem->{reference};
+                  #print Dumper $snapitem->{reference};
+              }
+
+              $pageoffset = $pageoffset + 1;
+              #print Dumper $pageoffset;
+              $self->{_snapshots} = $snapshots;
+          }
+      } else {
+          print "No data returned for $operation. Try to increase timeout \n";
+          exit 1;
+      }
+    }
+
+    return \@snapshot_order;
+
+}
+
 
 
 # Procedure getSnapshotPerRef

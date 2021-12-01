@@ -419,7 +419,7 @@ for my $engine ( sort (@{$engine_list}) ) {
               }
             } else {
               if (! $snaploaded) {
-                $snapshots->getSnapshotList();
+                $snapshots->getSnapshotList(\@db_display_list);
                 $snaploaded = 1;
               }
             }

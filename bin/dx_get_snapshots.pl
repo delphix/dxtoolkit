@@ -192,10 +192,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $snapshots;
   my $timeflows;
 
-  if (defined($size)) {
-    $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
-    $timeflows = Timeflow_obj->new($engine_obj, undef, $debug);
-  }
+
 
   # filter implementation
   my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, undef, undef, $debug);
@@ -203,6 +200,12 @@ for my $engine ( sort (@{$engine_list}) ) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
     next;
+  }
+
+  if (defined($size)) {
+    $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef);
+    $snapshots->getSnapshotList($db_list);
+    $timeflows = Timeflow_obj->new($engine_obj, undef, $debug);
   }
 
 
@@ -269,6 +272,9 @@ sub snapshot_list {
 
 
   my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
+
+  print Dumper "ge me $dbitem";
+  $snapshots->getSnapshotList($dbitem);
   my $snaplist = $snapshots->getSnapshots($snapshotname);
 
   if ( (!defined($snaplist)) || (scalar(@{$snaplist}) < 1) ) {
