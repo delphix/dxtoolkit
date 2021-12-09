@@ -89,15 +89,15 @@ if (((lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'dele
 }
 
 
-print Dumper $upgradetype;
 
-if (!((lc $action eq 'apply') && ( ( lc $upgradetype eq 'deffered' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) ) {
+
+if ((lc $action eq 'apply') && ( ! ( ( lc $upgradetype eq 'deffered' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) )  {
   print "Action apply requires upgradetype as one those : DEFFERED, FULL, FINISH_DEFERRED \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
-exit;
+
 
 my $file_version;
 
