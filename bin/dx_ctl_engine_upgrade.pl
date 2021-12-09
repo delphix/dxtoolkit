@@ -41,13 +41,14 @@ use Jobs;
 
 
 my $version = $Toolkit_helpers::version;
-my $gradeonly = 'yes';
+my $upgradetype = 'deffered';
 
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'action=s' => \(my $action),
   'osname=s' => \(my $osname),
+  'upgradetype=s' => \($upgradetype),
   'filename=s' => \(my $filename),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -75,18 +76,28 @@ if (!defined($action)) {
   exit (1);
 }
 
-if (!((lc $action eq 'upload') || (lc $action eq 'verify') || (lc $action eq 'apply'))) {
-  print "Parameter -action has to be one of the following: upload, verify or apply \n";
+if (!((lc $action eq 'upload') || (lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'delete'))) {
+  print "Parameter -action has to be one of the following: upload, verify, delete or apply \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
-if (((lc $action eq 'verify') || (lc $action eq 'apply')) && (!defined($osname))) {
-  print "Parameter -osname is required for verify or upload action \n";
+if (((lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'delete')) && (!defined($osname))) {
+  print "Parameter -osname is required for verify, delete or apply action \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
+
+print Dumper $upgradetype;
+
+if (!((lc $action eq 'apply') && ( ( lc $upgradetype eq 'deffered' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) ) {
+  print "Action apply requires upgradetype as one those : DEFFERED, FULL, FINISH_DEFERRED \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+exit;
 
 my $file_version;
 
@@ -98,7 +109,7 @@ if (lc $action eq 'upload')  {
   } else {
 
     my $namechek = basename($filename);
-    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
+    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d+\.\d+\.\d+\.\d+)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
       print "Filename is not matching delphix upgrade pattern \n";
       exit (1);
     }
@@ -239,7 +250,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'apply') {
 
-    my $jobno = $engine_obj->applyOSversion($osname);
+    my $jobno = $engine_obj->applyOSversion($osname, $upgradetype);
 
     if (defined($jobno)) {
       $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished. Restarting.", "Apply job failed");
@@ -248,6 +259,19 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
   }
+
+  if (lc $action eq 'delete') {
+
+    my $jobno = $engine_obj->deleteOSversion($osname);
+
+    if (defined($jobno)) {
+      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished. Restarting.", "Apply job failed");
+    } else {
+      $ret = $ret + 1;
+    }
+
+  }
+
 
 }
 
