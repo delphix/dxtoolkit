@@ -38,10 +38,11 @@ use Formater;
 use Toolkit_helpers;
 use Storage_obj;
 use Jobs;
+use Action_obj;
 
 
 my $version = $Toolkit_helpers::version;
-my $upgradetype = 'deffered';
+my $upgradetype = 'deferred';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -91,8 +92,8 @@ if (((lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'dele
 
 
 
-if ((lc $action eq 'apply') && ( ! ( ( lc $upgradetype eq 'deffered' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) )  {
-  print "Action apply requires upgradetype as one those : DEFFERED, FULL, FINISH_DEFERRED \n";
+if ((lc $action eq 'apply') && ( ! ( ( lc $upgradetype eq 'deferred' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) )  {
+  print "Action apply requires upgradetype as one those : DEFERRED, FULL, FINISH_DEFERRED \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -253,7 +254,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $jobno = $engine_obj->applyOSversion($osname, $upgradetype);
 
     if (defined($jobno)) {
-      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished. Restarting.", "Apply job failed");
+      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished.", "Apply job failed");
     } else {
       $ret = $ret + 1;
     }
@@ -265,7 +266,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $jobno = $engine_obj->deleteOSversion($osname);
 
     if (defined($jobno)) {
-      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished. Restarting.", "Apply job failed");
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Delete job finished.", "Delete job failed");
     } else {
       $ret = $ret + 1;
     }
@@ -285,9 +286,10 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_engine_upgrade    [-engine|d <delphix identifier> | -all ]
-                          -action upload|verify|apply
+                          -action upload|verify|apply|delete
                           [-osname osname]
                           [-filename filename]
+                          [-upgradetype type]
                           [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -306,14 +308,21 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
-=item B<-action upload|verify|apply>
+=item B<-action upload|verify|apply|delete>
 Run a particular action
 
 =item B<-osname nameofversion>
-Select a version of OS for action - requried for verify or apply
+Select a version of OS for action - requried for verify, delete or apply
 
 =item B<-filename upgradefilename>
 Select an upgrade file for upload
+
+=item B<-upgradetype type>
+Select type of the apply process. By default DERERRED is used.
+- DEFFERED
+- FULL
+- FINISH_DEFERRED
+
 
 =item B<-configfile file>
 Location of the configuration file.

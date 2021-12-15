@@ -53,7 +53,8 @@ sub new {
         _dlpxObject => $dlpxObject,
         _job => $job,
         _silent => $silent,
-        _debug => $debug
+        _debug => $debug,
+        _booting => 0
     };
 
     bless($self,$classname);
@@ -63,6 +64,8 @@ sub new {
     }
     return $self;
 }
+
+
 
 # Procedure loadJob
 # parameters: - none
@@ -75,10 +78,30 @@ sub loadJob
 
     my $operation = "resources/json/delphix/job/" . $self->{_job};
     my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    if ( ($self->{_booting} eq 1) && (!defined($result))) {
+      # boot happened
+      if ($self->{_dlpxObject}->dlpx_connect($self->{_dlpxObject}->getEngineName(),1 ) ) {
+        logger($self->{_debug}, "Still can't connect after reboot" ,1);
+      } else {
+        # we connected after reboot
+        $self->{_booting} = 0;
+      }
+    }
+
+
     if (defined($result->{status}) && ($result->{status} eq 'OK')) {
         $self->{_joboutput} = $result->{result};
     } else {
-        print "No data returned for $operation. Try to increase timeout \n";
+        # here is no data as well - if status is undefined
+        if (defined($result->{status}) && ($result->{status} ne 'booting')) {
+            print "No data returned for $operation. Try to increase timeout \n";
+            logger($self->{_debug}, "No data returned for $operation. Try to increase timeout" ,1);
+        } else {
+          # no response - assuming we are booting engine
+          logger($self->{_debug}, "booting", 1);
+          $self->{_booting} = 1;
+        }
     }
 
 }
@@ -242,7 +265,7 @@ sub getJobStartTime {
     my $retoffset = shift;
 
     logger($self->{_debug}, "Entering Jobs_obj::getJobStartTime",1);
-    return $self->{_joboutput}->{startTime};  
+    return $self->{_joboutput}->{startTime};
 }
 
 
