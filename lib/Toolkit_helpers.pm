@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.14-rc2';
+our $version = '2.4.14-rc3';
 
 my $tz = new Date::Manip::TZ;
 my $dt = new Date::Manip::Date;
@@ -185,6 +185,7 @@ sub waitForJob {
 	my $jobno = shift;
 	my $success = shift;
 	my $failure = shift;
+	my $upgrade = shift;
 
 	my $ret;
 
