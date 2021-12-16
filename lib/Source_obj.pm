@@ -147,13 +147,22 @@ sub getSourceConfig {
         # engine until 6.0.10
         logger($self->{_debug}, "getSourceConfig - API <= 1.11.10",2);
         $ret = $sources->{$container}->{'config'};
-      } else {
+      } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.11)) {
         # API changed and config is moved to syncStrategy but only for MSSqlLinkedSource
         if ($sources->{$container}->{'type'} eq 'MSSqlLinkedSource') {
           logger($self->{_debug}, "getSourceConfig - API >= 1.11.11 - MSSQL",2);
           $ret = $sources->{$container}->{'syncStrategy'}->{'config'};
         } else {
           logger($self->{_debug}, "getSourceConfig - API >= 1.11.11 - others",2);
+          $ret = $sources->{$container}->{'config'};
+        }
+      } else {
+        # API changed and config is moved to syncStrategy but only for MSSqlLinkedSource
+        if ( ($sources->{$container}->{'type'} eq 'MSSqlLinkedSource') || ($sources->{$container}->{'type'} eq 'OracleLinkedSource')) {
+          logger($self->{_debug}, "getSourceConfig - API >= 1.11.12 - MSSQL or Oracle",2);
+          $ret = $sources->{$container}->{'syncStrategy'}->{'config'};
+        } else {
+          logger($self->{_debug}, "getSourceConfig - API >= 1.11.12 - others",2);
           $ret = $sources->{$container}->{'config'};
         }
       }
