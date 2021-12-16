@@ -1,3 +1,14 @@
+## 2.4.14
+
+### Added
+
+- support for 6.0.11 engine
+
+### Changed
+- [fix for #195](https://github.com/delphix/dxtoolkit/issues/195) - this was generic issue with snapshot paging
+- [fix for #193](https://github.com/delphix/dxtoolkit/issues/193) - dx_get_env creates different envtype than what dx_create_env expects
+
+
 ## 2.4.13
 
 ### Added
