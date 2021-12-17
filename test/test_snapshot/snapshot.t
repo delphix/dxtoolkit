@@ -17,13 +17,12 @@ $server->background();
 
 
 script_compiles('../../bin/dx_get_snapshots.pl');
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-name','PDBX1'] ,  "dSource snapshot test");
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-name','CDOMLOSRCA1DPDB1'] ,  "dSource snapshot test");
 
 my $expected_stdout = <<EOF;
 #Engine,Group,Database,Snapshot name,Start time,End time
-local,Sources,PDBX1,\@2019-12-30T11:21:28.097Z,2019-12-30 03:21:29 PST,2019-12-30 03:21:29 PST
-local,Sources,PDBX1,\@2019-12-30T11:31:23.253Z,2019-12-30 03:31:23 PST,2019-12-30 03:31:23 PST
-local,Sources,PDBX1,\@2020-01-05T11:31:40.649Z,2020-01-05 03:31:40 PST,2020-01-21 06:34:07 PST
+local,Sources,CDOMLOSRCA1DPDB1,\@2021-12-17T10:03:59.330Z,2021-12-17 05:03:56 EST,2021-12-17 05:05:09 EST
+local,Sources,CDOMLOSRCA1DPDB1,\@2021-12-17T10:05:10.483Z,2021-12-17 05:05:09 EST,2021-12-17 05:05:09 EST
 EOF
 
 script_stdout_is $expected_stdout, "dSource snapshot results compare";
@@ -32,71 +31,75 @@ script_stdout_is $expected_stdout, "dSource snapshot results compare";
 script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead'] ,  "All objects");
 
 my $expected_stdout = <<EOF;
-local,Analytics,cdbkate,\@2019-12-30T11:36:26.484Z,2019-12-30 03:36:20 PST,2019-12-30 04:08:15 PST
-local,Analytics,oratest,\@2020-01-05T11:30:10.307Z,2020-01-05 03:30:12 PST,2020-01-05 23:30:06 PST
-local,Analytics,pdbtest,\@2019-12-30T11:36:33.724Z,2019-12-30 03:36:40 PST,2019-12-30 04:07:51 PST
-local,Analytics,pdbtest2,\@2020-01-05T11:30:29.078Z,2020-01-05 03:30:36 PST,2020-01-21 00:00:49 PST
-local,Analytics,piorovdb,\@2020-01-15T03:30:10.490,2020-01-15 03:30:10 PST,2020-01-15 03:30:10 PST
-local,Analytics,piorovdb,\@2020-01-16T03:30:00.443,2020-01-16 03:30:00 PST,2020-01-16 03:30:00 PST
-local,Analytics,piorovdb,\@2020-01-17T03:30:08.573,2020-01-17 03:30:08 PST,2020-01-17 03:30:08 PST
-local,Analytics,piorovdb,\@2020-01-18T03:30:09.370,2020-01-18 03:30:09 PST,2020-01-18 03:30:09 PST
-local,Analytics,piorovdb,\@2020-01-19T03:30:08.943,2020-01-19 03:30:08 PST,2020-01-19 03:30:08 PST
-local,Analytics,piorovdb,\@2020-01-20T03:30:10.040,2020-01-20 03:30:10 PST,2020-01-20 03:30:10 PST
-local,Analytics,piorovdb,\@2020-01-21T03:30:10.563,2020-01-21 03:30:10 PST,2020-01-21 03:30:10 PST
-local,Analytics,vcdbtest,\@2020-01-05T11:30:16.445Z,2020-01-05 03:30:23 PST,2020-01-21 00:00:49 PST
-local,Sources,carmel,\@2019-12-30T11:17:06.880Z,2019-12-30 03:17:03 PST,2019-12-30 03:21:29 PST
-local,Sources,carmel,\@2019-12-30T11:30:39.990Z,2019-12-30 03:30:39 PST,2019-12-30 03:31:23 PST
-local,Sources,carmel,\@2020-01-05T11:31:14.326Z,2020-01-05 03:31:12 PST,2020-01-21 06:34:07 PST
-local,Sources,marina,\@2019-12-30T11:21:04.276Z,2019-12-30 03:20:58 PST,2019-12-30 03:20:58 PST
-local,Sources,marina,\@2020-01-05T11:31:14.181Z,2020-01-05 03:31:09 PST,2020-01-05 03:31:12 PST
-local,Sources,PDBX1,\@2019-12-30T11:21:28.097Z,2019-12-30 03:21:29 PST,2019-12-30 03:21:29 PST
-local,Sources,PDBX1,\@2019-12-30T11:31:23.253Z,2019-12-30 03:31:23 PST,2019-12-30 03:31:23 PST
-local,Sources,PDBX1,\@2020-01-05T11:31:40.649Z,2020-01-05 03:31:40 PST,2020-01-21 06:34:07 PST
-local,Sources,rockets,\@2020-01-13T09:21:28.223,2020-01-13 09:21:28 PST,2020-01-13 09:21:28 PST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:13:05.041Z,2021-12-17 05:12:59 EST,2021-12-17 05:16:17 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:16:21.286Z,2021-12-17 05:16:17 EST,2021-12-17 05:27:05 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:27:08.595Z,2021-12-17 05:27:05 EST,2021-12-17 05:34:00 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:34:02.929Z,2021-12-17 05:34:00 EST,2021-12-17 05:41:11 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:41:17.305Z,2021-12-17 05:41:11 EST,2021-12-17 05:48:22 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:48:27.307Z,2021-12-17 05:48:22 EST,2021-12-17 05:56:53 EST
+local,Analytics,mssqltest,\@2021-12-17T02:41:10.760,2021-12-17 02:41:10 PST,2021-12-17 02:41:10 PST
+local,Analytics,oratest,\@2021-12-17T10:42:32.284Z,2021-12-17 05:42:33 EST,2021-12-17 05:42:33 EST
+local,Analytics,oratest,\@2021-12-17T10:46:52.189Z,2021-12-17 05:46:52 EST,2021-12-17 05:47:01 EST
+local,Analytics,oratest,\@2021-12-17T10:47:00.792Z,2021-12-17 05:47:01 EST,2021-12-17 05:51:58 EST
+local,Analytics,pdbtest,\@2021-12-17T10:48:35.363Z,2021-12-17 05:48:37 EST,2021-12-17 05:56:53 EST
+local,Analytics,pdbtest2,\@2021-12-17T10:49:52.302Z,2021-12-17 05:49:54 EST,2021-12-17 05:49:55 EST
+local,Analytics,sybasetest,\@2021-12-17T05:02:16.186,2021-12-17 05:02:16 EST,2021-12-17 05:02:16 EST
+local,Analytics,sybasetest,\@2021-12-17T05:03:06.506,2021-12-17 05:03:06 EST,2021-12-17 05:03:06 EST
+local,Analytics,sybasetest,\@2021-12-17T05:04:09.590,2021-12-17 05:04:09 EST,2021-12-17 05:04:09 EST
+local,Analytics,sybasetest,\@2021-12-17T05:08:54.016,2021-12-17 05:08:54 EST,2021-12-17 05:08:54 EST
+local,Analytics,vcdbtest,\@2021-12-17T10:49:44.280Z,2021-12-17 05:49:47 EST,2021-12-17 05:49:55 EST
+local,Sources,CDOMLOSRCA1D,\@2021-12-17T10:03:14.859Z,2021-12-17 05:03:07 EST,2021-12-17 05:05:09 EST
+local,Sources,CDOMLOSRCA1DPDB1,\@2021-12-17T10:03:59.330Z,2021-12-17 05:03:56 EST,2021-12-17 05:05:09 EST
+local,Sources,CDOMLOSRCA1DPDB1,\@2021-12-17T10:05:10.483Z,2021-12-17 05:05:09 EST,2021-12-17 05:05:09 EST
+local,Sources,db_rhel83_160_1,\@2021-12-17T05:00:56.550,2021-12-17 05:00:56 EST,2021-12-17 05:00:56 EST
+local,Sources,db_rhel83_160_1,\@2021-12-17T05:01:49.583,2021-12-17 05:01:49 EST,2021-12-17 05:01:49 EST
+local,Sources,DBOMSR3A85E9,\@2021-12-17T10:03:13.032Z,2021-12-17 05:02:59 EST,2021-12-17 05:03:05 EST
+local,Sources,DBOMSR3A85E9,\@2021-12-17T10:04:19.720Z,2021-12-17 05:04:11 EST,2021-12-17 05:04:16 EST
+local,Sources,Macaroon,\@2021-12-17T02:00:56.000,2021-12-17 02:00:56 PST,2021-12-17 02:00:56 PST
+local,Sources,Macaroon,\@2021-12-17T02:10:35.000,2021-12-17 02:10:35 PST,2021-12-17 02:10:35 PST
+local,Sources,Macaroon,\@2021-12-17T02:12:30.000,2021-12-17 02:12:30 PST,2021-12-17 02:12:30 PST
 EOF
 
 script_stdout_is $expected_stdout, "All objects results compare";
 
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-startDate','2020-01-05 00:00:08'] ,  "startDate");
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-startDate','2021-12-17 05:30:00'] ,  "startDate");
 
 my $expected_stdout = <<EOF;
-local,Analytics,oratest,\@2020-01-05T11:30:10.307Z,2020-01-05 03:30:12 PST,2020-01-05 23:30:06 PST
-local,Analytics,pdbtest2,\@2020-01-05T11:30:29.078Z,2020-01-05 03:30:36 PST,2020-01-21 00:00:49 PST
-local,Analytics,piorovdb,\@2020-01-15T03:30:10.490,2020-01-15 03:30:10 PST,2020-01-15 03:30:10 PST
-local,Analytics,piorovdb,\@2020-01-16T03:30:00.443,2020-01-16 03:30:00 PST,2020-01-16 03:30:00 PST
-local,Analytics,piorovdb,\@2020-01-17T03:30:08.573,2020-01-17 03:30:08 PST,2020-01-17 03:30:08 PST
-local,Analytics,piorovdb,\@2020-01-18T03:30:09.370,2020-01-18 03:30:09 PST,2020-01-18 03:30:09 PST
-local,Analytics,piorovdb,\@2020-01-19T03:30:08.943,2020-01-19 03:30:08 PST,2020-01-19 03:30:08 PST
-local,Analytics,piorovdb,\@2020-01-20T03:30:10.040,2020-01-20 03:30:10 PST,2020-01-20 03:30:10 PST
-local,Analytics,piorovdb,\@2020-01-21T03:30:10.563,2020-01-21 03:30:10 PST,2020-01-21 03:30:10 PST
-local,Analytics,vcdbtest,\@2020-01-05T11:30:16.445Z,2020-01-05 03:30:23 PST,2020-01-21 00:00:49 PST
-local,Sources,carmel,\@2020-01-05T11:31:14.326Z,2020-01-05 03:31:12 PST,2020-01-21 06:34:07 PST
-local,Sources,marina,\@2020-01-05T11:31:14.181Z,2020-01-05 03:31:09 PST,2020-01-05 03:31:12 PST
-local,Sources,PDBX1,\@2020-01-05T11:31:40.649Z,2020-01-05 03:31:40 PST,2020-01-21 06:34:07 PST
-local,Sources,rockets,\@2020-01-13T09:21:28.223,2020-01-13 09:21:28 PST,2020-01-13 09:21:28 PST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:34:02.929Z,2021-12-17 05:34:00 EST,2021-12-17 05:41:11 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:41:17.305Z,2021-12-17 05:41:11 EST,2021-12-17 05:48:22 EST
+local,Analytics,CDOMLOTG2E25,\@2021-12-17T10:48:27.307Z,2021-12-17 05:48:22 EST,2021-12-17 05:56:53 EST
+local,Analytics,oratest,\@2021-12-17T10:42:32.284Z,2021-12-17 05:42:33 EST,2021-12-17 05:42:33 EST
+local,Analytics,oratest,\@2021-12-17T10:46:52.189Z,2021-12-17 05:46:52 EST,2021-12-17 05:47:01 EST
+local,Analytics,oratest,\@2021-12-17T10:47:00.792Z,2021-12-17 05:47:01 EST,2021-12-17 05:51:58 EST
+local,Analytics,pdbtest,\@2021-12-17T10:48:35.363Z,2021-12-17 05:48:37 EST,2021-12-17 05:56:53 EST
+local,Analytics,pdbtest2,\@2021-12-17T10:49:52.302Z,2021-12-17 05:49:54 EST,2021-12-17 05:49:55 EST
+local,Analytics,vcdbtest,\@2021-12-17T10:49:44.280Z,2021-12-17 05:49:47 EST,2021-12-17 05:49:55 EST
 EOF
 
 script_stdout_is $expected_stdout, "startDate results compare";
 
 
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-endDate','2020-01-18 00:00:08','-name','piorovdb'] ,  "endDate plus name");
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-endDate','2021-12-17 05:03:06','-name','sybasetest'] ,  "endDate plus name");
 my $expected_stdout = <<EOF;
-local,Analytics,piorovdb,\@2020-01-15T03:30:10.490,2020-01-15 03:30:10 PST,2020-01-15 03:30:10 PST
-local,Analytics,piorovdb,\@2020-01-16T03:30:00.443,2020-01-16 03:30:00 PST,2020-01-16 03:30:00 PST
-local,Analytics,piorovdb,\@2020-01-17T03:30:08.573,2020-01-17 03:30:08 PST,2020-01-17 03:30:08 PST
+local,Analytics,sybasetest,\@2021-12-17T05:02:16.186,2021-12-17 05:02:16 EST,2021-12-17 05:02:16 EST
+local,Analytics,sybasetest,\@2021-12-17T05:03:06.506,2021-12-17 05:03:06 EST,2021-12-17 05:03:06 EST
+local,Analytics,sybasetest,\@2021-12-17T05:04:09.590,2021-12-17 05:04:09 EST,2021-12-17 05:04:09 EST
+local,Analytics,sybasetest,\@2021-12-17T05:07:42.216,2021-12-17 05:07:42 EST,2021-12-17 05:07:42 EST
 EOF
 
 script_stdout_is $expected_stdout, "endDate plus name results compare";
 
 
-script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-details','-name','rockets,PDBX1,oratest'] ,  "Names and details");
+script_runs(['../../bin/dx_get_snapshots.pl', '-d', 'local', '-format','csv','-nohead','-details','-name','sybasetest,oratest'] ,  "Names and details");
 
 my $expected_stdout = <<EOF;
-local,Analytics,oratest,\@2020-01-05T11:30:10.307Z,2020-01-05 03:30:12 PST,2020-01-05 23:30:06 PST,2020-01-05 03:30:10 PST,current,Policy,12.1.0.2.0
-local,Sources,PDBX1,\@2019-12-30T11:21:28.097Z,2019-12-30 03:21:29 PST,2019-12-30 03:21:29 PST,2019-12-30 03:21:28 PST,current,Policy,12.1.0.2.0
-local,Sources,PDBX1,\@2019-12-30T11:31:23.253Z,2019-12-30 03:31:23 PST,2019-12-30 03:31:23 PST,2019-12-30 03:31:23 PST,current,Policy,12.1.0.2.0
-local,Sources,PDBX1,\@2020-01-05T11:31:40.649Z,2020-01-05 03:31:40 PST,2020-01-21 06:34:07 PST,2020-01-05 03:31:40 PST,current,Policy,12.1.0.2.0
-local,Sources,rockets,\@2020-01-13T09:21:28.223,2020-01-13 09:21:28 PST,2020-01-13 09:21:28 PST,2020-01-13 09:23:09 PST,current,Policy,15.7 SP137
+local,Analytics,oratest,\@2021-12-17T10:42:32.284Z,2021-12-17 05:42:33 EST,2021-12-17 05:42:33 EST,2021-12-17 05:42:32 EST,old,Policy,19.3.0.0.0
+local,Analytics,oratest,\@2021-12-17T10:46:52.189Z,2021-12-17 05:46:52 EST,2021-12-17 05:47:01 EST,2021-12-17 05:46:52 EST,current,Policy,19.3.0.0.0
+local,Analytics,oratest,\@2021-12-17T10:47:00.792Z,2021-12-17 05:47:01 EST,2021-12-17 05:51:58 EST,2021-12-17 05:47:00 EST,current,Policy,19.3.0.0.0
+local,Analytics,sybasetest,\@2021-12-17T05:02:16.186,2021-12-17 05:02:16 EST,2021-12-17 05:02:16 EST,2021-12-17 05:02:16 EST,old,Policy,16.0 SP03 PL08
+local,Analytics,sybasetest,\@2021-12-17T05:03:06.506,2021-12-17 05:03:06 EST,2021-12-17 05:03:06 EST,2021-12-17 05:03:06 EST,old,Policy,16.0 SP03 PL08
+local,Analytics,sybasetest,\@2021-12-17T05:04:09.590,2021-12-17 05:04:09 EST,2021-12-17 05:04:09 EST,2021-12-17 05:04:09 EST,old,Policy,16.0 SP03 PL08
+local,Analytics,sybasetest,\@2021-12-17T05:08:54.016,2021-12-17 05:08:54 EST,2021-12-17 05:08:54 EST,2021-12-17 05:08:54 EST,current,Policy,16.0 SP03 PL08
 EOF
 
 script_stdout_is $expected_stdout, "Names and details results compare";

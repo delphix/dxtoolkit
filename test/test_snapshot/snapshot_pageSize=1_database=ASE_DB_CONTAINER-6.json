@@ -1,0 +1,42 @@
+{
+   "result" : [
+      {
+         "temporary" : false,
+         "type" : "ASESnapshot",
+         "namespace" : null,
+         "dbEncryptionKey" : null,
+         "latestChangePoint" : {
+            "timestamp" : "2021-12-17T10:08:54.016Z",
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "location" : null
+         },
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "version" : "16.0 SP03 PL08",
+         "firstChangePoint" : {
+            "location" : null,
+            "timestamp" : "2021-12-17T10:08:54.016Z",
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-15"
+         },
+         "consistency" : "CRASH_CONSISTENT",
+         "timeflow" : "ASE_TIMEFLOW-15",
+         "timezone" : "America/New_York,EST-0500",
+         "name" : "@2021-12-17T05:08:54.016",
+         "retention" : 0,
+         "container" : "ASE_DB_CONTAINER-6",
+         "creationTime" : "2021-12-17T10:08:54.616Z",
+         "missingNonLoggedData" : false,
+         "reference" : "ASE_SNAPSHOT-16"
+      }
+   ],
+   "total" : 7,
+   "action" : null,
+   "overflow" : false,
+   "status" : "OK",
+   "type" : "ListResult",
+   "job" : null
+}

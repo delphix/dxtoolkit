@@ -1,45 +1,44 @@
 {
-   "overflow" : false,
-   "status" : "OK",
-   "type" : "ListResult",
+   "job" : null,
    "action" : null,
+   "overflow" : false,
+   "total" : 24,
    "result" : [
       {
+         "latestChangePoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-48",
+            "timestamp" : "2021-12-17T10:51:20.000Z",
+            "location" : "2353851",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2021-12-17T10:51:20.113Z",
          "temporary" : false,
-         "version" : "12.1.0.2.0",
-         "container" : "ORACLE_DB_CONTAINER-7",
+         "firstChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2353840",
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-48"
+         },
+         "retention" : 0,
+         "timezone" : "America/New_York,EST-0500",
+         "redoLogSizeInBytes" : 52428800,
+         "timeflow" : "ORACLE_TIMEFLOW-48",
+         "reference" : "ORACLE_SNAPSHOT-93",
+         "creationTime" : "2021-12-17T10:51:20.113Z",
+         "version" : "19.3.0.0.0",
+         "missingNonLoggedData" : false,
          "runtime" : {
             "type" : "OracleSnapshotRuntime",
-            "provisionable" : true,
-            "missingLogs" : []
+            "missingLogs" : [],
+            "provisionable" : true
          },
-         "consistency" : "INCONSISTENT",
-         "latestChangePoint" : {
-            "type" : "OracleTimeflowPoint",
-            "location" : "7020897",
-            "timeflow" : "ORACLE_TIMEFLOW-5",
-            "timestamp" : "2019-12-30T11:36:20.000Z"
-         },
-         "timeflow" : "ORACLE_TIMEFLOW-5",
-         "redoLogSizeInBytes" : 52428800,
-         "type" : "OracleSnapshot",
-         "reference" : "ORACLE_SNAPSHOT-11",
-         "fromPhysicalStandbyVdb" : false,
          "namespace" : null,
-         "retention" : 0,
-         "creationTime" : "2019-12-30T11:36:26.484Z",
-         "fractionTimeflows" : null,
-         "name" : "@2019-12-30T11:36:26.484Z",
-         "missingNonLoggedData" : false,
-         "timezone" : "US/Pacific,PST-0800",
-         "firstChangePoint" : {
-            "timestamp" : "2019-12-30T11:36:20.000Z",
-            "timeflow" : "ORACLE_TIMEFLOW-5",
-            "location" : "7020455",
-            "type" : "OracleTimeflowPoint"
-         }
+         "type" : "OracleSnapshot",
+         "fromPhysicalStandbyVdb" : false,
+         "consistency" : "CRASH_CONSISTENT",
+         "container" : "ORACLE_DB_CONTAINER-7"
       }
    ],
-   "total" : 1,
-   "job" : null
+   "status" : "OK",
+   "type" : "ListResult"
 }

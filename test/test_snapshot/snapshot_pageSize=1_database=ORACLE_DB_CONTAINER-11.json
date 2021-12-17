@@ -1,45 +1,44 @@
 {
-   "status" : "OK",
-   "overflow" : false,
+   "type" : "ListResult",
+   "total" : 9,
    "result" : [
       {
-         "consistency" : "INCONSISTENT",
-         "runtime" : {
-            "missingLogs" : [],
-            "provisionable" : true,
-            "type" : "OracleSnapshotRuntime"
+         "name" : "@2021-12-17T10:49:44.280Z",
+         "redoLogSizeInBytes" : 52428800,
+         "namespace" : null,
+         "reference" : "ORACLE_SNAPSHOT-90",
+         "firstChangePoint" : {
+            "timestamp" : null,
+            "location" : "2487754",
+            "timeflow" : "ORACLE_TIMEFLOW-46",
+            "type" : "OracleTimeflowPoint"
          },
          "container" : "ORACLE_DB_CONTAINER-11",
-         "version" : "12.1.0.2.0",
-         "temporary" : false,
-         "firstChangePoint" : {
-            "location" : "7561700",
-            "type" : "OracleTimeflowPoint",
-            "timestamp" : null,
-            "timeflow" : "ORACLE_TIMEFLOW-11"
-         },
-         "timezone" : "US/Pacific,PST-0800",
-         "missingNonLoggedData" : false,
-         "fractionTimeflows" : null,
-         "name" : "@2020-01-05T11:30:29.078Z",
-         "creationTime" : "2020-01-05T11:30:29.078Z",
-         "fromPhysicalStandbyVdb" : false,
-         "retention" : 0,
-         "namespace" : null,
-         "type" : "OracleSnapshot",
-         "reference" : "ORACLE_SNAPSHOT-50",
-         "redoLogSizeInBytes" : 52428800,
-         "timeflow" : "ORACLE_TIMEFLOW-11",
          "latestChangePoint" : {
-            "location" : "7561707",
-            "type" : "OracleTimeflowPoint",
-            "timeflow" : "ORACLE_TIMEFLOW-11",
-            "timestamp" : "2020-01-05T11:30:36.000Z"
-         }
+            "timestamp" : "2021-12-17T10:49:47.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-46",
+            "location" : "2487765",
+            "type" : "OracleTimeflowPoint"
+         },
+         "creationTime" : "2021-12-17T10:49:44.280Z",
+         "temporary" : false,
+         "missingNonLoggedData" : false,
+         "consistency" : "INCONSISTENT",
+         "timeflow" : "ORACLE_TIMEFLOW-46",
+         "timezone" : "America/New_York,EST-0500",
+         "fromPhysicalStandbyVdb" : false,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "provisionable" : true,
+            "missingLogs" : []
+         },
+         "type" : "OracleSnapshot",
+         "retention" : 0,
+         "version" : "19.3.0.0.0"
       }
    ],
-   "total" : 1,
-   "job" : null,
-   "type" : "ListResult",
-   "action" : null
+   "status" : "OK",
+   "action" : null,
+   "overflow" : false,
+   "job" : null
 }

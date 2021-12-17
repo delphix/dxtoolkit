@@ -1,0 +1,22 @@
+{
+   "result" : {
+      "type" : "TimeflowRange",
+      "endPoint" : {
+         "timestamp" : "2021-12-17T10:27:05.000Z",
+         "timeflow" : "ORACLE_TIMEFLOW-8",
+         "type" : "OracleTimeflowPoint",
+         "location" : "2398893"
+      },
+      "provisionable" : true,
+      "startPoint" : {
+         "location" : "2392467",
+         "timeflow" : "ORACLE_TIMEFLOW-8",
+         "type" : "OracleTimeflowPoint",
+         "timestamp" : "2021-12-17T10:16:17.000Z"
+      }
+   },
+   "type" : "OKResult",
+   "action" : null,
+   "status" : "OK",
+   "job" : null
+}

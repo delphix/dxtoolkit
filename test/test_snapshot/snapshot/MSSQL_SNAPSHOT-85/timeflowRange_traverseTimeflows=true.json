@@ -1,0 +1,22 @@
+{
+   "result" : {
+      "type" : "TimeflowRange",
+      "startPoint" : {
+         "timeflow" : "MSSQL_TIMEFLOW-44",
+         "timestamp" : "2021-12-16T17:24:13.447Z",
+         "location" : "31226000013099700001",
+         "type" : "MSSqlTimeflowPoint"
+      },
+      "endPoint" : {
+         "timestamp" : "2021-12-16T17:24:13.447Z",
+         "timeflow" : "MSSQL_TIMEFLOW-44",
+         "location" : "31226000013099700001",
+         "type" : "MSSqlTimeflowPoint"
+      },
+      "provisionable" : true
+   },
+   "action" : null,
+   "job" : null,
+   "type" : "OKResult",
+   "status" : "OK"
+}
