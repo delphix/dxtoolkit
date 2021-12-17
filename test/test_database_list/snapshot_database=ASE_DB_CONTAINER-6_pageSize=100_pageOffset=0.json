@@ -1,0 +1,266 @@
+{
+   "status" : "OK",
+   "overflow" : false,
+   "type" : "ListResult",
+   "job" : null,
+   "result" : [
+      {
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "dbEncryptionKey" : null,
+         "type" : "ASESnapshot",
+         "version" : "16.0 SP03 PL08",
+         "timezone" : "America/New_York,EST-0500",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-15",
+         "container" : "ASE_DB_CONTAINER-6",
+         "reference" : "ASE_SNAPSHOT-94",
+         "temporary" : false,
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "timestamp" : "2021-12-17T11:30:00.480Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "firstChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "timestamp" : "2021-12-17T11:30:00.480Z"
+         },
+         "namespace" : null,
+         "name" : "@2021-12-17T06:30:00.480",
+         "creationTime" : "2021-12-17T11:30:00.423Z",
+         "retention" : 0,
+         "consistency" : "CRASH_CONSISTENT"
+      },
+      {
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "reference" : "ASE_SNAPSHOT-16",
+         "timeflow" : "ASE_TIMEFLOW-15",
+         "missingNonLoggedData" : false,
+         "container" : "ASE_DB_CONTAINER-6",
+         "version" : "16.0 SP03 PL08",
+         "timezone" : "America/New_York,EST-0500",
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-17T10:08:54.016Z",
+            "timeflow" : "ASE_TIMEFLOW-15",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "namespace" : null,
+         "latestChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timestamp" : "2021-12-17T10:08:54.016Z",
+            "timeflow" : "ASE_TIMEFLOW-15"
+         },
+         "temporary" : false,
+         "consistency" : "CRASH_CONSISTENT",
+         "creationTime" : "2021-12-17T10:08:54.616Z",
+         "retention" : 0,
+         "name" : "@2021-12-17T05:08:54.016"
+      },
+      {
+         "latestChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timestamp" : "2021-12-17T10:07:42.216Z",
+            "timeflow" : "ASE_TIMEFLOW-14"
+         },
+         "temporary" : false,
+         "namespace" : null,
+         "firstChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-14",
+            "timestamp" : "2021-12-17T10:07:42.216Z"
+         },
+         "name" : "@2021-12-17T05:07:42.216",
+         "consistency" : "CRASH_CONSISTENT",
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:07:42.879Z",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "timeflow" : "ASE_TIMEFLOW-14",
+         "missingNonLoggedData" : false,
+         "container" : "ASE_DB_CONTAINER-6",
+         "version" : "16.0 SP03 PL08",
+         "timezone" : "America/New_York,EST-0500",
+         "reference" : "ASE_SNAPSHOT-15"
+      },
+      {
+         "timezone" : "America/New_York,EST-0500",
+         "version" : "16.0 SP03 PL08",
+         "container" : "ASE_DB_CONTAINER-6",
+         "timeflow" : "ASE_TIMEFLOW-13",
+         "missingNonLoggedData" : false,
+         "reference" : "ASE_SNAPSHOT-12",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "dbEncryptionKey" : null,
+         "type" : "ASESnapshot",
+         "name" : "@2021-12-17T05:06:34.780",
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:06:34.719Z",
+         "consistency" : "CRASH_CONSISTENT",
+         "temporary" : false,
+         "latestChangePoint" : {
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timeflow" : "ASE_TIMEFLOW-13",
+            "timestamp" : "2021-12-17T10:06:34.780Z"
+         },
+         "namespace" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-13",
+            "timestamp" : "2021-12-17T10:06:34.780Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         }
+      },
+      {
+         "reference" : "ASE_SNAPSHOT-11",
+         "version" : "16.0 SP03 PL08",
+         "timezone" : "America/New_York,EST-0500",
+         "timeflow" : "ASE_TIMEFLOW-6",
+         "missingNonLoggedData" : false,
+         "container" : "ASE_DB_CONTAINER-6",
+         "dbEncryptionKey" : null,
+         "type" : "ASESnapshot",
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:05:12.710Z",
+         "consistency" : "CRASH_CONSISTENT",
+         "name" : "@2021-12-17T05:05:12.700",
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "timestamp" : "2021-12-17T10:05:12.700Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "namespace" : null,
+         "temporary" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2021-12-17T10:05:12.700Z",
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         }
+      },
+      {
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "reference" : "ASE_SNAPSHOT-8",
+         "container" : "ASE_DB_CONTAINER-6",
+         "timeflow" : "ASE_TIMEFLOW-6",
+         "missingNonLoggedData" : false,
+         "timezone" : "America/New_York,EST-0500",
+         "version" : "16.0 SP03 PL08",
+         "firstChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timestamp" : "2021-12-17T10:04:09.590Z",
+            "timeflow" : "ASE_TIMEFLOW-6"
+         },
+         "namespace" : null,
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "timestamp" : "2021-12-17T10:04:09.590Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "temporary" : false,
+         "consistency" : "CRASH_CONSISTENT",
+         "creationTime" : "2021-12-17T10:04:09.512Z",
+         "retention" : 0,
+         "name" : "@2021-12-17T05:04:09.590"
+      },
+      {
+         "creationTime" : "2021-12-17T10:03:06.440Z",
+         "retention" : 0,
+         "consistency" : "CRASH_CONSISTENT",
+         "name" : "@2021-12-17T05:03:06.506",
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "timestamp" : "2021-12-17T10:03:06.506Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "namespace" : null,
+         "temporary" : false,
+         "latestChangePoint" : {
+            "timestamp" : "2021-12-17T10:03:06.506Z",
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "reference" : "ASE_SNAPSHOT-4",
+         "timezone" : "America/New_York,EST-0500",
+         "version" : "16.0 SP03 PL08",
+         "container" : "ASE_DB_CONTAINER-6",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-6",
+         "dbEncryptionKey" : null,
+         "type" : "ASESnapshot",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         }
+      },
+      {
+         "container" : "ASE_DB_CONTAINER-6",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-6",
+         "timezone" : "America/New_York,EST-0500",
+         "version" : "16.0 SP03 PL08",
+         "reference" : "ASE_SNAPSHOT-3",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "name" : "@2021-12-17T05:02:16.186",
+         "consistency" : "CRASH_CONSISTENT",
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:02:16.505Z",
+         "latestChangePoint" : {
+            "timestamp" : "2021-12-17T10:02:16.186Z",
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "temporary" : false,
+         "firstChangePoint" : {
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "timestamp" : "2021-12-17T10:02:16.186Z"
+         },
+         "namespace" : null
+      }
+   ],
+   "total" : 8,
+   "action" : null
+}

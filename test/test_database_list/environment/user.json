@@ -1,38 +1,92 @@
 {
    "status" : "OK",
+   "overflow" : false,
+   "type" : "ListResult",
+   "job" : null,
    "result" : [
       {
-         "reference" : "HOST_USER-1",
-         "environment" : "UNIX_HOST_ENVIRONMENT-1",
-         "namespace" : null,
-         "name" : "oracle",
-         "credential" : {
-            "type" : "KeyPairCredential",
-            "publicKey" : "********",
-            "privateKey" : "********"
-         },
          "userId" : 0,
+         "namespace" : null,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "type" : "EnvironmentUser",
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-1",
          "groupId" : 0,
-         "type" : "EnvironmentUser"
+         "reference" : "HOST_USER-1",
+         "name" : "QA-AD\\DelphixADuser"
       },
       {
-         "type" : "EnvironmentUser",
-         "groupId" : 0,
-         "userId" : 0,
+         "namespace" : null,
          "credential" : {
             "publicKey" : "********",
             "privateKey" : "********",
             "type" : "KeyPairCredential"
          },
-         "name" : "oracle",
-         "namespace" : null,
+         "userId" : 0,
+         "type" : "EnvironmentUser",
          "environment" : "UNIX_HOST_ENVIRONMENT-2",
-         "reference" : "HOST_USER-2"
+         "groupId" : 0,
+         "reference" : "HOST_USER-2",
+         "name" : "oracle"
+      },
+      {
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "namespace" : null,
+         "credential" : {
+            "privateKey" : "********",
+            "publicKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "groupId" : 0,
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "reference" : "HOST_USER-3",
+         "name" : "sybase"
+      },
+      {
+         "type" : "EnvironmentUser",
+         "credential" : {
+            "privateKey" : "********",
+            "publicKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "namespace" : null,
+         "userId" : 0,
+         "groupId" : 0,
+         "environment" : "UNIX_HOST_ENVIRONMENT-4",
+         "reference" : "HOST_USER-4",
+         "name" : "oracle"
+      },
+      {
+         "name" : "sybase",
+         "reference" : "HOST_USER-5",
+         "groupId" : 0,
+         "environment" : "UNIX_HOST_ENVIRONMENT-5",
+         "type" : "EnvironmentUser",
+         "credential" : {
+            "publicKey" : "********",
+            "privateKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "namespace" : null,
+         "userId" : 0
+      },
+      {
+         "groupId" : 0,
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-6",
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "namespace" : null,
+         "name" : "QA-AD\\delphixADuser",
+         "reference" : "HOST_USER-6"
       }
    ],
-   "type" : "ListResult",
-   "action" : null,
-   "overflow" : false,
-   "total" : 2,
-   "job" : null
+   "total" : 6,
+   "action" : null
 }

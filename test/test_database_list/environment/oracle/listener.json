@@ -1,40 +1,40 @@
 {
    "result" : [
       {
-         "name" : "LISTENER",
-         "namespace" : null,
-         "environment" : "UNIX_HOST_ENVIRONMENT-2",
-         "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))"
-         ],
          "type" : "OracleNodeListener",
-         "discovered" : true,
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-4",
          "reference" : "ORACLE_NODE_LISTENER-2",
-         "host" : "UNIX_HOST-2",
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))"
+         ],
          "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.230.248)(PORT=1521))"
-         ]
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))"
+         ],
+         "name" : "LISTENER",
+         "host" : "UNIX_HOST-4",
+         "discovered" : true
       },
       {
-         "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))"
-         ],
-         "type" : "OracleNodeListener",
          "discovered" : true,
+         "name" : "LISTENER",
          "host" : "UNIX_HOST-1",
          "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.247.60)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))"
+         ],
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))"
          ],
          "reference" : "ORACLE_NODE_LISTENER-1",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
          "namespace" : null,
-         "name" : "LISTENER",
-         "environment" : "UNIX_HOST_ENVIRONMENT-1"
+         "type" : "OracleNodeListener"
       }
    ],
-   "status" : "OK",
-   "overflow" : false,
-   "action" : null,
    "job" : null,
+   "action" : null,
    "total" : 2,
-   "type" : "ListResult"
+   "status" : "OK",
+   "type" : "ListResult",
+   "overflow" : false
 }
