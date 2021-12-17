@@ -1,0 +1,51 @@
+{
+   "status" : "OK",
+   "total" : 3,
+   "result" : [
+      {
+         "snapshot" : "MSSQL_SNAPSHOT-15",
+         "container" : "MSSQL_DB_CONTAINER-5",
+         "snapshotTimestamp" : "2021-12-16T16:49:02.611Z",
+         "snapshotLatestChange" : "2021-12-16T16:42:12.000Z",
+         "snapshotTimezone" : "America/Los_Angeles,PST-0800",
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "namespace" : null,
+         "space" : 406016,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "container" : "MSSQL_DB_CONTAINER-5",
+         "snapshot" : "MSSQL_SNAPSHOT-24",
+         "snapshotLatestChange" : "2021-12-16T16:53:14.000Z",
+         "snapshotTimezone" : "America/Los_Angeles,PST-0800",
+         "snapshotTimestamp" : "2021-12-16T16:53:59.630Z",
+         "namespace" : null,
+         "space" : 388608,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData"
+      },
+      {
+         "container" : "MSSQL_DB_CONTAINER-5",
+         "snapshot" : "MSSQL_SNAPSHOT-44",
+         "snapshotTimezone" : "America/Los_Angeles,PST-0800",
+         "snapshotLatestChange" : "2021-12-16T16:55:18.000Z",
+         "snapshotTimestamp" : "2021-12-16T17:01:43.349Z",
+         "space" : 0,
+         "namespace" : null,
+         "policyRetention" : true,
+         "descendantVDBs" : [
+            "MSSQL_DB_CONTAINER-14"
+         ],
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData"
+      }
+   ],
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "action" : null
+}

@@ -1,0 +1,101 @@
+{
+   "overflow" : false,
+   "type" : "ListResult",
+   "action" : null,
+   "status" : "OK",
+   "total" : 7,
+   "result" : [
+      {
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "space" : 75264,
+         "namespace" : null,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0,
+         "snapshot" : "ASE_SNAPSHOT-3",
+         "container" : "ASE_DB_CONTAINER-6",
+         "snapshotTimestamp" : "2021-12-16T16:43:32.421Z",
+         "snapshotLatestChange" : "2021-12-16T16:43:33.286Z",
+         "snapshotTimezone" : "America/New_York,EST-0500"
+      },
+      {
+         "snapshot" : "ASE_SNAPSHOT-12",
+         "container" : "ASE_DB_CONTAINER-6",
+         "snapshotTimestamp" : "2021-12-16T16:47:48.501Z",
+         "snapshotLatestChange" : "2021-12-16T16:47:49.380Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "namespace" : null,
+         "space" : 72704,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0,
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "space" : 64000,
+         "namespace" : null,
+         "snapshotTimestamp" : "2021-12-16T16:50:11.009Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:50:11.716Z",
+         "snapshot" : "ASE_SNAPSHOT-16",
+         "container" : "ASE_DB_CONTAINER-6"
+      },
+      {
+         "snapshotTimestamp" : "2021-12-16T16:48:57.882Z",
+         "snapshotLatestChange" : "2021-12-16T16:48:58.230Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshot" : "ASE_SNAPSHOT-14",
+         "container" : "ASE_DB_CONTAINER-6",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "space" : 53760,
+         "namespace" : null
+      },
+      {
+         "snapshotTimestamp" : "2021-12-16T16:45:24.278Z",
+         "snapshotLatestChange" : "2021-12-16T16:45:25.200Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshot" : "ASE_SNAPSHOT-8",
+         "container" : "ASE_DB_CONTAINER-6",
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0,
+         "descendantVDBs" : [],
+         "policyRetention" : true,
+         "namespace" : null,
+         "space" : 27136
+      },
+      {
+         "snapshot" : "ASE_SNAPSHOT-5",
+         "container" : "ASE_DB_CONTAINER-6",
+         "snapshotTimestamp" : "2021-12-16T16:44:20.857Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:44:21.766Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "namespace" : null,
+         "space" : 27136,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "namespace" : null,
+         "space" : 27136,
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "container" : "ASE_DB_CONTAINER-6",
+         "snapshot" : "ASE_SNAPSHOT-10",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:46:28.466Z",
+         "snapshotTimestamp" : "2021-12-16T16:46:27.557Z"
+      }
+   ],
+   "job" : null
+}
