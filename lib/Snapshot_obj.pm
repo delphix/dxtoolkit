@@ -1165,20 +1165,14 @@ sub getSnapshotList
     #
     # }
 
-    print Dumper "entry";
-    print Dumper $databases;
 
     if (ref($databases) eq 'ARRAY') {
-      print Dumper "array";
       @cont_list = @{$databases};
     } else {
-      print Dumper "nie arraj";
       push @cont_list, $databases;
     }
 
     my @all_snaps;
-
-    print Dumper \@cont_list;
 
     for my $c (@cont_list) {
       my $arr = $self->getSnapshotList_worker($c);

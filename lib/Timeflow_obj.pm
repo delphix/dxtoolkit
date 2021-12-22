@@ -465,10 +465,16 @@ sub generateHierarchy
             }
           }
         }
+      } else {
+        # @l is needed as we may have same container id between engines
+        $parent_ref = $parent_ref . "\@l";
       }
 
-      $hierarchy{$tfitem}{parent} = $parent_ref;
-      $hierarchy{$tfitem}{source} = 'l';
+
+      my $tfitemext = $tfitem . "\@l" ;
+
+      $hierarchy{$tfitemext}{parent} = $parent_ref;
+      $hierarchy{$tfitemext}{source} = 'l';
 
     }
 
@@ -504,7 +510,7 @@ sub finddSource
 
     logger($self->{_debug}, "Entering Timeflow_obj::finddSource",1);
 
-    my $local_ref = $ref;
+    my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
 
@@ -540,6 +546,8 @@ sub finddSource
       $local_ref = 'notlocal';
       undef $child;
     }
+
+
 
     return ($local_ref, $child);
 
