@@ -1,0 +1,1045 @@
+{
+   "action" : null,
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "status" : "OK",
+   "result" : [
+      {
+         "virtual" : false,
+         "backupLevelEnabled" : false,
+         "namespace" : null,
+         "numberOfConnections" : 1,
+         "staging" : false,
+         "compressedLinkingEnabled" : true,
+         "reference" : "ORACLE_LINKED_SOURCE-4",
+         "runtime" : {
+            "activeInstances" : [
+               {
+                  "instanceName" : "DBOMSR3A85E9",
+                  "hostName" : "ip-10-110-240-239.delphix.com",
+                  "instanceNumber" : 1,
+                  "type" : "OracleActiveInstance"
+               }
+            ],
+            "type" : "OracleSourceRuntime",
+            "databaseSize" : 2060943360,
+            "enabled" : "ENABLED",
+            "lastNonLoggedLocation" : "0",
+            "notAccessibleReason" : null,
+            "databaseRole" : "PRIMARY",
+            "status" : "RUNNING",
+            "accessibleTimestamp" : "2021-12-22T13:55:19.465Z",
+            "databaseMode" : "READ_WRITE",
+            "racEnabled" : null,
+            "dnfsEnabled" : false,
+            "databaseStats" : null,
+            "bctEnabled" : true,
+            "archivelogEnabled" : null,
+            "accessible" : true
+         },
+         "checkLogical" : false,
+         "operations" : {
+            "type" : "LinkedSourceOperations",
+            "preSync" : [],
+            "postSync" : []
+         },
+         "externalFilePath" : null,
+         "encryptedLinkingEnabled" : false,
+         "logCollectionEnabled" : false,
+         "bandwidthLimit" : 0,
+         "linked" : true,
+         "filesPerSet" : 5,
+         "type" : "OracleLinkedSource",
+         "rmanChannels" : 2,
+         "config" : "ORACLE_SINGLE_CONFIG-1",
+         "hosts" : null,
+         "status" : "DEFAULT",
+         "container" : "ORACLE_DB_CONTAINER-2",
+         "name" : "DBOMSR3A85E9",
+         "description" : null
+      },
+      {
+         "linked" : true,
+         "bandwidthLimit" : 0,
+         "type" : "OracleLinkedSource",
+         "filesPerSet" : 5,
+         "status" : "DEFAULT",
+         "name" : "CDOMLOSRCA1DPDB1",
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "rmanChannels" : 2,
+         "hosts" : null,
+         "config" : "ORACLE_PDB_CONFIG-4",
+         "description" : null,
+         "backupLevelEnabled" : false,
+         "namespace" : null,
+         "virtual" : false,
+         "reference" : "ORACLE_LINKED_SOURCE-5",
+         "runtime" : {
+            "databaseStats" : null,
+            "accessible" : true,
+            "notAccessibleReason" : null,
+            "enabled" : "ENABLED",
+            "lastNonLoggedLocation" : "0",
+            "status" : "RUNNING",
+            "databaseRole" : "PRIMARY",
+            "databaseMode" : "READ_WRITE",
+            "accessibleTimestamp" : "2021-12-22T13:55:19.420Z",
+            "type" : "OraclePDBSourceRuntime",
+            "databaseSize" : 768999424,
+            "activeInstances" : [
+               {
+                  "hostName" : "ip-10-110-240-239.delphix.com",
+                  "instanceName" : "CDOMLOSRCA1D",
+                  "type" : "OracleActiveInstance",
+                  "instanceNumber" : 1
+               }
+            ]
+         },
+         "numberOfConnections" : 1,
+         "compressedLinkingEnabled" : true,
+         "staging" : false,
+         "externalFilePath" : null,
+         "operations" : {
+            "type" : "LinkedSourceOperations",
+            "preSync" : [],
+            "postSync" : []
+         },
+         "checkLogical" : false,
+         "encryptedLinkingEnabled" : false,
+         "logCollectionEnabled" : false
+      },
+      {
+         "logCollectionEnabled" : false,
+         "encryptedLinkingEnabled" : false,
+         "checkLogical" : false,
+         "operations" : {
+            "preSync" : [],
+            "postSync" : [],
+            "type" : "LinkedSourceOperations"
+         },
+         "externalFilePath" : null,
+         "compressedLinkingEnabled" : false,
+         "staging" : false,
+         "numberOfConnections" : 1,
+         "runtime" : {
+            "databaseSize" : 2084962304,
+            "type" : "OracleSourceRuntime",
+            "activeInstances" : [
+               {
+                  "hostName" : "ip-10-110-240-239.delphix.com",
+                  "instanceName" : "CDOMLOSRCA1D",
+                  "instanceNumber" : 1,
+                  "type" : "OracleActiveInstance"
+               }
+            ],
+            "bctEnabled" : true,
+            "archivelogEnabled" : null,
+            "accessible" : true,
+            "databaseStats" : null,
+            "racEnabled" : null,
+            "dnfsEnabled" : false,
+            "accessibleTimestamp" : "2021-12-22T13:55:19.606Z",
+            "databaseMode" : "READ_WRITE",
+            "databaseRole" : "PRIMARY",
+            "status" : "RUNNING",
+            "lastNonLoggedLocation" : "0",
+            "enabled" : "ENABLED",
+            "notAccessibleReason" : null
+         },
+         "reference" : "ORACLE_LINKED_SOURCE-1",
+         "virtual" : false,
+         "namespace" : null,
+         "backupLevelEnabled" : false,
+         "description" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-2",
+         "hosts" : null,
+         "rmanChannels" : 2,
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "name" : "CDOMLOSRCA1D",
+         "status" : "DEFAULT",
+         "filesPerSet" : 5,
+         "type" : "OracleLinkedSource",
+         "bandwidthLimit" : 0,
+         "linked" : true
+      },
+      {
+         "description" : null,
+         "name" : "CDOMLOTG2E25",
+         "container" : "ORACLE_DB_CONTAINER-10",
+         "status" : "DEFAULT",
+         "hosts" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-10",
+         "rmanChannels" : 2,
+         "type" : "OracleLinkedSource",
+         "filesPerSet" : 5,
+         "linked" : true,
+         "bandwidthLimit" : 0,
+         "logCollectionEnabled" : false,
+         "encryptedLinkingEnabled" : false,
+         "externalFilePath" : null,
+         "operations" : {
+            "type" : "LinkedSourceOperations",
+            "postSync" : [],
+            "preSync" : []
+         },
+         "checkLogical" : false,
+         "runtime" : {
+            "databaseStats" : null,
+            "accessible" : true,
+            "archivelogEnabled" : null,
+            "bctEnabled" : true,
+            "databaseMode" : "READ_WRITE",
+            "accessibleTimestamp" : "2021-12-22T13:55:34.521Z",
+            "dnfsEnabled" : false,
+            "racEnabled" : null,
+            "notAccessibleReason" : null,
+            "lastNonLoggedLocation" : "0",
+            "enabled" : "ENABLED",
+            "status" : "RUNNING",
+            "databaseRole" : "PRIMARY",
+            "databaseSize" : 2084995072,
+            "type" : "OracleSourceRuntime",
+            "activeInstances" : [
+               {
+                  "type" : "OracleActiveInstance",
+                  "instanceNumber" : 1,
+                  "instanceName" : "CDOMLOTG2E25",
+                  "hostName" : "ip-10-110-211-39.delphix.com"
+               }
+            ]
+         },
+         "reference" : "ORACLE_LINKED_SOURCE-6",
+         "compressedLinkingEnabled" : false,
+         "staging" : false,
+         "numberOfConnections" : 1,
+         "namespace" : null,
+         "backupLevelEnabled" : false,
+         "virtual" : false
+      },
+      {
+         "virtual" : true,
+         "customEnvVars" : [],
+         "namespace" : null,
+         "staging" : false,
+         "mountBase" : "/mnt/provision",
+         "reference" : "ORACLE_VIRTUAL_SOURCE-4",
+         "archivelogMode" : true,
+         "runtime" : {
+            "activeInstances" : [],
+            "databaseSize" : 0,
+            "type" : "OracleSourceRuntime",
+            "racEnabled" : null,
+            "dnfsEnabled" : false,
+            "accessibleTimestamp" : "2021-12-22T13:55:21.115Z",
+            "databaseMode" : null,
+            "databaseRole" : null,
+            "status" : "UNKNOWN",
+            "enabled" : "ENABLED",
+            "lastNonLoggedLocation" : null,
+            "notAccessibleReason" : "Cannot connect to database due to: Exception occurred while getting connection: oracle.ucp.UniversalConnectionPoolException: Cannot get Connection from Datasource: java.sql.SQLRecoverableException: ORA-01034: ORACLE not available\nORA-27101: shared memory realm does not exist\nLinux-x86_64 Error: 2: No such file or directory\nAdditional information: 4376\nAdditional information: -53143373\n",
+            "archivelogEnabled" : null,
+            "bctEnabled" : false,
+            "accessible" : false,
+            "databaseStats" : []
+         },
+         "operations" : {
+            "preStart" : [],
+            "preSnapshot" : [],
+            "postSnapshot" : [],
+            "type" : "VirtualSourceOperations",
+            "postStart" : [],
+            "configureClone" : [],
+            "postRollback" : [],
+            "preStop" : [],
+            "postRefresh" : [],
+            "postStop" : [],
+            "preRollback" : [],
+            "preRefresh" : []
+         },
+         "logCollectionEnabled" : false,
+         "redoLogGroups" : 3,
+         "linked" : false,
+         "newDBID" : false,
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "type" : "OracleVirtualSource",
+         "runtimeMountInformation" : {
+            "nfsVersionReason" : "DEFAULT",
+            "reference" : null,
+            "type" : "UnixRuntimeMountInformation",
+            "namespace" : null,
+            "name" : null,
+            "nfsVersion" : 4
+         },
+         "configTemplate" : null,
+         "fileMappingRules" : null,
+         "hosts" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-21",
+         "status" : "DEFAULT",
+         "name" : "vcdbtest",
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "nodeListeners" : [],
+         "description" : null,
+         "configParams" : {
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "max_pdbs" : "4098",
+            "enable_pluggable_database" : "TRUE",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "memory_max_target" : "1342177280",
+            "log_archive_dest_1" : "'location=/mnt/provision/vcdbtest/archive/ MANDATORY'",
+            "memory_target" : "1342177280",
+            "compatible" : "'19.0.0'",
+            "open_cursors" : "300",
+            "nls_language" : "'AMERICAN'",
+            "filesystemio_options" : "'setall'",
+            "_cdb_disable_pdb_limit" : "TRUE",
+            "nls_territory" : "'AMERICA'",
+            "processes" : "300",
+            "audit_trail" : "'NONE'",
+            "_omf" : "'ENABLED'",
+            "audit_sys_operations" : "FALSE"
+         },
+         "redoLogSizeInMB" : 50
+      },
+      {
+         "description" : null,
+         "nodeListeners" : [],
+         "configParams" : {
+            "nls_language" : "'AMERICAN'",
+            "filesystemio_options" : "'setall'",
+            "nls_territory" : "'AMERICA'",
+            "processes" : "300",
+            "audit_trail" : "'NONE'",
+            "_omf" : "'ENABLED'",
+            "audit_sys_operations" : "FALSE",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "memory_max_target" : "1073741824",
+            "log_archive_dest_1" : "'location=/mnt/provision/oramask/archive/ MANDATORY'",
+            "memory_target" : "1073741824",
+            "compatible" : "'19.0.0'",
+            "open_cursors" : "300"
+         },
+         "redoLogSizeInMB" : 50,
+         "runtimeMountInformation" : {
+            "nfsVersion" : 4,
+            "name" : null,
+            "namespace" : null,
+            "reference" : null,
+            "nfsVersionReason" : "DEFAULT",
+            "type" : "UnixRuntimeMountInformation"
+         },
+         "configTemplate" : null,
+         "fileMappingRules" : null,
+         "hosts" : null,
+         "config" : "ORACLE_SINGLE_CONFIG-27",
+         "status" : "DEFAULT",
+         "name" : "oramask",
+         "container" : "ORACLE_DB_CONTAINER-25",
+         "newDBID" : false,
+         "type" : "OracleVirtualSource",
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "redoLogGroups" : 3,
+         "linked" : false,
+         "logCollectionEnabled" : false,
+         "operations" : {
+            "postStart" : [],
+            "configureClone" : [],
+            "type" : "VirtualSourceOperations",
+            "postRollback" : [],
+            "postSnapshot" : [],
+            "preStart" : [],
+            "preSnapshot" : [],
+            "preRollback" : [],
+            "preRefresh" : [],
+            "postRefresh" : [],
+            "preStop" : [],
+            "postStop" : []
+         },
+         "staging" : false,
+         "mountBase" : "/mnt/provision",
+         "reference" : "ORACLE_VIRTUAL_SOURCE-10",
+         "archivelogMode" : true,
+         "runtime" : {
+            "databaseSize" : 2061598720,
+            "type" : "OracleSourceRuntime",
+            "activeInstances" : [
+               {
+                  "hostName" : "ip-10-110-211-39.delphix.com",
+                  "instanceName" : "oramask",
+                  "type" : "OracleActiveInstance",
+                  "instanceNumber" : 1
+               }
+            ],
+            "archivelogEnabled" : null,
+            "bctEnabled" : false,
+            "accessible" : true,
+            "databaseStats" : [
+               {
+                  "rowValues" : [
+                     {
+                        "statisticValues" : [
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     }
+                  ],
+                  "sectionName" : "Open Transactions",
+                  "columnHeaders" : [
+                     "Transaction Count"
+                  ],
+                  "type" : "OracleDatabaseStatsSection"
+               },
+               {
+                  "type" : "OracleDatabaseStatsSection",
+                  "columnHeaders" : [
+                     "Current Session",
+                     "Total Session",
+                     "High Watermark"
+                  ],
+                  "sectionName" : "Session Statistics",
+                  "rowValues" : [
+                     {
+                        "statisticValues" : [
+                           "2",
+                           "59",
+                           "3"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     }
+                  ]
+               },
+               {
+                  "type" : "OracleDatabaseStatsSection",
+                  "columnHeaders" : [
+                     "Event",
+                     "Wait Count",
+                     "Total Wait Time (s)"
+                  ],
+                  "rowValues" : [
+                     {
+                        "statisticValues" : [
+                           "Data Guard: rtrt work",
+                           "5",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "rdbms ipc reply",
+                           "1",
+                           "0"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "oracle thread bootstrap",
+                           "3",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "db file sequential read",
+                           "4",
+                           "0"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "Disk file operations I/O",
+                           "1",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "control file heartbeat",
+                           "2",
+                           "0"
+                        ]
+                     },
+                     {
+                        "statisticValues" : [
+                           "direct path read",
+                           "1",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "statisticValues" : [
+                           "os thread creation",
+                           "1",
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     },
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "enq: CF - contention",
+                           "1",
+                           "0"
+                        ]
+                     }
+                  ],
+                  "sectionName" : "Top Wait Events"
+               },
+               {
+                  "rowValues" : [
+                     {
+                        "type" : "OracleDatabaseStatistic",
+                        "statisticValues" : [
+                           "20%",
+                           "declare          pdb_name varchar2(64);          begin            DBMS_SYSTEM.get_env ('ORACLE_PDB_SID', pdb_name);            if(pdb_name is not null)             then               EXECUTE IMMEDIATE 'alter session set container = ' || '\"' || pdb_name                     || '\"';             end if;          exception            when others then            NULL;          end dbms_set_pdb;"
+                        ]
+                     }
+                  ],
+                  "sectionName" : "Top SQL by CPU",
+                  "type" : "OracleDatabaseStatsSection",
+                  "columnHeaders" : [
+                     "Percentage of Load",
+                     "SQL Statement"
+                  ]
+               }
+            ],
+            "racEnabled" : null,
+            "dnfsEnabled" : false,
+            "accessibleTimestamp" : "2021-12-22T13:55:19.633Z",
+            "databaseMode" : "READ_WRITE",
+            "databaseRole" : "PRIMARY",
+            "status" : "RUNNING",
+            "lastNonLoggedLocation" : "0",
+            "enabled" : "ENABLED",
+            "notAccessibleReason" : null
+         },
+         "virtual" : true,
+         "customEnvVars" : [],
+         "namespace" : null
+      },
+      {
+         "virtual" : true,
+         "customEnvVars" : [],
+         "namespace" : null,
+         "staging" : false,
+         "mountBase" : "/mnt/provision",
+         "reference" : "ORACLE_VIRTUAL_PDB_SOURCE-5",
+         "archivelogMode" : true,
+         "runtime" : {
+            "notAccessibleReason" : "Cannot connect to database due to: Exception occurred while getting connection: oracle.ucp.UniversalConnectionPoolException: Cannot get Connection from Datasource: java.sql.SQLRecoverableException: ORA-01034: ORACLE not available\nORA-27101: shared memory realm does not exist\nLinux-x86_64 Error: 2: No such file or directory\nAdditional information: 4376\nAdditional information: -53143373\n",
+            "lastNonLoggedLocation" : null,
+            "enabled" : "ENABLED",
+            "status" : "UNKNOWN",
+            "databaseRole" : null,
+            "databaseMode" : null,
+            "accessibleTimestamp" : "2021-12-22T13:55:19.917Z",
+            "databaseStats" : [],
+            "accessible" : false,
+            "activeInstances" : [],
+            "type" : "OraclePDBSourceRuntime",
+            "databaseSize" : 0
+         },
+         "tdeUUID" : "071213aa-5f79-461c-9ac8-d8e43408b201",
+         "operations" : {
+            "postSnapshot" : [],
+            "preStart" : [],
+            "preSnapshot" : [],
+            "postStart" : [],
+            "configureClone" : [],
+            "type" : "VirtualSourceOperations",
+            "postRollback" : [],
+            "postRefresh" : [],
+            "preStop" : [],
+            "postStop" : [],
+            "preRollback" : [],
+            "preRefresh" : []
+         },
+         "tdeExportedKeyFileSecret" : null,
+         "logCollectionEnabled" : false,
+         "redoLogGroups" : 3,
+         "parentTdeKeystorePath" : null,
+         "parentTdeKeystorePassword" : null,
+         "linked" : false,
+         "newDBID" : false,
+         "tdeKeyIdentifier" : null,
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "type" : "OracleVirtualPdbSource",
+         "runtimeMountInformation" : {
+            "reference" : null,
+            "nfsVersionReason" : "DEFAULT",
+            "type" : "UnixRuntimeMountInformation",
+            "nfsVersion" : 4,
+            "namespace" : null,
+            "name" : null
+         },
+         "fileMappingRules" : null,
+         "configTemplate" : null,
+         "hosts" : null,
+         "config" : "ORACLE_PDB_CONFIG-22",
+         "status" : "DEFAULT",
+         "name" : "pdbtest2",
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "nodeListeners" : [],
+         "configParams" : {
+            "log_archive_dest_1" : "'location=/mnt/provision/vcdbtest/archive/ MANDATORY'",
+            "memory_target" : "1342177280",
+            "open_cursors" : "300",
+            "compatible" : "'19.0.0'",
+            "enable_pluggable_database" : "TRUE",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "memory_max_target" : "1342177280",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "max_pdbs" : "4098",
+            "_omf" : "'ENABLED'",
+            "audit_sys_operations" : "FALSE",
+            "audit_trail" : "'NONE'",
+            "nls_language" : "'AMERICAN'",
+            "filesystemio_options" : "'setall'",
+            "nls_territory" : "'AMERICA'",
+            "_cdb_disable_pdb_limit" : "TRUE",
+            "processes" : "300"
+         },
+         "description" : null,
+         "redoLogSizeInMB" : 50
+      },
+      {
+         "staging" : false,
+         "mountBase" : "/mnt/provision",
+         "runtime" : {
+            "accessible" : true,
+            "databaseStats" : [
+               {
+                  "type" : "OracleDatabaseStatsSection",
+                  "columnHeaders" : [
+                     "Transaction Count"
+                  ],
+                  "sectionName" : "Open Transactions",
+                  "rowValues" : [
+                     {
+                        "statisticValues" : [
+                           "0"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     }
+                  ]
+               },
+               {
+                  "type" : "OracleDatabaseStatsSection",
+                  "columnHeaders" : [
+                     "Current Session",
+                     "Total Session",
+                     "High Watermark"
+                  ],
+                  "rowValues" : [
+                     {
+                        "statisticValues" : [
+                           "2",
+                           "0",
+                           "44"
+                        ],
+                        "type" : "OracleDatabaseStatistic"
+                     }
+                  ],
+                  "sectionName" : "Session Statistics"
+               },
+               {
+                  "columnHeaders" : [
+                     "Event",
+                     "Wait Count",
+                     "Total Wait Time (s)"
+                  ],
+                  "type" : "OracleDatabaseStatsSection",
+                  "sectionName" : "Top Wait Events",
+                  "rowValues" : []
+               },
+               {
+                  "rowValues" : [],
+                  "sectionName" : "Top SQL by CPU",
+                  "columnHeaders" : [
+                     "Percentage of Load",
+                     "SQL Statement"
+                  ],
+                  "type" : "OracleDatabaseStatsSection"
+               }
+            ],
+            "accessibleTimestamp" : "2021-12-22T13:55:19.455Z",
+            "databaseMode" : "MOUNTED_ONLY",
+            "databaseRole" : "PRIMARY",
+            "status" : "INACTIVE",
+            "enabled" : "ENABLED",
+            "lastNonLoggedLocation" : "0",
+            "notAccessibleReason" : null,
+            "databaseSize" : 19300352,
+            "type" : "OraclePDBSourceRuntime",
+            "activeInstances" : []
+         },
+         "reference" : "ORACLE_VIRTUAL_PDB_SOURCE-3",
+         "archivelogMode" : true,
+         "virtual" : true,
+         "namespace" : null,
+         "customEnvVars" : [],
+         "tdeExportedKeyFileSecret" : null,
+         "logCollectionEnabled" : false,
+         "operations" : {
+            "preStart" : [],
+            "preSnapshot" : [],
+            "postSnapshot" : [],
+            "postRollback" : [],
+            "type" : "VirtualSourceOperations",
+            "configureClone" : [],
+            "postStart" : [],
+            "postStop" : [],
+            "preStop" : [],
+            "postRefresh" : [],
+            "preRefresh" : [],
+            "preRollback" : []
+         },
+         "tdeUUID" : "9ab0a1c1-234e-4c47-85ff-6bc73d0e72e1",
+         "type" : "OracleVirtualPdbSource",
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "newDBID" : false,
+         "tdeKeyIdentifier" : null,
+         "redoLogGroups" : 3,
+         "parentTdeKeystorePassword" : null,
+         "linked" : false,
+         "parentTdeKeystorePath" : null,
+         "configParams" : {
+            "nls_language" : "'AMERICAN'",
+            "_cdb_disable_pdb_limit" : "TRUE",
+            "processes" : "300",
+            "nls_territory" : "'AMERICA'",
+            "audit_trail" : "'DB'",
+            "audit_file_dest" : "'/u01/app/oracle/admin/CDOMLOTG2E25/adump'",
+            "log_archive_format" : "'%t_%s_%r.dbf'",
+            "enable_pluggable_database" : "TRUE",
+            "memory_max_target" : "1342177280",
+            "remote_login_passwordfile" : "'EXCLUSIVE'",
+            "max_pdbs" : "4098",
+            "dispatchers" : "'(PROTOCOL=TCP) (SERVICE=CDOMLOTG2E25XDB)'",
+            "memory_target" : "1342177280",
+            "open_cursors" : "300",
+            "diagnostic_dest" : "'/u01/app/oracle'",
+            "compatible" : "'19.0.0'"
+         },
+         "nodeListeners" : [],
+         "description" : null,
+         "redoLogSizeInMB" : 50,
+         "hosts" : null,
+         "config" : "ORACLE_PDB_CONFIG-20",
+         "runtimeMountInformation" : {
+            "reference" : null,
+            "nfsVersionReason" : "DEFAULT",
+            "type" : "UnixRuntimeMountInformation",
+            "nfsVersion" : 4,
+            "name" : null,
+            "namespace" : null
+         },
+         "fileMappingRules" : null,
+         "configTemplate" : null,
+         "name" : "pdbtest",
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "status" : "DEFAULT"
+      },
+      {
+         "runtime" : {
+            "databaseSize" : 0,
+            "type" : "MSSqlSourceRuntime",
+            "accessible" : false,
+            "accessibleTimestamp" : "2021-12-22T13:55:20.274Z",
+            "notAccessibleReason" : "Failed to connect to host marcinmssqltgt.dlpxdc.co [marcinmssqltgt.dlpxdc.co]",
+            "enabled" : "ENABLED",
+            "status" : "UNKNOWN"
+         },
+         "type" : "MSSqlLinkedSource",
+         "reference" : "MSSQL_LINKED_SOURCE-7",
+         "staging" : false,
+         "linked" : true,
+         "namespace" : null,
+         "virtual" : false,
+         "stagingSource" : "MSSQL_STAGING_SOURCE-7",
+         "logCollectionEnabled" : false,
+         "syncStrategy" : {
+            "config" : "MSSQL_SINGLE_CONFIG-19",
+            "backupPolicy" : "PRIMARY",
+            "compressionEnabled" : false,
+            "type" : "MSSqlDelphixManagedSyncStrategy",
+            "mssqlUser" : {
+               "type" : "MSSqlEnvironmentUser",
+               "user" : "HOST_USER-6"
+            }
+         },
+         "description" : null,
+         "encryptionKey" : null,
+         "name" : "Soda",
+         "container" : "MSSQL_DB_CONTAINER-22",
+         "status" : "DEFAULT",
+         "hosts" : null,
+         "operations" : {
+            "type" : "LinkedSourceOperations",
+            "preSync" : [],
+            "postSync" : []
+         }
+      },
+      {
+         "logCollectionEnabled" : false,
+         "syncStrategy" : {
+            "mssqlNetbackupConfig" : null,
+            "mssqlUser" : {
+               "type" : "MSSqlDatabaseUser",
+               "user" : "sa",
+               "password" : {
+                  "password" : "********",
+                  "type" : "PasswordCredential"
+               }
+            },
+            "type" : "MSSqlExternalManagedSourceSyncStrategy",
+            "mssqlCommvaultConfig" : null,
+            "sharedBackupLocations" : [
+               "\\\\marcinmssqlsrc.dlpxdc.co\\shared\\MSSQL\\Macaroon\\FULL"
+            ],
+            "validatedSyncMode" : "NONE",
+            "config" : "MSSQL_SINGLE_CONFIG-16"
+         },
+         "description" : null,
+         "encryptionKey" : null,
+         "name" : "Macaroon",
+         "container" : "MSSQL_DB_CONTAINER-23",
+         "status" : "DEFAULT",
+         "hosts" : null,
+         "operations" : {
+            "postSync" : [],
+            "preSync" : [],
+            "type" : "LinkedSourceOperations"
+         },
+         "runtime" : {
+            "notAccessibleReason" : "Failed to connect to host marcinmssqltgt.dlpxdc.co [marcinmssqltgt.dlpxdc.co]",
+            "enabled" : "ENABLED",
+            "status" : "UNKNOWN",
+            "accessibleTimestamp" : "2021-12-22T13:51:19.273Z",
+            "type" : "MSSqlSourceRuntime",
+            "accessible" : false,
+            "databaseSize" : 0
+         },
+         "type" : "MSSqlLinkedSource",
+         "reference" : "MSSQL_LINKED_SOURCE-8",
+         "staging" : false,
+         "linked" : true,
+         "namespace" : null,
+         "virtual" : false,
+         "stagingSource" : "MSSQL_STAGING_SOURCE-8"
+      },
+      {
+         "staging" : false,
+         "mountBase" : "C:\\Program Files\\Delphix\\DelphixConnector\\ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-vdb-2",
+         "reference" : "MSSQL_VIRTUAL_SOURCE-2",
+         "type" : "MSSqlVirtualSource",
+         "allowAutoVDBRestartOnHostReboot" : true,
+         "runtime" : {
+            "databaseSize" : 0,
+            "accessible" : false,
+            "type" : "MSSqlSourceRuntime",
+            "accessibleTimestamp" : "2021-12-22T13:55:19.881Z",
+            "status" : "UNKNOWN",
+            "enabled" : "ENABLED",
+            "notAccessibleReason" : "Failed to connect to host marcinmssqltgt.dlpxdc.co [marcinmssqltgt.dlpxdc.co]"
+         },
+         "virtual" : true,
+         "postScript" : null,
+         "linked" : false,
+         "namespace" : null,
+         "description" : null,
+         "configParams" : null,
+         "enableCdcOnProvision" : false,
+         "logCollectionEnabled" : false,
+         "preScript" : null,
+         "fileMappingRules" : null,
+         "config" : "MSSQL_SINGLE_CONFIG-30",
+         "operations" : {
+            "type" : "VirtualSourceOperations",
+            "postStart" : [],
+            "configureClone" : [],
+            "postRollback" : [],
+            "preSnapshot" : [],
+            "preStart" : [],
+            "postSnapshot" : [],
+            "preRollback" : [],
+            "preRefresh" : [],
+            "preStop" : [],
+            "postRefresh" : [],
+            "postStop" : []
+         },
+         "hosts" : null,
+         "status" : "DEFAULT",
+         "container" : "MSSQL_DB_CONTAINER-24",
+         "name" : "mssqltest"
+      },
+      {
+         "logCollectionEnabled" : false,
+         "description" : null,
+         "name" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-22",
+         "container" : "MSSQL_DB_CONTAINER-22",
+         "status" : "DEFAULT",
+         "hosts" : null,
+         "config" : "MSSQL_SINGLE_CONFIG-28",
+         "preScript" : null,
+         "runtime" : null,
+         "type" : "MSSqlStagingSource",
+         "reference" : "MSSQL_STAGING_SOURCE-7",
+         "mountBase" : "C:\\Program Files\\Delphix\\DelphixConnector\\ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-22",
+         "staging" : true,
+         "namespace" : null,
+         "linked" : false,
+         "postScript" : null,
+         "virtual" : false
+      },
+      {
+         "staging" : true,
+         "mountBase" : "C:\\Program Files\\Delphix\\DelphixConnector\\ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-23",
+         "reference" : "MSSQL_STAGING_SOURCE-8",
+         "runtime" : null,
+         "type" : "MSSqlStagingSource",
+         "virtual" : false,
+         "postScript" : null,
+         "namespace" : null,
+         "linked" : false,
+         "description" : null,
+         "logCollectionEnabled" : false,
+         "preScript" : null,
+         "hosts" : null,
+         "config" : "MSSQL_SINGLE_CONFIG-29",
+         "status" : "DEFAULT",
+         "name" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-23",
+         "container" : "MSSQL_DB_CONTAINER-23"
+      },
+      {
+         "dumpHistoryFileEnabled" : false,
+         "description" : null,
+         "logCollectionEnabled" : false,
+         "config" : "ASE_SI_CONFIG-1",
+         "operations" : {
+            "preSync" : [],
+            "postSync" : [],
+            "type" : "LinkedSourceOperations"
+         },
+         "hosts" : null,
+         "dumpCredentials" : null,
+         "container" : "ASE_DB_CONTAINER-1",
+         "name" : "db_rhel83_160_1",
+         "status" : "DEFAULT",
+         "externalFilePath" : null,
+         "validatedSyncMode" : "ENABLED",
+         "staging" : false,
+         "loadLocation" : null,
+         "type" : "ASELinkedSource",
+         "runtime" : {
+            "accessibleTimestamp" : "2021-12-22T13:55:29.677Z",
+            "status" : "UNKNOWN",
+            "durabilityLevel" : null,
+            "enabled" : "ENABLED",
+            "notAccessibleReason" : "Failed to connect to instance \"ASE160_SRC\" over JDBC.",
+            "databaseSize" : 0,
+            "truncateLogOnCheckpoint" : null,
+            "accessible" : false,
+            "type" : "ASESourceRuntime"
+         },
+         "reference" : "ASE_LINKED_SOURCE-2",
+         "stagingSource" : "ASE_STAGING_SOURCE-2",
+         "virtual" : false,
+         "namespace" : null,
+         "linked" : true,
+         "loadBackupPath" : "/home/sybase/backup"
+      },
+      {
+         "namespace" : null,
+         "linked" : false,
+         "virtual" : true,
+         "runtime" : {
+            "accessible" : false,
+            "type" : "ASESourceRuntime",
+            "databaseSize" : 0,
+            "truncateLogOnCheckpoint" : null,
+            "durabilityLevel" : null,
+            "status" : "UNKNOWN",
+            "enabled" : "ENABLED",
+            "notAccessibleReason" : "Execution thread unexpectedly failed",
+            "accessibleTimestamp" : "2021-12-22T13:55:25.421Z"
+         },
+         "allowAutoVDBRestartOnHostReboot" : false,
+         "type" : "ASEVirtualSource",
+         "reference" : "ASE_VIRTUAL_SOURCE-1",
+         "mountBase" : "/home/sybase/toolkit/ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-vdb-1",
+         "staging" : false,
+         "name" : "sybasetest",
+         "container" : "ASE_DB_CONTAINER-6",
+         "status" : "DEFAULT",
+         "hosts" : null,
+         "operations" : {
+            "postSnapshot" : [],
+            "preSnapshot" : [],
+            "preStart" : [],
+            "postRollback" : [],
+            "postStart" : [],
+            "configureClone" : [],
+            "type" : "VirtualSourceOperations",
+            "postStop" : [],
+            "postRefresh" : [],
+            "preStop" : [],
+            "preRefresh" : [],
+            "preRollback" : []
+         },
+         "config" : "ASE_SI_CONFIG-6",
+         "runtimeMountInformation" : {
+            "type" : "UnixRuntimeMountInformation",
+            "nfsVersionReason" : "DEFAULT",
+            "reference" : null,
+            "nfsVersion" : 4,
+            "name" : null,
+            "namespace" : null
+         },
+         "fileMappingRules" : null,
+         "logCollectionEnabled" : false,
+         "description" : null,
+         "configParams" : null
+      },
+      {
+         "reference" : "ASE_STAGING_SOURCE-2",
+         "type" : "ASEStagingSource",
+         "runtime" : null,
+         "staging" : true,
+         "mountBase" : "/home/sybase/toolkit/ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-2",
+         "namespace" : null,
+         "linked" : false,
+         "virtual" : false,
+         "postScript" : null,
+         "logCollectionEnabled" : false,
+         "description" : null,
+         "status" : "DEFAULT",
+         "container" : "ASE_DB_CONTAINER-1",
+         "name" : "dx7W99n3gUgma9BPtr_l83_160_1",
+         "preScript" : null,
+         "runtimeMountInformation" : {
+            "nfsVersionReason" : "DEFAULT",
+            "reference" : null,
+            "type" : "UnixRuntimeMountInformation",
+            "name" : null,
+            "namespace" : null,
+            "nfsVersion" : 4
+         },
+         "config" : "ASE_SI_CONFIG-5",
+         "hosts" : null,
+         "operations" : {
+            "type" : "StagingSourceOperations",
+            "postValidatedSync" : [],
+            "preValidatedSync" : []
+         }
+      }
+   ],
+   "total" : 16
+}

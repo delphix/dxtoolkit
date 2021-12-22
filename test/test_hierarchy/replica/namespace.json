@@ -1,0 +1,24 @@
+{
+   "overflow" : false,
+   "action" : null,
+   "job" : null,
+   "total" : 1,
+   "result" : [
+      {
+         "type" : "Namespace",
+         "reference" : "NAMESPACE-2",
+         "failedOver" : false,
+         "failoverReport" : null,
+         "secureNamespace" : true,
+         "namespace" : null,
+         "namespaceType" : "REPLICATION",
+         "locked" : false,
+         "tag" : "93a8df30-a1b4-4cb5-a78c-b5040b15eaa9",
+         "source" : null,
+         "description" : null,
+         "name" : "ip-10-110-251-90-1"
+      }
+   ],
+   "status" : "OK",
+   "type" : "ListResult"
+}

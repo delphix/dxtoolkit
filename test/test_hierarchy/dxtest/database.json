@@ -1,0 +1,455 @@
+{
+   "overflow" : false,
+   "action" : null,
+   "job" : null,
+   "total" : 13,
+   "result" : [
+      {
+         "namespace" : null,
+         "transformation" : false,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-2",
+         "liveSource" : false,
+         "previousTimeflow" : null,
+         "racMaxInstanceLag" : 3,
+         "runtime" : {
+            "liveSourceEligible" : true,
+            "type" : "OracleDBContainerRuntime",
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true
+         },
+         "os" : "Linux",
+         "type" : "OracleDatabaseContainer",
+         "reference" : "ORACLE_DB_CONTAINER-2",
+         "sourcingPolicy" : {
+            "logsyncInterval" : 5,
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "type" : "OracleSourcingPolicy",
+            "logsyncEnabled" : true
+         },
+         "name" : "DBOMSR3A85E9",
+         "masked" : false,
+         "group" : "GROUP-2",
+         "performanceMode" : "DISABLED",
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T10:01:08.881Z",
+         "contentType" : "NON_CDB",
+         "diagnoseNoLoggingFaults" : true,
+         "processor" : "x86",
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : null,
+         "description" : null
+      },
+      {
+         "group" : "GROUP-2",
+         "performanceMode" : "DISABLED",
+         "name" : "CDOMLOSRCA1D",
+         "masked" : false,
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T10:01:08.878Z",
+         "diagnoseNoLoggingFaults" : true,
+         "contentType" : "ROOT_CDB",
+         "description" : null,
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "provisionContainer" : null,
+         "namespace" : null,
+         "transformation" : false,
+         "racMaxInstanceLag" : 3,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-3",
+         "previousTimeflow" : null,
+         "liveSource" : false,
+         "reference" : "ORACLE_DB_CONTAINER-3",
+         "runtime" : {
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "type" : "OracleDatabaseContainer",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : true,
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "type" : "OracleSourcingPolicy",
+            "logsyncInterval" : 5
+         }
+      },
+      {
+         "namespace" : null,
+         "transformation" : false,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-5",
+         "liveSource" : false,
+         "previousTimeflow" : null,
+         "racMaxInstanceLag" : 3,
+         "runtime" : {
+            "liveSourceEligible" : false,
+            "logSyncActive" : true,
+            "preProvisioningStatus" : null,
+            "type" : "OracleDBContainerRuntime"
+         },
+         "os" : "Linux",
+         "type" : "OracleDatabaseContainer",
+         "reference" : "ORACLE_DB_CONTAINER-4",
+         "sourcingPolicy" : {
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "UNDEFINED",
+            "logsyncInterval" : 5,
+            "logsyncEnabled" : true
+         },
+         "name" : "CDOMLOSRCA1DPDB1",
+         "masked" : false,
+         "group" : "GROUP-2",
+         "performanceMode" : "DISABLED",
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T10:01:08.959Z",
+         "contentType" : "PDB",
+         "diagnoseNoLoggingFaults" : true,
+         "provisionContainer" : null,
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "description" : null
+      },
+      {
+         "contentType" : "PDB",
+         "diagnoseNoLoggingFaults" : true,
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "provisionContainer" : "ORACLE_DB_CONTAINER-4",
+         "description" : null,
+         "name" : "pdbtest",
+         "masked" : false,
+         "group" : "GROUP-3",
+         "performanceMode" : "DISABLED",
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T10:05:44.624Z",
+         "os" : "Linux",
+         "runtime" : {
+            "type" : "OracleDBContainerRuntime",
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true,
+            "liveSourceEligible" : false
+         },
+         "type" : "OracleDatabaseContainer",
+         "reference" : "ORACLE_DB_CONTAINER-9",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : true,
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "UNDEFINED",
+            "logsyncInterval" : 5
+         },
+         "transformation" : false,
+         "namespace" : null,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-44",
+         "previousTimeflow" : "ORACLE_TIMEFLOW-36",
+         "liveSource" : false,
+         "racMaxInstanceLag" : 3
+      },
+      {
+         "name" : "CDOMLOTG2E25",
+         "masked" : false,
+         "group" : "GROUP-3",
+         "performanceMode" : "DISABLED",
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T10:05:50.169Z",
+         "contentType" : "ROOT_CDB",
+         "diagnoseNoLoggingFaults" : true,
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : null,
+         "processor" : "x86",
+         "description" : null,
+         "transformation" : false,
+         "namespace" : null,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-8",
+         "previousTimeflow" : null,
+         "liveSource" : false,
+         "racMaxInstanceLag" : 3,
+         "runtime" : {
+            "type" : "OracleDBContainerRuntime",
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true,
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "type" : "OracleDatabaseContainer",
+         "reference" : "ORACLE_DB_CONTAINER-10",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : true,
+            "logsyncInterval" : 5,
+            "logsyncMode" : "ARCHIVE_REDO_MODE",
+            "type" : "OracleSourcingPolicy"
+         }
+      },
+      {
+         "transformation" : false,
+         "namespace" : null,
+         "racMaxInstanceLag" : 3,
+         "liveSource" : false,
+         "previousTimeflow" : null,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-46",
+         "reference" : "ORACLE_DB_CONTAINER-11",
+         "type" : "OracleDatabaseContainer",
+         "os" : "Linux",
+         "runtime" : {
+            "logSyncActive" : true,
+            "preProvisioningStatus" : null,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "sourcingPolicy" : {
+            "logsyncInterval" : 300,
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "type" : "OracleSourcingPolicy",
+            "logsyncEnabled" : true
+         },
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-3",
+         "masked" : false,
+         "name" : "vcdbtest",
+         "creationTime" : "2021-12-17T10:06:16.712Z",
+         "physicalStandby" : false,
+         "diagnoseNoLoggingFaults" : true,
+         "contentType" : "ROOT_CDB",
+         "description" : null,
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : "ORACLE_DB_CONTAINER-3",
+         "processor" : "x86"
+      },
+      {
+         "provisionContainer" : "ORACLE_DB_CONTAINER-4",
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "description" : null,
+         "contentType" : "PDB",
+         "diagnoseNoLoggingFaults" : true,
+         "creationTime" : "2021-12-17T10:06:16.953Z",
+         "physicalStandby" : false,
+         "masked" : false,
+         "name" : "pdbtest2",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-3",
+         "sourcingPolicy" : {
+            "logsyncInterval" : 5,
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "UNDEFINED",
+            "logsyncEnabled" : true
+         },
+         "type" : "OracleDatabaseContainer",
+         "runtime" : {
+            "logSyncActive" : true,
+            "preProvisioningStatus" : null,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "reference" : "ORACLE_DB_CONTAINER-12",
+         "liveSource" : false,
+         "previousTimeflow" : "ORACLE_TIMEFLOW-39",
+         "currentTimeflow" : "ORACLE_TIMEFLOW-47",
+         "racMaxInstanceLag" : 3,
+         "namespace" : null,
+         "transformation" : false
+      },
+      {
+         "transformation" : false,
+         "namespace" : null,
+         "racMaxInstanceLag" : 3,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-57",
+         "liveSource" : false,
+         "previousTimeflow" : "ORACLE_TIMEFLOW-56",
+         "reference" : "ORACLE_DB_CONTAINER-25",
+         "os" : "Linux",
+         "runtime" : {
+            "liveSourceEligible" : false,
+            "type" : "OracleDBContainerRuntime",
+            "logSyncActive" : true,
+            "preProvisioningStatus" : null
+         },
+         "type" : "OracleDatabaseContainer",
+         "sourcingPolicy" : {
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "logsyncInterval" : 300,
+            "logsyncEnabled" : true
+         },
+         "group" : "GROUP-3",
+         "performanceMode" : "DISABLED",
+         "name" : "oramask",
+         "masked" : true,
+         "physicalStandby" : false,
+         "creationTime" : "2021-12-17T15:06:39.149Z",
+         "diagnoseNoLoggingFaults" : true,
+         "contentType" : "NON_CDB",
+         "description" : null,
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : "ORACLE_DB_CONTAINER-2",
+         "processor" : "x86"
+      },
+      {
+         "namespace" : null,
+         "transformation" : false,
+         "currentTimeflow" : "MSSQL_TIMEFLOW-53",
+         "previousTimeflow" : null,
+         "os" : "Windows",
+         "runtime" : {
+            "lastRestoredBackupSetUUID" : "8D243E31-BDF4-42DE-BA22-1856DC621489",
+            "logSyncActive" : false,
+            "preProvisioningStatus" : {
+               "lastUpdateTimestamp" : "2021-12-22T10:15:14.293Z",
+               "status" : "Validated sync is inactive because Delphix is managing the backups for this dSource.",
+               "response" : null,
+               "type" : "PreProvisioningRuntime",
+               "pendingAction" : null,
+               "preProvisioningState" : "INACTIVE"
+            },
+            "type" : "MSSqlDBContainerRuntime"
+         },
+         "type" : "MSSqlDatabaseContainer",
+         "reference" : "MSSQL_DB_CONTAINER-22",
+         "sourcingPolicy" : {
+            "type" : "SourcingPolicy",
+            "logsyncEnabled" : false
+         },
+         "name" : "Soda",
+         "masked" : false,
+         "group" : "GROUP-2",
+         "performanceMode" : "DISABLED",
+         "creationTime" : "2021-12-17T13:06:32.982Z",
+         "processor" : "x86",
+         "provisionContainer" : null,
+         "description" : null
+      },
+      {
+         "sourcingPolicy" : {
+            "logsyncEnabled" : false,
+            "type" : "SourcingPolicy"
+         },
+         "type" : "MSSqlDatabaseContainer",
+         "runtime" : {
+            "type" : "MSSqlDBContainerRuntime",
+            "preProvisioningStatus" : {
+               "lastUpdateTimestamp" : "2021-12-22T10:15:14.295Z",
+               "response" : null,
+               "status" : "Validated sync is inactive because the validated sync mode is set to 'None'.",
+               "type" : "PreProvisioningRuntime",
+               "pendingAction" : null,
+               "preProvisioningState" : "INACTIVE"
+            },
+            "logSyncActive" : false,
+            "lastRestoredBackupSetUUID" : "6CEB2797-BA99-4143-8A3C-9E6A1D156C38"
+         },
+         "os" : "Windows",
+         "reference" : "MSSQL_DB_CONTAINER-23",
+         "previousTimeflow" : null,
+         "currentTimeflow" : "MSSQL_TIMEFLOW-54",
+         "transformation" : false,
+         "namespace" : null,
+         "processor" : "x86",
+         "provisionContainer" : null,
+         "description" : null,
+         "creationTime" : "2021-12-17T13:09:53.427Z",
+         "masked" : false,
+         "name" : "Macaroon",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-2"
+      },
+      {
+         "name" : "mssqltest",
+         "masked" : false,
+         "group" : "GROUP-3",
+         "performanceMode" : "DISABLED",
+         "creationTime" : "2021-12-17T13:14:08.808Z",
+         "provisionContainer" : "MSSQL_DB_CONTAINER-22",
+         "processor" : "x86",
+         "description" : null,
+         "transformation" : false,
+         "namespace" : null,
+         "currentTimeflow" : "MSSQL_TIMEFLOW-55",
+         "previousTimeflow" : null,
+         "os" : "Windows",
+         "runtime" : {
+            "type" : "MSSqlDBContainerRuntime",
+            "preProvisioningStatus" : null,
+            "logSyncActive" : false,
+            "lastRestoredBackupSetUUID" : null
+         },
+         "type" : "MSSqlDatabaseContainer",
+         "reference" : "MSSQL_DB_CONTAINER-24",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : false,
+            "type" : "SourcingPolicy"
+         }
+      },
+      {
+         "processor" : "x86",
+         "provisionContainer" : null,
+         "description" : null,
+         "masked" : false,
+         "name" : "db_rhel83_160_1",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-2",
+         "creationTime" : "2021-12-17T10:01:02.438Z",
+         "type" : "ASEDBContainer",
+         "os" : "Linux",
+         "runtime" : {
+            "type" : "ASEDBContainerRuntime",
+            "lastRestoredBackupDate" : "2021-12-17T10:01:49.583Z",
+            "logSyncActive" : false,
+            "preProvisioningStatus" : {
+               "pendingAction" : "Make sure the instance is accepting remote connections over TCP, the instance is not using a dynamic TCP port, and the SQL login \"sa\" has privileges to connect to the instance. Then refresh the environment and try again.",
+               "preProvisioningState" : "FAULTED",
+               "response" : null,
+               "status" : "Validated sync failed for dSource \"db_rhel83_160_1\". Failed to connect to instance \"ASE160_SRC\" over JDBC. Could not get JDBC Connection; nested exception is java.sql.SQLException: JZ006: Caught IOException: java.net.NoRouteToHostException: No route to host (Host unreachable)",
+               "lastUpdateTimestamp" : "2021-12-22T13:55:20.461Z",
+               "type" : "PreProvisioningRuntime"
+            },
+            "lastRestoredBackupTimeZone" : "America/New_York"
+         },
+         "reference" : "ASE_DB_CONTAINER-1",
+         "sourcingPolicy" : {
+            "type" : "SourcingPolicy",
+            "logsyncEnabled" : false
+         },
+         "transformation" : false,
+         "namespace" : null,
+         "previousTimeflow" : null,
+         "currentTimeflow" : "ASE_TIMEFLOW-1"
+      },
+      {
+         "processor" : "x86",
+         "provisionContainer" : "ASE_DB_CONTAINER-1",
+         "description" : null,
+         "masked" : false,
+         "name" : "sybasetest",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-3",
+         "creationTime" : "2021-12-17T10:02:10.444Z",
+         "type" : "ASEDBContainer",
+         "os" : "Linux",
+         "runtime" : {
+            "preProvisioningStatus" : {
+               "response" : null,
+               "status" : null,
+               "lastUpdateTimestamp" : "2021-12-22T13:56:04.331Z",
+               "type" : "PreProvisioningRuntime",
+               "pendingAction" : null,
+               "preProvisioningState" : "UNKNOWN"
+            },
+            "logSyncActive" : false,
+            "type" : "ASEDBContainerRuntime",
+            "lastRestoredBackupDate" : null,
+            "lastRestoredBackupTimeZone" : null
+         },
+         "reference" : "ASE_DB_CONTAINER-6",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : false,
+            "type" : "SourcingPolicy"
+         },
+         "transformation" : false,
+         "namespace" : null,
+         "previousTimeflow" : null,
+         "currentTimeflow" : "ASE_TIMEFLOW-15"
+      }
+   ],
+   "status" : "OK",
+   "type" : "ListResult"
+}

@@ -1,0 +1,115 @@
+{
+   "type" : "ListResult",
+   "total" : 3,
+   "status" : "OK",
+   "result" : [
+      {
+         "name" : "@2021-12-19T03:31:36.000",
+         "container" : "MSSQL_DB_CONTAINER-22",
+         "backupSoftwareType" : "NATIVE",
+         "version" : "11.3.6537.0",
+         "creationTime" : "2021-12-19T11:32:15.603Z",
+         "internalVersion" : 706,
+         "missingNonLoggedData" : false,
+         "namespace" : null,
+         "timeflow" : "MSSQL_TIMEFLOW-53",
+         "backupSetUUID" : null,
+         "latestChangePoint" : {
+            "timeflow" : "MSSQL_TIMEFLOW-53",
+            "timestamp" : "2021-12-19T11:31:36.000Z",
+            "type" : "MSSqlTimeflowPoint",
+            "location" : "13223000015246800001"
+         },
+         "runtime" : {
+            "type" : "MSSqlSnapshotRuntime",
+            "provisionable" : true
+         },
+         "type" : "MSSqlSnapshot",
+         "reference" : "MSSQL_SNAPSHOT-133",
+         "backupLocationType" : "DISK",
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "firstChangePoint" : {
+            "location" : "13223000015246500001",
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-19T11:31:36.000Z",
+            "timeflow" : "MSSQL_TIMEFLOW-53"
+         },
+         "retention" : 0,
+         "timezone" : "America/Los_Angeles,PST-0800"
+      },
+      {
+         "version" : "11.3.6537.0",
+         "backupSoftwareType" : "NATIVE",
+         "creationTime" : "2021-12-18T11:32:30.138Z",
+         "name" : "@2021-12-18T03:31:47.000",
+         "container" : "MSSQL_DB_CONTAINER-22",
+         "internalVersion" : 706,
+         "missingNonLoggedData" : false,
+         "latestChangePoint" : {
+            "timeflow" : "MSSQL_TIMEFLOW-53",
+            "timestamp" : "2021-12-18T11:31:47.000Z",
+            "type" : "MSSqlTimeflowPoint",
+            "location" : "13223000015246500001"
+         },
+         "backupSetUUID" : null,
+         "timeflow" : "MSSQL_TIMEFLOW-53",
+         "namespace" : null,
+         "retention" : 0,
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-18T11:31:46.000Z",
+            "timeflow" : "MSSQL_TIMEFLOW-53",
+            "type" : "MSSqlTimeflowPoint",
+            "location" : "13223000015246200001"
+         },
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "reference" : "MSSQL_SNAPSHOT-122",
+         "backupLocationType" : "DISK",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "MSSqlSnapshotRuntime"
+         },
+         "type" : "MSSqlSnapshot"
+      },
+      {
+         "namespace" : null,
+         "timeflow" : "MSSQL_TIMEFLOW-53",
+         "backupSetUUID" : null,
+         "latestChangePoint" : {
+            "location" : "13223000015246200001",
+            "timestamp" : "2021-12-17T13:08:25.000Z",
+            "timeflow" : "MSSQL_TIMEFLOW-53",
+            "type" : "MSSqlTimeflowPoint"
+         },
+         "type" : "MSSqlSnapshot",
+         "runtime" : {
+            "type" : "MSSqlSnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "MSSQL_SNAPSHOT-108",
+         "backupLocationType" : "DISK",
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "firstChangePoint" : {
+            "location" : "13223000015245900001",
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-17T13:08:24.000Z",
+            "timeflow" : "MSSQL_TIMEFLOW-53"
+         },
+         "retention" : 0,
+         "container" : "MSSQL_DB_CONTAINER-22",
+         "name" : "@2021-12-17T05:08:25.000",
+         "creationTime" : "2021-12-17T13:09:02.497Z",
+         "version" : "11.3.6537.0",
+         "backupSoftwareType" : "NATIVE",
+         "missingNonLoggedData" : false,
+         "internalVersion" : 706
+      }
+   ],
+   "overflow" : false,
+   "action" : null,
+   "job" : null
+}

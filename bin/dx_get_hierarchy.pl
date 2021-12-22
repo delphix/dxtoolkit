@@ -136,7 +136,8 @@ if (defined($parent_engine)) {
   $groups_parent = new Group_obj($engine_parent, $debug);
 
   $snapshots_parent = new Snapshot_obj($engine_parent, undef, undef, $debug);
-  $snapshots_parent->getSnapshotList($databases_parent->getDBList());
+  my @parentdblist = $databases_parent->getDBList();
+  $snapshots_parent->getSnapshotList(\@parentdblist);
 
 
   $timeflows_parent = new Timeflow_obj($engine_parent, undef, $debug);
@@ -180,7 +181,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
   my $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
-  $snapshots->getSnapshotList($db_list);
+  my @alldblist = $databases->getDBList();
+  $snapshots->getSnapshotList(\@alldblist);
 
   my %dbs = (
     'l' => $databases,
@@ -202,7 +204,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $hierc = $databases->generateHierarchy($object_map, $databases_parent);
 
-
   my $parentname;
 
   # for filtered databases on current engine - display status
@@ -219,7 +220,6 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if (defined($printhierarchy)) {
       my $arr = $databases->returnHierarchy($dbitem, $hierc);
-
       my @printarr;
 
       for my $hi (@{$arr}) {
@@ -255,9 +255,17 @@ for my $engine ( sort (@{$engine_list}) ) {
             $parentname = 'dSource on other DE';
             $physicaldb = 'N/A';
           } else {
-            $parentname = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getName();
-            if (($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getType() ne 'detached' ) {
-              $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($topdsc)->getSourceConfigName();
+            my $cleartopdsc;
+
+            if (($cleartopdsc) = $topdsc =~ /(.*)\@l/ ) {
+              $cleartopdsc = $cleartopdsc
+            } else {
+              $cleartopdsc = $topdsc;
+            }
+
+            $parentname = ($dbs{$hierc->{$topdsc}->{source}})->getDB($cleartopdsc)->getName();
+            if (($dbs{$hierc->{$topdsc}->{source}})->getDB($cleartopdsc)->getType() ne 'detached' ) {
+              $physicaldb = ($dbs{$hierc->{$topdsc}->{source}})->getDB($cleartopdsc)->getSourceConfigName();
             } else {
               $physicaldb = 'detached';
             }
@@ -269,17 +277,26 @@ for my $engine ( sort (@{$engine_list}) ) {
         }
 
         #check time
+
         if (defined($child)) {
 
-          my $childdb = ($tfs{$hier->{$topds}->{source}})->getContainer($child);
+          my $clearchild;
+
+          if (($clearchild) = $child =~ /(.*)\@l/ ) {
+            $clearchild = $clearchild
+          } else {
+            $clearchild = $child;
+          }
+
+          my $childdb = ($tfs{$hier->{$topds}->{source}})->getContainer($clearchild);
           my $cobj = ($dbs{$hier->{$child}->{source}})->getDB($childdb);
           $childname = $cobj->getName();
-          $dsource_snapforchild = ($tfs{$hier->{$child}->{source}})->getParentSnapshot($child);
+          $dsource_snapforchild = ($tfs{$hier->{$child}->{source}})->getParentSnapshot($clearchild);
 
           if (($dsource_snapforchild ne '') && ($cobj->getType() eq 'VDB')) {
 
-            my $timestamp = ($tfs{$hier->{$child}->{source}})->getParentPointTimestamp($child);
-            my $loc = ($tfs{$hier->{$child}->{source}})->getParentPointLocation($child);
+            my $timestamp = ($tfs{$hier->{$child}->{source}})->getParentPointTimestamp($clearchild);
+            my $loc = ($tfs{$hier->{$child}->{source}})->getParentPointLocation($clearchild);
             my $lastsnaploc = ($snps{$hier->{$child}->{source}})->getlatestChangePoint($dsource_snapforchild);
             my $timestampwithtz;
 
