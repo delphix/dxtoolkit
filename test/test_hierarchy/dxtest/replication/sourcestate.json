@@ -1,0 +1,20 @@
+{
+   "total" : 1,
+   "status" : "OK",
+   "result" : [
+      {
+         "lastPoint" : "SERIALIZATION_POINT-2",
+         "namespace" : null,
+         "name" : null,
+         "lastKnownTargetVersion" : "6.0.11.0",
+         "activePoint" : null,
+         "spec" : "REPLICATION_SPEC-1",
+         "type" : "ReplicationSourceState",
+         "reference" : "REPLICATION_STATE-1"
+      }
+   ],
+   "type" : "ListResult",
+   "overflow" : false,
+   "action" : null,
+   "job" : null
+}

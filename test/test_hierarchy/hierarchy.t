@@ -10,19 +10,13 @@ use server;
 
 
 
-
-my $server = server->new(8080);
-$server->set_dir('landshark');
-$server->host('127.0.0.1');
-$server->background();
-
 my $server1 = server->new(8082);
-$server1->set_dir('Delphix32');
+$server1->set_dir('dxtest');
 $server1->host('127.0.0.1');
 $server1->background();
 
 my $server2 = server->new(8083);
-$server2->set_dir('Delphix33');
+$server2->set_dir('replica');
 $server2->host('127.0.0.1');
 $server2->background();
 
@@ -37,25 +31,22 @@ $server2->background();
 
 script_compiles('../../bin/dx_get_hierarchy.pl');
 
-script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local', '-format','csv','-nohead'] ,  "All hierachy test");
+script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local32', '-format','csv','-nohead'] ,  "All hierachy test");
 
 my $expected_stdout = <<EOF;
-local,autofs,Analytics,VDB,TESTEBI,2017-04-06 13:16:37 IST,TESTEBI,autofs
-local,autotest,Analytics,VDB,Sybase dsource,2017-05-05 14:43:00 EDT,pubs3,autotest
-local,mstest_lsn,Analytics,VDB,AdventureWorksLT2008R2,78000000037201000,AdventureWorksLT2008R2,mstest_lsn
-local,mstest_time,Analytics,VDB,AdventureWorksLT2008R2,2017-04-24 06:28:02 PDT,AdventureWorksLT2008R2,mstest_time
-local,si4rac,Analytics,VDB,racdba,2016-12-23 13:23:44 UTC,racdba,si4rac
-local,siclone,Analytics,VDB,racdba,2016-12-23 13:23:44 UTC,racdba,si4rac
-local,targetcon,Analytics,CDB,,N/A,targetcon,N/A
-local,vPDBtest,Analytics,VDB,PDB,2017-05-22 11:17:44 EDT,PDB,vPDBtest
-local,AdventureWorksLT2008R2,Sources,dSource,,N/A,AdventureWorksLT2008R2,N/A
-local,Oracle dsource,Sources,dSource,,N/A,orcl,N/A
-local,PDB,Sources,dSource,,N/A,PDB,N/A
-local,racdba,Sources,dSource,,N/A,racdba,N/A
-local,singpdb,Sources,CDB,,N/A,singpdb,N/A
-local,Sybase dsource,Sources,dSource,,N/A,pubs3,N/A
-local,TESTEBI,Sources,dSource,,N/A,TESTEBI,N/A
-local,VOracledsource_F0C,Tests,VDB,Oracle dsource,2017-06-06 08:58:12 EDT,orcl,VOracledsource_F0C
+local32,CDOMLOTG2E25,Analytics,CDB,,N/A,CDOMLOTG2E25,N/A
+local32,mssqltest,Analytics,VDB,Soda,2021-12-17 05:08:25 PST,Soda,mssqltest
+local32,oramask,Analytics,VDB,DBOMSR3A85E9,2021-12-22 07:53:08 EST,DBOMSR3A85E9,oramask
+local32,pdbtest,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 05:05:09 EST,CDOMLOSRCA1DPDB1,pdbtest
+local32,pdbtest2,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 05:05:09 EST,CDOMLOSRCA1DPDB1,pdbtest2
+local32,sybasetest,Analytics,VDB,db_rhel83_160_1,2021-12-17 05:01:49 EST,db_rhel83_160_1,sybasetest
+local32,vcdbtest,Analytics,vCDB,,N/A,vcdbtest,N/A
+local32,CDOMLOSRCA1D,Sources,CDB,,N/A,CDOMLOSRCA1D,N/A
+local32,CDOMLOSRCA1DPDB1,Sources,dSource,,N/A,CDOMLOSRCA1DPDB1,N/A
+local32,db_rhel83_160_1,Sources,dSource,,N/A,db_rhel83_160_1,N/A
+local32,DBOMSR3A85E9,Sources,dSource,,N/A,DBOMSR3A85E9,N/A
+local32,Macaroon,Sources,dSource,,N/A,Macaroon,N/A
+local32,Soda,Sources,dSource,,N/A,Soda,N/A
 EOF
 
 script_stdout_is $expected_stdout, "All hierachy results compare";
@@ -63,21 +54,36 @@ script_stdout_is $expected_stdout, "All hierachy results compare";
 script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local33', '-format','csv','-nohead','-parent_engine','local32'] ,  "2 engine test");
 
 my $expected_stdout = <<EOF;
-local33,racdb\@delphix32-2,Sources\@delphix32-2,dSource,,N/A,racdb,N/A
-local33,sybase1mask\@delphix32-7,Test\@delphix32-7,VDB,piorotest,2017-03-08 14:35:22 GMT,piorotest,sybase1mask
-local33,maskedms\@delphix32-9,Test\@delphix32-9,VDB,tpcc,2017-03-08 17:35:00 GMT,tpcc,maskedms
-local33,mask\@delphix32,Test\@delphix32,VDB,test1,2017-05-30 11:11:27 IST,test1,man
-local33,cloneMSmas,Untitled,VDB,parent deleted,N/A - timeflow deleted,N/A,N/A
-local33,mask1clone,Untitled,VDB,parent deleted,N/A - timeflow deleted,N/A,N/A
-local33,mask1clone2,Untitled,VDB,parent deleted,N/A - timeflow deleted,N/A,N/A
-local33,mask1clone3,Untitled,VDB,test1,2017-05-30 11:11:27 IST,test1,man
-local33,maskclone,Untitled,VDB,parent deleted,N/A - timeflow deleted,N/A,N/A
-local33,mssql2clone,Untitled,VDB,tpcc,2017-03-08 17:35:00 GMT,tpcc,maskedms
-local33,sybase1clone,Untitled,VDB,piorotest,2017-03-08 14:35:22 GMT,piorotest,sybase1mask
-local33,Vracdb_70C,Untitled,VDB,racdb\@delphix32-2,2016-09-28 14:57:16 UTC,racdb,Vracdb_70C
+local33,oramask\@ip-10-110-251-90-1,Analytics\@ip-10-110-251-90-1,VDB,DBOMSR3A85E9,2021-12-22 07:53:08 EST,DBOMSR3A85E9,oramask
+local33,clony,Untitled,VDB,DBOMSR3A85E9,2021-12-17 06:30:40 EST,DBOMSR3A85E9,oramask
+local33,mask2,Untitled,VDB,DBOMSR3A85E9,2021-12-17 06:30:40 EST,DBOMSR3A85E9,oramask
+local33,maskmask,Untitled,VDB,DBOMSR3A85E9,2021-12-22 07:53:08 EST,DBOMSR3A85E9,oramask
 EOF
 
 script_stdout_is $expected_stdout, "2 engine results compare";
+
+
+script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local33', '-format','csv','-nohead'] ,  "target engine test");
+
+my $expected_stdout = <<EOF;
+local33,oramask\@ip-10-110-251-90-1,Analytics\@ip-10-110-251-90-1,VDB,dSource on other DE,N/A,N/A,N/A
+local33,clony,Untitled,VDB,dSource on other DE,N/A,N/A,N/A
+local33,mask2,Untitled,VDB,dSource on other DE,N/A,N/A,N/A
+local33,maskmask,Untitled,VDB,dSource on other DE,N/A,N/A,N/A
+EOF
+
+script_stdout_is $expected_stdout, "target engine results compare";
+
+script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local33', '-parent_engine','local32', '-printhierarchy'] ,  "hierarchy engine test");
+
+my $expected_stdout = <<EOF;
+local33 : oramask\@ip-10-110-251-90-1 --> oramask --> DBOMSR3A85E9
+local33 : clony --> mask2 --> oramask\@ip-10-110-251-90-1 --> oramask --> DBOMSR3A85E9
+local33 : mask2 --> oramask\@ip-10-110-251-90-1 --> oramask --> DBOMSR3A85E9
+local33 : maskmask --> oramask\@ip-10-110-251-90-1 --> oramask --> DBOMSR3A85E9
+EOF
+
+script_stdout_is $expected_stdout, "hierarchy engine results compare";
 
 
 #stop server

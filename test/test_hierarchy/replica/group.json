@@ -1,0 +1,24 @@
+{
+   "overflow" : false,
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "total" : 2,
+   "result" : [
+      {
+         "description" : "Default Group",
+         "reference" : "GROUP-1",
+         "type" : "Group",
+         "name" : "Untitled",
+         "namespace" : null
+      },
+      {
+         "description" : null,
+         "type" : "Group",
+         "name" : "Analytics",
+         "namespace" : "NAMESPACE-2",
+         "reference" : "GROUP-2"
+      }
+   ],
+   "status" : "OK"
+}

@@ -1,0 +1,84 @@
+{
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "status" : "OK",
+   "result" : [
+      {
+         "userId" : 1001,
+         "groupId" : 1001,
+         "oracleBase" : "/u01/app/oracle",
+         "appliedPatches" : [],
+         "name" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "logsyncPossible" : null,
+         "userName" : "oracle",
+         "version" : "19.3.0.0.0",
+         "provisioningEnabled" : true,
+         "reference" : "ORACLE_INSTALL-2",
+         "oracleBaseConfig" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "type" : "OracleInstall",
+         "groupName" : "oinstall",
+         "oracleBaseHome" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "staging" : false,
+         "bits" : 64,
+         "installationHome" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "namespace" : null,
+         "discovered" : true,
+         "rac" : false,
+         "environment" : "UNIX_HOST_ENVIRONMENT-2"
+      },
+      {
+         "oracleBaseHome" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "groupName" : "oinstall",
+         "staging" : false,
+         "type" : "OracleInstall",
+         "reference" : "ORACLE_INSTALL-3",
+         "oracleBaseConfig" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "rac" : false,
+         "discovered" : true,
+         "installationHome" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "namespace" : "NAMESPACE-2",
+         "bits" : 64,
+         "oracleBase" : "/u01/app/oracle",
+         "groupId" : 1001,
+         "userId" : 1001,
+         "provisioningEnabled" : true,
+         "userName" : "oracle",
+         "version" : "19.3.0.0.0",
+         "logsyncPossible" : null,
+         "name" : "/u01/app/oracle/product/19.0.0.0/dbhome_1",
+         "appliedPatches" : []
+      },
+      {
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "name" : "Unstructured Files",
+         "namespace" : null,
+         "provisioningEnabled" : true,
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "toolkit" : "APPDATA_TOOLKIT-1",
+         "version" : null,
+         "type" : "AppDataRepository",
+         "reference" : "APPDATA_REPOSITORY-2",
+         "staging" : false
+      },
+      {
+         "provisioningEnabled" : true,
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "version" : null,
+         "toolkit" : "APPDATA_TOOLKIT-2",
+         "name" : "Unstructured Files",
+         "parameters" : {
+            "name" : "Unstructured Files"
+         },
+         "namespace" : "NAMESPACE-2",
+         "staging" : false,
+         "type" : "AppDataRepository",
+         "reference" : "APPDATA_REPOSITORY-3"
+      }
+   ],
+   "total" : 4,
+   "type" : "ListResult"
+}

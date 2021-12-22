@@ -1,0 +1,150 @@
+{
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "processor" : "x86",
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : null,
+         "description" : null,
+         "contentType" : "NON_CDB",
+         "diagnoseNoLoggingFaults" : true,
+         "creationTime" : "2021-12-17T15:06:39.149Z",
+         "physicalStandby" : false,
+         "masked" : true,
+         "name" : "oramask",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-2",
+         "sourcingPolicy" : {
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "type" : "OracleSourcingPolicy",
+            "logsyncInterval" : 300,
+            "logsyncEnabled" : true
+         },
+         "type" : "OracleDatabaseContainer",
+         "runtime" : {
+            "liveSourceEligible" : false,
+            "logSyncActive" : false,
+            "preProvisioningStatus" : null,
+            "type" : "OracleDBContainerRuntime"
+         },
+         "os" : "Linux",
+         "reference" : "ORACLE_DB_CONTAINER-1",
+         "liveSource" : false,
+         "previousTimeflow" : "ORACLE_TIMEFLOW-1",
+         "currentTimeflow" : "ORACLE_TIMEFLOW-4",
+         "racMaxInstanceLag" : 3,
+         "transformation" : false,
+         "namespace" : "NAMESPACE-2"
+      },
+      {
+         "description" : null,
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "provisionContainer" : "ORACLE_DB_CONTAINER-1",
+         "diagnoseNoLoggingFaults" : true,
+         "contentType" : "NON_CDB",
+         "creationTime" : "2021-12-22T10:20:25.743Z",
+         "physicalStandby" : false,
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-1",
+         "masked" : true,
+         "name" : "maskmask",
+         "sourcingPolicy" : {
+            "logsyncEnabled" : true,
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "logsyncInterval" : 300
+         },
+         "reference" : "ORACLE_DB_CONTAINER-2",
+         "type" : "OracleDatabaseContainer",
+         "runtime" : {
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "racMaxInstanceLag" : 3,
+         "previousTimeflow" : "ORACLE_TIMEFLOW-2",
+         "liveSource" : false,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-5",
+         "transformation" : false,
+         "namespace" : null
+      },
+      {
+         "processor" : "x86",
+         "preProvisioningEnabled" : false,
+         "provisionContainer" : "ORACLE_DB_CONTAINER-1",
+         "description" : null,
+         "contentType" : "NON_CDB",
+         "diagnoseNoLoggingFaults" : true,
+         "creationTime" : "2021-12-22T12:53:49.672Z",
+         "physicalStandby" : false,
+         "masked" : true,
+         "name" : "mask2",
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-1",
+         "sourcingPolicy" : {
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "logsyncInterval" : 300,
+            "logsyncEnabled" : true
+         },
+         "type" : "OracleDatabaseContainer",
+         "runtime" : {
+            "preProvisioningStatus" : null,
+            "logSyncActive" : false,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "reference" : "ORACLE_DB_CONTAINER-3",
+         "liveSource" : false,
+         "previousTimeflow" : null,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-3",
+         "racMaxInstanceLag" : 3,
+         "namespace" : null,
+         "transformation" : false
+      },
+      {
+         "description" : null,
+         "provisionContainer" : "ORACLE_DB_CONTAINER-3",
+         "preProvisioningEnabled" : false,
+         "processor" : "x86",
+         "diagnoseNoLoggingFaults" : true,
+         "contentType" : "NON_CDB",
+         "creationTime" : "2021-12-22T12:59:20.853Z",
+         "physicalStandby" : false,
+         "performanceMode" : "DISABLED",
+         "group" : "GROUP-1",
+         "masked" : true,
+         "name" : "clony",
+         "sourcingPolicy" : {
+            "logsyncInterval" : 300,
+            "type" : "OracleSourcingPolicy",
+            "logsyncMode" : "ARCHIVE_ONLY_MODE",
+            "logsyncEnabled" : true
+         },
+         "reference" : "ORACLE_DB_CONTAINER-4",
+         "type" : "OracleDatabaseContainer",
+         "runtime" : {
+            "preProvisioningStatus" : null,
+            "logSyncActive" : true,
+            "type" : "OracleDBContainerRuntime",
+            "liveSourceEligible" : false
+         },
+         "os" : "Linux",
+         "racMaxInstanceLag" : 3,
+         "previousTimeflow" : null,
+         "liveSource" : false,
+         "currentTimeflow" : "ORACLE_TIMEFLOW-6",
+         "namespace" : null,
+         "transformation" : false
+      }
+   ],
+   "status" : "OK",
+   "total" : 4
+}

@@ -1,0 +1,37 @@
+{
+   "type" : "ListResult",
+   "result" : [
+      {
+         "groupId" : 0,
+         "reference" : "HOST_USER-2",
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "userId" : 0,
+         "type" : "EnvironmentUser",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "namespace" : null,
+         "name" : "oracle"
+      },
+      {
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "name" : "oracle",
+         "namespace" : "NAMESPACE-2",
+         "groupId" : 0,
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "publicKey" : "********",
+            "privateKey" : "********"
+         },
+         "reference" : "HOST_USER-3"
+      }
+   ],
+   "status" : "OK",
+   "total" : 2,
+   "action" : null,
+   "job" : null,
+   "overflow" : false
+}
