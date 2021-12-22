@@ -3,8 +3,13 @@
 ### Added
 
 - support for 6.0.11 engine
+- dx_ctl_engine_upgrade - action apply allows to select upgrade type - deferred or full
+- dx_ctl_engine_upgrade - action delete allows to delete old OS
+- dx_get_db_env new flag to speed up a command output for engines with many snapshots - dx_get_db_env -snappervdb
+- new filter based on repository name ( ORACLE_HOME, MS SQL instance, etc) added to dx_get_db_env and dx_ctl_db
 
 ### Changed
+- dx_ctl_engine_upgrade apply action fixed - it monitors now a whole upgrade process, including engine reboot
 - [fix for #195](https://github.com/delphix/dxtoolkit/issues/195) - this was generic issue with snapshot paging
 - [fix for #193](https://github.com/delphix/dxtoolkit/issues/193) - dx_get_env creates different envtype than what dx_create_env expects
 

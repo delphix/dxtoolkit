@@ -419,7 +419,9 @@ for my $engine ( sort (@{$engine_list}) ) {
               }
             } else {
               if (! $snaploaded) {
-                $snapshots->getSnapshotList(\@db_display_list);
+                # load all snapshots from all databases
+                my @snapdblist = $databases->getDBList();
+                $snapshots->getSnapshotList(\@snapdblist);
                 $snaploaded = 1;
               }
             }
@@ -562,7 +564,7 @@ __DATA__
 
  dx_get_db_env    [-engine|d <delphix identifier> | -all ]
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date]
-                  [-rdbms oracle|sybase|db2|mssql|vFiles ]
+                  [-rdbms oracle|sybase|db2|mssql|vFiles | -reponame repository_name]
                   [-save]
                   [-masking]
                   [-parentlast l|p]
@@ -628,8 +630,8 @@ Instance name (Oracle)
 =item B<-rdbms oracle|sybase|db2|mssql|vFiles>
 Filter by RDBMS type - this filter is implemented only in dx_get_db_env
 
-=item B<-reponame name>
-Filter using reponame
+=item B<-reponame repository_name>
+Filter using repository_name ( Oracle Home, MS SQL instance, etc)
 
 =back
 

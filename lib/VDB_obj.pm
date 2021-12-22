@@ -847,7 +847,12 @@ sub getdSourceBackup
     my $dbuser = $self->getDbUser();
 
     if ($dbuser ne 'N/A') {
-      $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+      if ($dbuser =~ /dbusertype environment/ ) {
+        $restore_args = $restore_args . " $dbuser ";
+      } else {
+        # this is for all users but not an dbuser type environent for ms sql
+        $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+      }
     }
 
     $restore_args = $restore_args . " -logsync $logsync";

@@ -273,7 +273,6 @@ sub snapshot_list {
 
   my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
 
-  print Dumper "ge me $dbitem";
   $snapshots->getSnapshotList($dbitem);
   my $snaplist = $snapshots->getSnapshots($snapshotname);
 

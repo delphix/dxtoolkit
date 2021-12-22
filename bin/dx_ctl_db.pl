@@ -353,7 +353,7 @@ __DATA__
 
  dx_ctl_db    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
               [ -group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date | -dsource dsource_name | -envname env_name]
-              [-instance inst_no][-reponame OracleHome/MSSQLInstance/SybaseInstance]
+              [-instance inst_no][-reponame repository_name]
               <-action start|stop|enable|disable>
               [-restore filename]
               [-force false|onfailure|only]
@@ -416,8 +416,8 @@ Environment name
 =item B<-olderthan>
 Date - Filter based on objects older than given date
 
-=item B<-reponame name>
-Filter using reponame
+=item B<-reponame repository_name>
+Filter using repository_name ( Oracle Home, MS SQL instance, etc)
 
 =back
 

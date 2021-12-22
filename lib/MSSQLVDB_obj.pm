@@ -123,20 +123,21 @@ sub getConfig
       $config = join($joinsep,($config, "-stageenv \"$staging_env\""));
       $config = join($joinsep,($config, "-stage_os_user \"$staging_user\""));
 
-      my $backup_path = $self->getBackupPath();
-      if (!defined($backup_path)) {
-        #autobackup path
-        $backup_path = "";
-      }
-      if (defined($backup_path)) {
-        $backup_path =~ s/\\/\\\\/g;
-      }
+
       my $vsm = $self->getValidatedMode();
       my $dmb = $self->getDelphixManaged();
 
       if ($dmb eq 'yes') {
         $config = join($joinsep,($config, "-delphixmanaged $dmb"));
       } else {
+        my $backup_path = $self->getBackupPath();
+        if (!defined($backup_path)) {
+          #autobackup path
+          $backup_path = "";
+        }
+        if (defined($backup_path)) {
+          $backup_path =~ s/\\/\\\\/g;
+        }
         $config = join($joinsep,($config, "-validatedsync $vsm -backup_dir \"$backup_path\""));
       }
 
@@ -982,8 +983,12 @@ sub getBackupPath {
 
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.3)) {
       $ret = $self->{source}->{sharedBackupLocation};
-    } else {
+    } if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
       $ret = join(',' ,@{$self->{source}->{sharedBackupLocations}});
+    }
+    else {
+      # 6.0.11 and higher
+      $ret = join(',' ,@{$self->{source}->{syncStrategy}->{sharedBackupLocations}});
     }
     return $ret;
 }
@@ -1055,9 +1060,16 @@ sub getValidatedMode {
       } else {
         $ret = 'N/A';
       }
-    } else {
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
       if (defined($self->{source}->{ingestionStrategy}) && ($self->{source}->{ingestionStrategy}->{"type"} eq "ExternalBackupIngestionStrategy")) {
         $ret = $self->{source}->{ingestionStrategy}->{validatedSyncMode};
+      } else {
+        $ret = 'N/A';
+      }
+    } else {
+      # 6.0.11 and higher
+      if (defined($self->{source}->{syncStrategy}) && ($self->{source}->{syncStrategy}->{"type"} eq "MSSqlExternalManagedSourceSyncStrategy")) {
+        $ret = $self->{source}->{syncStrategy}->{validatedSyncMode};
       } else {
         $ret = 'N/A';
       }
@@ -1193,8 +1205,8 @@ sub getDelphixManaged {
       if (defined($self->{container}->{delphixManaged})) {
         $ret = $self->{container}->{delphixManaged} ? 'yes' : 'no';
       }
-    } else {
-      # 5.2.5 and above
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
+      # 5.2.5 until 6.0.11
       if (defined($self->{source}->{ingestionStrategy})) {
         if ($self->{source}->{ingestionStrategy}->{type} eq 'DelphixManagedBackupIngestionStrategy') {
           $ret = 'yes';
@@ -1202,7 +1214,19 @@ sub getDelphixManaged {
           $ret = 'no';
         }
       }
+    } else {
+      # 6.0.11 and above
+      if (defined($self->{source}->{syncStrategy})) {
+        if ($self->{source}->{syncStrategy}->{type} eq 'MSSqlDelphixManagedSyncStrategy') {
+          $ret = 'yes';
+        } else {
+          $ret = 'no';
+        }
+      }
+
     }
+
+
     return $ret;
 
 }
@@ -1622,16 +1646,34 @@ sub getDbUser
       } else {
         $ret = 'N/A';
       }
-    } else {
-      # from 6.0.2
+    } elsif (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
+      # from 6.0.2 to 6.0.10
       if ($self->{sourceConfig} ne 'NA') {
         if ((defined($self->{sourceConfig}->{mssqlUser})) && (defined($self->{sourceConfig}->{mssqlUser}->{user}))) {
           $ret = $self->{sourceConfig}->{mssqlUser}->{user};
           if ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlDatabaseUser') {
             $ret = $ret . " -dbusertype database ";
           } elsif ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlEnvironmentUser') {
-            $ret = $ret . " -dbusertype environment ";
+            $ret = " -dbusertype environment ";
           } elsif ($self->{sourceConfig}->{mssqlUser}->{type} eq 'MSSqlDomainUser') {
+            $ret = $ret . " -dbusertype domain ";
+          }
+        } else {
+          $ret = 'N/A';
+        }
+      } else {
+        $ret = 'N/A';
+      }
+    } else {
+      # from 6.0.11
+      if ($self->{source} ne 'NA') {
+        if ((defined($self->{source}->{syncStrategy})) && (defined($self->{source}->{syncStrategy}->{mssqlUser}->{user}))) {
+          $ret = $self->{source}->{syncStrategy}->{mssqlUser}->{user};
+          if ($self->{source}->{syncStrategy}->{mssqlUser}->{type} eq 'MSSqlDatabaseUser') {
+            $ret = $ret . " -dbusertype database ";
+          } elsif ($self->{source}->{syncStrategy}->{mssqlUser}->{type} eq 'MSSqlEnvironmentUser') {
+            $ret = " -dbusertype environment ";
+          } elsif ($self->{source}->{syncStrategy}->{mssqlUser}->{type} eq 'MSSqlDomainUser') {
             $ret = $ret . " -dbusertype domain ";
           }
         } else {
