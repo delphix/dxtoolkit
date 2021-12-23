@@ -847,7 +847,12 @@ sub getdSourceBackup
     my $dbuser = $self->getDbUser();
 
     if ($dbuser ne 'N/A') {
-      $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+      if ($dbuser =~ /dbusertype environment/ ) {
+        $restore_args = $restore_args . " $dbuser ";
+      } else {
+        # this is for all users but not an dbuser type environent for ms sql
+        $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+      }
     }
 
     $restore_args = $restore_args . " -logsync $logsync";
@@ -1742,6 +1747,7 @@ sub setTimestamp {
     }
 
     my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, undef);
+    $snapshot->getSnapshotList($source_temp);
 
     if ( $timestamp eq 'LATEST_SNAPSHOT') {
         $self->{"NEWDB"}->{"timeflowPointParameters"}->{"location"} = "LATEST_SNAPSHOT";
@@ -1903,7 +1909,7 @@ sub setChangeNum {
     }
 
     my $snapshot = new Snapshot_obj($dlpxObject, $source_temp, 1);
-
+    $snapshot->getSnapshotList($source_temp);
 
     my $tf = $snapshot->findTimeflowforLocation($changenum);
 

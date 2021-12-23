@@ -1,0 +1,39 @@
+{
+   "overflow" : false,
+   "type" : "ListResult",
+   "action" : null,
+   "status" : "OK",
+   "total" : 2,
+   "result" : [
+      {
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "space" : 181248,
+         "namespace" : null,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0,
+         "snapshot" : "ORACLE_SNAPSHOT-7",
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "snapshotTimestamp" : "2021-12-16T16:45:08.967Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:45:07.000Z"
+      },
+      {
+         "namespace" : null,
+         "space" : 0,
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-12",
+            "ORACLE_DB_CONTAINER-9"
+         ],
+         "policyRetention" : true,
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "snapshot" : "ORACLE_SNAPSHOT-11",
+         "snapshotLatestChange" : "2021-12-16T16:46:26.000Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotTimestamp" : "2021-12-16T16:46:28.246Z"
+      }
+   ],
+   "job" : null
+}

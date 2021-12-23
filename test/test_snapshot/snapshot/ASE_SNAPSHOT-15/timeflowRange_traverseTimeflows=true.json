@@ -1,0 +1,22 @@
+{
+   "type" : "OKResult",
+   "action" : null,
+   "job" : null,
+   "status" : "OK",
+   "result" : {
+      "type" : "TimeflowRange",
+      "provisionable" : true,
+      "startPoint" : {
+         "location" : null,
+         "type" : "ASETimeflowPoint",
+         "timeflow" : "ASE_TIMEFLOW-14",
+         "timestamp" : "2021-12-17T10:07:42.216Z"
+      },
+      "endPoint" : {
+         "location" : null,
+         "type" : "ASETimeflowPoint",
+         "timeflow" : "ASE_TIMEFLOW-14",
+         "timestamp" : "2021-12-17T10:07:42.216Z"
+      }
+   }
+}

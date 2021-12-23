@@ -53,6 +53,7 @@ GetOptions(
   'action=s' => \(my $action),
   'group=s' => \(my $group),
   'creategroup' => \(my $creategroup),
+  'reponame=s' => \(my $repositoryname),
   'sourceinst=s' => \(my $sourceinst),
   'sourceenv=s' => \(my $sourceenv),
   'stageinst=s' => \(my $stageinst),
@@ -226,7 +227,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if ((lc $action eq 'detach') || (lc $action eq 'update')) {
     my $databases = new Databases($engine_obj,$debug);
 
-    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $repositoryname, $debug);
 
     if (!defined($source_ref)) {
       print "Source database not found.\n";
@@ -281,7 +282,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   } elsif ($action eq 'attach')  {
     my $databases = new Databases($engine_obj,$debug);
 
-    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+    my $source_ref = Toolkit_helpers::get_dblist_from_filter(undef, $group, undef, $dsourcename, $databases, $groups, undef, undef, undef, undef, undef, undef, $repositoryname, $debug);
 
     if (!defined($source_ref)) {
       print "Source database not found.\n";

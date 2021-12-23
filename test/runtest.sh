@@ -29,9 +29,13 @@ do
   cd $i
   perl *.t
   RC=$?
+  echo "RETURN"
+  echo $RC
   FINALRC=$((FINALRC + RC))
   cd ..
 done
+
+
 
 echo $FINALRC
 exit $FINALRC

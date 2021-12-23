@@ -1,0 +1,92 @@
+{
+   "overflow" : false,
+   "job" : null,
+   "action" : null,
+   "type" : "ListResult",
+   "total" : 6,
+   "result" : [
+      {
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-1",
+         "name" : "QA-AD\\DelphixADuser",
+         "namespace" : null,
+         "groupId" : 0,
+         "reference" : "HOST_USER-1",
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "userId" : 0,
+         "type" : "EnvironmentUser"
+      },
+      {
+         "groupId" : 0,
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "publicKey" : "********",
+            "privateKey" : "********"
+         },
+         "reference" : "HOST_USER-2",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "name" : "oracle",
+         "namespace" : null
+      },
+      {
+         "namespace" : null,
+         "name" : "sybase",
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "credential" : {
+            "publicKey" : "********",
+            "privateKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "reference" : "HOST_USER-3",
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "groupId" : 0
+      },
+      {
+         "reference" : "HOST_USER-4",
+         "credential" : {
+            "privateKey" : "********",
+            "publicKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "userId" : 0,
+         "type" : "EnvironmentUser",
+         "groupId" : 0,
+         "namespace" : null,
+         "name" : "oracle",
+         "environment" : "UNIX_HOST_ENVIRONMENT-4"
+      },
+      {
+         "name" : "sybase",
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-5",
+         "reference" : "HOST_USER-5",
+         "credential" : {
+            "publicKey" : "********",
+            "privateKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "userId" : 0,
+         "type" : "EnvironmentUser",
+         "groupId" : 0
+      },
+      {
+         "groupId" : 0,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "reference" : "HOST_USER-6",
+         "type" : "EnvironmentUser",
+         "userId" : 0,
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-6",
+         "namespace" : null,
+         "name" : "QA-AD\\delphixADuser"
+      }
+   ],
+   "status" : "OK"
+}

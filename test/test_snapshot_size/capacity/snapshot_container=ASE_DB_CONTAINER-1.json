@@ -1,0 +1,38 @@
+{
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "result" : [
+      {
+         "snapshot" : "ASE_SNAPSHOT-1",
+         "container" : "ASE_DB_CONTAINER-1",
+         "snapshotTimestamp" : "2021-12-16T16:42:33.755Z",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:42:09.533Z",
+         "policyRetention" : true,
+         "descendantVDBs" : [],
+         "space" : 75264,
+         "namespace" : null,
+         "type" : "SnapshotCapacityData",
+         "manualRetention" : 0
+      },
+      {
+         "namespace" : null,
+         "space" : 44032,
+         "policyRetention" : true,
+         "descendantVDBs" : [
+            "ASE_DB_CONTAINER-6"
+         ],
+         "manualRetention" : 0,
+         "type" : "SnapshotCapacityData",
+         "container" : "ASE_DB_CONTAINER-1",
+         "snapshot" : "ASE_SNAPSHOT-2",
+         "snapshotTimezone" : "America/New_York,EST-0500",
+         "snapshotLatestChange" : "2021-12-16T16:43:03.720Z",
+         "snapshotTimestamp" : "2021-12-16T16:43:18.949Z"
+      }
+   ],
+   "total" : 2,
+   "job" : null,
+   "status" : "OK"
+}

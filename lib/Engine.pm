@@ -1,4 +1,4 @@
-#
+ #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -550,6 +550,7 @@ sub getApi {
 sub dlpx_connect {
    my $self = shift;
    my $engine = shift;
+   my $silent = shift;
    logger($self->{_debug}, "Entering Engine::dlpx_connect",1);
 
    my $dlpxObject;
@@ -561,7 +562,9 @@ sub dlpx_connect {
                     '5.0' => '1.7.0',
                     '5.1' => '1.8.0',
                     '5.2' => '1.9.0',
-                    '5.3' => '1.10.0'
+                    '5.3' => '1.10.0',
+                    '6.0' => '1.11.0',
+                    '6.0.11' => '1.11.11'
                   );
 
    my $engine_config = $self->{_engines}->{$engine};
@@ -658,8 +661,10 @@ sub dlpx_connect {
    } else {
      ($ses_status, $ses_version) = $self->getSession();
      if ($ses_status > 1) {
-        print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
-        #logger($self->{_debug},"Can't check session status. Engine could be down.");
+        logger($self->{_debug},"Can't check session status. Engine could be down.");
+        if (!defined($silent)) {
+          print "Can't check session status. Engine $engine (IP: " . $self->{_host} . " ) could be down.\n";
+        }
         return 1;
      }
    }
@@ -1260,6 +1265,7 @@ sub checkJDBCconnectivity {
 sub getJSONResult {
    my $self = shift;
    my $operation = shift;
+   my $upgrade = shift;
 
    my $result;
    my $result_fmt;
@@ -1274,6 +1280,10 @@ sub getJSONResult {
 
    logger($self->{_debug}, "GET: $api_url");
 
+   my %booting = (
+      "status" => "booting"
+   );
+
    my $request = HTTP::Request->new(GET => $api_url);
    $request->content_type("application/json");
 
@@ -1281,7 +1291,12 @@ sub getJSONResult {
 
    if ( $response->is_success ) {
       $decoded_response = $response->decoded_content;
-      $result = decode_json($decoded_response);
+      if ( $decoded_response =~ /Engine is booting up/ ) {
+         logger($self->{_debug}, "Engine is booting up");
+         return (\%booting, \%booting, 1);
+      } else {
+         $result = decode_json($decoded_response);
+      }
       if (defined($self->{_debug}) && ( $self->{_debug} eq 3) ) {
          my $enginename = $self->getEngineName();
          my $debug_dir = "debug_" . $enginename;
@@ -1728,6 +1743,8 @@ sub verifyOSversion {
 sub applyOSversion {
     my $self = shift;
     my $name = shift;
+    my $type = shift;
+    my $verify = shift;
 
     logger($self->{_debug}, "Entering Engine::applyOSversion",1);
 
@@ -1739,12 +1756,65 @@ sub applyOSversion {
     };
 
     my $osref = $versions->{$name}->{reference};
+
+
+
+    my %payload = (
+      "type" => "ApplyVersionParameters",
+      "upgradeType" => uc $type
+    );
+
+
+    my $json = to_json(\%payload);
     my $operation = 'resources/json/delphix/system/version/' . $osref . '/apply';
-    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
+    my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, $json);
     my $jobno;
 
     if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
         $jobno = $result->{job};
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
+
+# Procedure deleteOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub deleteOSversion {
+    my $self = shift;
+    my $name = shift;
+
+    logger($self->{_debug}, "Entering Engine::deleteOSversion",1);
+
+    my $versions = $self->getOSversions();
+
+    if (!defined($versions->{$name})) {
+      print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+      return undef;
+    };
+
+    my $osref = $versions->{$name}->{reference};
+
+
+    my $operation = 'resources/json/delphix/system/version/' . $osref ;
+    my ($result,$result_fmt, $retcode) = $self->deleteJSONResult($operation, '{}');
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $jobno = $result->{action};
     } else {
         if (defined($result->{error})) {
             print "Problem with starting job\n";
@@ -2246,6 +2316,129 @@ sub getSSOToken {
     return $token;
 
 }
+
+
+# Procedure deleteJSONResult
+# parameters:
+# - operation - API url
+# Send DELETE request to Delphix engine with url defined in operation parameter
+# return
+# - response
+# - pretty formated response
+# - rc - 0 if OK, 1 if failed
+
+sub deleteJSONResult {
+  my $self = shift;
+  my $operation = shift;
+  my $post_data = shift;
+  my $result;
+  my $result_fmt;
+  my $decoded_response;
+  my $retcode;
+
+  logger($self->{_debug}, "Entering Engine::deleteJSONResult",1);
+
+  my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
+  my $api_url = "$url/$operation";
+
+  #logger($self->{_debug}, "$api_url");
+
+  my $request = HTTP::Request->new(DELETE => $api_url);
+  $request->content_type("application/json");
+
+  if (defined($post_data)) {
+     $request->content($post_data);
+  }
+
+  my $post_data_logger;
+
+  if ( $post_data =~ /password/ ) {
+    $post_data_logger = $post_data;
+    $post_data_logger =~ s/"password":"(.*?)"/"password":"xxxxx"/;
+  } else {
+    $post_data_logger = $post_data;
+  }
+
+
+  logger($self->{_debug}, $post_data_logger, 1);
+
+  my $response = $self->{_ua}->request($request);
+
+  if ( $response->is_success ) {
+     $decoded_response = $response->decoded_content;
+     $result = decode_json($decoded_response);
+     $result_fmt = to_json($result, {pretty=>1});
+     logger($self->{_debug}, "Response message: " . $result_fmt, 2);
+     $retcode = 0;
+  }
+  else {
+     logger($self->{_debug}, "HTTP POST error code: " . $response->code, 2);
+     logger($self->{_debug}, "HTTP POST error message: " . $response->message, 2);
+     if (($response->code == 401) || ($response->code == 403)) {
+       my $cookie_jar = $self->{_ua}->cookie_jar;
+       $cookie_jar->clear();
+     }
+     $retcode = 1;
+  }
+
+  if (defined($self->{_debug}) && ( $self->{_debug} eq 3) ) {
+     my $enginename = $self->getEngineName();
+     my $debug_dir = "debug_" . $enginename;
+     if (! -e $debug_dir) {
+        mkdir $debug_dir or die("Can't create root directory for debug ");
+     }
+     my $tempname = $operation;
+     $tempname =~ s|resources/json/delphix/||;
+     $tempname =~ s|resources/json/service/||;
+     my @filenames = split('/', $tempname);
+     if (scalar(@filenames) > 1) {
+        my @dirname;
+        for (my $i=0; $i<scalar(@filenames)-1; $i++) {
+           @dirname = @filenames[0..$i];
+           my $md = $debug_dir . "/" . join('/',@dirname);
+           if (! -e $md) {
+              mkdir $md or die("Can't create directory for debug " . $md);
+           }
+        }
+
+     }
+
+     if (defined($self->{_debugfiles}) && defined($self->{_debugfiles}->{$tempname})) {
+       $self->{_debugfiles}->{$tempname} = $self->{_debugfiles}->{$tempname} + 1;
+     } else {
+       my %debug_hash;
+       $self->{_debugfiles} = \%debug_hash;
+       $self->{_debugfiles}->{$tempname} = 1;
+     }
+
+     #print Dumper $tempname . " " . $self->{_debugfiles}->{$tempname};
+
+     my $filename = $tempname . ".json." . $self->{_debugfiles}->{$tempname};
+     $filename =~ s|\?|_|;
+     $filename =~ s|\&|_|g;
+     $filename =~ s|\:|_|g;
+     if (!defined($result)) {
+       $result = {};
+     }
+     open (my $fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
+     print $fh to_json($result, {pretty=>1});
+     close $fh;
+
+     $filename = $tempname . ".json.req." . $self->{_debugfiles}->{$tempname};
+     $filename =~ s|\?|_|;
+     $filename =~ s|\&|_|g;
+     $filename =~ s|\:|_|g;
+     #print Dumper $filename;
+     open ($fh, ">", $debug_dir . "/" . $filename) or die ("Can't open new debug file $filename for write");
+     print $fh $post_data_logger;
+     close $fh;
+
+  }
+
+  return ($result,$result_fmt, $retcode);
+}
+
+
 
 # this is good test
 # sub content_provider_60_manual {

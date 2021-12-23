@@ -1,40 +1,25 @@
 {
-   "job" : null,
    "action" : null,
+   "type" : "ListResult",
+   "overflow" : false,
+   "total" : 1,
+   "job" : null,
    "result" : [
       {
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "space" : 953856,
-         "type" : "SnapshotCapacityData",
-         "snapshotTimestamp" : "2017-10-10T12:12:07.084Z",
-         "descendantVDBs" : [],
-         "manualRetention" : 0,
+         "descendantVDBs" : [
+            "ORACLE_DB_CONTAINER-11"
+         ],
          "policyRetention" : true,
-         "snapshot" : "ORACLE_SNAPSHOT-9"
-      },
-      {
-         "descendantVDBs" : [],
-         "snapshotTimestamp" : "2017-10-10T11:40:15.163Z",
-         "container" : "ORACLE_DB_CONTAINER-3",
+         "namespace" : null,
+         "space" : 13312,
          "type" : "SnapshotCapacityData",
-         "space" : 764416,
          "manualRetention" : 0,
-         "policyRetention" : true,
-         "snapshot" : "ORACLE_SNAPSHOT-6"
-      },
-      {
-         "snapshotTimestamp" : "2017-10-10T12:07:59.135Z",
+         "snapshot" : "ORACLE_SNAPSHOT-6",
          "container" : "ORACLE_DB_CONTAINER-3",
-         "type" : "SnapshotCapacityData",
-         "space" : 109056,
-         "descendantVDBs" : [],
-         "manualRetention" : 0,
-         "policyRetention" : true,
-         "snapshot" : "ORACLE_SNAPSHOT-8"
+         "snapshotTimestamp" : "2021-12-16T16:44:17.752Z",
+         "snapshotLatestChange" : "2021-12-16T16:44:15.000Z",
+         "snapshotTimezone" : "America/New_York,EST-0500"
       }
    ],
-   "overflow" : false,
-   "total" : 3,
-   "status" : "OK",
-   "type" : "ListResult"
+   "status" : "OK"
 }

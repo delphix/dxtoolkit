@@ -1,0 +1,74 @@
+{
+   "total" : 2,
+   "result" : [
+      {
+         "type" : "ASESnapshot",
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "ASE_SNAPSHOT-2",
+         "consistency" : "CONSISTENT",
+         "temporary" : false,
+         "timezone" : "America/New_York,EST-0500",
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:01:49.583Z",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "retention" : 0,
+         "namespace" : null,
+         "timeflow" : "ASE_TIMEFLOW-1",
+         "latestChangePoint" : {
+            "location" : null,
+            "timestamp" : "2021-12-17T10:01:49.583Z",
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "type" : "ASETimeflowPoint"
+         },
+         "missingNonLoggedData" : false,
+         "container" : "ASE_DB_CONTAINER-1",
+         "name" : "@2021-12-17T05:01:49.583",
+         "dbEncryptionKey" : null,
+         "creationTime" : "2021-12-17T10:02:04.912Z",
+         "version" : "16.0 SP03 PL09"
+      },
+      {
+         "name" : "@2021-12-17T05:00:56.550",
+         "container" : "ASE_DB_CONTAINER-1",
+         "version" : "16.0 SP03 PL09",
+         "creationTime" : "2021-12-17T10:01:19.385Z",
+         "dbEncryptionKey" : null,
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-1",
+         "namespace" : null,
+         "latestChangePoint" : {
+            "location" : null,
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:00:56.550Z",
+            "type" : "ASETimeflowPoint"
+         },
+         "reference" : "ASE_SNAPSHOT-1",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "type" : "ASESnapshot",
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:00:56.550Z",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "retention" : 0,
+         "timezone" : "America/New_York,EST-0500",
+         "consistency" : "CONSISTENT",
+         "temporary" : false
+      }
+   ],
+   "status" : "OK",
+   "type" : "ListResult",
+   "overflow" : false,
+   "action" : null,
+   "job" : null
+}

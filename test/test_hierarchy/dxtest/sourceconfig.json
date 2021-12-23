@@ -1,0 +1,939 @@
+{
+   "overflow" : false,
+   "action" : null,
+   "job" : null,
+   "type" : "ListResult",
+   "total" : 49,
+   "result" : [
+      {
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-1",
+         "instance" : {
+            "instanceNumber" : 1,
+            "type" : "OracleInstance",
+            "instanceName" : "CDOMSHSRF517"
+         },
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-2",
+         "reference" : "ORACLE_SINGLE_CONFIG-3",
+         "uniqueName" : "CDOMSHSRF517",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMSHSRF517)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "type" : "OracleSIConfig",
+         "databaseName" : "CDOMSHSR",
+         "tdeKeystorePassword" : null,
+         "cdbType" : "ROOT_CDB",
+         "user" : null,
+         "name" : "CDOMSHSRF517",
+         "credentials" : {
+            "password" : null,
+            "type" : "PasswordCredential"
+         }
+      },
+      {
+         "type" : "OracleSIConfig",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMSHTGA4CB)))"
+            }
+         ],
+         "uniqueName" : "CDOMSHTGA4CB",
+         "reference" : "ORACLE_SINGLE_CONFIG-11",
+         "environmentUser" : "HOST_USER-4",
+         "namespace" : null,
+         "instance" : {
+            "instanceName" : "CDOMSHTGA4CB",
+            "instanceNumber" : 1,
+            "type" : "OracleInstance"
+         },
+         "linkingEnabled" : true,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "repository" : "ORACLE_INSTALL-2",
+         "discovered" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "name" : "CDOMSHTGA4CB",
+         "user" : null,
+         "cdbType" : "ROOT_CDB",
+         "tdeKeystorePassword" : null,
+         "databaseName" : "CDOMSHTG"
+      },
+      {
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "databaseName" : "CDOMLOSR",
+         "tdeKeystorePassword" : null,
+         "name" : "CDOMLOSRCA1D",
+         "cdbType" : "ROOT_CDB",
+         "user" : null,
+         "environmentUser" : "HOST_USER-2",
+         "type" : "OracleSIConfig",
+         "uniqueName" : "CDOMLOSRCA1D",
+         "reference" : "ORACLE_SINGLE_CONFIG-2",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMLOSRCA1D)))",
+               "discovered" : true
+            }
+         ],
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "instance" : {
+            "instanceName" : "CDOMLOSRCA1D",
+            "type" : "OracleInstance",
+            "instanceNumber" : 1
+         },
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-1"
+      },
+      {
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-2",
+         "linkingEnabled" : true,
+         "instance" : {
+            "instanceNumber" : 1,
+            "type" : "OracleInstance",
+            "instanceName" : "CDOMLOTG2E25"
+         },
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-4",
+         "uniqueName" : "CDOMLOTG2E25",
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=CDOMLOTG2E25)))",
+               "type" : "OracleService"
+            }
+         ],
+         "reference" : "ORACLE_SINGLE_CONFIG-10",
+         "type" : "OracleSIConfig",
+         "databaseName" : "CDOMLOTG",
+         "tdeKeystorePassword" : null,
+         "cdbType" : "ROOT_CDB",
+         "user" : null,
+         "name" : "CDOMLOTG2E25",
+         "credentials" : {
+            "password" : null,
+            "type" : "PasswordCredential"
+         }
+      },
+      {
+         "databaseName" : "DBOMSR3A",
+         "tdeKeystorePassword" : null,
+         "cdbType" : "NON_CDB",
+         "user" : "delphix",
+         "name" : "DBOMSR3A85E9",
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-1",
+         "nonSysCredentials" : null,
+         "instance" : {
+            "type" : "OracleInstance",
+            "instanceNumber" : 1,
+            "instanceName" : "DBOMSR3A85E9"
+         },
+         "nonSysUser" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-2",
+         "uniqueName" : "DBOMSR3A85E9",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(UR=A)(SID=DBOMSR3A85E9)))",
+               "discovered" : true
+            }
+         ],
+         "reference" : "ORACLE_SINGLE_CONFIG-1",
+         "type" : "OracleSIConfig"
+      },
+      {
+         "type" : "OracleSIConfig",
+         "uniqueName" : "vcdbtest",
+         "reference" : "ORACLE_SINGLE_CONFIG-21",
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=vcdbtest)))",
+               "type" : "OracleService"
+            }
+         ],
+         "environmentUser" : "HOST_USER-4",
+         "nonSysUser" : null,
+         "instance" : {
+            "instanceNumber" : 1,
+            "type" : "OracleInstance",
+            "instanceName" : "vcdbtest"
+         },
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "repository" : "ORACLE_INSTALL-2",
+         "discovered" : true,
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : null
+         },
+         "name" : "vcdbtest",
+         "cdbType" : "ROOT_CDB",
+         "user" : null,
+         "databaseName" : "vcdbtest",
+         "tdeKeystorePassword" : null
+      },
+      {
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "tdeKeystorePassword" : null,
+         "databaseName" : "oramask",
+         "name" : "oramask",
+         "user" : "delphix",
+         "cdbType" : "NON_CDB",
+         "environmentUser" : "HOST_USER-4",
+         "type" : "OracleSIConfig",
+         "reference" : "ORACLE_SINGLE_CONFIG-27",
+         "uniqueName" : "oramask",
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(UR=A)(SERVICE_NAME=oramask)))",
+               "type" : "OracleService"
+            }
+         ],
+         "discovered" : true,
+         "namespace" : null,
+         "instance" : {
+            "instanceNumber" : 1,
+            "type" : "OracleInstance",
+            "instanceName" : "oramask"
+         },
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "repository" : "ORACLE_INSTALL-2"
+      },
+      {
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "repository" : "ORACLE_INSTALL-1",
+         "environmentUser" : "HOST_USER-2",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB2)))"
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-5",
+         "databaseName" : "CDOMLOSRCA1DPDB2",
+         "name" : "CDOMLOSRCA1DPDB2",
+         "user" : null,
+         "credentials" : null
+      },
+      {
+         "credentials" : null,
+         "user" : null,
+         "name" : "CDOMLOSRCA1DPDB3",
+         "databaseName" : "CDOMLOSRCA1DPDB3",
+         "reference" : "ORACLE_PDB_CONFIG-6",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB3)))",
+               "discovered" : true
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "environmentUser" : "HOST_USER-2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "repository" : "ORACLE_INSTALL-1",
+         "linkingEnabled" : true,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "discovered" : true
+      },
+      {
+         "environmentUser" : "HOST_USER-2",
+         "type" : "OraclePDBConfig",
+         "reference" : "ORACLE_PDB_CONFIG-7",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB1)))",
+               "discovered" : true
+            }
+         ],
+         "discovered" : true,
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "nonSysUser" : null,
+         "repository" : "ORACLE_INSTALL-1",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "credentials" : null,
+         "databaseName" : "CDOMSHSRF517PDB1",
+         "name" : "CDOMSHSRF517PDB1",
+         "user" : null
+      },
+      {
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "repository" : "ORACLE_INSTALL-1",
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-2",
+         "reference" : "ORACLE_PDB_CONFIG-8",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB2)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMSHSRF517PDB2",
+         "user" : null,
+         "name" : "CDOMSHSRF517PDB2",
+         "credentials" : null
+      },
+      {
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-3",
+         "repository" : "ORACLE_INSTALL-1",
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-2",
+         "reference" : "ORACLE_PDB_CONFIG-9",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHSRF517PDB3)))",
+               "discovered" : true
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMSHSRF517PDB3",
+         "user" : null,
+         "name" : "CDOMSHSRF517PDB3",
+         "credentials" : null
+      },
+      {
+         "credentials" : null,
+         "databaseName" : "CDOMLOTG2E25PDB1",
+         "user" : null,
+         "name" : "CDOMLOTG2E25PDB1",
+         "environmentUser" : "HOST_USER-4",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB1)))",
+               "discovered" : true
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-12",
+         "type" : "OraclePDBConfig",
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "linkingEnabled" : true
+      },
+      {
+         "environmentUser" : "HOST_USER-4",
+         "reference" : "ORACLE_PDB_CONFIG-13",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB2)))",
+               "discovered" : true
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "repository" : "ORACLE_INSTALL-2",
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "credentials" : null,
+         "databaseName" : "CDOMLOTG2E25PDB2",
+         "user" : null,
+         "name" : "CDOMLOTG2E25PDB2"
+      },
+      {
+         "discovered" : true,
+         "repository" : "ORACLE_INSTALL-2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "namespace" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "nonSysUser" : null,
+         "environmentUser" : "HOST_USER-4",
+         "reference" : "ORACLE_PDB_CONFIG-14",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOTG2E25PDB3)))"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMLOTG2E25PDB3",
+         "user" : null,
+         "name" : "CDOMLOTG2E25PDB3",
+         "credentials" : null
+      },
+      {
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "repository" : "ORACLE_INSTALL-2",
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-4",
+         "reference" : "ORACLE_PDB_CONFIG-15",
+         "services" : [
+            {
+               "type" : "OracleService",
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB1)))"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "databaseName" : "CDOMSHTGA4CBPDB1",
+         "user" : null,
+         "name" : "CDOMSHTGA4CBPDB1",
+         "credentials" : null
+      },
+      {
+         "repository" : "ORACLE_INSTALL-2",
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "namespace" : null,
+         "nonSysUser" : null,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : true,
+         "discovered" : true,
+         "reference" : "ORACLE_PDB_CONFIG-16",
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB2)))",
+               "type" : "OracleService"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "environmentUser" : "HOST_USER-4",
+         "user" : null,
+         "name" : "CDOMSHTGA4CBPDB2",
+         "databaseName" : "CDOMSHTGA4CBPDB2",
+         "credentials" : null
+      },
+      {
+         "user" : null,
+         "name" : "CDOMSHTGA4CBPDB3",
+         "databaseName" : "CDOMSHTGA4CBPDB3",
+         "credentials" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-11",
+         "repository" : "ORACLE_INSTALL-2",
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "discovered" : true,
+         "reference" : "ORACLE_PDB_CONFIG-17",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMSHTGA4CBPDB3)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "type" : "OraclePDBConfig",
+         "environmentUser" : "HOST_USER-4"
+      },
+      {
+         "databaseName" : "CDOMLOSRCA1DPDB1",
+         "user" : "delphix",
+         "name" : "CDOMLOSRCA1DPDB1",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "discovered" : true,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-2",
+         "repository" : "ORACLE_INSTALL-1",
+         "nonSysCredentials" : null,
+         "nonSysUser" : null,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "environmentUser" : "HOST_USER-2",
+         "reference" : "ORACLE_PDB_CONFIG-4",
+         "services" : [
+            {
+               "discovered" : true,
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=CDOMLOSRCA1DPDB1)))",
+               "type" : "OracleService"
+            }
+         ],
+         "type" : "OraclePDBConfig"
+      },
+      {
+         "databaseName" : "pdbtest2",
+         "name" : "pdbtest2",
+         "user" : "delphix",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "discovered" : true,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : false,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-21",
+         "repository" : "ORACLE_INSTALL-2",
+         "environmentUser" : "HOST_USER-4",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=pdbtest2)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-22"
+      },
+      {
+         "credentials" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "databaseName" : "pdbtest",
+         "name" : "pdbtest",
+         "user" : "delphix",
+         "environmentUser" : "HOST_USER-4",
+         "type" : "OraclePDBConfig",
+         "services" : [
+            {
+               "jdbcConnectionString" : "jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=broken)(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=pdbtest)))",
+               "discovered" : true,
+               "type" : "OracleService"
+            }
+         ],
+         "reference" : "ORACLE_PDB_CONFIG-20",
+         "discovered" : true,
+         "nonSysCredentials" : null,
+         "linkingEnabled" : false,
+         "nonSysUser" : null,
+         "namespace" : null,
+         "cdbConfig" : "ORACLE_SINGLE_CONFIG-10",
+         "repository" : "ORACLE_INSTALL-2"
+      },
+      {
+         "mirroringState" : "NONE",
+         "databaseName" : "1C9G72",
+         "name" : "1C9G72",
+         "environmentUser" : "HOST_USER-1",
+         "reference" : "MSSQL_SINGLE_CONFIG-1",
+         "type" : "MSSqlSIConfig",
+         "discovered" : true,
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : true
+      },
+      {
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "discovered" : true,
+         "reference" : "MSSQL_SINGLE_CONFIG-2",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1",
+         "name" : "1X70HJ",
+         "databaseName" : "1X70HJ",
+         "mirroringState" : "NONE"
+      },
+      {
+         "environmentUser" : "HOST_USER-1",
+         "reference" : "MSSQL_SINGLE_CONFIG-3",
+         "type" : "MSSqlSIConfig",
+         "discovered" : true,
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "mirroringState" : "NONE",
+         "databaseName" : "25UWFM",
+         "name" : "25UWFM"
+      },
+      {
+         "reference" : "MSSQL_SINGLE_CONFIG-4",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1",
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "discovered" : true,
+         "mirroringState" : "NONE",
+         "name" : "7Q5LIU",
+         "databaseName" : "7Q5LIU"
+      },
+      {
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "discovered" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-5",
+         "environmentUser" : "HOST_USER-1",
+         "name" : "AKWQPW",
+         "databaseName" : "AKWQPW",
+         "mirroringState" : "NONE"
+      },
+      {
+         "mirroringState" : "NONE",
+         "databaseName" : "CK546Q",
+         "name" : "CK546Q",
+         "environmentUser" : "HOST_USER-1",
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-6",
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1"
+      },
+      {
+         "environmentUser" : "HOST_USER-1",
+         "reference" : "MSSQL_SINGLE_CONFIG-7",
+         "type" : "MSSqlSIConfig",
+         "discovered" : true,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "mirroringState" : "NONE",
+         "databaseName" : "K6F0UT",
+         "name" : "K6F0UT"
+      },
+      {
+         "name" : "LNPKNF",
+         "databaseName" : "LNPKNF",
+         "mirroringState" : "NONE",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "discovered" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-8",
+         "environmentUser" : "HOST_USER-1"
+      },
+      {
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-9",
+         "environmentUser" : "HOST_USER-1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "discovered" : true,
+         "mirroringState" : "NONE",
+         "name" : "Q2OPQ0",
+         "databaseName" : "Q2OPQ0"
+      },
+      {
+         "databaseName" : "ReportServer",
+         "name" : "ReportServer",
+         "mirroringState" : "NONE",
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "environmentUser" : "HOST_USER-1",
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-10"
+      },
+      {
+         "recoveryModel" : "SIMPLE",
+         "repository" : "MSSQL_INSTANCE-1",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "discovered" : true,
+         "reference" : "MSSQL_SINGLE_CONFIG-11",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1",
+         "name" : "ReportServerTempDB",
+         "databaseName" : "ReportServerTempDB",
+         "mirroringState" : "NONE"
+      },
+      {
+         "mirroringState" : "NONE",
+         "databaseName" : "V0ZDZO",
+         "name" : "V0ZDZO",
+         "environmentUser" : "HOST_USER-1",
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-12",
+         "discovered" : true,
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "FULL"
+      },
+      {
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "environmentUser" : "HOST_USER-1",
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-13",
+         "databaseName" : "XBM33A",
+         "name" : "XBM33A",
+         "mirroringState" : "NONE"
+      },
+      {
+         "mirroringState" : "NONE",
+         "name" : "Biscuit",
+         "databaseName" : "Biscuit",
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-14",
+         "environmentUser" : "HOST_USER-6",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "FULL",
+         "discovered" : true
+      },
+      {
+         "mirroringState" : "NONE",
+         "databaseName" : "Delphix_Admin",
+         "name" : "Delphix_Admin",
+         "environmentUser" : "HOST_USER-6",
+         "reference" : "MSSQL_SINGLE_CONFIG-15",
+         "type" : "MSSqlSIConfig",
+         "discovered" : true,
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : true
+      },
+      {
+         "reference" : "MSSQL_SINGLE_CONFIG-17",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-6",
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "discovered" : true,
+         "mirroringState" : "NONE",
+         "name" : "ReportServer",
+         "databaseName" : "ReportServer"
+      },
+      {
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "SIMPLE",
+         "discovered" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-18",
+         "environmentUser" : "HOST_USER-6",
+         "name" : "ReportServerTempDB",
+         "databaseName" : "ReportServerTempDB",
+         "mirroringState" : "NONE"
+      },
+      {
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-20",
+         "environmentUser" : "HOST_USER-6",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-8",
+         "discovered" : true,
+         "mirroringState" : "NONE",
+         "name" : "Stingray",
+         "databaseName" : "Stingray"
+      },
+      {
+         "name" : "Soda",
+         "databaseName" : "Soda",
+         "mirroringState" : "NONE",
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-5",
+         "discovered" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-19",
+         "environmentUser" : "HOST_USER-6"
+      },
+      {
+         "name" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-22",
+         "databaseName" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-22",
+         "mirroringState" : "NONE",
+         "recoveryModel" : "FULL",
+         "repository" : "MSSQL_INSTANCE-1",
+         "linkingEnabled" : false,
+         "namespace" : null,
+         "discovered" : true,
+         "reference" : "MSSQL_SINGLE_CONFIG-28",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1"
+      },
+      {
+         "name" : "Macaroon",
+         "databaseName" : "Macaroon",
+         "mirroringState" : "NONE",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "repository" : "MSSQL_INSTANCE-5",
+         "recoveryModel" : "FULL",
+         "discovered" : true,
+         "type" : "MSSqlSIConfig",
+         "reference" : "MSSQL_SINGLE_CONFIG-16",
+         "environmentUser" : "HOST_USER-6"
+      },
+      {
+         "mirroringState" : "NONE",
+         "name" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-23",
+         "databaseName" : "ec24011e-dbe8-bd11-4d7a-a3107e10c5d9-staging-23",
+         "reference" : "MSSQL_SINGLE_CONFIG-29",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1",
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "FULL",
+         "namespace" : null,
+         "linkingEnabled" : false,
+         "discovered" : true
+      },
+      {
+         "repository" : "MSSQL_INSTANCE-1",
+         "recoveryModel" : "SIMPLE",
+         "namespace" : null,
+         "linkingEnabled" : true,
+         "discovered" : false,
+         "reference" : "MSSQL_SINGLE_CONFIG-30",
+         "type" : "MSSqlSIConfig",
+         "environmentUser" : "HOST_USER-1",
+         "name" : "mssqltest",
+         "databaseName" : "mssqltest",
+         "mirroringState" : "NONE"
+      },
+      {
+         "reference" : "ASE_SI_CONFIG-6",
+         "credentials" : null,
+         "type" : "ASESIConfig",
+         "environmentUser" : "HOST_USER-5",
+         "repository" : "ASE_INSTANCE-2",
+         "user" : null,
+         "namespace" : null,
+         "name" : "sybasetest",
+         "linkingEnabled" : true,
+         "discovered" : false,
+         "databaseName" : "sybasetest"
+      },
+      {
+         "environmentUser" : "HOST_USER-5",
+         "type" : "ASESIConfig",
+         "reference" : "ASE_SI_CONFIG-5",
+         "credentials" : null,
+         "databaseName" : "dx7W99n3gUgma9BPtr_l83_160_1",
+         "discovered" : true,
+         "namespace" : null,
+         "name" : "dx7W99n3gUgma9BPtr_l83_160_1",
+         "linkingEnabled" : false,
+         "user" : null,
+         "repository" : "ASE_INSTANCE-2"
+      },
+      {
+         "type" : "ASESIConfig",
+         "credentials" : null,
+         "reference" : "ASE_SI_CONFIG-3",
+         "environmentUser" : "HOST_USER-3",
+         "linkingEnabled" : true,
+         "name" : "db_rhel83_160_3",
+         "namespace" : null,
+         "user" : null,
+         "repository" : "ASE_INSTANCE-1",
+         "databaseName" : "db_rhel83_160_3",
+         "discovered" : true
+      },
+      {
+         "environmentUser" : "HOST_USER-3",
+         "type" : "ASESIConfig",
+         "credentials" : null,
+         "reference" : "ASE_SI_CONFIG-2",
+         "databaseName" : "db_rhel83_160_2",
+         "discovered" : true,
+         "linkingEnabled" : true,
+         "namespace" : null,
+         "name" : "db_rhel83_160_2",
+         "user" : null,
+         "repository" : "ASE_INSTANCE-1"
+      },
+      {
+         "type" : "ASESIConfig",
+         "credentials" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "reference" : "ASE_SI_CONFIG-1",
+         "environmentUser" : "HOST_USER-3",
+         "linkingEnabled" : true,
+         "name" : "db_rhel83_160_1",
+         "namespace" : null,
+         "user" : "sa",
+         "repository" : "ASE_INSTANCE-1",
+         "databaseName" : "db_rhel83_160_1",
+         "discovered" : true
+      }
+   ],
+   "status" : "OK"
+}

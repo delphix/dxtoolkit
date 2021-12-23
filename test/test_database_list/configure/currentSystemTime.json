@@ -1,9 +1,9 @@
 {
    "result" : "ok",
    "systemTime" : {
-      "localTimeRaw" : "2021/04/12 01:40:50 UTC-0700",
-      "localTimeZone" : "US/Pacific",
-      "isDaylightSavings" : true,
-      "localTime" : "2021/04/12 01:40:50 PDT"
+      "localTime" : "2021/12/17 06:25:07 PST",
+      "isDaylightSavings" : false,
+      "localTimeRaw" : "2021/12/17 06:25:07 UTC-0800",
+      "localTimeZone" : "US/Pacific"
    }
 }

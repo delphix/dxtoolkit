@@ -1,0 +1,78 @@
+{
+   "total" : 2,
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "result" : [
+      {
+         "timezone" : "America/New_York,EST-0500",
+         "redoLogSizeInBytes" : 52428800,
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2252303",
+            "timestamp" : "2021-12-17T10:42:50.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-42"
+         },
+         "name" : "@2021-12-17T10:42:50.179Z",
+         "temporary" : false,
+         "firstChangePoint" : {
+            "timestamp" : null,
+            "location" : "2252292",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-42"
+         },
+         "retention" : 0,
+         "version" : "19.3.0.0.0",
+         "reference" : "ORACLE_SNAPSHOT-82",
+         "timeflow" : "ORACLE_TIMEFLOW-42",
+         "creationTime" : "2021-12-17T10:42:50.179Z",
+         "missingNonLoggedData" : false,
+         "runtime" : {
+            "type" : "OracleSnapshotRuntime",
+            "missingLogs" : [],
+            "provisionable" : true
+         },
+         "namespace" : null,
+         "type" : "OracleSnapshot",
+         "fromPhysicalStandbyVdb" : false,
+         "consistency" : "CRASH_CONSISTENT",
+         "container" : "ORACLE_DB_CONTAINER-7"
+      },
+      {
+         "latestChangePoint" : {
+            "location" : "2251347",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2021-12-17T10:42:33.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-42"
+         },
+         "name" : "@2021-12-17T10:42:32.284Z",
+         "temporary" : false,
+         "firstChangePoint" : {
+            "location" : "2251328",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-42"
+         },
+         "retention" : 0,
+         "timezone" : "America/New_York,EST-0500",
+         "redoLogSizeInBytes" : 52428800,
+         "reference" : "ORACLE_SNAPSHOT-81",
+         "timeflow" : "ORACLE_TIMEFLOW-42",
+         "creationTime" : "2021-12-17T10:42:32.284Z",
+         "version" : "19.3.0.0.0",
+         "missingNonLoggedData" : false,
+         "runtime" : {
+            "provisionable" : true,
+            "missingLogs" : [],
+            "type" : "OracleSnapshotRuntime"
+         },
+         "namespace" : null,
+         "consistency" : "CRASH_CONSISTENT",
+         "fromPhysicalStandbyVdb" : false,
+         "type" : "OracleSnapshot",
+         "container" : "ORACLE_DB_CONTAINER-7"
+      }
+   ],
+   "status" : "OK"
+}

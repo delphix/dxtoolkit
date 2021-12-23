@@ -1,0 +1,21 @@
+{
+   "total" : 1,
+   "result" : [
+      {
+         "bytesTransferred" : 607050280,
+         "reference" : "SERIALIZATION_POINT-2",
+         "type" : "SerializationPoint",
+         "elapsedTimeNanos" : 38874816062,
+         "name" : null,
+         "namespace" : null,
+         "tag" : "93a8df30-a1b4-4cb5-a78c-b5040b15eaa9",
+         "averageThroughput" : 22493796,
+         "dataTimestamp" : "2021-12-22T12:56:27.625Z"
+      }
+   ],
+   "status" : "OK",
+   "type" : "ListResult",
+   "overflow" : false,
+   "action" : null,
+   "job" : null
+}

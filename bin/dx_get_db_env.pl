@@ -34,6 +34,7 @@ use Data::Dumper;
 use File::Spec;
 
 
+
 my $abspath = $FindBin::Bin;
 
 use lib '../lib';
@@ -48,6 +49,7 @@ use Snapshot_obj;
 use Hook_obj;
 use MaskingJob_obj;
 use OracleVDB_obj;
+use Toolkit_helpers qw (logger);
 
 my $version = $Toolkit_helpers::version;
 
@@ -70,6 +72,7 @@ GetOptions(
   'envname=s' => \(my $envname),
   'instance=n' => \(my $instance),
   'instancename=s' => \(my $instancename),
+  'reponame=s' => \(my $repositoryname),
   'debug:i' => \(my $debug),
   'parentlast=s' =>  \($parentlast),
   'hostenv=s' =>  \($hostenv),
@@ -82,6 +85,7 @@ GetOptions(
   'all' => (\my $all),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
+  'snappervdb' => \(my $snappervdb),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
@@ -264,7 +268,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $templates = new Template_obj($engine_obj, $debug);
   } else {
     if (lc $parentlast eq 'p') {
-      $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug);
+      $snapshots = new Snapshot_obj($engine_obj, undef, undef, $debug, undef, undef, 1);
     }
     $capacity = new Capacity_obj($engine_obj, $debug);
     $capacity->LoadDatabases();
@@ -279,7 +283,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     $zulutime = Toolkit_helpers::convert_to_utc($creationtime, $engine_obj->getTimezone(), undef, 1);
   }
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $zulutime, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, $zulutime, $repositoryname, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = $ret + 1;
@@ -320,7 +324,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     @db_display_list = sort { Toolkit_helpers::sort_by_number($a, $b) } @db_display_list;
   }
 
-
+  my $snaploaded = 0;
 
   # for filtered databases on current engine - display status
   for my $dbitem ( @db_display_list ) {
@@ -406,6 +410,25 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
+          if (defined($snapshots)) {
+            if (defined($snappervdb)) {
+              if ($snapshots->getSnapshotPerRef($parentsnap) == 1) {
+                print "Problem with loading snapshot\n";
+                $ret = $ret + 1;
+                next
+              }
+            } else {
+              if (! $snaploaded) {
+                # load all snapshots from all databases
+                my @snapdblist = $databases->getDBList();
+                $snapshots->getSnapshotList(\@snapdblist);
+                $snaploaded = 1;
+              }
+            }
+          } else {
+            print "Snapshot object not created\n";
+            $ret = $ret + 1;
+          }
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
           $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
           if (defined($parenttime) && ($parenttime eq 'N/A')) {
@@ -435,8 +458,14 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $crtime;
 
       if (defined($dbobj->getCreationTime())) {
-        $crtime = Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $engine_obj->getTimezone())
+        my $tz = $engine_obj->getTimezone();
+        $crtime = Toolkit_helpers::convert_from_utc($dbobj->getCreationTime(), $tz);
+        if (! defined($crtime)) {
+          logger($debug, "Creation time - Timezone coversion issue $tz",2);
+          $crtime = "N/A";
+        }
       } else {
+        logger($debug, "Creation time - not defined",2);
         $crtime = 'N/A';
       }
 
@@ -535,7 +564,7 @@ __DATA__
 
  dx_get_db_env    [-engine|d <delphix identifier> | -all ]
                   [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -instancename instname | -olderthan date]
-                  [-rdbms oracle|sybase|db2|mssql|vFiles ]
+                  [-rdbms oracle|sybase|db2|mssql|vFiles | -reponame repository_name]
                   [-save]
                   [-masking]
                   [-parentlast l|p]
@@ -596,10 +625,13 @@ Environment name
 Dsource name
 
 =item B<-instancename instname>
-Instance name
+Instance name (Oracle)
 
 =item B<-rdbms oracle|sybase|db2|mssql|vFiles>
 Filter by RDBMS type - this filter is implemented only in dx_get_db_env
+
+=item B<-reponame repository_name>
+Filter using repository_name ( Oracle Home, MS SQL instance, etc)
 
 =back
 
@@ -640,6 +672,12 @@ p - parent snapshot for VDB
 Change a hostname/env column to display :
 h - target host name (default)
 e - target environment name
+
+=item B<-snappervdb>
+By default snapshots for all objects are read to avoid an API call per VDB.
+This behaviour is not efficient for engine with many snapshots and this parameter
+is switching logic to read one snapshot per VDB. It should be used for Engines
+with many (1000's) snapshots
 
 
 =item B<-format>

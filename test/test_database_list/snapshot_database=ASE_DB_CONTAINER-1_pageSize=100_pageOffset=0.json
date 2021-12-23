@@ -1,0 +1,74 @@
+{
+   "total" : 2,
+   "action" : null,
+   "job" : null,
+   "result" : [
+      {
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "reference" : "ASE_SNAPSHOT-2",
+         "container" : "ASE_DB_CONTAINER-1",
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-1",
+         "timezone" : "America/New_York,EST-0500",
+         "version" : "16.0 SP03 PL09",
+         "namespace" : null,
+         "firstChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:01:49.583Z",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "latestChangePoint" : {
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:01:49.583Z"
+         },
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:02:04.912Z",
+         "name" : "@2021-12-17T05:01:49.583"
+      },
+      {
+         "runtime" : {
+            "type" : "ASESnapshotRuntime",
+            "provisionable" : true
+         },
+         "type" : "ASESnapshot",
+         "dbEncryptionKey" : null,
+         "missingNonLoggedData" : false,
+         "timeflow" : "ASE_TIMEFLOW-1",
+         "container" : "ASE_DB_CONTAINER-1",
+         "version" : "16.0 SP03 PL09",
+         "timezone" : "America/New_York,EST-0500",
+         "reference" : "ASE_SNAPSHOT-1",
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:00:56.550Z",
+            "location" : null,
+            "type" : "ASETimeflowPoint"
+         },
+         "temporary" : false,
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-17T10:00:56.550Z",
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "type" : "ASETimeflowPoint",
+            "location" : null
+         },
+         "namespace" : null,
+         "name" : "@2021-12-17T05:00:56.550",
+         "consistency" : "CONSISTENT",
+         "retention" : 0,
+         "creationTime" : "2021-12-17T10:01:19.385Z"
+      }
+   ],
+   "overflow" : false,
+   "type" : "ListResult",
+   "status" : "OK"
+}

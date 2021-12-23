@@ -1,116 +1,325 @@
 {
-   "action" : null,
-   "overflow" : false,
-   "total" : 2,
    "job" : null,
-   "type" : "ListResult",
    "result" : [
       {
-         "oracleJdbcKeystorePassword" : null,
-         "hostConfiguration" : {
-            "powerShellVersion" : null,
-            "lastUpdated" : "2021-04-09T12:29:27.190Z",
-            "type" : "HostConfiguration",
-            "discovered" : true,
-            "lastRefreshed" : null,
-            "operatingSystem" : {
-               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
-               "kernel" : null,
-               "name" : "Linux",
-               "distribution" : "RedHat",
-               "release" : "3.10.0-1127.el7.x86_64",
-               "type" : "HostOS",
-               "timezone" : "America/New_York,EDT-0400"
-            },
-            "machine" : {
-               "type" : "HostMachine",
-               "platform" : "x86_64",
-               "memorySize" : 8199618560
-            }
-         },
-         "toolkitPath" : "/u01/app/toolkit",
-         "nfsAddressList" : [],
-         "hostRuntime" : {
-            "notAvailableReason" : null,
-            "traceRouteInfo" : {
-               "type" : "TracerouteInfo",
-               "networkHops" : ""
-            },
-            "type" : "HostRuntime",
-            "availableTimestamp" : "2021-04-12T08:51:30.629Z",
-            "available" : true
-         },
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
-         "dspKeystoreAlias" : null,
-         "dspTruststorePassword" : null,
-         "javaHome" : null,
-         "reference" : "UNIX_HOST-1",
-         "dateAdded" : "2021-04-09T12:28:48.237Z",
-         "type" : "UnixHost",
-         "dspKeystorePath" : null,
-         "sshPort" : 22,
-         "name" : "10.110.247.60",
-         "namespace" : null,
-         "dspKeystorePassword" : null,
-         "dspTruststorePath" : null,
          "sshVerificationStrategy" : {
             "type" : "SshAcceptAlways"
          },
-         "address" : "10.110.247.60"
-      },
-      {
-         "dspTruststorePassword" : null,
-         "reference" : "UNIX_HOST-2",
-         "javaHome" : null,
-         "dateAdded" : "2021-04-09T12:29:57.890Z",
-         "type" : "UnixHost",
-         "dspKeystorePath" : null,
-         "sshPort" : 22,
-         "namespace" : null,
-         "name" : "10.110.230.248",
-         "dspKeystorePassword" : null,
-         "sshVerificationStrategy" : {
-            "type" : "SshAcceptAlways"
-         },
-         "dspTruststorePath" : null,
-         "address" : "10.110.230.248",
-         "hostConfiguration" : {
-            "machine" : {
-               "platform" : "x86_64",
-               "memorySize" : 8199622656,
-               "type" : "HostMachine"
-            },
-            "discovered" : true,
-            "lastRefreshed" : null,
-            "lastUpdated" : "2021-04-09T12:30:15.767Z",
-            "powerShellVersion" : null,
-            "type" : "HostConfiguration",
-            "operatingSystem" : {
-               "type" : "HostOS",
-               "release" : "3.10.0-1127.el7.x86_64",
-               "timezone" : "America/New_York,EDT-0400",
-               "kernel" : null,
-               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
-               "name" : "Linux",
-               "distribution" : "RedHat"
-            }
-         },
-         "oracleJdbcKeystorePassword" : null,
-         "toolkitPath" : "/u01/app/toolkit",
+         "name" : "10.110.199.41",
          "nfsAddressList" : [],
+         "javaHome" : null,
+         "dspTruststorePassword" : null,
          "hostRuntime" : {
             "available" : true,
-            "notAvailableReason" : null,
+            "type" : "HostRuntime",
             "traceRouteInfo" : {
                "networkHops" : "",
                "type" : "TracerouteInfo"
             },
-            "availableTimestamp" : "2021-04-12T08:51:30.706Z",
+            "availableTimestamp" : "2021-12-17T14:21:24.357Z",
+            "notAvailableReason" : null
+         },
+         "namespace" : null,
+         "dateAdded" : "2021-12-17T09:58:01.822Z",
+         "address" : "10.110.199.41",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "reference" : "UNIX_HOST-1",
+         "dspKeystorePassword" : null,
+         "sshPort" : 22,
+         "dspKeystorePath" : null,
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "lastUpdated" : "2021-12-17T09:58:35.196Z",
+            "powerShellVersion" : null,
+            "lastRefreshed" : null,
+            "operatingSystem" : {
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "release" : "3.10.0-1127.el7.x86_64",
+               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
+               "timezone" : "America/New_York,EST-0500",
+               "type" : "HostOS",
+               "kernel" : null
+            },
+            "discovered" : true,
+            "machine" : {
+               "type" : "HostMachine",
+               "memorySize" : 8199622656,
+               "platform" : "x86_64"
+            },
+            "type" : "HostConfiguration"
+         },
+         "type" : "UnixHost",
+         "toolkitPath" : "/u01/app/toolkit",
+         "dspKeystoreAlias" : null,
+         "oracleJdbcKeystorePassword" : null
+      },
+      {
+         "toolkitPath" : "/home/sybase/toolkit",
+         "type" : "UnixHost",
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 8344563712
+            },
+            "type" : "HostConfiguration",
+            "lastRefreshed" : null,
+            "powerShellVersion" : null,
+            "lastUpdated" : "2021-12-17T09:58:52.335Z",
+            "discovered" : true,
+            "operatingSystem" : {
+               "type" : "HostOS",
+               "kernel" : null,
+               "distribution" : "RedHat",
+               "name" : "Linux",
+               "timezone" : "America/New_York,EST-0500",
+               "release" : "4.18.0-240.el8.x86_64",
+               "version" : "Red Hat Enterprise Linux release 8.3 (Ootpa)"
+            }
+         },
+         "dspKeystoreAlias" : null,
+         "oracleJdbcKeystorePassword" : null,
+         "dspKeystorePassword" : null,
+         "reference" : "UNIX_HOST-3",
+         "sshPort" : 22,
+         "dspKeystorePath" : null,
+         "dspTruststorePassword" : null,
+         "javaHome" : null,
+         "hostRuntime" : {
+            "type" : "HostRuntime",
+            "available" : true,
+            "traceRouteInfo" : {
+               "networkHops" : "",
+               "type" : "TracerouteInfo"
+            },
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2021-12-17T14:21:24.327Z"
+         },
+         "namespace" : null,
+         "dateAdded" : "2021-12-17T09:58:28.754Z",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "address" : "10.110.216.30",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "nfsAddressList" : [],
+         "name" : "10.110.216.30"
+      },
+      {
+         "name" : "10.110.196.207",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "nfsAddressList" : [],
+         "address" : "10.110.196.207",
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "dateAdded" : "2021-12-17T09:59:01.188Z",
+         "namespace" : null,
+         "hostRuntime" : {
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2021-12-17T14:21:24.340Z",
+            "type" : "HostRuntime",
+            "available" : true,
+            "traceRouteInfo" : {
+               "type" : "TracerouteInfo",
+               "networkHops" : ""
+            }
+         },
+         "dspTruststorePassword" : null,
+         "javaHome" : null,
+         "dspKeystorePath" : null,
+         "sshPort" : 22,
+         "dspKeystorePassword" : null,
+         "reference" : "UNIX_HOST-4",
+         "oracleJdbcKeystorePassword" : null,
+         "dspKeystoreAlias" : null,
+         "toolkitPath" : "/u01/app/toolkit",
+         "type" : "UnixHost",
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "machine" : {
+               "platform" : "x86_64",
+               "type" : "HostMachine",
+               "memorySize" : 8199618560
+            },
+            "type" : "HostConfiguration",
+            "powerShellVersion" : null,
+            "lastUpdated" : "2021-12-17T09:59:21.726Z",
+            "lastRefreshed" : null,
+            "operatingSystem" : {
+               "name" : "Linux",
+               "distribution" : "RedHat",
+               "version" : "Red Hat Enterprise Linux Server release 7.8 (Maipo)",
+               "release" : "3.10.0-1127.el7.x86_64",
+               "timezone" : "America/New_York,EST-0500",
+               "type" : "HostOS",
+               "kernel" : null
+            },
+            "discovered" : true
+         }
+      },
+      {
+         "namespace" : null,
+         "hostRuntime" : {
+            "available" : true,
+            "type" : "HostRuntime",
+            "traceRouteInfo" : {
+               "networkHops" : "",
+               "type" : "TracerouteInfo"
+            },
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2021-12-17T14:21:24.319Z"
+         },
+         "dspTruststorePassword" : null,
+         "javaHome" : null,
+         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
+         "address" : "10.110.200.61",
+         "dateAdded" : "2021-12-17T09:59:01.987Z",
+         "sshVerificationStrategy" : {
+            "type" : "SshAcceptAlways"
+         },
+         "name" : "10.110.200.61",
+         "nfsAddressList" : [],
+         "dspKeystoreAlias" : null,
+         "type" : "UnixHost",
+         "toolkitPath" : "/home/sybase/toolkit",
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "lastUpdated" : "2021-12-17T09:59:25.428Z",
+            "powerShellVersion" : null,
+            "lastRefreshed" : null,
+            "operatingSystem" : {
+               "kernel" : null,
+               "type" : "HostOS",
+               "timezone" : "America/New_York,EST-0500",
+               "version" : "Red Hat Enterprise Linux release 8.3 (Ootpa)",
+               "release" : "4.18.0-240.el8.x86_64",
+               "distribution" : "RedHat",
+               "name" : "Linux"
+            },
+            "discovered" : true,
+            "machine" : {
+               "platform" : "x86_64",
+               "memorySize" : 8344555520,
+               "type" : "HostMachine"
+            },
+            "type" : "HostConfiguration"
+         },
+         "oracleJdbcKeystorePassword" : null,
+         "dspKeystorePassword" : null,
+         "reference" : "UNIX_HOST-5",
+         "dspKeystorePath" : null,
+         "sshPort" : 22
+      },
+      {
+         "dspKeystorePath" : null,
+         "sshPort" : 22,
+         "connectorDotNetFrameworkVersion" : "4",
+         "connectorVersion" : "1.22.0.0",
+         "reference" : "WINDOWS_HOST-2",
+         "connectorAuthenticationKey" : null,
+         "dspKeystorePassword" : null,
+         "dspKeystoreAlias" : null,
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "machine" : {
+               "platform" : "AMD64",
+               "memorySize" : 8589524992,
+               "type" : "HostMachine"
+            },
+            "type" : "HostConfiguration",
+            "lastRefreshed" : null,
+            "powerShellVersion" : "3.0",
+            "lastUpdated" : "2021-12-17T09:59:07.406Z",
+            "discovered" : false,
+            "operatingSystem" : {
+               "timezone" : "America/Los_Angeles,PST-0800",
+               "release" : "6.2",
+               "version" : "Windows Server 2012 Standard",
+               "distribution" : "Windows",
+               "name" : "Windows",
+               "kernel" : "9200.win8_rtm.120725-1247",
+               "type" : "HostOS"
+            }
+         },
+         "toolkitPath" : "C:\\Program Files\\Delphix\\DelphixConnector",
+         "type" : "WindowsHost",
+         "connectorPort" : 9100,
+         "name" : "marcinmssqltgt.dlpxdc.co",
+         "nfsAddressList" : [],
+         "privilegeElevationProfile" : null,
+         "address" : "marcinmssqltgt.dlpxdc.co",
+         "dateAdded" : "2021-12-17T09:58:05.389Z",
+         "namespace" : null,
+         "hostRuntime" : {
+            "availableTimestamp" : "2021-12-17T14:21:24.515Z",
+            "notAvailableReason" : null,
+            "available" : true,
+            "type" : "HostRuntime",
+            "traceRouteInfo" : {
+               "networkHops" : "1    17 ms    <1 ms    <1 ms  10.110.251.90",
+               "type" : "TracerouteInfo"
+            }
+         },
+         "dspTruststorePassword" : null,
+         "javaHome" : null
+      },
+      {
+         "dspKeystoreAlias" : null,
+         "type" : "WindowsHost",
+         "toolkitPath" : null,
+         "dspTruststorePath" : null,
+         "hostConfiguration" : {
+            "machine" : {
+               "platform" : "AMD64",
+               "memorySize" : 8589524992,
+               "type" : "HostMachine"
+            },
+            "type" : "HostConfiguration",
+            "discovered" : false,
+            "operatingSystem" : {
+               "kernel" : "9200.win8_rtm.120725-1247",
+               "type" : "HostOS",
+               "version" : "Windows Server 2012 Standard",
+               "release" : "6.2",
+               "timezone" : "America/Los_Angeles,PST-0800",
+               "name" : "Windows",
+               "distribution" : "Windows"
+            },
+            "lastRefreshed" : null,
+            "lastUpdated" : "2021-12-17T09:59:55.123Z",
+            "powerShellVersion" : null
+         },
+         "dspKeystorePath" : null,
+         "sshPort" : 22,
+         "connectorVersion" : null,
+         "connectorDotNetFrameworkVersion" : null,
+         "dspKeystorePassword" : null,
+         "reference" : "WINDOWS_HOST-6",
+         "connectorAuthenticationKey" : null,
+         "address" : "marcinmssqlsrc.dlpxdc.co",
+         "privilegeElevationProfile" : null,
+         "dateAdded" : "2021-12-17T09:59:50.478Z",
+         "namespace" : null,
+         "hostRuntime" : {
+            "notAvailableReason" : null,
+            "availableTimestamp" : "2021-12-17T14:21:29.335Z",
+            "traceRouteInfo" : null,
+            "available" : true,
             "type" : "HostRuntime"
          },
-         "privilegeElevationProfile" : "HOST_PRIVILEGE_ELEVATION_PROFILE-1",
-         "dspKeystoreAlias" : null
+         "javaHome" : null,
+         "dspTruststorePassword" : null,
+         "connectorPort" : 0,
+         "name" : "marcinmssqlsrc.dlpxdc.co",
+         "nfsAddressList" : []
       }
    ],
-   "status" : "OK"
+   "total" : 6,
+   "action" : null,
+   "status" : "OK",
+   "overflow" : false,
+   "type" : "ListResult"
 }

@@ -1,0 +1,34 @@
+{
+   "action" : null,
+   "job" : null,
+   "overflow" : false,
+   "type" : "ListResult",
+   "status" : "OK",
+   "result" : [
+      {
+         "enabled" : false,
+         "name" : "marcinoratgt.dlpxdc.co",
+         "namespace" : "NAMESPACE-2",
+         "aseHostEnvironmentParameters" : null,
+         "description" : null,
+         "primaryUser" : "HOST_USER-3",
+         "host" : "UNIX_HOST-3",
+         "type" : "UnixHostEnvironment",
+         "logCollectionEnabled" : false,
+         "reference" : "UNIX_HOST_ENVIRONMENT-3"
+      },
+      {
+         "namespace" : null,
+         "enabled" : true,
+         "name" : "marcinoratgt.dlpxdc.co",
+         "reference" : "UNIX_HOST_ENVIRONMENT-2",
+         "primaryUser" : "HOST_USER-2",
+         "host" : "UNIX_HOST-2",
+         "type" : "UnixHostEnvironment",
+         "logCollectionEnabled" : false,
+         "description" : "",
+         "aseHostEnvironmentParameters" : null
+      }
+   ],
+   "total" : 2
+}

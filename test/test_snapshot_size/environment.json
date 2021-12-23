@@ -1,32 +1,96 @@
 {
-   "status" : "OK",
-   "type" : "ListResult",
-   "total" : 2,
-   "overflow" : false,
+   "total" : 6,
    "result" : [
       {
-         "description" : null,
-         "reference" : "UNIX_HOST_ENVIRONMENT-2",
+         "primaryUser" : "HOST_USER-6",
+         "type" : "WindowsHostEnvironment",
          "enabled" : true,
-         "aseHostEnvironmentParameters" : null,
-         "name" : "marcintgt.dcenter.delphix.com",
-         "host" : "UNIX_HOST-2",
-         "primaryUser" : "HOST_USER-2",
+         "description" : null,
+         "logCollectionEnabled" : false,
          "namespace" : null,
-         "type" : "UnixHostEnvironment"
+         "proxy" : "WINDOWS_HOST-2",
+         "host" : "WINDOWS_HOST-6",
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-6",
+         "name" : "marcinmssqlsrc.dlpxdc.co"
       },
       {
+         "name" : "marcinmssqltgt.dlpxdc.co",
+         "reference" : "WINDOWS_HOST_ENVIRONMENT-1",
+         "proxy" : null,
+         "namespace" : null,
+         "host" : "WINDOWS_HOST-2",
+         "primaryUser" : "HOST_USER-1",
+         "logCollectionEnabled" : false,
+         "description" : null,
+         "enabled" : true,
+         "type" : "WindowsHostEnvironment"
+      },
+      {
+         "primaryUser" : "HOST_USER-5",
          "aseHostEnvironmentParameters" : null,
+         "logCollectionEnabled" : false,
+         "type" : "UnixHostEnvironment",
+         "description" : null,
+         "enabled" : true,
+         "namespace" : null,
+         "host" : "UNIX_HOST-5",
+         "reference" : "UNIX_HOST_ENVIRONMENT-5",
+         "name" : "marcinoratgt.dlpxdc.co"
+      },
+      {
+         "name" : "marcinsybasetgt.dlpxdc.co",
+         "reference" : "UNIX_HOST_ENVIRONMENT-4",
+         "host" : "UNIX_HOST-4",
+         "namespace" : null,
+         "logCollectionEnabled" : false,
+         "type" : "UnixHostEnvironment",
+         "description" : null,
+         "enabled" : true,
+         "primaryUser" : "HOST_USER-4",
+         "aseHostEnvironmentParameters" : {
+            "type" : "ASEHostEnvironmentParameters",
+            "dbUser" : "sa",
+            "credentials" : {
+               "password" : "********",
+               "type" : "PasswordCredential"
+            }
+         }
+      },
+      {
+         "namespace" : null,
+         "host" : "UNIX_HOST-3",
+         "aseHostEnvironmentParameters" : {
+            "type" : "ASEHostEnvironmentParameters",
+            "dbUser" : "sa",
+            "credentials" : {
+               "type" : "PasswordCredential",
+               "password" : "********"
+            }
+         },
+         "primaryUser" : "HOST_USER-3",
+         "type" : "UnixHostEnvironment",
+         "description" : null,
+         "enabled" : true,
+         "logCollectionEnabled" : false,
+         "name" : "marcinsybasesrc.dlpxdc.co",
+         "reference" : "UNIX_HOST_ENVIRONMENT-3"
+      },
+      {
+         "namespace" : null,
+         "host" : "UNIX_HOST-1",
+         "primaryUser" : "HOST_USER-2",
+         "aseHostEnvironmentParameters" : null,
+         "logCollectionEnabled" : false,
          "enabled" : true,
          "description" : null,
-         "reference" : "UNIX_HOST_ENVIRONMENT-1",
-         "host" : "UNIX_HOST-1",
-         "name" : "marcinsrc.dcenter.delphix.com",
-         "primaryUser" : "HOST_USER-1",
-         "namespace" : null,
-         "type" : "UnixHostEnvironment"
+         "type" : "UnixHostEnvironment",
+         "name" : "marcinorasrc.dlpxdc.co",
+         "reference" : "UNIX_HOST_ENVIRONMENT-2"
       }
    ],
    "job" : null,
-   "action" : null
+   "status" : "OK",
+   "action" : null,
+   "type" : "ListResult",
+   "overflow" : false
 }

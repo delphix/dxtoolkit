@@ -1,0 +1,22 @@
+{
+   "job" : null,
+   "status" : "OK",
+   "action" : null,
+   "type" : "OKResult",
+   "result" : {
+      "provisionable" : true,
+      "startPoint" : {
+         "timestamp" : "2021-12-17T10:10:35.000Z",
+         "type" : "MSSqlTimeflowPoint",
+         "timeflow" : "MSSQL_TIMEFLOW-4",
+         "location" : "31226000013083000001"
+      },
+      "endPoint" : {
+         "timestamp" : "2021-12-17T10:10:35.000Z",
+         "type" : "MSSqlTimeflowPoint",
+         "timeflow" : "MSSQL_TIMEFLOW-4",
+         "location" : "31226000013083000001"
+      },
+      "type" : "TimeflowRange"
+   }
+}

@@ -392,6 +392,7 @@ sub getDBList {
 }
 
 
+
 # Procedure getDBForEnvironment
 # parameters: env name
 # Return list of database names which are provisioned on host name / IP
@@ -599,6 +600,27 @@ sub getDBByCreationTime
     return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() } ( @dbs );
 }
 
+# Procedure getDBForRepository
+# parameters: repo name
+# Return list of database names which are provisioned using repo
+
+sub getDBForRepository
+{
+    my $self = shift;
+    my $repo = shift;
+    my @dbs;
+
+    logger($self->{_debug}, "Entering Databases::getDBForRepository",1);
+    for my $dbname ( $self->getDBList() ) {
+        my $dbobj = $self->getDB($dbname);
+        if ( $dbobj->getHome() eq $repo) {
+            push (@dbs, $dbname)
+        }
+    }
+
+    return  sort { $self->getDB($a)->getName() cmp $self->getDB($b)->getName() }  ( @dbs );
+}
+
 # Procedure getPrimaryDB
 # Return list of database ref which are primary
 
@@ -659,10 +681,17 @@ sub generateHierarchy
           }
         }
 
+      } else {
+        # @l is needed as we may have same container id between engines
+        $parent_ref = $parent_ref . "\@l";
       }
 
-      $hierarchy{$dbitem}{parent} = $parent_ref;
-      $hierarchy{$dbitem}{source} = 'l';
+
+      my $dbitemext = $dbitem . "\@l" ;
+
+
+      $hierarchy{$dbitemext}{parent} = $parent_ref;
+      $hierarchy{$dbitemext}{source} = 'l';
 
     }
 
@@ -700,9 +729,10 @@ sub finddSource
 
     logger($self->{_debug}, "Entering Databases::finddSource",1);
 
-    my $local_ref = $ref;
+    my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
+
 
     logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
 
@@ -736,6 +766,7 @@ sub finddSource
       undef $child;
     }
 
+
     return ($local_ref, $child);
 
 }
@@ -755,12 +786,11 @@ sub returnHierarchy
 
     logger($self->{_debug}, "Entering Databases::returnHierarchy",1);
 
-    my $local_ref = $ref;
+    my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
 
     my @retarr;
-
 
     logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
 
@@ -768,10 +798,20 @@ sub returnHierarchy
     #local_ref - is pointed to a timeflow without parent (dSource)
     #child - is a child timeflow of local_ref
 
+    my $cleanref;
+
     do {
       $parent = $hier->{$local_ref}->{parent};
       my %hashpair;
-      $hashpair{ref} = $local_ref;
+
+
+      if (($cleanref) = $local_ref =~ /(.*)\@l/) {
+        $cleanref = $cleanref;
+      } else {
+        $cleanref = $local_ref;
+      }
+
+      $hashpair{ref} = $cleanref;
       $hashpair{source} = $hier->{$local_ref}->{source};
       push(@retarr, \%hashpair);
       if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {

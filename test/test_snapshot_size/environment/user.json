@@ -1,36 +1,92 @@
 {
-   "type" : "ListResult",
-   "status" : "OK",
-   "total" : 2,
-   "overflow" : false,
+   "job" : null,
+   "total" : 6,
    "result" : [
       {
          "type" : "EnvironmentUser",
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-1",
          "namespace" : null,
-         "groupId" : 500,
-         "userId" : 500,
-         "environment" : "UNIX_HOST_ENVIRONMENT-2",
-         "reference" : "HOST_USER-2",
-         "name" : "ora12102",
-         "credential" : {
-            "type" : "PasswordCredential",
-            "password" : "********"
-         }
-      },
-      {
-         "groupId" : 500,
-         "namespace" : null,
-         "type" : "EnvironmentUser",
-         "environment" : "UNIX_HOST_ENVIRONMENT-1",
-         "userId" : 500,
-         "name" : "ora12102",
-         "reference" : "HOST_USER-1",
          "credential" : {
             "password" : "********",
             "type" : "PasswordCredential"
-         }
+         },
+         "reference" : "HOST_USER-1",
+         "name" : "QA-AD\\DelphixADuser",
+         "groupId" : 0,
+         "userId" : 0
+      },
+      {
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "type" : "EnvironmentUser",
+         "name" : "oracle",
+         "groupId" : 0,
+         "userId" : 0,
+         "credential" : {
+            "privateKey" : "********",
+            "publicKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "reference" : "HOST_USER-2"
+      },
+      {
+         "credential" : {
+            "type" : "KeyPairCredential",
+            "publicKey" : "********",
+            "privateKey" : "********"
+         },
+         "reference" : "HOST_USER-3",
+         "name" : "sybase",
+         "groupId" : 0,
+         "userId" : 0,
+         "type" : "EnvironmentUser",
+         "environment" : "UNIX_HOST_ENVIRONMENT-3",
+         "namespace" : null
+      },
+      {
+         "groupId" : 0,
+         "name" : "sybase",
+         "userId" : 0,
+         "credential" : {
+            "publicKey" : "********",
+            "type" : "KeyPairCredential",
+            "privateKey" : "********"
+         },
+         "reference" : "HOST_USER-4",
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-4",
+         "type" : "EnvironmentUser"
+      },
+      {
+         "userId" : 0,
+         "groupId" : 0,
+         "name" : "oracle",
+         "reference" : "HOST_USER-5",
+         "credential" : {
+            "privateKey" : "********",
+            "publicKey" : "********",
+            "type" : "KeyPairCredential"
+         },
+         "namespace" : null,
+         "environment" : "UNIX_HOST_ENVIRONMENT-5",
+         "type" : "EnvironmentUser"
+      },
+      {
+         "groupId" : 0,
+         "name" : "QA-AD\\delphixADuser",
+         "userId" : 0,
+         "credential" : {
+            "password" : "********",
+            "type" : "PasswordCredential"
+         },
+         "reference" : "HOST_USER-6",
+         "environment" : "WINDOWS_HOST_ENVIRONMENT-6",
+         "namespace" : null,
+         "type" : "EnvironmentUser"
       }
    ],
+   "status" : "OK",
    "action" : null,
-   "job" : null
+   "overflow" : false,
+   "type" : "ListResult"
 }

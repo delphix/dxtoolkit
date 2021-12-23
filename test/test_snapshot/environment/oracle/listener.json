@@ -1,40 +1,40 @@
 {
    "type" : "ListResult",
    "action" : null,
+   "overflow" : false,
+   "status" : "OK",
+   "job" : null,
    "result" : [
       {
-         "type" : "OracleNodeListener",
-         "reference" : "ORACLE_NODE_LISTENER-2",
-         "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))"
-         ],
+         "namespace" : null,
          "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.6.187)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))"
          ],
-         "host" : "UNIX_HOST-2",
+         "type" : "OracleNodeListener",
          "name" : "LISTENER",
+         "clientEndpoints" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.196.207)(PORT=1521))"
+         ],
          "discovered" : true,
-         "environment" : "UNIX_HOST_ENVIRONMENT-2",
-         "namespace" : null
+         "host" : "UNIX_HOST-4",
+         "reference" : "ORACLE_NODE_LISTENER-2",
+         "environment" : "UNIX_HOST_ENVIRONMENT-4"
       },
       {
-         "namespace" : null,
-         "environment" : "UNIX_HOST_ENVIRONMENT-1",
-         "discovered" : true,
-         "name" : "LISTENER",
          "host" : "UNIX_HOST-1",
+         "discovered" : true,
+         "reference" : "ORACLE_NODE_LISTENER-1",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "namespace" : null,
          "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))"
          ],
          "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.1.211)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.199.41)(PORT=1521))"
          ],
-         "type" : "OracleNodeListener",
-         "reference" : "ORACLE_NODE_LISTENER-1"
+         "name" : "LISTENER",
+         "type" : "OracleNodeListener"
       }
    ],
-   "overflow" : false,
-   "total" : 2,
-   "status" : "OK",
-   "job" : null
+   "total" : 2
 }

@@ -1,204 +1,709 @@
 {
+   "type" : "ListResult",
+   "overflow" : false,
+   "action" : null,
+   "status" : "OK",
+   "total" : 42,
    "result" : [
       {
-         "container" : "ORACLE_DB_CONTAINER-11",
-         "warehouseTimeflow" : null,
-         "type" : "OracleTimeflow",
-         "namespace" : null,
-         "parentSnapshot" : "ORACLE_SNAPSHOT-15",
-         "cdbTimeflow" : "ORACLE_TIMEFLOW-12",
-         "reference" : "ORACLE_TIMEFLOW-13",
-         "warehouse" : false,
-         "name" : "DB_PROVISION@2017-10-10T06:58:08",
-         "parentPoint" : {
-            "type" : "OracleTimeflowPoint",
-            "timestamp" : "2017-10-10T13:55:06.000Z",
-            "location" : "7332431",
-            "timeflow" : "ORACLE_TIMEFLOW-11"
-         },
-         "creationType" : "INITIAL",
-         "incarnationID" : "956991605"
-      },
-      {
-         "parentSnapshot" : "ORACLE_SNAPSHOT-14",
-         "namespace" : null,
-         "warehouseTimeflow" : null,
-         "container" : "ORACLE_DB_CONTAINER-10",
-         "type" : "OracleTimeflow",
-         "cdbTimeflow" : null,
-         "name" : "DB_PROVISION@2017-10-10T06:58:06",
-         "warehouse" : false,
-         "reference" : "ORACLE_TIMEFLOW-12",
-         "incarnationID" : "956991605",
-         "creationType" : "INITIAL",
-         "parentPoint" : {
-            "type" : "OracleTimeflowPoint",
-            "timestamp" : null,
-            "location" : "7332424",
-            "timeflow" : "ORACLE_TIMEFLOW-10"
-         }
-      },
-      {
-         "warehouseTimeflow" : null,
-         "namespace" : null,
-         "type" : "OracleTimeflow",
-         "container" : "ORACLE_DB_CONTAINER-9",
-         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
-         "cdbTimeflow" : "ORACLE_TIMEFLOW-10",
-         "warehouse" : false,
-         "reference" : "ORACLE_TIMEFLOW-11",
-         "name" : "DB_PROVISION@2017-10-10T06:49:18",
-         "creationType" : "INITIAL",
-         "parentPoint" : {
-            "timeflow" : "ORACLE_TIMEFLOW-9",
-            "location" : "7230714",
-            "type" : "OracleTimeflowPoint",
-            "timestamp" : "2017-10-10T13:47:16.000Z"
-         },
-         "incarnationID" : "956991082"
-      },
-      {
-         "cdbTimeflow" : null,
-         "container" : "ORACLE_DB_CONTAINER-8",
-         "warehouseTimeflow" : null,
-         "type" : "OracleTimeflow",
-         "namespace" : null,
-         "parentSnapshot" : "ORACLE_SNAPSHOT-10",
-         "creationType" : "INITIAL",
-         "parentPoint" : {
-            "timestamp" : "2017-10-10T13:47:16.000Z",
-            "type" : "OracleTimeflowPoint",
-            "timeflow" : "ORACLE_TIMEFLOW-8",
-            "location" : "7230689"
-         },
-         "incarnationID" : "956991082",
-         "warehouse" : false,
-         "reference" : "ORACLE_TIMEFLOW-10",
-         "name" : "DB_PROVISION@2017-10-10T06:49:17"
-      },
-      {
-         "name" : "default",
-         "reference" : "ORACLE_TIMEFLOW-9",
-         "warehouse" : false,
-         "incarnationID" : "880148783",
+         "container" : "ORACLE_DB_CONTAINER-2",
+         "incarnationID" : "1040362078",
          "parentPoint" : null,
+         "cdbTimeflow" : null,
          "creationType" : "INITIAL",
+         "name" : "default",
          "parentSnapshot" : null,
-         "container" : "ORACLE_DB_CONTAINER-7",
-         "warehouseTimeflow" : null,
+         "reference" : "ORACLE_TIMEFLOW-2",
+         "tdeUUID" : null,
          "namespace" : null,
-         "type" : "OracleTimeflow",
-         "cdbTimeflow" : "ORACLE_TIMEFLOW-8"
+         "type" : "OracleTimeflow"
       },
       {
-         "parentSnapshot" : null,
-         "container" : "ORACLE_DB_CONTAINER-6",
-         "warehouseTimeflow" : null,
-         "namespace" : null,
-         "type" : "OracleTimeflow",
-         "cdbTimeflow" : null,
+         "reference" : "ORACLE_TIMEFLOW-3",
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "incarnationID" : "1040358440",
+         "parentPoint" : null,
          "name" : "default",
-         "reference" : "ORACLE_TIMEFLOW-8",
-         "warehouse" : false,
-         "incarnationID" : "880148783",
+         "cdbTimeflow" : null,
          "creationType" : "INITIAL",
+         "parentSnapshot" : null,
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null
+      },
+      {
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null,
+         "reference" : "ORACLE_TIMEFLOW-4",
+         "name" : "default",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-3",
+         "creationType" : "INITIAL",
+         "parentSnapshot" : null,
+         "container" : "ORACLE_DB_CONTAINER-4",
+         "incarnationID" : "1040358440",
          "parentPoint" : null
       },
       {
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow",
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "incarnationID" : "1091447425",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "timestamp" : "2021-12-16T16:46:26.000Z",
+            "location" : "2282717",
+            "type" : "OracleTimeflowPoint"
+         },
          "cdbTimeflow" : null,
-         "parentSnapshot" : "ORACLE_SNAPSHOT-7",
-         "warehouseTimeflow" : null,
-         "type" : "OracleTimeflow",
-         "namespace" : null,
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "incarnationID" : "956985095",
-         "creationType" : "REFRESH",
-         "parentPoint" : {
-            "type" : "OracleTimeflowPoint",
-            "timestamp" : "2017-10-10T12:05:19.000Z",
-            "timeflow" : "ORACLE_TIMEFLOW-1",
-            "location" : "4038189"
-         },
-         "name" : "DB_REFRESH@2017-10-10T05:10:31",
-         "reference" : "ORACLE_TIMEFLOW-7",
-         "warehouse" : false
-      },
-      {
-         "name" : "DB_REFRESH@2017-10-10T05:06:10",
-         "warehouse" : false,
-         "reference" : "ORACLE_TIMEFLOW-6",
-         "incarnationID" : "956984850",
-         "creationType" : "REFRESH",
-         "parentPoint" : {
-            "timestamp" : "2017-10-10T11:06:12.000Z",
-            "type" : "OracleTimeflowPoint",
-            "location" : "4034317",
-            "timeflow" : "ORACLE_TIMEFLOW-1"
-         },
-         "parentSnapshot" : "ORACLE_SNAPSHOT-1",
-         "warehouseTimeflow" : null,
-         "namespace" : null,
-         "type" : "OracleTimeflow",
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "cdbTimeflow" : null
-      },
-      {
-         "creationType" : "REFRESH",
-         "parentPoint" : {
-            "timestamp" : "2017-10-10T11:34:34.000Z",
-            "type" : "OracleTimeflowPoint",
-            "location" : "4036191",
-            "timeflow" : "ORACLE_TIMEFLOW-1"
-         },
-         "incarnationID" : "956983176",
-         "warehouse" : false,
-         "reference" : "ORACLE_TIMEFLOW-5",
-         "name" : "DB_REFRESH@2017-10-10T04:38:38",
-         "cdbTimeflow" : null,
-         "warehouseTimeflow" : null,
-         "container" : "ORACLE_DB_CONTAINER-5",
-         "type" : "OracleTimeflow",
-         "namespace" : null,
-         "parentSnapshot" : "ORACLE_SNAPSHOT-3"
-      },
-      {
-         "reference" : "ORACLE_TIMEFLOW-4",
-         "warehouse" : false,
-         "name" : "DB_REFRESH@2017-10-10T04:38:37",
-         "parentPoint" : {
-            "timestamp" : "2017-10-10T11:34:34.000Z",
-            "type" : "OracleTimeflowPoint",
-            "location" : "4036191",
-            "timeflow" : "ORACLE_TIMEFLOW-1"
-         },
-         "creationType" : "REFRESH",
-         "incarnationID" : "956983179",
-         "warehouseTimeflow" : null,
-         "namespace" : null,
-         "type" : "OracleTimeflow",
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "parentSnapshot" : "ORACLE_SNAPSHOT-3",
-         "cdbTimeflow" : null
-      },
-      {
-         "type" : "OracleTimeflow",
-         "warehouseTimeflow" : null,
-         "container" : "ORACLE_DB_CONTAINER-1",
-         "namespace" : null,
-         "parentSnapshot" : null,
-         "cdbTimeflow" : null,
-         "reference" : "ORACLE_TIMEFLOW-1",
-         "warehouse" : false,
-         "name" : "default",
-         "parentPoint" : null,
+         "name" : "DB_PROVISION@2021-12-16T08:47:56",
          "creationType" : "INITIAL",
-         "incarnationID" : "937066950"
+         "parentSnapshot" : "ORACLE_SNAPSHOT-6",
+         "reference" : "ORACLE_TIMEFLOW-12"
+      },
+      {
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : "7bb9cbd9-52d7-406c-847d-0421c3583777",
+         "reference" : "ORACLE_TIMEFLOW-13",
+         "incarnationID" : "1091447425",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2021-12-16T16:46:26.000Z",
+            "location" : "2282728",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-12",
+         "creationType" : "INITIAL",
+         "name" : "DB_PROVISION@2021-12-16T08:47:57"
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-10",
+            "location" : "2392863",
+            "timestamp" : null,
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1040394814",
+         "creationType" : "ROLLBACK",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "name" : "DB_ROLLBACK@2021-12-16T09:08:22",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-37",
+         "reference" : "ORACLE_TIMEFLOW-28",
+         "tdeUUID" : "6006250d-4374-4b65-896a-410e54d50ceb",
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null,
+         "reference" : "ORACLE_TIMEFLOW-8",
+         "container" : "ORACLE_DB_CONTAINER-10",
+         "incarnationID" : "1040394814",
+         "parentPoint" : null,
+         "name" : "default",
+         "cdbTimeflow" : null,
+         "creationType" : "INITIAL",
+         "parentSnapshot" : null
+      },
+      {
+         "parentPoint" : {
+            "timestamp" : null,
+            "location" : "2456550",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-18"
+         },
+         "incarnationID" : "1091448186",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-40",
+         "cdbTimeflow" : null,
+         "name" : "DB_ROLLBACK@2021-12-16T09:01:04",
+         "creationType" : "ROLLBACK",
+         "reference" : "ORACLE_TIMEFLOW-19",
+         "namespace" : null,
+         "tdeUUID" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : "5b812701-02c2-4755-91e3-dd4c02b0dd33",
+         "reference" : "ORACLE_TIMEFLOW-10",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "creationType" : "INITIAL",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "name" : "DB_PROVISION@2021-12-16T08:47:19",
+         "parentPoint" : {
+            "location" : "2282728",
+            "timestamp" : "2021-12-16T16:46:26.000Z",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "incarnationID" : "1040394814",
+         "container" : "ORACLE_DB_CONTAINER-9"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-26",
+         "name" : "SELFSERVICE_ADMIN_CONTAINER_CREATE@2021-12-16T09:07:16",
+         "cdbTimeflow" : null,
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "incarnationID" : "1091448510",
+         "parentPoint" : {
+            "location" : "2151645",
+            "timestamp" : "2021-12-16T16:45:24.000Z",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-2"
+         },
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null
+      },
+      {
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : null,
+         "reference" : "ORACLE_TIMEFLOW-17",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2151471",
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-2"
+         },
+         "incarnationID" : "1091447768",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "cdbTimeflow" : null,
+         "name" : "DB_REFRESH@2021-12-16T08:54:56",
+         "creationType" : "REFRESH"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-7",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-2",
+            "location" : "2151471",
+            "timestamp" : "2021-12-16T16:45:18.000Z",
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1091447245",
+         "creationType" : "INITIAL",
+         "cdbTimeflow" : null,
+         "name" : "DB_PROVISION@2021-12-16T08:46:21",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null
+      },
+      {
+         "incarnationID" : "1091447961",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-7",
+            "location" : "2355159",
+            "timestamp" : null,
+            "type" : "OracleTimeflowPoint"
+         },
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-20",
+         "name" : "DB_ROLLBACK@2021-12-16T08:57:17",
+         "cdbTimeflow" : null,
+         "creationType" : "ROLLBACK",
+         "reference" : "ORACLE_TIMEFLOW-18",
+         "namespace" : null,
+         "tdeUUID" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-25",
+         "name" : "DB_REFRESH@2021-12-16T09:04:33",
+         "cdbTimeflow" : null,
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : null,
+            "location" : "2151471",
+            "timeflow" : "ORACLE_TIMEFLOW-2"
+         },
+         "incarnationID" : "1091448341",
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-21",
+         "incarnationID" : "1040394814",
+         "parentPoint" : {
+            "timestamp" : null,
+            "location" : "2282728",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "name" : "DB_REFRESH@2021-12-16T09:01:40",
+         "creationType" : "REFRESH",
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : "897fb36e-c9f5-4944-a1ca-613eae346482"
+      },
+      {
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-26",
+            "location" : "0",
+            "timestamp" : "2021-12-16T17:09:29.000Z",
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1091449014",
+         "creationType" : "ROLLBACK",
+         "cdbTimeflow" : null,
+         "name" : "SELFSERVICE_USER_CONTAINER_RESTORE@2021-12-16T09:14:16",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-57",
+         "reference" : "ORACLE_TIMEFLOW-33"
+      },
+      {
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow",
+         "creationType" : "ROLLBACK",
+         "cdbTimeflow" : null,
+         "name" : "SELFSERVICE_USER_CONTAINER_RESTORE@2021-12-16T09:09:51",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-57",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-26",
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2021-12-16T17:09:26.000Z",
+            "location" : "2252949"
+         },
+         "incarnationID" : "1091448732",
+         "reference" : "ORACLE_TIMEFLOW-29"
+      },
+      {
+         "creationType" : "INITIAL",
+         "cdbTimeflow" : null,
+         "name" : "DB_REFRESH@2021-12-16T09:03:18",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-6",
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "timestamp" : "2021-12-16T16:46:26.000Z",
+            "location" : "2282717",
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1091448341",
+         "reference" : "ORACLE_TIMEFLOW-23",
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "parentPoint" : {
+            "timestamp" : null,
+            "location" : "2282728",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "incarnationID" : "1091448341",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-23",
+         "creationType" : "REFRESH",
+         "name" : "DB_REFRESH@2021-12-16T09:03:19",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "reference" : "ORACLE_TIMEFLOW-24",
+         "tdeUUID" : "4074e3bb-99ad-4021-bbbf-d5498d85414b",
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-35",
+         "creationType" : "ROLLBACK",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "name" : "DB_ROLLBACK@2021-12-16T09:15:03",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-65",
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "incarnationID" : "1040394814",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-28",
+            "location" : "2497190",
+            "timestamp" : null,
+            "type" : "OracleTimeflowPoint"
+         },
+         "type" : "OracleTimeflow",
+         "tdeUUID" : "6e268e92-659e-4f11-929f-5cf771006bc1",
+         "namespace" : null
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-2",
+            "location" : "2151645",
+            "timestamp" : "2021-12-16T16:45:24.000Z",
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1091449200",
+         "name" : "SELFSERVICE_USER_CONTAINER_REFRESH@2021-12-16T09:18:49",
+         "cdbTimeflow" : null,
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9",
+         "reference" : "ORACLE_TIMEFLOW-39",
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow",
+         "cdbTimeflow" : null,
+         "creationType" : "INITIAL",
+         "name" : "DB_ROLLBACK@2021-12-16T09:09:54",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-41",
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "parentPoint" : {
+            "timeflow" : "ORACLE_TIMEFLOW-12",
+            "timestamp" : null,
+            "location" : "2595160",
+            "type" : "OracleTimeflowPoint"
+         },
+         "incarnationID" : "1091448733",
+         "reference" : "ORACLE_TIMEFLOW-30"
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2595170",
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-13"
+         },
+         "incarnationID" : "1091448733",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-30",
+         "name" : "DB_ROLLBACK@2021-12-16T09:09:55",
+         "creationType" : "ROLLBACK",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-42",
+         "reference" : "ORACLE_TIMEFLOW-31",
+         "tdeUUID" : "7b15081f-6789-45eb-91c6-5ee0d8193d4e",
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2800786",
+            "timestamp" : null,
+            "timeflow" : "ORACLE_TIMEFLOW-31"
+         },
+         "incarnationID" : "1091449142",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-37",
+         "name" : "DB_ROLLBACK@2021-12-16T09:16:43",
+         "creationType" : "ROLLBACK",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-68",
+         "reference" : "ORACLE_TIMEFLOW-38",
+         "tdeUUID" : "4ac54b4e-cd35-491d-ba42-b32be3cb1ec8",
+         "namespace" : null,
+         "type" : "OracleTimeflow"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-47",
+         "incarnationID" : "1091449576",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2021-12-16T17:23:43.000Z",
+            "location" : "2253028",
+            "timeflow" : "ORACLE_TIMEFLOW-41"
+         },
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-84",
+         "name" : "SELFSERVICE_USER_BRANCH_CREATE@2021-12-16T09:23:57",
+         "cdbTimeflow" : null,
+         "creationType" : "ROLLBACK",
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : null
+      },
+      {
+         "type" : "OracleTimeflow",
+         "tdeUUID" : null,
+         "namespace" : null,
+         "reference" : "ORACLE_TIMEFLOW-41",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "incarnationID" : "1091449351",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "0",
+            "timestamp" : "2021-12-16T16:45:24.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-2"
+         },
+         "cdbTimeflow" : null,
+         "name" : "SELFSERVICE_USER_CONTAINER_RESTORE@2021-12-16T09:21:20",
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-9"
+      },
+      {
+         "tdeUUID" : null,
+         "namespace" : null,
+         "type" : "OracleTimeflow",
+         "cdbTimeflow" : null,
+         "creationType" : "INITIAL",
+         "name" : "DB_ROLLBACK@2021-12-16T09:16:42",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-67",
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "incarnationID" : "1091449142",
+         "parentPoint" : {
+            "timestamp" : null,
+            "location" : "2800775",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-30"
+         },
+         "reference" : "ORACLE_TIMEFLOW-37"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-46",
+         "parentPoint" : {
+            "location" : "2282728",
+            "timestamp" : null,
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "incarnationID" : "1091449570",
+         "container" : "ORACLE_DB_CONTAINER-12",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-45",
+         "creationType" : "REFRESH",
+         "name" : "DB_REFRESH@2021-12-16T09:23:50",
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : "c79050cc-c554-463d-af49-a3e778c3a869"
+      },
+      {
+         "parentSnapshot" : "ORACLE_SNAPSHOT-11",
+         "cdbTimeflow" : "ORACLE_TIMEFLOW-8",
+         "name" : "DB_REFRESH@2021-12-16T09:22:01",
+         "creationType" : "REFRESH",
+         "incarnationID" : "1040394814",
+         "parentPoint" : {
+            "timestamp" : null,
+            "location" : "2282728",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-4"
+         },
+         "container" : "ORACLE_DB_CONTAINER-9",
+         "reference" : "ORACLE_TIMEFLOW-43",
+         "namespace" : null,
+         "tdeUUID" : "9ebc7452-7f5a-40a4-8149-b2bb31081d76",
+         "type" : "OracleTimeflow"
+      },
+      {
+         "reference" : "ORACLE_TIMEFLOW-45",
+         "incarnationID" : "1091449570",
+         "parentPoint" : {
+            "timestamp" : "2021-12-16T16:46:26.000Z",
+            "location" : "2282717",
+            "type" : "OracleTimeflowPoint",
+            "timeflow" : "ORACLE_TIMEFLOW-3"
+         },
+         "container" : "ORACLE_DB_CONTAINER-11",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-6",
+         "cdbTimeflow" : null,
+         "name" : "DB_REFRESH@2021-12-16T09:23:49",
+         "creationType" : "INITIAL",
+         "type" : "OracleTimeflow",
+         "namespace" : null,
+         "tdeUUID" : null
+      },
+      {
+         "namespace" : null,
+         "tdeUUID" : null,
+         "type" : "OracleTimeflow",
+         "parentPoint" : {
+            "type" : "OracleTimeflowPoint",
+            "timestamp" : "2021-12-16T17:09:26.000Z",
+            "location" : "2252949",
+            "timeflow" : "ORACLE_TIMEFLOW-26"
+         },
+         "incarnationID" : "1091449843",
+         "container" : "ORACLE_DB_CONTAINER-7",
+         "parentSnapshot" : "ORACLE_SNAPSHOT-57",
+         "cdbTimeflow" : null,
+         "name" : "SELFSERVICE_USER_BRANCH_CREATE@2021-12-16T09:28:22",
+         "creationType" : "ROLLBACK",
+         "reference" : "ORACLE_TIMEFLOW-48"
+      },
+      {
+         "parentSnapshot" : null,
+         "name" : "MSSql-Timeflow-1",
+         "creationType" : "INITIAL",
+         "parentPoint" : null,
+         "container" : "MSSQL_DB_CONTAINER-5",
+         "databaseGuid" : null,
+         "reference" : "MSSQL_TIMEFLOW-5",
+         "namespace" : null,
+         "type" : "MSSqlTimeflow"
+      },
+      {
+         "parentPoint" : {
+            "timeflow" : "MSSQL_TIMEFLOW-5",
+            "timestamp" : "2021-12-16T16:55:18.000Z",
+            "location" : "31226000013085200001",
+            "type" : "MSSqlTimeflowPoint"
+         },
+         "container" : "MSSQL_DB_CONTAINER-14",
+         "databaseGuid" : null,
+         "parentSnapshot" : "MSSQL_SNAPSHOT-44",
+         "name" : "DB_PROVISION@2021-12-16T09:02:12",
+         "creationType" : "INITIAL",
+         "reference" : "MSSQL_TIMEFLOW-22",
+         "namespace" : null,
+         "type" : "MSSqlTimeflow"
+      },
+      {
+         "name" : "DB_ROLLBACK@2021-12-16T09:19:26",
+         "creationType" : "ROLLBACK",
+         "parentSnapshot" : "MSSQL_SNAPSHOT-73",
+         "databaseGuid" : null,
+         "container" : "MSSQL_DB_CONTAINER-14",
+         "parentPoint" : {
+            "timeflow" : "MSSQL_TIMEFLOW-36",
+            "type" : "MSSqlTimeflowPoint",
+            "location" : null,
+            "timestamp" : "2021-12-16T17:18:29.973Z"
+         },
+         "reference" : "MSSQL_TIMEFLOW-40",
+         "namespace" : null,
+         "type" : "MSSqlTimeflow"
+      },
+      {
+         "reference" : "MSSQL_TIMEFLOW-32",
+         "parentSnapshot" : "MSSQL_SNAPSHOT-44",
+         "creationType" : "REFRESH",
+         "name" : "DB_REFRESH@2021-12-16T09:13:46",
+         "parentPoint" : {
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-16T16:55:18.000Z",
+            "location" : null,
+            "timeflow" : "MSSQL_TIMEFLOW-5"
+         },
+         "databaseGuid" : null,
+         "container" : "MSSQL_DB_CONTAINER-14",
+         "type" : "MSSqlTimeflow",
+         "namespace" : null
+      },
+      {
+         "reference" : "MSSQL_TIMEFLOW-36",
+         "name" : "DB_ROLLBACK@2021-12-16T09:16:38",
+         "creationType" : "ROLLBACK",
+         "parentSnapshot" : "MSSQL_SNAPSHOT-61",
+         "databaseGuid" : null,
+         "container" : "MSSQL_DB_CONTAINER-14",
+         "parentPoint" : {
+            "timeflow" : "MSSQL_TIMEFLOW-22",
+            "location" : null,
+            "timestamp" : "2021-12-16T17:11:45.407Z",
+            "type" : "MSSqlTimeflowPoint"
+         },
+         "type" : "MSSqlTimeflow",
+         "namespace" : null
+      },
+      {
+         "name" : "DB_REFRESH@2021-12-16T09:22:15",
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "MSSQL_SNAPSHOT-44",
+         "databaseGuid" : null,
+         "container" : "MSSQL_DB_CONTAINER-14",
+         "parentPoint" : {
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-16T16:55:18.000Z",
+            "location" : null,
+            "timeflow" : "MSSQL_TIMEFLOW-5"
+         },
+         "reference" : "MSSQL_TIMEFLOW-44",
+         "namespace" : null,
+         "type" : "MSSqlTimeflow"
+      },
+      {
+         "parentSnapshot" : null,
+         "name" : "ASE-Timeflow-1",
+         "creationType" : "INITIAL",
+         "parentPoint" : null,
+         "container" : "ASE_DB_CONTAINER-1",
+         "reference" : "ASE_TIMEFLOW-1",
+         "namespace" : null,
+         "type" : "ASETimeflow"
+      },
+      {
+         "reference" : "ASE_TIMEFLOW-6",
+         "parentSnapshot" : "ASE_SNAPSHOT-2",
+         "name" : "DB_PROVISION@2021-12-16T08:43:26",
+         "creationType" : "INITIAL",
+         "parentPoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "location" : null,
+            "timestamp" : "2021-12-16T16:43:03.720Z",
+            "type" : "ASETimeflowPoint"
+         },
+         "container" : "ASE_DB_CONTAINER-6",
+         "type" : "ASETimeflow",
+         "namespace" : null
+      },
+      {
+         "namespace" : null,
+         "type" : "ASETimeflow",
+         "container" : "ASE_DB_CONTAINER-6",
+         "parentPoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "type" : "ASETimeflowPoint",
+            "timestamp" : "2021-12-16T16:43:03.720Z",
+            "location" : null
+         },
+         "name" : "DB_REFRESH@2021-12-16T08:47:44",
+         "creationType" : "REFRESH",
+         "parentSnapshot" : "ASE_SNAPSHOT-2",
+         "reference" : "ASE_TIMEFLOW-11"
+      },
+      {
+         "parentSnapshot" : "ASE_SNAPSHOT-10",
+         "creationType" : "ROLLBACK",
+         "name" : "DB_ROLLBACK@2021-12-16T08:48:54",
+         "parentPoint" : {
+            "timeflow" : "ASE_TIMEFLOW-6",
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timestamp" : "2021-12-16T16:46:28.466Z"
+         },
+         "container" : "ASE_DB_CONTAINER-6",
+         "reference" : "ASE_TIMEFLOW-14",
+         "namespace" : null,
+         "type" : "ASETimeflow"
+      },
+      {
+         "namespace" : null,
+         "type" : "ASETimeflow",
+         "name" : "DB_ROLLBACK@2021-12-16T08:50:07",
+         "creationType" : "ROLLBACK",
+         "parentSnapshot" : "ASE_SNAPSHOT-14",
+         "container" : "ASE_DB_CONTAINER-6",
+         "parentPoint" : {
+            "timeflow" : "ASE_TIMEFLOW-14",
+            "location" : null,
+            "timestamp" : "2021-12-16T16:48:58.230Z",
+            "type" : "ASETimeflowPoint"
+         },
+         "reference" : "ASE_TIMEFLOW-15"
       }
    ],
-   "overflow" : false,
-   "action" : null,
-   "job" : null,
-   "type" : "ListResult",
-   "status" : "OK",
-   "total" : 11
+   "job" : null
 }

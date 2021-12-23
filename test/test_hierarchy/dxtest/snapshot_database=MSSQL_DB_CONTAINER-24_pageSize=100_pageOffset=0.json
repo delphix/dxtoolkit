@@ -1,0 +1,115 @@
+{
+   "job" : null,
+   "action" : null,
+   "overflow" : false,
+   "result" : [
+      {
+         "reference" : "MSSQL_SNAPSHOT-127",
+         "backupLocationType" : null,
+         "type" : "MSSqlSnapshot",
+         "runtime" : {
+            "type" : "MSSqlSnapshotRuntime",
+            "provisionable" : true
+         },
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "retention" : 0,
+         "firstChangePoint" : {
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-19T11:30:21.567Z",
+            "timeflow" : "MSSQL_TIMEFLOW-55",
+            "location" : "13223000015261300001"
+         },
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "timeflow" : "MSSQL_TIMEFLOW-55",
+         "namespace" : null,
+         "latestChangePoint" : {
+            "location" : "13223000015261300001",
+            "timeflow" : "MSSQL_TIMEFLOW-55",
+            "timestamp" : "2021-12-19T11:30:21.567Z",
+            "type" : "MSSqlTimeflowPoint"
+         },
+         "backupSetUUID" : null,
+         "internalVersion" : 706,
+         "missingNonLoggedData" : false,
+         "container" : "MSSQL_DB_CONTAINER-24",
+         "name" : "@2021-12-19T03:30:21.567",
+         "creationTime" : "2021-12-19T11:30:39.482Z",
+         "backupSoftwareType" : null,
+         "version" : "11.3.6537.0"
+      },
+      {
+         "runtime" : {
+            "type" : "MSSqlSnapshotRuntime",
+            "provisionable" : true
+         },
+         "type" : "MSSqlSnapshot",
+         "backupLocationType" : null,
+         "reference" : "MSSQL_SNAPSHOT-117",
+         "temporary" : false,
+         "consistency" : "CONSISTENT",
+         "firstChangePoint" : {
+            "location" : "13223000015261000001",
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-18T11:30:24.463Z",
+            "timeflow" : "MSSQL_TIMEFLOW-55"
+         },
+         "retention" : 0,
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "namespace" : null,
+         "timeflow" : "MSSQL_TIMEFLOW-55",
+         "backupSetUUID" : null,
+         "latestChangePoint" : {
+            "type" : "MSSqlTimeflowPoint",
+            "timeflow" : "MSSQL_TIMEFLOW-55",
+            "timestamp" : "2021-12-18T11:30:24.463Z",
+            "location" : "13223000015261000001"
+         },
+         "missingNonLoggedData" : false,
+         "internalVersion" : 706,
+         "name" : "@2021-12-18T03:30:24.463",
+         "container" : "MSSQL_DB_CONTAINER-24",
+         "backupSoftwareType" : null,
+         "version" : "11.3.6537.0",
+         "creationTime" : "2021-12-18T11:30:42.438Z"
+      },
+      {
+         "container" : "MSSQL_DB_CONTAINER-24",
+         "name" : "@2021-12-17T05:16:08.367",
+         "creationTime" : "2021-12-17T13:16:32.616Z",
+         "backupSoftwareType" : null,
+         "version" : "11.3.6537.0",
+         "missingNonLoggedData" : false,
+         "internalVersion" : 706,
+         "timeflow" : "MSSQL_TIMEFLOW-55",
+         "namespace" : null,
+         "latestChangePoint" : {
+            "location" : "13223000015260700001",
+            "type" : "MSSqlTimeflowPoint",
+            "timestamp" : "2021-12-17T13:16:08.367Z",
+            "timeflow" : "MSSQL_TIMEFLOW-55"
+         },
+         "backupSetUUID" : null,
+         "reference" : "MSSQL_SNAPSHOT-109",
+         "backupLocationType" : null,
+         "type" : "MSSqlSnapshot",
+         "runtime" : {
+            "type" : "MSSqlSnapshotRuntime",
+            "provisionable" : true
+         },
+         "timezone" : "America/Los_Angeles,PST-0800",
+         "retention" : 0,
+         "firstChangePoint" : {
+            "location" : "13223000015260700001",
+            "type" : "MSSqlTimeflowPoint",
+            "timeflow" : "MSSQL_TIMEFLOW-55",
+            "timestamp" : "2021-12-17T13:16:08.367Z"
+         },
+         "temporary" : false,
+         "consistency" : "CONSISTENT"
+      }
+   ],
+   "status" : "OK",
+   "total" : 3,
+   "type" : "ListResult"
+}

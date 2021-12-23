@@ -1,45 +1,44 @@
 {
-   "status" : "OK",
-   "overflow" : false,
+   "total" : 1,
    "result" : [
       {
-         "missingNonLoggedData" : false,
-         "timezone" : "US/Pacific,PST-0800",
-         "firstChangePoint" : {
-            "type" : "OracleTimeflowPoint",
-            "location" : "7588843",
-            "timestamp" : "2020-01-05T11:31:40.000Z",
-            "timeflow" : "ORACLE_TIMEFLOW-3"
-         },
-         "fractionTimeflows" : null,
-         "creationTime" : "2020-01-05T11:31:40.649Z",
-         "name" : "@2020-01-05T11:31:40.649Z",
-         "fromPhysicalStandbyVdb" : false,
-         "namespace" : null,
-         "retention" : 0,
-         "redoLogSizeInBytes" : 52428800,
-         "reference" : "ORACLE_SNAPSHOT-53",
-         "type" : "OracleSnapshot",
-         "latestChangePoint" : {
-            "timestamp" : "2020-01-05T11:31:40.000Z",
-            "timeflow" : "ORACLE_TIMEFLOW-3",
-            "type" : "OracleTimeflowPoint",
-            "location" : "7588855"
-         },
-         "timeflow" : "ORACLE_TIMEFLOW-3",
          "consistency" : "INCONSISTENT",
+         "timeflow" : "ORACLE_TIMEFLOW-3",
+         "container" : "ORACLE_DB_CONTAINER-3",
+         "latestChangePoint" : {
+            "type" : "OracleTimeflowPoint",
+            "location" : "2282020",
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "timestamp" : "2021-12-17T10:03:07.000Z"
+         },
+         "temporary" : false,
+         "creationTime" : "2021-12-17T10:03:14.859Z",
+         "missingNonLoggedData" : false,
+         "redoLogSizeInBytes" : 52428800,
+         "namespace" : null,
+         "reference" : "ORACLE_SNAPSHOT-6",
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-17T10:03:07.000Z",
+            "timeflow" : "ORACLE_TIMEFLOW-3",
+            "location" : "2281904",
+            "type" : "OracleTimeflowPoint"
+         },
+         "name" : "@2021-12-17T10:03:14.859Z",
+         "retention" : 0,
+         "version" : "19.3.0.0.0",
+         "type" : "OracleSnapshot",
+         "fromPhysicalStandbyVdb" : false,
          "runtime" : {
             "type" : "OracleSnapshotRuntime",
-            "provisionable" : true,
-            "missingLogs" : []
+            "missingLogs" : [],
+            "provisionable" : true
          },
-         "container" : "ORACLE_DB_CONTAINER-3",
-         "version" : "12.1.0.2.0",
-         "temporary" : false
+         "timezone" : "America/New_York,EST-0500"
       }
    ],
-   "total" : 3,
-   "job" : null,
+   "type" : "ListResult",
    "action" : null,
-   "type" : "ListResult"
+   "status" : "OK",
+   "job" : null,
+   "overflow" : false
 }

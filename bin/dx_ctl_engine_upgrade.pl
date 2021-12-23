@@ -38,16 +38,18 @@ use Formater;
 use Toolkit_helpers;
 use Storage_obj;
 use Jobs;
+use Action_obj;
 
 
 my $version = $Toolkit_helpers::version;
-my $gradeonly = 'yes';
+my $upgradetype = 'deferred';
 
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'action=s' => \(my $action),
   'osname=s' => \(my $osname),
+  'upgradetype=s' => \($upgradetype),
   'filename=s' => \(my $filename),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -75,17 +77,27 @@ if (!defined($action)) {
   exit (1);
 }
 
-if (!((lc $action eq 'upload') || (lc $action eq 'verify') || (lc $action eq 'apply'))) {
-  print "Parameter -action has to be one of the following: upload, verify or apply \n";
+if (!((lc $action eq 'upload') || (lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'delete'))) {
+  print "Parameter -action has to be one of the following: upload, verify, delete or apply \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
 
-if (((lc $action eq 'verify') || (lc $action eq 'apply')) && (!defined($osname))) {
-  print "Parameter -osname is required for verify or upload action \n";
+if (((lc $action eq 'verify') || (lc $action eq 'apply') || (lc $action eq 'delete')) && (!defined($osname))) {
+  print "Parameter -osname is required for verify, delete or apply action \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
+
+
+
+
+if ((lc $action eq 'apply') && ( ! ( ( lc $upgradetype eq 'deferred' ) || ( lc $upgradetype eq 'full' ) || ( lc $upgradetype eq 'finish_deferred' )   ) ) )  {
+  print "Action apply requires upgradetype as one those : DEFERRED, FULL, FINISH_DEFERRED \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 
 
 my $file_version;
@@ -98,7 +110,7 @@ if (lc $action eq 'upload')  {
   } else {
 
     my $namechek = basename($filename);
-    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d.\d.\d.\d)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
+    if ( ! (($file_version) = $namechek =~ /^[dD]elphix_(\d+\.\d+\.\d+\.\d+)_\d\d\d\d-\d\d-\d\d-\d\d-\d\d[\._][Standard_].*\.tar[\.gz]*$/ )) {
       print "Filename is not matching delphix upgrade pattern \n";
       exit (1);
     }
@@ -239,15 +251,28 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'apply') {
 
-    my $jobno = $engine_obj->applyOSversion($osname);
+    my $jobno = $engine_obj->applyOSversion($osname, $upgradetype);
 
     if (defined($jobno)) {
-      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished. Restarting.", "Apply job failed");
+      $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished.", "Apply job failed");
     } else {
       $ret = $ret + 1;
     }
 
   }
+
+  if (lc $action eq 'delete') {
+
+    my $jobno = $engine_obj->deleteOSversion($osname);
+
+    if (defined($jobno)) {
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Delete job finished.", "Delete job failed");
+    } else {
+      $ret = $ret + 1;
+    }
+
+  }
+
 
 }
 
@@ -261,9 +286,10 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_ctl_engine_upgrade    [-engine|d <delphix identifier> | -all ]
-                          -action upload|verify|apply
+                          -action upload|verify|apply|delete
                           [-osname osname]
                           [-filename filename]
+                          [-upgradetype type]
                           [-help|? ] [ -debug ]
 
 =head1 DESCRIPTION
@@ -282,14 +308,21 @@ Specify Delphix Engine name from dxtools.conf file
 =item B<-all>
 Display databases on all Delphix appliance
 
-=item B<-action upload|verify|apply>
+=item B<-action upload|verify|apply|delete>
 Run a particular action
 
 =item B<-osname nameofversion>
-Select a version of OS for action - requried for verify or apply
+Select a version of OS for action - requried for verify, delete or apply
 
 =item B<-filename upgradefilename>
 Select an upgrade file for upload
+
+=item B<-upgradetype type>
+Select type of the apply process. By default DERERRED is used.
+- DEFFERED
+- FULL
+- FINISH_DEFERRED
+
 
 =item B<-configfile file>
 Location of the configuration file.

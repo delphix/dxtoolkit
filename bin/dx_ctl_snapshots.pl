@@ -148,7 +148,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # filter implementation
 
-  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, $debug);
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, undef, undef, undef, undef, undef, undef, $debug);
   if (! defined($db_list)) {
     print "There is no DB selected to process on $engine . Please check filter definitions. \n";
     $ret = 1;
@@ -164,7 +164,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     my $snapshots = new Snapshot_obj($engine_obj, $dbitem, $allsnapshots, $debug, $startDate, $endDate);
-
+    $snapshots->getSnapshotList($dbitem);
     my $snaplist = $snapshots->getSnapshots($snapshotname);
 
     if (scalar(@{$snaplist}) < 1) {

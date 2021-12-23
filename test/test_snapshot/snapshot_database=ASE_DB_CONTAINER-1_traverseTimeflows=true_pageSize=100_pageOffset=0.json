@@ -1,0 +1,74 @@
+{
+   "total" : 2,
+   "job" : null,
+   "overflow" : false,
+   "action" : null,
+   "status" : "OK",
+   "result" : [
+      {
+         "missingNonLoggedData" : false,
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-17T10:01:49.583Z",
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "location" : null
+         },
+         "creationTime" : "2021-12-17T10:02:04.912Z",
+         "retention" : 0,
+         "dbEncryptionKey" : null,
+         "name" : "@2021-12-17T05:01:49.583",
+         "namespace" : null,
+         "latestChangePoint" : {
+            "location" : null,
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "timestamp" : "2021-12-17T10:01:49.583Z"
+         },
+         "timezone" : "America/New_York,EST-0500",
+         "timeflow" : "ASE_TIMEFLOW-1",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "version" : "16.0 SP03 PL09",
+         "temporary" : false,
+         "type" : "ASESnapshot",
+         "container" : "ASE_DB_CONTAINER-1",
+         "consistency" : "CONSISTENT",
+         "reference" : "ASE_SNAPSHOT-2"
+      },
+      {
+         "creationTime" : "2021-12-17T10:01:19.385Z",
+         "retention" : 0,
+         "dbEncryptionKey" : null,
+         "name" : "@2021-12-17T05:00:56.550",
+         "missingNonLoggedData" : false,
+         "firstChangePoint" : {
+            "timestamp" : "2021-12-17T10:00:56.550Z",
+            "type" : "ASETimeflowPoint",
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "location" : null
+         },
+         "container" : "ASE_DB_CONTAINER-1",
+         "consistency" : "CONSISTENT",
+         "reference" : "ASE_SNAPSHOT-1",
+         "temporary" : false,
+         "type" : "ASESnapshot",
+         "runtime" : {
+            "provisionable" : true,
+            "type" : "ASESnapshotRuntime"
+         },
+         "version" : "16.0 SP03 PL09",
+         "namespace" : null,
+         "latestChangePoint" : {
+            "timeflow" : "ASE_TIMEFLOW-1",
+            "type" : "ASETimeflowPoint",
+            "location" : null,
+            "timestamp" : "2021-12-17T10:00:56.550Z"
+         },
+         "timezone" : "America/New_York,EST-0500",
+         "timeflow" : "ASE_TIMEFLOW-1"
+      }
+   ],
+   "type" : "ListResult"
+}

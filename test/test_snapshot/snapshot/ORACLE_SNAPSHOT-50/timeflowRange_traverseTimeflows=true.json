@@ -1,22 +1,22 @@
 {
-   "action" : null,
    "type" : "OKResult",
+   "status" : "OK",
+   "action" : null,
    "result" : {
-      "startPoint" : {
-         "type" : "OracleTimeflowPoint",
-         "location" : "7561707",
-         "timeflow" : "ORACLE_TIMEFLOW-11",
-         "timestamp" : "2020-01-05T11:30:36.000Z"
-      },
-      "provisionable" : true,
       "type" : "TimeflowRange",
-      "endPoint" : {
+      "provisionable" : true,
+      "startPoint" : {
+         "location" : "2397222",
          "type" : "OracleTimeflowPoint",
-         "location" : "8843916",
-         "timestamp" : "2020-01-21T08:00:49.000Z",
-         "timeflow" : "ORACLE_TIMEFLOW-11"
+         "timeflow" : "ORACLE_TIMEFLOW-8",
+         "timestamp" : "2021-12-16T17:07:24.000Z"
+      },
+      "endPoint" : {
+         "timeflow" : "ORACLE_TIMEFLOW-8",
+         "timestamp" : "2021-12-16T17:14:15.000Z",
+         "location" : "2497010",
+         "type" : "OracleTimeflowPoint"
       }
    },
-   "job" : null,
-   "status" : "OK"
+   "job" : null
 }

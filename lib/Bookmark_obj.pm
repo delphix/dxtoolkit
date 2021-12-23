@@ -242,6 +242,7 @@ sub createBookmark
     } elsif (defined($time) && (uc $time eq 'LATEST') ) {
         # this is to print time stamp of snapshot
         my $snapshots = new Snapshot_obj ($self->{_dlpxObject},$db_reference, 1, $self->{_debug});
+        $snapshots->getSnapshotList($db_reference);
         ($temp_time,$temp_timezone) = $snapshots->getLatestSnapshotTime();
         my @timesplit = split(' ',$temp_time);
 

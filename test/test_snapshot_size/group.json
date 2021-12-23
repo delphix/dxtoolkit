@@ -1,31 +1,31 @@
 {
-   "total" : 3,
-   "type" : "ListResult",
-   "status" : "OK",
    "action" : null,
-   "job" : null,
    "overflow" : false,
+   "type" : "ListResult",
+   "total" : 3,
+   "job" : null,
    "result" : [
       {
-         "description" : "Default Group",
          "reference" : "GROUP-1",
-         "namespace" : null,
          "type" : "Group",
+         "description" : "Default Group",
+         "namespace" : null,
          "name" : "Untitled"
       },
       {
-         "name" : "Sources",
-         "reference" : "GROUP-34",
-         "description" : null,
          "namespace" : null,
-         "type" : "Group"
+         "name" : "Sources",
+         "reference" : "GROUP-2",
+         "type" : "Group",
+         "description" : null
       },
       {
-         "namespace" : null,
          "type" : "Group",
          "description" : null,
-         "reference" : "GROUP-35",
-         "name" : "group1"
+         "reference" : "GROUP-3",
+         "name" : "Analytics",
+         "namespace" : null
       }
-   ]
+   ],
+   "status" : "OK"
 }

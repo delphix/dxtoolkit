@@ -1,0 +1,45 @@
+{
+   "overflow" : false,
+   "action" : null,
+   "job" : null,
+   "total" : 1,
+   "status" : "OK",
+   "result" : [
+      {
+         "reference" : "REPLICATION_SPEC-1",
+         "runtime" : {
+            "type" : "ReplicationSpecRuntime",
+            "nextScheduledExecution" : null
+         },
+         "type" : "ReplicationSpec",
+         "targetHost" : "marcindlpx2.dlpxdc.co",
+         "numberOfConnections" : 1,
+         "namespace" : null,
+         "targetPrincipal" : "admin",
+         "tag" : "93a8df30-a1b4-4cb5-a78c-b5040b15eaa9",
+         "bandwidthLimit" : 0,
+         "encrypted" : false,
+         "description" : "",
+         "targetCredential" : {
+            "type" : "PasswordCredential",
+            "password" : "********"
+         },
+         "objectSpecification" : {
+            "containers" : [
+               "ORACLE_DB_CONTAINER-25"
+            ],
+            "type" : "ReplicationSecureList",
+            "name" : null,
+            "namespace" : null,
+            "reference" : null
+         },
+         "automaticReplication" : false,
+         "name" : "marcindlpx2.dlpxdc.co",
+         "targetPort" : 8415,
+         "lockedProfile" : false,
+         "schedule" : "0 0 0 * * ?",
+         "useSystemSocksSetting" : false
+      }
+   ],
+   "type" : "ListResult"
+}

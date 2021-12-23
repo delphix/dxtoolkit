@@ -1,40 +1,40 @@
 {
-   "action" : null,
+   "status" : "OK",
+   "total" : 2,
    "job" : null,
    "result" : [
       {
-         "namespace" : null,
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.229.141)(PORT=1521))"
+         ],
+         "discovered" : true,
          "type" : "OracleNodeListener",
          "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.4.120)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.229.141)(PORT=1521))"
          ],
-         "environment" : "UNIX_HOST_ENVIRONMENT-2",
+         "environment" : "UNIX_HOST_ENVIRONMENT-5",
+         "namespace" : null,
+         "host" : "UNIX_HOST-5",
          "reference" : "ORACLE_NODE_LISTENER-2",
-         "name" : "LISTENER",
-         "host" : "UNIX_HOST-2",
-         "discovered" : true,
-         "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.4.120)(PORT=1521))"
-         ]
+         "name" : "LISTENER"
       },
       {
          "discovered" : true,
-         "host" : "UNIX_HOST-1",
-         "name" : "LISTENER",
-         "protocolAddresses" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.19.108)(PORT=1521))"
-         ],
-         "reference" : "ORACLE_NODE_LISTENER-1",
-         "environment" : "UNIX_HOST_ENVIRONMENT-1",
+         "type" : "OracleNodeListener",
          "clientEndpoints" : [
-            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.43.19.108)(PORT=1521))"
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.239.51)(PORT=1521))"
          ],
+         "protocolAddresses" : [
+            "(ADDRESS=(PROTOCOL=tcp)(HOST=10.110.239.51)(PORT=1521))"
+         ],
+         "host" : "UNIX_HOST-1",
+         "environment" : "UNIX_HOST_ENVIRONMENT-2",
          "namespace" : null,
-         "type" : "OracleNodeListener"
+         "reference" : "ORACLE_NODE_LISTENER-1",
+         "name" : "LISTENER"
       }
    ],
-   "overflow" : false,
-   "total" : 2,
    "type" : "ListResult",
-   "status" : "OK"
+   "overflow" : false,
+   "action" : null
 }
