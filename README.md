@@ -2,7 +2,7 @@
 
 ## What is it
 
-Dxtoolkit is a set of scripts, which are delivered by Delphix professional services team. 
+Dxtoolkit is a set of scripts, which are delivered by Delphix professional services team.
 Dxtoolkit scripts look and feel like UNIX executables, following the typical conventions of using flags for arguments.  Dxtoolkit is written in Perl, but no knowledge of Perl is required unless you want to extend it.  In fact, no programming experience whatsoever is required to use the dxtoolkit.
 
 ## What's new
@@ -12,21 +12,24 @@ Please check a [change log](https://github.com/delphix/dxtoolkit/blob/master/CHA
 ## How to get started
 ### Compiled version
 
-**Prerequisites**
-* OpenSSL 1.0 library is required for Solaris Sparc, Solaris x64, Red Hat 6 and Red Hat 7 
-* OpenSSL 0.98 library is required for Red Hat 5
-
-If you don't have required version of OpenSSL library download a version with -openssl- in name, where
-those libraries are embbeded.
-
-Download a compiled version of DxToolkit for required platform from a [releases  page](https://github.com/delphix/dxtoolkit/releases). 
+Download a compiled version of DxToolkit for required platform from a [releases  page](https://github.com/delphix/dxtoolkit/releases).
 Create a configuration file *dxtools.conf* based on dxtools.conf.example or a Wiki page.
 
 Check a [documentation](https://github.com/delphix/dxtoolkit/wiki) for more details
 
-### Known issues
 
-There is no script dx_syslog on Windows and AIX due to lack of support of Log::Syslog::Fast Perl module
+### Docker image
+
+Run dxtoolkit using a docker image:
+1. Create configuration file *dxtools.conf* based on dxtools.conf.example or a Wiki page.
+2. Run a docker image with the following parameters:
+  * path redirection: `-v /path/to/your/configfile:/config`
+  * image name: `pioro/dxtoolkit:develop`
+  * `dxtoolkit_command dxtoolkit_command_params`
+
+
+   ex: `docker run -v /configdir:/config pioro/dxtoolkit:latest dx_get_appliance -d myengine`
+
 
 ### Source version
 
@@ -47,6 +50,30 @@ Perl version 5.16 or higher
 - LWP::Protocol::https
 - Term::ReadKey
 - Log::Syslog::Fast
+
+
+### Known issues
+
+There is no script dx_syslog on Windows and AIX due to lack of support of Log::Syslog::Fast Perl module
+
+
+### Support matrix
+
+New releases of dxtoolkit are tested with Delphix Engines, which are in primary or extended support.
+Ex. 2.4.14 release was tested with version 5.3.9 and 6.0.X engines.
+
+Dxtoolkit is designed to support many versions of Delphix Engines, although if a new version is released after dxtoolkit release
+it may stop working due to API changes. To mitigate this issue until next dxtoolkit version will be release, please add
+-dever parameter to your commands with the following values:
+
+|parameter|Delphix Engine version|API version|
+| :---    |     :---:            | :---      |
+| -dever 6.0.11| Delphix Engine 6.0.11 | API 1.11.11|
+| -dever 6.0| Delphix Engine 6.0 | API 1.11.00|
+| -dever 5.3| Delphix Engine 5.3 | API 1.10.00|
+| -dever 5.2| Delphix Engine 5.2 | API 1.9.00|
+
+
 
 ## <a id="contribute"></a>Contribute
 

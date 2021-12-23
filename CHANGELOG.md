@@ -12,6 +12,8 @@
 - dx_ctl_engine_upgrade apply action fixed - it monitors now a whole upgrade process, including engine reboot
 - [fix for #195](https://github.com/delphix/dxtoolkit/issues/195) - this was generic issue with snapshot paging
 - [fix for #193](https://github.com/delphix/dxtoolkit/issues/193) - dx_get_env creates different envtype than what dx_create_env expects
+- fix for backup metadata in dx_get_db_env
+- fix for printing hierarchy in dx_get_hierarchy for objects with same reference across 2 engines
 
 
 ## 2.4.13
