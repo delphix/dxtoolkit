@@ -2471,6 +2471,60 @@ sub createVDB {
 }
 
 
+# Procedure setFileSystemLayout
+# parameters:
+# - map_file - hash of map file
+# Set mountpoint for new db.
+
+sub setFileSystemLayout {
+    my $self = shift;
+    my $targetDirectory = shift;
+    my $archiveDirectory = shift;
+    my $dataDirectory = shift;
+    my $externalDirectory = shift;
+    my $scriptDirectory = shift;
+    my $tempDirectory = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::setFileSystemLayout",1);
+
+
+
+    if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.9)) {
+      $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "TimeflowFilesystemLayout";
+    } else {
+      # from Delphix 6.0.10 and above
+      $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "OracleExportTimeflowFilesystemLayout";
+    }
+
+    if (! defined($targetDirectory)) {
+        return 1;
+    }
+
+    $self->{"NEWDB"}->{"filesystemLayout"}->{"targetDirectory"} = $targetDirectory;
+
+    if ( defined($archiveDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"archiveDirectory"} = $archiveDirectory;
+    }
+
+    if ( defined($tempDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"tempDirectory"} = $tempDirectory;
+    }
+
+    if ( defined($scriptDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"scriptDirectory"} = $scriptDirectory;
+    }
+
+    if ( defined($externalDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"externalDirectory"} = $externalDirectory;
+    }
+
+    if ( defined($dataDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
+    }
+
+}
+
+
 # Procedure v2pSI
 # parameters:
 # - env - new DB environment
@@ -2497,6 +2551,7 @@ sub v2pSI {
         print "Set name using setName procedure before calling create V2P. V2P won't be created\n";
         return undef;
     }
+
 
     if ( ! defined($self->{"NEWDB"}->{"filesystemLayout"}->{"type"} )) {
         print "Target directory not set. V2P won't be created\n";
