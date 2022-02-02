@@ -1,6 +1,6 @@
 use strict;
 use Data::Dumper;
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::Script;
 use Test::Files;
 use File::Spec;
