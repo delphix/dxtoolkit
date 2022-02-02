@@ -1,14 +1,14 @@
 {
+   "preRefresh" : [],
+   "preRollback" : [],
+   "preStart" : [],
+   "postSnapshot" : [],
    "type" : "VirtualSourceOperations",
    "preStop" : [],
-   "preRollback" : [],
-   "preSnapshot" : [],
-   "postSnapshot" : [],
-   "postRollback" : [],
-   "preStart" : [],
    "postStop" : [],
-   "postRefresh" : [],
-   "preRefresh" : [],
+   "postRollback" : [],
    "postStart" : [],
-   "configureClone" : []
+   "preSnapshot" : [],
+   "configureClone" : [],
+   "postRefresh" : []
 }
