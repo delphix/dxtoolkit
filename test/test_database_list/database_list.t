@@ -1,6 +1,6 @@
 use strict;
 use Data::Dumper;
-use Test::More tests => 13;
+use Test::More tests => 15;
 use Test::Script;
 use Test::Files;
 use File::Spec;
@@ -60,6 +60,16 @@ local,10.110.196.207,pdbtest2,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 05:05:09
 EOF
 
 script_stdout_is $expected_stdout, "list pdbtest2 database results compare";
+
+
+script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2','-parentlast','l',"list pdbtest2 database - last snapshot"]);
+
+my $expected_stdout = <<EOF;
+#Appliance,Hostname,Database,Group,Type,SourceDB,Last snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time
+local,10.110.196.207,pdbtest2,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 06:30:15 EST,0.02,RUNNING,enabled,N/A,N/A,2021-12-17 02:06:16
+EOF
+
+script_stdout_is $expected_stdout, "list pdbtest2 - last snapshot database results compare";
 
 
 script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2','-config', "list config pdbtest2 database"]);
