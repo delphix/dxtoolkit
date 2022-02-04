@@ -1,3 +1,10 @@
+## 2.4.14.1
+
+### Changed
+
+- dx_get_db_env - fix for -parentlast flag set to l - regression bug fixed
+- dx_v2p - support for engines 6.0.10 and higher
+
 ## 2.4.14
 
 ### Added
