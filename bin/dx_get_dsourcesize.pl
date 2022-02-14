@@ -180,6 +180,7 @@ __DATA__
  dx_get_dsourcesize  [-engine|d <delphix identifier> | -all ]
                      [-group group_name | -name db_name | -host host_name | -envname env_name ]
                      [-format csv|json ]
+                     [-license ]
                      [-help|? ]
                      [-debug ]
 
@@ -237,6 +238,8 @@ Environment name
 
 =over 3
 
+=item B<-license>
+Use License API to display dSource sizes
 
 =item B<-format>
 Display output in csv or json format
