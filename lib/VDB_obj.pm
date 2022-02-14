@@ -987,10 +987,15 @@ sub getEnabled
 
     } else {
 
-        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
-            $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
+        if ($self->isReplica() eq 'YES') {
+            $ret = 'N/A';
         } else {
-            $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
+
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
+              $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
+          } else {
+              $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
+          }
         }
     }
 
