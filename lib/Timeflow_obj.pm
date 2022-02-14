@@ -653,6 +653,151 @@ sub returnHierarchy
 
 }
 
+# Procedure findrefresh
+# parameters:
+# - ref - current timeflow refrerence
+# - hier - hierarchy hash
+# - current db -
+# Return a refresh timeflow reference
+
+
+sub findrefresh
+{
+    my $self = shift;
+    my $ref = shift; # timeflow
+    my $hier = shift;
+    my $dbref = shift; # dbref
+
+    logger($self->{_debug}, "Entering Timeflow_obj::findrenew",1);
+
+    my $local_ref = $ref . "\@l";
+    my $child;
+    my $parent;
+
+    logger($self->{_debug}, "Find first refresh for " . $local_ref, 2);
+
+    #leave loop if there is no parent, parent is deleted or not local
+    #local_ref - is pointed to a timeflow without parent (dSource)
+    #child - is a child timeflow of local_ref
+
+    my $tfcont;
+    my $timeflowname;
+    my $stop = 0;
+    my $parentref;
+    my $localref;
+
+    do {
+      $parent = $hier->{$local_ref}->{parent};
+      ($parentref) = $parent =~ /(.*)@./;
+      if (!defined($parent)) {
+        # for JS issue
+        $parent = 'deleted';
+      }
+
+      logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
+      $tfcont = $self->getContainer($parentref);
+
+
+      if ($dbref eq $tfcont) {
+        # still same container, move forward
+        logger($self->{_debug}, "Same container", 2);
+        if ($parent ne '') {
+            # there is a parent
+            logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref),2);
+            if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL')) {
+              # stop here - we found creation or refresh
+              $local_ref = $parent;
+              $stop = 1;
+            } else {
+              # move to next timeflow
+              $local_ref = $parent;
+            }
+
+
+        }
+
+      } else {
+        # parent is different but SS restore from template was done
+        logger($self->{_debug}, "Different parent", 2);
+        if ($parent ne '') {
+            # there is a parent
+            ($parentref) = $local_ref =~ /(.*)@./;
+            logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref), 2);
+            if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL'))  {
+              # stop here - we found creation or refresh
+              logger($self->{_debug},"stopping with different parent",2);
+              $stop = 1;
+            } else {
+              # move to next timeflow
+              # add nice handle exception
+              logger($self->{_debug},"Can't find parent - return undef",2);
+              undef $local_ref;
+              $stop = 1;
+            }
+
+
+        }
+
+      }
+
+    } while (($parent ne '') && ($parent ne 'deleted') && ($stop eq 0));
+
+
+    my $refresh_timeflow;
+
+    if (defined($local_ref)) {
+      ($parentref) = $local_ref =~ /(.*)@./;
+      logger($self->{_debug},"timeflow found: " .$parentref,2);
+      $refresh_timeflow = $parentref;
+    } else {
+      logger($self->{_debug},"timeflow notfound",2);
+    }
+
+    logger($self->{_debug},"refresh timeflow: " . $refresh_timeflow,2);
+    return $refresh_timeflow;
+
+}
+
+# Procedure findrefreshtime
+# parameters:
+# - ref - current timeflow refrerence
+# - hier - hierarchy hash
+# - current db -
+# Return a refresh time in engine timezone
+
+
+sub findrefreshtime
+{
+    my $self = shift;
+    my $ref = shift; # timeflow
+    my $hier = shift;
+    my $dbref = shift; # dbref
+
+    logger($self->{_debug}, "Entering Timeflow_obj::findrefreshtime",1);
+
+    my $refreshtime;
+
+    my $refresh_timeflow = $self->findrefresh($ref, $hier, $dbref);
+
+    if (defined($refresh_timeflow)) {
+      my $tfname = $self->getName($refresh_timeflow);
+      logger($self->{_debug}, "Name of timeflow: " . $tfname, 2);
+      ($refreshtime) = $tfname =~ /.*@(.*)/; # engine time not Zulu
+      logger($self->{_debug}, "time of refresh: " . $refreshtime,2);
+      $refreshtime =~ s/T/ /;
+    }
+
+    return $refreshtime;
+
+}
+
+sub getcreationType {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Timeflow_obj::getcreationType",1);
+
+    return $self->{_timeflows}->{$reference}->{creationType};
+}
 
 
 1;
