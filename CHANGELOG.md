@@ -1,3 +1,10 @@
+## 2.4.15
+
+### Changed
+- [enhancement #194](https://github.com/delphix/dxtoolkit/issues/194) Last refresh date added to dx_get_db_env as a new column
+- [bug #197](https://github.com/delphix/dxtoolkit/issues/197) dx_get_db_env is displaying now a parent snapshot / time of the parent dSource / VDB - not a rollback one
+- [bug #185](https://github.com/delphix/dxtoolkit/issues/185) dx_get_db_env is not displaying errors for replicated objects
+
 ## 2.4.14.1
 
 ### Changed
