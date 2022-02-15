@@ -434,6 +434,11 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $snapshotpolicy_ref;
   my $retentionpolicy_ref;
   if (defined($snapshotpolicy)) {
+    if (lc $snapshotpolicy eq lc 'none') {
+      # full name of snapshot None policy is None:SnapshotPolicy
+      $snapshotpolicy = "None:SnapshotPolicy";
+    }
+
     $snapshotpolicy_ref = $policy->getPolicyByName($snapshotpolicy);
     if ( !defined($snapshotpolicy_ref)  ) {
       print "Snapshot policy $snapshotpolicy not found. Skipping provisioning on engine $engine\n";
