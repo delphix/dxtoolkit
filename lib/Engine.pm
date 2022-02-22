@@ -1654,6 +1654,11 @@ sub getLicenseUsage {
         my @dblist;
         my $type;
         for my $db (@{$result->{"result"}->{"sourceIngestionData"}}) {
+          if (! defined($db->{"ingestedSize"})) {
+            logger($self->{_debug}, "license reporting undefined size " . Dumper $db,2);
+            print "# No size for " . $db->{"sourceName"} . ". Skipping\n";
+            next;
+          }
           $db->{"containerType"} =~ s/_DB_CONTAINER//;
           push(@dblist, { "name"=> $db->{"sourceName"}, "type"=>$db->{"containerType"}, "size"=> $db->{"ingestedSize"} });
         }
