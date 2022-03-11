@@ -692,52 +692,59 @@ sub findrefresh
       if (!defined($parent)) {
         # for JS issue
         $parent = 'deleted';
+      } elsif ( $parent eq '') {
+        # for VDB
+        $parent = 'deleted';
       }
 
       logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
-      $tfcont = $self->getContainer($parentref);
 
 
-      if ($dbref eq $tfcont) {
-        # still same container, move forward
-        logger($self->{_debug}, "Same container", 2);
-        if ($parent ne '') {
-            # there is a parent
-            logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref),2);
-            if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL')) {
-              # stop here - we found creation or refresh
-              $local_ref = $parent;
-              $stop = 1;
-            } else {
-              # move to next timeflow
-              $local_ref = $parent;
-            }
+      if ($parent ne 'deleted') {
+        $tfcont = $self->getContainer($parentref);
 
+
+        if ($dbref eq $tfcont) {
+          # still same container, move forward
+          logger($self->{_debug}, "Same container", 2);
+          if ($parent ne '') {
+              # there is a parent
+              logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref),2);
+              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL')) {
+                # stop here - we found creation or refresh
+                $local_ref = $parent;
+                $stop = 1;
+              } else {
+                # move to next timeflow
+                $local_ref = $parent;
+              }
+
+
+          }
+
+        } else {
+          # parent is different but SS restore from template was done
+          logger($self->{_debug}, "Different parent", 2);
+          if ($parent ne '') {
+              # there is a parent
+              ($parentref) = $local_ref =~ /(.*)@./;
+              logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref), 2);
+              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL'))  {
+                # stop here - we found creation or refresh
+                logger($self->{_debug},"stopping with different parent",2);
+                $stop = 1;
+              } else {
+                # move to next timeflow
+                # add nice handle exception
+                logger($self->{_debug},"Can't find parent - return undef",2);
+                undef $local_ref;
+                $stop = 1;
+              }
+
+
+          }
 
         }
-
-      } else {
-        # parent is different but SS restore from template was done
-        logger($self->{_debug}, "Different parent", 2);
-        if ($parent ne '') {
-            # there is a parent
-            ($parentref) = $local_ref =~ /(.*)@./;
-            logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref), 2);
-            if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL'))  {
-              # stop here - we found creation or refresh
-              logger($self->{_debug},"stopping with different parent",2);
-              $stop = 1;
-            } else {
-              # move to next timeflow
-              # add nice handle exception
-              logger($self->{_debug},"Can't find parent - return undef",2);
-              undef $local_ref;
-              $stop = 1;
-            }
-
-
-        }
-
       }
 
     } while (($parent ne '') && ($parent ne 'deleted') && ($stop eq 0));
