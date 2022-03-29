@@ -49,6 +49,7 @@ GetOptions(
   'group=s' => \(my $group),
   'host=s' => \(my $host),
   'envname=s' => \(my $envname),
+  'details' => \(my $details),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -77,14 +78,32 @@ my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
-$output->addHeader(
-  {'Appliance', 10},
-  {'Database',  30},
-  {'Group',     15},
-  {'Data Source', 30},
-  {'Log Sync',  10},
-  {'BCT',       10},
-);
+if (defined($details)) {
+  $output->addHeader(
+    {'Appliance', 10},
+    {'Database',  30},
+    {'Group',     15},
+    {'Data Source', 30},
+    {'Log Sync',  10},
+    {'VSYNC',     20},
+    {'VSYNC STATE', 10},
+    {'VSYNC LAST UPDATE', 30},
+    {'VSYNC STATUS', 50},
+    {'VSYNC ACTION', 100}
+  );
+} else {
+  $output->addHeader(
+    {'Appliance', 10},
+    {'Database',  30},
+    {'Group',     15},
+    {'Data Source', 30},
+    {'Log Sync',  10},
+    {'BCT',       10},
+    {'VSYNC',     20},
+    {'VSYNC STATE', 10},
+    {'VSYNC LAST UPDATE', 30},
+  );
+}
 
 
 
@@ -117,18 +136,33 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
 
-    $output->addLine(
-      $engine,
-      $dbobj->getName(),
-      $groups->getName($dbobj->getGroup()),
-      $dbobj->getSourceConfigName(),
-      $dbobj->getLogSync(),
-      $dbobj->getBCT()
-    );
-
-
+    if (defined($details)) {
+      $output->addLine(
+        $engine,
+        $dbobj->getName(),
+        $groups->getName($dbobj->getGroup()),
+        $dbobj->getSourceConfigName(),
+        $dbobj->getLogSync(),
+        $dbobj->getValidatedMode(),
+        $dbobj->getValidatedModeState(),
+        $dbobj->getValidatedModeUpdate(),
+        $dbobj->getValidatedModeStatus(),
+        $dbobj->getValidatedModeAction()
+      );
+    } else {
+      $output->addLine(
+        $engine,
+        $dbobj->getName(),
+        $groups->getName($dbobj->getGroup()),
+        $dbobj->getSourceConfigName(),
+        $dbobj->getLogSync(),
+        $dbobj->getBCT(),
+        $dbobj->getValidatedMode(),
+        $dbobj->getValidatedModeState(),
+        $dbobj->getValidatedModeUpdate()
+      );
+    }
   }
-
 }
 
 Toolkit_helpers::print_output($output, $format, $nohead);
