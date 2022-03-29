@@ -1135,7 +1135,7 @@ sub getValidatedModeAction
     my $self = shift;
     logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedModeAction",1);
     my $ret;
-    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus})) {
+    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus}) && defined($self->{container}->{runtime}->{preProvisioningStatus}->{pendingAction})) {
       $ret = $self->{container}->{runtime}->{preProvisioningStatus}->{pendingAction};
     } else {
       $ret = "N/A";
