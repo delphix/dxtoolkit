@@ -375,27 +375,27 @@ sub decrypt {
 }
 
 
-# Procedure getAllNonSysadminEngines
-# parameters:
-# Return names of all engines loaded
-
-sub getAllNonSysadminEngines {
-  my $self = shift;
-  logger($self->{_debug}, "Entering Engine::getAllEngines",1);
-  my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} ne lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
-  return @nonsysadmin;
-}
-
-# Procedure getAllSysadminEngines
-# parameters:
-# Return names of all engines loaded
-
-sub getAllSysadminEngines {
-  my $self = shift;
-  logger($self->{_debug}, "Entering Engine::getAllEngines",1);
-  my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} eq lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
-  return @nonsysadmin;
-}
+# # Procedure getAllNonSysadminEngines
+# # parameters:
+# # Return names of all engines loaded
+#
+# sub getAllNonSysadminEngines {
+#   my $self = shift;
+#   logger($self->{_debug}, "Entering Engine::getAllEngines",1);
+#   my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} ne lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
+#   return @nonsysadmin;
+# }
+#
+# # Procedure getAllSysadminEngines
+# # parameters:
+# # Return names of all engines loaded
+#
+# sub getAllSysadminEngines {
+#   my $self = shift;
+#   logger($self->{_debug}, "Entering Engine::getAllEngines",1);
+#   my @nonsysadmin = grep { lc $self->{_engines}->{$_}->{username} eq lc 'sysadmin' } sort ( keys %{$self->{_engines} } );
+#   return @nonsysadmin;
+# }
 
 # Procedure getAllEngines
 # parameters:

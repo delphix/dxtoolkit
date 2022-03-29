@@ -79,20 +79,20 @@ $output->addHeader(
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
-my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj, 'sysadmin');
+my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $ret = 0;
 
 for my $engine ( sort (@{$engine_list}) ) {
    # main loop for all work
    if ($engine_obj->dlpx_connect($engine)) {
-    print "Can't connect to Dephix Engine $dx_host\n\n";
+    print "Can't connect to Dephix Engine $engine\n\n";
     $ret = $ret + 1;
     next;
    };
 
-   if (lc $engine_obj->getUsername() ne 'sysadmin') {
-     print "User sysadmin is required for this script to run. Please check dxtools.conf entry for $engine\n";
+   if ($engine_obj->getCurrentUserType() ne 'SYSTEM') {
+     print "User with sysadmin role is required for this script to run. Please check config file entry for $engine\n";
      next;
    }
 

@@ -401,11 +401,12 @@ sub get_engine_list {
 
 	if (defined($all) ) {
 	  # processing all engines
-		if (defined($sysadmin)) {
-			@engine_list = $engine_obj->getAllSysadminEngines();
-		} else {
-	  	@engine_list = $engine_obj->getAllNonSysadminEngines();
-		}
+		@engine_list = $engine_obj->getAllEngines();
+			# if (defined($sysadmin)) {
+			# 	@engine_list = $engine_obj->getAllSysadminEngines();
+			# } else {
+		  # 	@engine_list = $engine_obj->getAllNonSysadminEngines();
+			# }
 	} elsif (defined($dx_host)) {
 	  # processing one engine
 	  push(@engine_list, $dx_host);
