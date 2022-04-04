@@ -695,6 +695,9 @@ sub findrefresh
       } elsif ( $parent eq '') {
         # for VDB
         $parent = 'deleted';
+      } elsif ( $parent eq 'notlocal') {
+        # for replicated VDB
+        $parent = 'deleted';
       }
 
       logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
