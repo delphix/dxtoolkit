@@ -2077,6 +2077,52 @@ sub getBCT
     return 'N/A';
 }
 
+# Procedure getValidatedMode
+# parameters:
+
+sub getValidatedMode {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedMode",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeState
+# parameters:
+
+sub getValidatedModeState {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeState",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeStatus {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeStatus",1);
+    return 'N/A' ;
+}
+
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeAction {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeAction",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeUpdate {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeUpdate",1);
+    return 'N/A' ;
+}
+
 # Procedure getHook
 # parameters:
 # - hooktype - type of hook

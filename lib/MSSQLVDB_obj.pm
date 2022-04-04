@@ -1089,6 +1089,78 @@ sub getLogSync
     return $self->{container}->{runtime}->{logSyncActive} ? 'ACTIVE' : 'INACTIVE';
 }
 
+# Procedure getValidatedModeState
+# parameters: none
+# Return status of Validated Sync
+
+sub getValidatedModeState
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedModeStatus",1);
+    my $ret;
+    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus})) {
+      $ret = $self->{container}->{runtime}->{preProvisioningStatus}->{preProvisioningState};
+    } else {
+      $ret = "N/A";
+    }
+    return $ret;
+}
+
+
+
+
+# Procedure getValidatedModeStatus
+# parameters: none
+# Return status of Validated Sync
+
+sub getValidatedModeStatus
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedModeStatus",1);
+    my $ret;
+    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus})) {
+      $ret = $self->{container}->{runtime}->{preProvisioningStatus}->{status};
+    } else {
+      $ret = "N/A";
+    }
+    return $ret;
+}
+
+# Procedure getValidatedModeAction
+# parameters: none
+# Return status of Validated Sync
+
+sub getValidatedModeAction
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedModeAction",1);
+    my $ret;
+    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus}) && defined($self->{container}->{runtime}->{preProvisioningStatus}->{pendingAction})) {
+      $ret = $self->{container}->{runtime}->{preProvisioningStatus}->{pendingAction};
+    } else {
+      $ret = "N/A";
+    }
+    return $ret;
+}
+
+# Procedure getValidatedModeUpdate
+# parameters: none
+# Return status of Validated Sync
+
+sub getValidatedModeUpdate
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering MSSQLVDB_obj::getValidatedModeUpdate",1);
+    my $ret;
+    if (defined($self->{container}->{runtime}) && defined($self->{container}->{runtime}->{preProvisioningStatus})) {
+      $ret = Toolkit_helpers::convert_from_utc($self->{container}->{runtime}->{preProvisioningStatus}->{lastUpdateTimestamp},
+                                               $self->{_dlpxObject}->getTimezone(),1,undef);
+    } else {
+      $ret = "N/A";
+    }
+    return $ret;
+}
+
 
 # Procedure setLogSync
 # parameters:
