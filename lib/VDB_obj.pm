@@ -2123,6 +2123,18 @@ sub getValidatedModeUpdate {
     return 'N/A' ;
 }
 
+
+# Procedure getLogSync
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSync
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
+    return 'N/A';
+}
+
 # Procedure getHook
 # parameters:
 # - hooktype - type of hook
