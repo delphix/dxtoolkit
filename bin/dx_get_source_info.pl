@@ -177,6 +177,7 @@ __DATA__
  dx_get_source_info    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                        [ -group group_name | -name db_name | -host host_name ]
                        [ -format csv|json ]
+                       [ -details ]
                        [ -help|? ]
                        [ -debug ]
 
@@ -229,6 +230,8 @@ Environment name
 
 =over 3
 
+=item B<-details>
+Display Validated Sync details
 
 =item B<-format>
 Display output in csv or json format

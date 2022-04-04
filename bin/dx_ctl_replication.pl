@@ -207,7 +207,7 @@ Turn on debugging
 
 Replicate a profile called "backup"
 
-  dx_get_replication -d DelphixEngine -profilename backup -nowait
+  dx_ctl_replication -d DelphixEngine -profilename backup -nowait
   Replication job JOB-7425 started in background
 
 =cut
