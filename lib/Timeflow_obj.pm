@@ -703,14 +703,13 @@ sub findrefresh
       if ($parent ne 'deleted') {
         $tfcont = $self->getContainer($parentref);
 
-
         if ($dbref eq $tfcont) {
           # still same container, move forward
           logger($self->{_debug}, "Same container", 2);
           if ($parent ne '') {
               # there is a parent
               logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref),2);
-              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL')) {
+              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL') || ( $self->getcreationType($parentref) eq 'TRANSFORMATION')) {
                 # stop here - we found creation or refresh
                 $local_ref = $parent;
                 $stop = 1;
@@ -729,7 +728,7 @@ sub findrefresh
               # there is a parent
               ($parentref) = $local_ref =~ /(.*)@./;
               logger($self->{_debug}, "Parent timeflow name: " . $self->getName($parentref), 2);
-              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL'))  {
+              if (( $self->getcreationType($parentref) eq 'REFRESH' ) || ( $self->getcreationType($parentref) eq 'INITIAL') || ( $self->getcreationType($parentref) eq 'TRANSFORMATION'))  {
                 # stop here - we found creation or refresh
                 logger($self->{_debug},"stopping with different parent",2);
                 $stop = 1;
@@ -760,7 +759,8 @@ sub findrefresh
       logger($self->{_debug},"timeflow notfound",2);
     }
 
-    logger($self->{_debug},"refresh timeflow: " . $refresh_timeflow,2);
+
+    logger($self->{_debug},"refresh timeflow: " . Dumper $refresh_timeflow,2);
     return $refresh_timeflow;
 
 }
