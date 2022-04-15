@@ -726,6 +726,7 @@ sub finddSource
     my $self = shift;
     my $ref = shift;
     my $hier = shift;
+    my $clean = shift;
 
     logger($self->{_debug}, "Entering Databases::finddSource",1);
 
@@ -767,7 +768,26 @@ sub finddSource
     }
 
 
-    return ($local_ref, $child);
+    my $retref;
+    my $retchild;
+
+    if (defined($clean)) {
+      if (($retref) = $local_ref =~ /(.*)\@l/ ) {
+        $retref = $retref
+      } else {
+        $retref = $local_ref;
+      }
+      if (defined($child) && (($retchild) = $child =~ /(.*)\@l/ )) {
+        $retchild = $retchild
+      } else {
+        $retchild = $child;
+      }
+    } else {
+      $retref = $local_ref;
+      $retchild = $child;
+    }
+
+    return ($retref, $retchild);
 
 }
 
