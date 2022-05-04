@@ -507,6 +507,7 @@ sub finddSource
     my $self = shift;
     my $ref = shift;
     my $hier = shift;
+    my $clean = shift;
 
     logger($self->{_debug}, "Entering Timeflow_obj::finddSource",1);
 
@@ -547,9 +548,26 @@ sub finddSource
       undef $child;
     }
 
+    my $retref;
+    my $retchild;
 
+    if (defined($clean)) {
+      if (($retref) = $local_ref =~ /(.*)\@l/ ) {
+        $retref = $retref
+      } else {
+        $retref = $local_ref;
+      }
+      if (defined($child) && (($retchild) = $child =~ /(.*)\@l/ )) {
+        $retchild = $retchild
+      } else {
+        $retchild = $child;
+      }
+    } else {
+      $retref = $local_ref;
+      $retchild = $child;
+    }
 
-    return ($local_ref, $child);
+    return ($retref, $retchild);
 
 }
 
@@ -609,28 +627,28 @@ sub findParentTimeflow
 
 }
 
-# Procedure returnHierarchy
+# Procedure returnParentHier
 # parameters:
 # - ref - VDB refrerence
 # - hier - hierarchy hash
 # Return a array with timeflow hashes
 
-sub returnHierarchy
+sub returnParentHier
 {
     my $self = shift;
     my $ref = shift;
     my $hier = shift;
 
-    logger($self->{_debug}, "Entering Timeflow_obj::generateHierarchy",1);
+    logger($self->{_debug}, "Entering Timeflow_obj::returnParentHier",1);
 
-    my $local_ref = $ref;
+    my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
 
     my @retarr;
+    my $clean_ref;
 
-
-    logger($self->{_debug}, "Find dSource for " . $local_ref, 2);
+    logger($self->{_debug}, "Find hierarchy for " . $local_ref, 2);
 
     #leave loop if there is no parent, parent is deleted or not local
     #local_ref - is pointed to a timeflow without parent (dSource)
@@ -639,15 +657,21 @@ sub returnHierarchy
     do {
       $parent = $hier->{$local_ref}->{parent};
       my %hashpair;
-      $hashpair{ref} = $local_ref;
+      ($clean_ref) = $local_ref =~ /(.*)\@l/;
+      $hashpair{ref} = $clean_ref;
       $hashpair{source} = $hier->{$local_ref}->{source};
+      #if ($clean_ref ne $ref) {
       push(@retarr, \%hashpair);
-      if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
+      #}
+
+      if (($parent ne '') && ($parent ne 'deleted@l') && ($parent ne 'notlocal') ) {
           $child = $local_ref;
           $local_ref = $parent;
       }
 
-    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    } while (($parent ne '') && ($parent ne 'deleted@l') && ($parent ne 'notlocal'));
+
+    @retarr = sort { Toolkit_helpers::sort_by_number($a->{ref},$b->{ref}) } @retarr;
 
     return \@retarr;
 

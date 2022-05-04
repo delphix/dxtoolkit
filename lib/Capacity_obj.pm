@@ -124,6 +124,14 @@ sub getDetailedDBUsage {
         $dbutil_hash{timestamp} = $self->{_databases}->{$db_ref}->{timestamp};
         $dbutil_hash{parent} = $self->{_databases}->{$db_ref}->{parent};
 
+        # add API check
+        #breakdown.actualSpace,breakdown.,breakdown.syncSpace,breakdown.ingestedSize,breakdown.policySpace
+
+        $dbutil_hash{descendantSpace} = $self->{_databases}->{$db_ref}->{breakdown}->{descendantSpace}/1024/1024/1024;
+        $dbutil_hash{policySpace} = $self->{_databases}->{$db_ref}->{breakdown}->{policySpace}/1024/1024/1024;
+        $dbutil_hash{manualSpace} = $self->{_databases}->{$db_ref}->{breakdown}->{manualSpace}/1024/1024/1024;
+        $dbutil_hash{unownedSnapshotSpace} = $self->{_databases}->{$db_ref}->{breakdown}->{unownedSnapshotSpace}/1024/1024/1024;
+
         my $snapsum = 0;
 
 
