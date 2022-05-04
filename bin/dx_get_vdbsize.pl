@@ -136,14 +136,24 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
+
+
+
+
+  logger($debug, "Checking size for engine $engine", 2);
+
   my $timezone = $engine_obj->getTimezone();
 
   # build hierarchy of timeflow for engine
   my $databases = new Databases( $engine_obj, $debug);
+
   my $groups = new Group_obj($engine_obj, $debug);
   my $timeflows = new Timeflow_obj($engine_obj, undef, $debug);
   my $hier = $timeflows->generateHierarchy(undef, undef, $databases);
+
   my $hierc = $databases->generateHierarchy(undef, undef);
+
+
 
   my $db_list = Toolkit_helpers::get_dblist_from_filter('VDB', $group, $host, $dbname, $databases, $groups, $envname, $dsource, $primary, $instance, $instancename, undef, $repositoryname, $debug);
   if (! defined($db_list)) {
@@ -157,6 +167,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   for my $dbitem ( @{$db_list} ) {
+
+
+    my $totalsize = 0;
 
     my $dbobj = $databases->getDB($dbitem);
     my $groupname = $groups->getName($dbobj->getGroup());
@@ -177,58 +190,67 @@ for my $engine ( sort (@{$engine_list}) ) {
       # storage info not found - maybe database is deleted
       # skipping it
       #next;
-      print Dumper "aaa";
+      print Dumper "No capacity for VDB";
+      exit;
     }
 
-    print Dumper $capacity_hash;
+
 
     my ($dSourceref, $childc) = $databases->finddSource($dbitem, $hierc, 1);
-
-    print Dumper "dSource ref";
-    print Dumper $dSourceref;
 
     # convert to MB for tests
     my $dbsize = $capacity_hash->{totalsize} * 1024;
 
-    my $ds_size = 0;
+    $totalsize = $totalsize + $dbsize;
 
 
 
     my $dsourcename;
+    my $ds_size;
+    my $locked_snaps;
 
     if ($dSourceref ne 'notlocal') {
+      # normal replication
       $dsourcename = ($databases->getDB($dSourceref))->getName();
+      logger($debug, "normal replication for $dsourcename",2);
+      my $capacity_hash = $capacity->getDetailedDBUsage($dSourceref, undef);
+      $ds_size = $capacity_hash->{totalsize} * 1024;
+      $totalsize = $totalsize + $ds_size;
+      $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
+
     } else {
+      logger($debug, "SDD replica",2);
       $dsourcename = 'notlocal';
+      my $held_array = $capacity->getStorageContainers();
+      my $held_hash;
+      my $held_size = 0;
+      my $held_snapshot = 0;
+      if (scalar(@{$held_array}) > 0) {
+        # as don't know which held space belongs to what ( lack of storage container translation )
+        # we need to sum all
+        for my $hs (@{$held_array}) {
+
+          $held_hash = $capacity->getDetailedDBUsage($hs, undef);
+          $held_snapshot = $held_snapshot + $held_hash->{snapshots_total};
+          $held_size = $held_size + $held_hash->{totalsize};
+        }
+      }
+
+      $ds_size = $held_size*1024;
+      $totalsize = $totalsize + $ds_size;
+      $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
     }
 
     my $snapshots = new Snapshot_obj( $engine_obj, $dbobj->getParentContainer(), undef, $debug);
-    #
-    # my @snapdblist;
-    #
-    # push(@snapdblist, $dbitem);
-    # push(@snapdblist, $dSourceref);
-    #
-    # @snapdblist = uniq(@snapdblist);
-    #
-    # print Dumper "SNAPSHOTY DLA";
-    # print Dumper \@snapdblist;
-    #
-    # $snapshots->getSnapshotList(\@snapdblist);
 
 
-    print Dumper "order";
-
-    print Dumper $timeflows->getTimeflowsForContainer($dbitem);
-
-    print Dumper sort { Toolkit_helpers::sort_by_number($b,$a) } @{$timeflows->getTimeflowsForContainer($dbitem)};
-
+    # going into timeflow list
 
 
     for my $dbtimeflow ( sort { Toolkit_helpers::sort_by_number($b,$a) } @{$timeflows->getTimeflowsForContainer($dbitem)}) {
 
-      my $totalsize = $dbsize;
-      $ds_size = 0;
+      # for each timeflow - find a dSource snapshot
+      # to update a global view
 
       my ($dsourcetf, $topchildtf) = $timeflows->finddSource( $dbtimeflow, $hier, 1);
 
@@ -236,212 +258,181 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $dsourcesnapshot_size;
       my $dsourcesnapshot_name;
       if ($dSourceref ne 'notlocal') {
+        logger($debug, "normal replication",2);
         $dsourcesnapshot = $timeflows->getParentSnapshot($topchildtf);
-        print Dumper "JAKI SNAP 1";
-        print Dumper $dsourcesnapshot;
         if ($dsourcesnapshot eq '') {
-          # parent snapshot deleted ( possible on replica engine)
+          logger($debug, "parent snapshot deleted ( possible on replica engine)",2);
           $dsourcesnapshot = 'N/A';
           $dsourcesnapshot_name = 'unowned space';
           $dsourcesnapshot_size = 'N/A';
-
-          my $capacity_hash = $capacity->getDetailedDBUsage($dbobj->getParentContainer(), undef);
-
-          $dsourcesnapshot_size = sprintf("%12.2f",$capacity_hash->{unownedSnapshotSpace} * 1024);
-
-
         } else {
+          logger($debug, "load and read snapshot data",2);
           ($dsourcesnapshot_name, $dsourcesnapshot_size) = get_snapshot_data($snapshots, \%snapshot_sizes, $dsourcesnapshot, $snapname);
         }
       } else {
+        logger($debug, "SDD replication - there will be parent snapshot - held space",2);
         $dsourcesnapshot = 'N/A';
         $dsourcesnapshot_name = 'N/A';
         $dsourcesnapshot_size = 'heldspace';
-        print Dumper "JAKI SNAP 2";
-        print Dumper $dsourcesnapshot;
+
       }
 
 
 
-
-      my $timeflow_list = $timeflows->returnParentHier($dbtimeflow, $hier);
-
-      my $parentdbname;
-      my $parentsnap_name;
-      my $parentsnap_size;
-      my $parent_db;
-      my $parenttf;
-      my $timeflowname;
-      my $locked_snaps;
+      if (defined($parent)) {
+        # this should only go with parent flag
 
 
-      print Dumper "list my timeflows to go through";
-      print Dumper \@{$timeflow_list};
+          my $timeflow_list = $timeflows->returnParentHier($dbtimeflow, $hier);
 
-      for my $tf (@{$timeflow_list}) {
-        my $currobj = $databases->getDB($timeflows->getContainer($tf->{ref}));
-
-        print Dumper "moja dsource tu ?";
-        print Dumper $dSourceref;
-
-
-        if ($currobj->getType() eq 'VDB') {
-          my $parentsnap = $timeflows->getParentSnapshot($tf->{ref});
-
-          print Dumper "snap from timeflow";
-          print Dumper $parentsnap;
-
-          if ($parentsnap ne '') {
-            ($parentsnap_name, $parentsnap_size, $parent_db, $parenttf) = get_snapshot_data($snapshots, \%snapshot_sizes, $parentsnap, $snapname);
-            print Dumper $parentsnap_name;
-            print Dumper $parentsnap_size;
-            print Dumper $parent_db;
-            $totalsize = $totalsize + $parentsnap_size;
-            $timeflowname = $timeflows->getName($parenttf);
-            $parentdbname = $databases->getDB($parent_db)->getName();
-
-            if ($databases->getDB($parent_db)->getType() eq 'dSource') {
-                 #&& ($databases->getDB($parent_db)->isReplica() eq 'YES')) {
-              my $capacity_hash = $capacity->getDetailedDBUsage($parent_db, undef);
-              if ((defined($capacity_hash->{snapshots_shared})) && ($capacity_hash->{snapshots_shared} eq 0) && ($capacity_hash->{snapshots_total} eq 0)) {
-                # storage info not found - maybe database is deleted
-                # skipping it
-                #next;
-                print Dumper "aaa";
-                print Dumper "REFRESH - info";
-              }
-
-              print Dumper $capacity_hash;
-
-
-              $ds_size = $capacity_hash->{totalsize} * 1024;
-              $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
-              $totalsize = $totalsize + $ds_size;
-            }
-
-          } else {
-            # fail back to print a parent database from current database not snapshot
-            $parent_db = $dbobj->getParentContainer();
-            if ($parent_db eq '') {
-              $parentdbname = 'N/A';
-            } else {
-              $parentdbname = $databases->getDB($parent_db)->getName();
-            }
+          my $parentdbname;
+          my $parentsnap_name;
+          my $parentsnap_size;
+          my $parent_db;
+          my $parenttf;
+          my $timeflowname;
 
 
 
-            $timeflowname = 'N/A';
+          # print Dumper "list my timeflows to go through";
+          # print Dumper \@{$timeflow_list};
 
-            print Dumper "type of timeflow";
-            print Dumper $tf->{ref};
-            print Dumper $timeflows->isReplica($tf->{ref});
-            print Dumper $timeflows->getName($tf->{ref});
+          for my $tf (@{$timeflow_list}) {
+            my $currobj = $databases->getDB($timeflows->getContainer($tf->{ref}));
 
-            if ($timeflows->isReplica($tf->{ref}) eq 'YES') {
-              $parentsnap_size = 'heldspace';
-              $parentsnap_name = 'not local';
+            if ($currobj->getType() eq 'VDB') {
+              my $parentsnap = $timeflows->getParentSnapshot($tf->{ref});
 
-              print Dumper "GET HELD SPACE SIZE";
-              my $held_array = $capacity->getStorageContainers();
-              my $held_hash;
-              my $held_size = 0;
-              if (scalar(@{$held_array}) > 0) {
-                # as don't know which held space belongs to what ( lack of storage container translation )
-                # we need to sum all
-                for my $hs (@{$held_array}) {
+              logger($debug, "snap from timeflow " . Dumper $parentsnap , 2);
 
-                  $held_hash = $capacity->getDetailedDBUsage($hs, undef);
-                  print Dumper $held_hash;
 
-                  $held_size = $held_size + $held_hash->{totalsize};
+              if ($parentsnap ne '') {
+                ($parentsnap_name, $parentsnap_size, $parent_db, $parenttf) = get_snapshot_data($snapshots, \%snapshot_sizes, $parentsnap, $snapname);
+
+                logger($debug, "parent snapshot exists", 2);
+
+                $totalsize = $totalsize + $parentsnap_size;
+                $timeflowname = $timeflows->getName($parenttf);
+                $parentdbname = $databases->getDB($parent_db)->getName();
+
+                if ($databases->getDB($parent_db)->getType() eq 'dSource') {
+                     #&& ($databases->getDB($parent_db)->isReplica() eq 'YES')) {
+                  my $capacity_hash = $capacity->getDetailedDBUsage($parent_db, undef);
+                  if ((defined($capacity_hash->{snapshots_shared})) && ($capacity_hash->{snapshots_shared} eq 0) && ($capacity_hash->{snapshots_total} eq 0)) {
+                    # storage info not found - maybe database is deleted
+                    # skipping it
+                    #next;
+                    print("Capacity data not found. Try with -forcerefesh option\n");
+                    $ret = $ret + 1;
+                    next;
+                  }
+
+                  $ds_size = $capacity_hash->{totalsize} * 1024;
+                  #$locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
+                  #$totalsize = $totalsize + $ds_size;
                 }
-              }
 
-              print Dumper "END OF HELD SPACE SIZE";
-
-              $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
-              $ds_size = $held_size*1024;
-              $totalsize = $totalsize + $ds_size;
-
-            } else {
-              print Dumper "jestem tu bo snapshota zabali mi";
-              my $parenttime = $timeflows->getParentPointTimestampWithTimezone($tf->{ref}, $dbobj->getTimezone());
-
-              $parentsnap_name = 'deleted - ' . $parenttime;
-
-              print Dumper "czy ma mam vatera";
-              print Dumper $parent_db;
-
-
-
-              # tu jestem jak nie ma snapshota - ale gzie jestem jak jest snapshota
-
-              print Dumper "mam dsource tu ?";
-              print Dumper $dSourceref;
-
-
-              if ($dSourceref ne 'notlocal') {
-                print Dumper "normal replication with deleted snapshot";
-                my $capacity_hash = $capacity->getDetailedDBUsage($dSourceref, undef);
-                $ds_size = $capacity_hash->{totalsize} * 1024;
-                $parentsnap_size = $capacity_hash->{unownedSnapshotSpace} * 1024;
-                $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024) ;
-                $totalsize = $totalsize + $ds_size;
               } else {
+                # fail back to print a parent database from current database not snapshot
+                $parent_db = $dbobj->getParentContainer();
+                if ($parent_db eq '') {
+                  $parentdbname = 'N/A';
+                } else {
+                  $parentdbname = $databases->getDB($parent_db)->getName();
+                }
 
 
 
-                # nie koniecznie dSource->VDB->VDB zrobi to samo
+                $timeflowname = 'N/A';
+
+                logger($debug, "type of timeflow",2);
+                logger($debug, $tf->{ref}, 2);
+                logger($debug, $timeflows->isReplica($tf->{ref}), 2);
+                logger($debug, $timeflows->getName($tf->{ref}), 2);
+
+                if ($timeflows->isReplica($tf->{ref}) eq 'YES') {
+                  $parentsnap_size = 'heldspace';
+                  $parentsnap_name = 'not local';
+
+                  logger($debug, "GET HELD SPACE SIZE",2);
+                  my $held_array = $capacity->getStorageContainers();
+                  my $held_hash;
+                  my $held_size = 0;
+                  if (scalar(@{$held_array}) > 0) {
+                    # as don't know which held space belongs to what ( lack of storage container translation )
+                    # we need to sum all
+                    for my $hs (@{$held_array}) {
+
+                      $held_hash = $capacity->getDetailedDBUsage($hs, undef);
+                      #print Dumper $held_hash;
+
+                      $held_size = $held_size + $held_hash->{totalsize};
+                    }
+                  }
+                  #$locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
+                  $ds_size = $held_size*1024;
+                  #$totalsize = $totalsize + $ds_size;
+
+                } else {
+                  logger($debug, "parent snapshot deleted - find a parent time point", 2);
+                  my $parenttime = $timeflows->getParentPointTimestampWithTimezone($tf->{ref}, $dbobj->getTimezone());
+
+                  $parentsnap_name = 'deleted - ' . $parenttime;
+
+                  if ($dSourceref ne 'notlocal') {
+                    logger($debug, "normal replication with deleted snapshot", 2);
+                    my $capacity_hash = $capacity->getDetailedDBUsage($dSourceref, undef);
+                    $ds_size = $capacity_hash->{totalsize} * 1024;
+                    $parentsnap_size = $capacity_hash->{unownedSnapshotSpace} * 1024;
+                    $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024) ;
+                    #$totalsize = $totalsize + $ds_size;
+                  } else {
+
+                    logger($debug, "SDD with deleted snapshot", 2);
+                    my $held_array = $capacity->getStorageContainers();
+                    my $held_hash;
+                    my $held_size = 0;
+                    my $held_snapshot = 0;
+                    if (scalar(@{$held_array}) > 0) {
+                      # as don't know which held space belongs to what ( lack of storage container translation )
+                      # we need to sum all
+                      for my $hs (@{$held_array}) {
+
+                        $held_hash = $capacity->getDetailedDBUsage($hs, undef);
+                        #print Dumper $held_hash;
+                        $held_snapshot = $held_snapshot + $held_hash->{snapshots_total};
+                        $held_size = $held_size + $held_hash->{totalsize};
+                      }
+                    }
+
+                    $parentsnap_size = sprintf("%12.2f",$held_snapshot * 1024);
+                    $locked_snaps = 0;
+                    $ds_size = $held_size*1024;
+                    #$totalsize = $totalsize + $ds_size;
 
 
-
-                print Dumper "SDD with deleted snapshot";
-
-
-                print Dumper "GET HELD SPACE SIZE for deleted snapshot";
-                my $held_array = $capacity->getStorageContainers();
-                my $held_hash;
-                my $held_size = 0;
-                my $held_snapshot = 0;
-                if (scalar(@{$held_array}) > 0) {
-                  # as don't know which held space belongs to what ( lack of storage container translation )
-                  # we need to sum all
-                  for my $hs (@{$held_array}) {
-
-                    $held_hash = $capacity->getDetailedDBUsage($hs, undef);
-                    print Dumper $held_hash;
-                    $held_snapshot = $held_snapshot + $held_hash->{snapshots_total};
-                    $held_size = $held_size + $held_hash->{totalsize};
                   }
                 }
-
-                print Dumper "END OF HELD SPACE SIZE deleted snapshot";
-                $parentsnap_size = sprintf("%12.2f",$held_snapshot * 1024);
-                $locked_snaps = 0;
-                $ds_size = $held_size*1024;
-                $totalsize = $totalsize + $ds_size;
-
-
               }
+
+              $output->addLineRev(
+                  '',
+                  '',
+                  '',
+                  '',
+                  '',
+                  $parentdbname,
+                  $timeflowname,
+                  $parentsnap_name,
+                  $parentsnap_size,
+                  '',
+                  '',
+                  ''
+              )
+
             }
+
           }
-          if (defined($parent)) {
-            $output->addLineRev(
-                '',
-                '',
-                '',
-                '',
-                '',
-                $parentdbname,
-                $timeflowname,
-                $parentsnap_name,
-                $parentsnap_size,
-                '',
-                '',
-                ''
-            )
-          }
-        }
 
       }
 
@@ -477,7 +468,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
         }
 
-        print Dumper "end of timeflow loop";
+        logger($debug, "end of timeflow loop",2);
 
     }
 
