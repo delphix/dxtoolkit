@@ -243,6 +243,39 @@ Turn on debugging
 
 =back
 
+=head1 COLUMNS
+
+Columns description
+
+=over 1
+
+=item B<Appliance> - Delphix Engine name from dxtools.conf file
+
+=item B<Status> - Status of Delphix Engine
+
+=item B<Version> - Version of Delphix Engine
+
+=item B<Total> - Total storage allocated to Delphix Engine
+
+=item B<Used> - Used space. Up to version 6.0.7 this is space used by data objects. Since 6.0.7 this include a reserved space as well.
+
+=item B<Free> - Free space on engine
+
+=item B<PctUsed> - Percent of used space
+
+=item B<dSource#> - Number of dSources on the engine
+
+=item B<VDBs#> - Number of VDBs on the engine
+
+=item B<Total Objects> - Total number of objects on the engine
+
+=item B<vCpu> - No of vCPU allocated to the engine
+
+=item B<vMem> - Size of memory allocated to the engine
+
+=back
+
+
 =head1 EXAMPLES
 
 Display a Delphix Engine summary
@@ -253,5 +286,12 @@ Display a Delphix Engine summary
  -------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- --------
  Landshark5           UP       5.0.5.1  28.82      5.20       23.62      0.18       8        4        12
 
+Display a Delphix Engine details 
+
+  dx_get_appliance.pl -d dxt1 -details
+
+  Appliance            Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob vCpu     vMem [GB]
+  -------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- -------- -------- ---------
+  dxt1                 UP       6.0.11.0 33.42      9.17       24.25      27.44      1        2        3        4           15.88
 
 =cut

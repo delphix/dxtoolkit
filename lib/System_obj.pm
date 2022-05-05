@@ -75,12 +75,36 @@ sub getStorage
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getStorage",1);
-    my %stor = (
-        Total => sprintf("%2.2f",$self->{_system}->{storageTotal}/1024/1024/1024),
-        Used => sprintf("%2.2f",$self->{_system}->{storageUsed}/1024/1024/1024),
-        Free => sprintf("%2.2f",($self->{_system}->{storageTotal} - $self->{_system}->{storageUsed})/1024/1024/1024),
-        pctused => sprintf("%2.2f",$self->{_system}->{storageUsed} / $self->{_system}->{storageTotal} * 100)
-    );
+    my %stor;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.6)) {
+      %stor = (
+          Total => sprintf("%2.2f",$self->{_system}->{storageTotal}/1024/1024/1024),
+          Used => sprintf("%2.2f",$self->{_system}->{storageUsed}/1024/1024/1024),
+          Free => sprintf("%2.2f",($self->{_system}->{storageTotal} - $self->{_system}->{storageUsed})/1024/1024/1024),
+          pctused => sprintf("%2.2f",$self->{_system}->{storageUsed} / $self->{_system}->{storageTotal} * 100)
+      );
+
+    } else {
+      # now Delphix is adding reserved space to used
+      my $reserved = $self->{_system}->{storageTotal} * 0.1;
+
+      if ($reserved>1024 * 1024 * 1024 * 1024) {
+        # max reserverd is 1 TB
+        $reserved = 1024 * 1024 * 1024 * 1024;
+      }
+
+      my $used = $self->{_system}->{storageUsed} + $reserved;
+
+      %stor = (
+          Total => sprintf("%2.2f",$self->{_system}->{storageTotal}/1024/1024/1024),
+          Used => sprintf("%2.2f", $used/1024/1024/1024),
+          Free => sprintf("%2.2f",($self->{_system}->{storageTotal} - $used)/1024/1024/1024),
+          pctused => sprintf("%2.2f",$used / $self->{_system}->{storageTotal} * 100)
+      );
+
+    }
+
     return \%stor;
 }
 
