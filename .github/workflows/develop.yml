@@ -171,7 +171,7 @@ jobs:
 
 
   oel8:
-    needs: [centos8]
+    needs: [centos7]
     runs-on: ubuntu-latest
 
     steps:
