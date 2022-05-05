@@ -1,3 +1,20 @@
+## 2.4.15.1
+
+### Added
+- [enhancement #194](https://github.com/delphix/dxtoolkit/issues/194) Last refresh date added to dx_get_db_env as a new column
+- dx_get_source_info is displaying now a status for Validated Sync opertion for MS SQL and Sybase
+- dx_get_db_env has a new column showing last VDB refresh time
+- dx_get_vdbsize - new script to display total storage used by VDB
+
+
+### Changed
+- [bug #197](https://github.com/delphix/dxtoolkit/issues/197) dx_get_db_env is displaying now a parent snapshot / time of the parent dSource / VDB - not a rollback one
+- [bug #185](https://github.com/delphix/dxtoolkit/issues/185) dx_get_db_env is not displaying errors for replicated objects
+- [bug #190](https://github.com/delphix/dxtoolkit/issues/190) dx_provision_db works with None snapshot policy
+- [bug #198](https://github.com/delphix/dxtoolkit/issues/198) dx_get_source_info failing with vFiles dSources
+- [bug #199](https://github.com/delphix/dxtoolkit/issues/199) reserved space added to dx_get_appliance
+
+
 ## 2.4.14.1
 
 ### Changed

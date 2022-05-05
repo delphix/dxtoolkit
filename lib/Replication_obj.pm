@@ -263,7 +263,18 @@ sub getEnabled {
   logger( $self->{_debug}, "Entering Replication_obj::getEnabled", 1 );
 
   my $replication = $self->{_replication};
-  return $replication->{$reference}->{enabled} ? 'ENABLED' : 'DISABLED';
+
+  my $ret;
+
+  print Dumper $replication->{$reference};
+
+  if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
+    $ret = $replication->{$reference}->{enabled} ? 'ENABLED' : 'DISABLED';
+  } else {
+    $ret = $replication->{$reference}->{automaticReplication} ? 'ENABLED' : 'DISABLED';
+  }
+
+  return $ret;
 }
 
 # Procedure getTargetHost

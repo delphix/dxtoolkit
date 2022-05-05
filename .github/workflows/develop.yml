@@ -169,9 +169,56 @@ jobs:
         name: cento6build
         path: ${{ env.FILENAME }}
 
+
+  oel8:
+    needs: [centos7]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperloel8:5.26
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat8-installer.tar.gz"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        gzip dxtoolkit.tar
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload oel 8
+      uses: actions/upload-artifact@v1
+      with:
+        name: oel8build
+        path: ${{ env.FILENAME }}
+
+
+
   Windows:
     needs: [centos7]
-    runs-on: windows-2016
+    runs-on: windows-latest
 
     steps:
     - name: checkout dxtoolkit code

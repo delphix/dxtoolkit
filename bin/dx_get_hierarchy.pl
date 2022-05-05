@@ -129,7 +129,14 @@ if (defined($parent_engine)) {
 
   $engine_parent = new Engine ($dever, $debug);
   $engine_parent->load_config($config_file);
-  $engine_parent->dlpx_connect($parent_engine);
+
+
+  if ($engine_parent->dlpx_connect($parent_engine)) {
+    print "Can't connect to Dephix Engine $parent_engine\n\n";
+    $ret = $ret + 1;
+    exit $ret;
+  };
+
 
   # load objects for current engine
   $databases_parent = new Databases( $engine_parent, $debug);

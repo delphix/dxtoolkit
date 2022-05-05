@@ -257,6 +257,20 @@ sub addLine {
 	push(@{$self->{_lines}}, \@columns);
 }
 
+# Procedure addLineRev
+# parameters:
+# - array of columns
+# Adding a line with columns defined in parameter to internal array
+
+sub addLineRev {
+	my $self = shift;
+	my @columns = @_;
+  logger($self->{_debug}, "Entering Formater::addLineRev",1);
+
+	unshift(@{$self->{_lines}}, \@columns);
+}
+
+
 # Procedure addHeader
 # parameters:
 # - array of hashes { col_name : size }

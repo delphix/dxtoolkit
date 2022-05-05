@@ -987,10 +987,15 @@ sub getEnabled
 
     } else {
 
-        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
-            $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
+        if ($self->isReplica() eq 'YES') {
+            $ret = 'N/A';
         } else {
-            $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
+
+          if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.5.0)) {
+              $ret = $self->{source}->{enabled} ? "enabled" : "disabled";
+          } else {
+              $ret = ($self->{source}->{runtime}->{enabled} eq 'ENABLED')  ? "enabled" : "disabled"
+          }
         }
     }
 
@@ -2069,6 +2074,64 @@ sub getBCT
     my $self = shift;
     logger($self->{_debug}, "Entering VDB_obj::getBCT",1);
 
+    return 'N/A';
+}
+
+# Procedure getValidatedMode
+# parameters:
+
+sub getValidatedMode {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedMode",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeState
+# parameters:
+
+sub getValidatedModeState {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeState",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeStatus {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeStatus",1);
+    return 'N/A' ;
+}
+
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeAction {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeAction",1);
+    return 'N/A' ;
+}
+
+# Procedure getValidatedModeStatus
+# parameters:
+
+sub getValidatedModeUpdate {
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getValidatedModeUpdate",1);
+    return 'N/A' ;
+}
+
+
+# Procedure getLogSync
+# parameters: none
+# Return status of Log Sync
+
+sub getLogSync
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering VDB_obj::getLogSync",1);
     return 'N/A';
 }
 

@@ -180,6 +180,7 @@ __DATA__
  dx_get_dsourcesize  [-engine|d <delphix identifier> | -all ]
                      [-group group_name | -name db_name | -host host_name | -envname env_name ]
                      [-format csv|json ]
+                     [-license ]
                      [-help|? ]
                      [-debug ]
 
@@ -237,6 +238,8 @@ Environment name
 
 =over 3
 
+=item B<-license>
+Use License API to display dSource sizes
 
 =item B<-format>
 Display output in csv or json format
@@ -274,6 +277,20 @@ Display dSources sizes from all configured engines in csv format
   Landshark5,LINUXSOURCE,Sources,Oracle 121,6.46,UNKNOWN,disabled
   Landshark5,LINUXSOURCE,Sources,Oracle 122,7.30,UNKNOWN,disabled
   Landshark5,LINUXSOURCE,Sources,test121,7.49,RUNNING,enabled
+
+Display dSource sizes for license
+
+  dx_get_dsourcesize -d local -license
+  # Delphix can automatically calculate the usage for Oracle, SQL Server and ASE databases for each Delphix Engine.
+  # For other databases, and before the source is connected to the Delphix Engine
+  # you will need to run a query on the source system for the relevant data.
+  # No size for FS_ABC. Skipping
+
+  Appliance  Type                                     Database                                 Size [GB]
+  ---------- ---------------------------------------- ---------------------------------------- ------------------------------
+  local      ORACLE                                   single_oracle_source_19c                     449.78
+  local      MSSQL                                    msprod1                                     2465.20
+
 
 
 =cut

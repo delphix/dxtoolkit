@@ -81,6 +81,7 @@ GetOptions(
   'backup=s' => \(my $backup),
   'olderthan=s' => \(my $creationtime),
   'save=s' => \(my $save),
+  'timeflowparent' => \(my $timeflowparent),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
   'version' => \(my $print_version),
@@ -236,7 +237,8 @@ if (defined($backup)) {
       {'Enabled'        ,10},
       {'Unique Name'    ,30},
       {'Parent time'    ,35},
-      {'VDB creation time'    ,35}
+      {'VDB creation time',35},
+      {'VDB refresh time' ,35}
     );
   }
 }
@@ -326,6 +328,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $snaploaded = 0;
 
+  my $refreshdate;
+
   # for filtered databases on current engine - display status
   for my $dbitem ( @db_display_list ) {
     my $dbobj = $databases->getDB($dbitem);
@@ -406,8 +410,30 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     } else {
 
-      $parentsnap = $timeflows->getParentSnapshot($dbobj->getCurrentTimeflow());
+      my $timeflow_for_parent;
 
+      if ($dbobj->getType() eq 'VDB') {
+        my $hier = $timeflows->generateHierarchy(undef, undef, $databases);
+
+        $refreshdate = $timeflows->findrefreshtime($dbobj->getCurrentTimeflow(), $hier, $dbobj->getReference());
+
+
+
+
+        if (defined($timeflowparent)) {
+          # old behaviour - it will show a rollback as a parent
+          # add flag -timeflowparent to activate
+          $timeflow_for_parent = $dbobj->getCurrentTimeflow();
+        } else {
+          # fixed behaviour - it will always display a snapshot of parent used for refresh
+          $timeflow_for_parent = $timeflows->findrefresh($dbobj->getCurrentTimeflow(), $hier, $dbobj->getReference());
+        }
+      } else {
+        $refreshdate = 'N/A';
+      }
+
+
+      $parentsnap = $timeflows->getParentSnapshot($timeflow_for_parent);
       if (lc $parentlast eq 'p') {
         if (($parentsnap ne '') && ($dbobj->getType() eq 'VDB')) {
           if (defined($snapshots)) {
@@ -430,9 +456,9 @@ for my $engine ( sort (@{$engine_list}) ) {
             $ret = $ret + 1;
           }
           ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
-          $parenttime = $timeflows->getParentPointTimestampWithTimezone($dbobj->getCurrentTimeflow(), $timezone);
+          $parenttime = $timeflows->getParentPointTimestampWithTimezone($timeflow_for_parent, $timezone);
           if (defined($parenttime) && ($parenttime eq 'N/A')) {
-            my $loc = $timeflows->getParentPointLocation($dbobj->getCurrentTimeflow());
+            my $loc = $timeflows->getParentPointLocation($timeflow_for_parent);
             my $lastsnaploc = $snapshots->getlatestChangePoint($parentsnap);
             if ( $loc != $lastsnaploc) {
               $parenttime = $loc;
@@ -507,7 +533,8 @@ for my $engine ( sort (@{$engine_list}) ) {
           $dbobj->getEnabled(),
           $uniquename,
           $parenttime,
-          $crtime
+          $crtime,
+          $refreshdate
         );
       }
 
@@ -682,6 +709,12 @@ is switching logic to read one snapshot per VDB. It should be used for Engines
 with many (1000's) snapshots
 
 
+=item B<-timeflowparent>
+By default Parent Snapshot / Parent time will display a parent object snapshot used for provisioning
+or last refresh operation. With this flag set, dxtoolkit will use an old behaviour and
+display a timeflow parent snapshot which may be a parent database snapshot for provisioning / refresh
+or a current VDB snapshot if rollback operation was done.
+
 =item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
@@ -733,6 +766,10 @@ Columns description
 =item B<Unique Name> - Oracle database unique name
 
 =item B<Parent time> - Parent time used for VDB provision (it can be snapshot time or exact time selected )
+
+=item B<VDB creation time> - VDB creation time
+
+=item B<VDB refresh time> - Last refresh time for VDB
 
 =back
 

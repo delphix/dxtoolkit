@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.14.1';
+our $version = '2.4.15.1';
 
 my $tz = new Date::Manip::TZ;
 my $dt = new Date::Manip::Date;
@@ -401,11 +401,12 @@ sub get_engine_list {
 
 	if (defined($all) ) {
 	  # processing all engines
-		if (defined($sysadmin)) {
-			@engine_list = $engine_obj->getAllSysadminEngines();
-		} else {
-	  	@engine_list = $engine_obj->getAllNonSysadminEngines();
-		}
+		@engine_list = $engine_obj->getAllEngines();
+			# if (defined($sysadmin)) {
+			# 	@engine_list = $engine_obj->getAllSysadminEngines();
+			# } else {
+		  # 	@engine_list = $engine_obj->getAllNonSysadminEngines();
+			# }
 	} elsif (defined($dx_host)) {
 	  # processing one engine
 	  push(@engine_list, $dx_host);

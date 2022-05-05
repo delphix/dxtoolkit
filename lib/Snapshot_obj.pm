@@ -85,6 +85,19 @@ sub getContainer {
 }
 
 
+# Procedure getContainer
+# parameters: refrerence
+# Return cointainer for reference
+
+sub getSnapshotContainer {
+    my $self = shift;
+    my $reference = shift;
+    logger($self->{_debug}, "Entering Snapshot_obj::getContainer",1);
+
+    return $self->{_snapshots}->{$reference}->{container};
+}
+
+
 # Procedure getSnapshotType
 # parameters: refrerence
 # Return type for reference
