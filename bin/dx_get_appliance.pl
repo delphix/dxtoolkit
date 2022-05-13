@@ -74,6 +74,7 @@ my $output = new Formater();
 if (defined($details)) {
   $output->addHeader(
     {'Appliance', 20},
+    {'UUID',40},
     {'Status',  8},
     {'Version', 8},
     {'Total (GB)', 10},
@@ -112,6 +113,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($details)) {
       $output->addLine(
         $engine,
+	"",
         $status,
         "",
         "",
@@ -156,6 +158,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($details)) {
     $output->addLine(
       $engine,
+      $system->getUUID(),
       $status,
       $system->getVersion(),
       $storageinfo->{Total},
@@ -288,10 +291,10 @@ Display a Delphix Engine summary
 
 Display a Delphix Engine details 
 
-  dx_get_appliance.pl -d dxt1 -details
+ dx_get_appliance.pl -d dxt1 -details
 
-  Appliance            Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob vCpu     vMem [GB]
-  -------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- -------- -------- ---------
-  dxt1                 UP       6.0.11.0 33.42      9.17       24.25      27.44      1        2        3        4           15.88
+ Appliance            UUID                                     Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob vCpu     vMem [GB]
+ -------------------- ---------------------------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- -------- -------- ---------
+ dlpx                 564d754d-eb0f-bb3e-15a2-f45c08d0ae24     UP       6.0.12.1 21.80      7.40       14.40      33.94      1        0        1        2            8.00
 
 =cut
