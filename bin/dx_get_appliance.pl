@@ -74,7 +74,6 @@ my $output = new Formater();
 if (defined($details)) {
   $output->addHeader(
     {'Appliance', 20},
-    {'UUID',40},
     {'Status',  8},
     {'Version', 8},
     {'Total (GB)', 10},
@@ -85,7 +84,8 @@ if (defined($details)) {
     {'VDBs#',      8},
     {'Total Objects', 8},
     {'vCpu',  8},
-    {'vMem [GB]',  9}
+    {'vMem [GB]',  9},
+    {'UUID',40}
   );
 } else {
   $output->addHeader(
@@ -113,8 +113,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($details)) {
       $output->addLine(
         $engine,
-	"",
         $status,
+        "",
         "",
         "",
         "",
@@ -158,7 +158,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   if (defined($details)) {
     $output->addLine(
       $engine,
-      $system->getUUID(),
       $status,
       $system->getVersion(),
       $storageinfo->{Total},
@@ -169,7 +168,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       scalar(@vdb),
       scalar(@dsource) +  scalar(@vdb),
       $system->getvCPU(),
-      sprintf("%8.2f",$system->getvMem())
+      sprintf("%8.2f",$system->getvMem()),
+      $system->getUUID()
     );
   } else {
     $output->addLine(
@@ -293,8 +293,8 @@ Display a Delphix Engine details
 
  dx_get_appliance.pl -d dxt1 -details
 
- Appliance            UUID                                     Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob vCpu     vMem [GB]
- -------------------- ---------------------------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- -------- -------- ---------
- dlpx                 564d754d-eb0f-bb3e-15a2-f45c08d0ae24     UP       6.0.12.1 21.80      7.40       14.40      33.94      1        0        1        2            8.00
+ Appliance            Status   Version  Total (GB) Used (GB)  Free (GB)  PctUsed(%) dSource# VDBs#    Total Ob vCpu     vMem [GB] UUID
+ -------------------- -------- -------- ---------- ---------- ---------- ---------- -------- -------- -------- -------- --------- ----------------------------------------
+ dxt1                 UP       6.0.12.1 21.80      7.62       14.18      34.96      1        0        1        2            8.00  564d754d-eb0f-bb3e-15a2-f45c08d0ae24
 
 =cut
