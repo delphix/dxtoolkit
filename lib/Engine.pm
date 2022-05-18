@@ -1655,7 +1655,7 @@ sub getLicenseUsage {
        my $type;
        for my $db (@{$result->{"result"}->{"sourceIngestionData"}}) {
          $db->{"containerType"} =~ s/_DB_CONTAINER//;
-         push(@dblist, { "name"=> $db->{"sourceName"}, "type"=>$db->{"containerType"}, "size"=> $db->{"ingestedSize"} });
+         push(@dblist, { "timestamp"=>$db->{"timestamp"}, "name"=> $db->{"sourceName"}, "type"=>$db->{"containerType"}, "size"=> $db->{"ingestedSize"} });
        }
        $res{"databases"} = \@dblist;
    } else {
