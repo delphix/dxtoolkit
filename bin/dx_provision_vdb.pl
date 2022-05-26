@@ -115,6 +115,11 @@ GetOptions(
   'vcdbrac_instance=s@' => \(my $vcdbrac_instance),
   'customerenvfile=s@' => \(my $customerenvfile),
   'customerenvpair=s@' => \(my $customerenvpair),
+  'tdeparentpassword=s' => \(my $tdeparentpassword),
+  'tdeparentpath=s' => \(my $tdeparentpath),
+  'tdeexportsecret=s' => \(my $tdeexportsecret),
+  'tdecdbpassword=s' => \(my $tdecdbpassword),
+  'tdekeyid=s' => \(my $tdekeyid),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -192,6 +197,14 @@ if (defined($maskedbyscript) && defined($maskingjob)) {
   pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
 }
+
+
+if ((defined($tdeparentpath) || defined($tdeparentpassword) || defined($tdeexportsecret))
+     && (! (defined($tdeparentpath) && defined($tdeparentpassword) && defined($tdeexportsecret) ) ) ) {
+       print "To setup TDE all parameters are required: tdeparentpassword, tdeparentpath, tdeexportsecret \n";
+       pod2usage(-verbose => 1, -input=>\*DATA);
+       exit (1);
+     }
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -595,6 +608,33 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
+
+    if (defined($tdecdbpassword)) {
+      my $sourceconfigs = $databases->get_sourceconfigs();
+      my $cdb_sourceconfig_obj = $sourceconfigs->getSourceConfigByName($cdb);
+      if (!defined($cdb_sourceconfig_obj)) {
+        print "CDB $cdb not found or has a duplicate\n";
+        $ret = $ret + 1;
+        next;
+      }
+
+      my $jobno = $sourceconfigs->update_cdb_tde_password( $cdb_sourceconfig_obj->{reference}, $tdecdbpassword );
+      if (defined($jobno)) {
+        if (Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with setting TDE password for CDB")) {
+          $ret = $ret + 1;
+          next;
+        }
+      }
+    }
+
+    if (defined($tdeparentpassword)) {
+      if ($db->setupTDE($tdeparentpassword, $tdeparentpath, $tdeexportsecret, $tdekeyid)) {
+        print "Problem with TDE setup\n";
+        $ret = $ret + 1;
+        next;
+      }
+    }
+
     $jobno = $db->createVDB($group,$environment,$envinst,$rac_instance, $cdb);
 
   }
@@ -731,6 +771,11 @@ __DATA__
                   [-vcdbrac_instance env_node,instance_name,instance_no]
                   [-customerenvfile path_to_env_file[,nodename]]
                   [-customerenvpair key,value[,nodename]]
+                  [-tdeparentpassword tde_parent_keystore_password
+                   -tdeparentpath tde_parent_keystore_path
+                   -tdeexportsecret tde_export_secret]
+                  [-tdekeyid tde_key_id]
+                  [-tdecdbpassword tde_cdb_keystore_password]
                   [-help] [-debug]
 
 
@@ -938,6 +983,22 @@ In the cluster environment, nodename is a name of node there this environment fi
 If there is no nodename in cluster environment, it will be implemented to all nodes.
 
 
+=item B<-tdeparentpassword tde_parent_keystore_password>
+Password for parent keystore for Oracle TDE MT support
+
+=item B<-tdeparentpath tde_parent_keystore_path>
+Path to parent keystore for Oracle TDE MT support
+
+=item B<-tdeexportsecret tde_export_secret>
+Secret to protect exported keys for Oracle TDE MT support
+
+=item B<-tdekeyid tde_key_id>
+Key id to use for Oracle TDE MT support (this is an optional parameter)
+
+=item B<-tdecdbpassword tde_cdb_keystore_password>
+Password for an existing target CDB keystore (this is an optional parameter is password of the CDB is already set)
+
+
 =back
 
 =head2 Hooks
@@ -1040,6 +1101,10 @@ Provision an Oracle vPDB using a virtual vCDB
  Job JOB-203 finished with state: COMPLETED
  VDB created..
 
+Provision an Oracle vPDB with TDE
+
+
+
 Provision a Sybase VDB using a latest snapshot
 
  dx_provision_vdb -d Landshark -group Analytics -sourcename 'ASE pubs3 DB' -targetname testsybase -dbname testsybase -environment LINUXTARGET -type sybase -envinst LINUXTARGET
@@ -1084,5 +1149,6 @@ Provision a MS SQL using a snapshot from "2015-09-23 10:23"
  Starting provisioning job - JOB-158167
  0 - 3 - 11 - 18 - 67 - 75 - 100
  Job JOB-158167 finised with state: COMPLETED VDB created.
+
 
 =cut

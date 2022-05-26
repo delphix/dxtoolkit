@@ -846,6 +846,13 @@ sub returnHierarchy
 }
 
 
+sub get_sourceconfigs {
+  my $self = shift;
+  logger($self->{_debug}, "Entering Databases::get_sourceconfigs",1);
+  return $self->{_sourceconfigs};
+}
+
+
 #
 # End of package
 
