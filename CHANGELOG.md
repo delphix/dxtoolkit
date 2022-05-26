@@ -1,6 +1,19 @@
 ## 2.4.15.1
 
 ### Added
+
+- dx_get_db_env has a new column showing last VDB refresh time
+- TDE support for an Oracle MT
+
+
+### Changed
+ - dx_get_vdbsize - documentation fix
+ - dx_ctl_env - set TDE password for CDB
+ - dx_provision_db - support for Oracle MT TDE
+
+## 2.4.15.1
+
+### Added
 - [enhancement #194](https://github.com/delphix/dxtoolkit/issues/194) Last refresh date added to dx_get_db_env as a new column
 - dx_get_source_info is displaying now a status for Validated Sync opertion for MS SQL and Sybase
 - dx_get_db_env has a new column showing last VDB refresh time
