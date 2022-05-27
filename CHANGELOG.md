@@ -1,10 +1,10 @@
-## 2.4.15.1
+## 2.4.16.0
 
 ### Added
 
 - dx_get_db_env has a new column showing last VDB refresh time
 - TDE support for an Oracle MT
-
+- OAuth2 support - Bearer token access
 
 ### Changed
  - dx_get_vdbsize - documentation fix

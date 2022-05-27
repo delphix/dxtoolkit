@@ -146,8 +146,8 @@ sub load_config {
        next;
      }
 
-     if ((!defined($host->{username})) && (!defined($host->{clientid}))) {
-       print "Username or clientid in config entry " . $name . " is required\n";
+     if ((!defined($host->{username})) && (!defined($host->{clientid})) && (!defined($host->{oauth2_token})) && (!defined($host->{oauth2_token_var})) ) {
+       print "Username, clientid or oauth in config entry " . $name . " is required\n";
        next;
      }
 
@@ -186,6 +186,8 @@ sub load_config {
      $engines{$name}{passwordscript} = $host->{passwordscript};
      $engines{$name}{additionalopt}  = $host->{additionalopt};
      $engines{$name}{prevalidate}    = defined($host->{prevalidate}) ? $host->{prevalidate} : 'false';
+     $engines{$name}{oauth2_token} = $host->{oauth2_token};
+     $engines{$name}{oauth2_token_var} = $host->{oauth2_token_var};
 
      if (!defined($nodecrypt)) {
        if ($engines{$name}{encrypted} eq "true") {
@@ -479,6 +481,41 @@ sub getUsername {
 }
 
 
+# Procedure getoauth_token
+# parameters:
+# - engine_config
+
+
+sub getOauth_token {
+ my $self = shift;
+ my $engine_config = shift;
+
+ my $token;
+
+ if (defined($engine_config->{oauth2_token_var}) && (defined($engine_config->{oauth2_token}))) {
+   print "oauth2_token and oauth2_token_var defined for engine. Those are mutually exclusive\n";
+   return undef;
+ }
+
+ if ((defined($engine_config->{oauth2_token_var})) && ($engine_config->{oauth2_token_var} ne ""))  {
+   logger($self->{_debug}, "Oauth2 variable " . $engine_config->{oauth2_token_var} . " used to get token");
+   if (defined($ENV{$engine_config->{oauth2_token_var}})) {
+     $token = $ENV{$engine_config->{oauth2_token_var}};
+   } else {
+     print "Oauth2 variable " . $engine_config->{oauth2_token_var} . " not set\n";
+     logger($self->{_debug}, "Oauth2 variable " . $engine_config->{oauth2_token_var} . " not set");
+     return undef;
+   }
+ } elsif (defined($engine_config->{oauth2_token})) {
+   $token = $engine_config->{oauth2_token};
+ } else {
+   print "oauth not defined - ????\n";
+   return undef;
+ }
+
+ return $token;
+}
+
 # Procedure extended_password
 # parameters:
 
@@ -588,20 +625,25 @@ sub dlpx_connect {
   $self->{_protocol} = $engine_config->{protocol};
   $self->{_enginename} = $engine;
 
-  my $APIKEYS;
+  my $login_type;
+
 
   if (defined($engine_config->{username})) {
     $self->{_user} = $engine_config->{username};
     $self->{_password} = $engine_config->{password};
-    $APIKEYS = 0;
+    $login_type = 'password';
   } elsif (defined($engine_config->{clientid})) {
     $self->{_clientid} = $engine_config->{clientid};
     $self->{_clientsecret} = $engine_config->{clientsecret};
-    $APIKEYS = 1;
+    $login_type = 'apikeys';
+  } elsif (defined($engine_config->{oauth2_token}) || defined($engine_config->{oauth2_token_var})) {
+    $login_type = 'oauth';
   } else {
-    print "Username and clientid are missing from config file\n";
+    print "Username, clientid or oauth2_token are missing from config file\n";
     return 1;
   }
+
+  logger($self->{_debug}, "Login type: $login_type",1);
 
 
   if ($engine_config->{prevalidate} eq 'true') {
@@ -617,7 +659,7 @@ sub dlpx_connect {
 
   my $cookie_jar;
 
-  if ($APIKEYS eq 0) {
+  if ($login_type eq 'password') {
     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1, ignore_discard=>1);
   } else {
     $cookie_jar = HTTP::Cookies->new(file => $cookie_file, autosave => 1);
@@ -643,19 +685,27 @@ sub dlpx_connect {
      $self->{_ua}->show_progress( 1 );
   }
 
-  # if we are using API keys, session from cookies should be clean up
+  # if we are using API keys or OAuth, session from cookies should be clean up
   # so dxtoolkit will try to login using keys over and over
 
   my $ses_status;
   my $ses_version;
   my $token;
 
-  if ($APIKEYS) {
+  if ($login_type eq 'apikeys') {
     $cookie_jar->clear();
     $ses_status = 1;
     $token = $self->getSSOToken($self->{_clientid}, $self->{_clientsecret});
     if (!defined($token)) {
       print "Can't get token from token provider\n";
+      return 1;
+    }
+  } elsif ($login_type eq 'oauth') {
+    $cookie_jar->clear();
+    $ses_status = 1;
+    $token = $self->getOauth_token($engine_config);
+    if (!defined($token)) {
+      print "can't find oauth token. Skipping engine\n";
       return 1;
     }
   } else {
@@ -709,7 +759,7 @@ sub dlpx_connect {
 
       if (defined($token)) {
         # create session for token login
-        if ( $self->token_login($token, $ses_version)) {
+        if ( $self->token_login($login_type, $token, $ses_version)) {
           print "token login to " . $self->{_host} . "  failed. \n";
           $cookie_jar->clear();
           $rc = 1;
@@ -951,12 +1001,23 @@ sub login {
 
 }
 
+
+# Procedure token_login
+# parameters:
+# - type - API keys or OAuth token
+# - token - API keys or OAuth token
+# - version - API version
+# login user with Delphix Engine
+# return 0 if OK, 1 if failed
+
 sub token_login {
  my $self = shift;
+ my $type = shift;
  my $token = shift;
  my $version = shift;
 
 
+ logger($self->{_debug}, "Entering Engine::token_login",1);
  my ($major,$minor,$micro) = split(/\./,$version);
 
 
@@ -976,7 +1037,15 @@ sub token_login {
    Authorization       => 'Bearer ' . $token
  );
 
- my $operation = "sso/virtualization/api/login";
+ my $operation;
+
+ if ($type eq 'apikeys') {
+   $operation = "sso/virtualization/api/login";
+ } else {
+   $operation = "virtualization/api/oauth2-login";
+ }
+
+
  my $url = $self->{_protocol} . '://' . $self->{_host} . ':' . $self->{_port};
  my $api_url = "$url/$operation";
 
@@ -1013,6 +1082,10 @@ sub token_login {
 
 
 }
+
+
+
+
 
 
 # Procedure logout
