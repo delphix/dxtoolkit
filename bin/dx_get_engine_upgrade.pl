@@ -36,7 +36,7 @@ use lib '../lib';
 use Engine;
 use Formater;
 use Toolkit_helpers;
-use Version_obj;
+use Storage_obj;
 
 
 my $version = $Toolkit_helpers::version;
@@ -98,30 +98,22 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
-  my $version_obj = new Version_obj($engine_obj, $debug);
-  for my $oshash (@{$version_obj->getOSversions()}) {
+  my $osver = $engine_obj->getOSversions();
+  for my $oshash (sort(keys (%{$osver}))) {
     my $installtime;
 
+    if (defined($osver->{$oshash}->{installDate})) {
+      $installtime = Toolkit_helpers::convert_from_utc ($osver->{$oshash}->{installDate}, $engine_obj->getTimezone(), 1);
+    } else {
+      $installtime = 'N/A';
+    }
 
-    # if (defined($osver->{$oshash}->{installDate})) {
-    #   $installtime = Toolkit_helpers::convert_from_utc ($osver->{$oshash}->{installDate}, $engine_obj->getTimezone(), 1);
-    # } else {
-    #   $installtime = 'N/A';
-    # }
-    #
     $output->addLine(
           $engine,
-          $version_obj->getOSName($oshash),
-          $version_obj->getOSStatus($oshash),
-          $version_obj->getInstalTime($oshash)
+          $osver->{$oshash}->{name},
+          $osver->{$oshash}->{status},
+          $installtime
     );
-  }
-
-  $version_obj->loadVerfication();
-
-  for my $repref (@{$version_obj->getReportList()}) {
-    print Dumper $repref;
-    print Dumper $version_obj->getReportVersions($repref);
   }
 
 
