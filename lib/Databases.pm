@@ -257,7 +257,7 @@ sub LoadDBList
             # pdb check
             my $cdb = $db->getCDBContainerRef();
 
-            if (defined($cdb)) {
+            if (defined($cdb) && defined($self->{_source}->getSourceByConfig($cdb))) {
               $db->{"cdb"} = $self->{_source}->getSourceByConfig($cdb)->{container};
             }
 
