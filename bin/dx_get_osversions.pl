@@ -40,12 +40,13 @@ use Version_obj;
 
 
 my $version = $Toolkit_helpers::version;
-my $gradeonly = 'yes';
 
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
+  'report' => \(my $report),
+  'target=s' => \(my $target),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -69,14 +70,23 @@ if (defined($all) && defined($dx_host)) {
 
 my $output = new Formater();
 
-
-$output->addHeader(
-    {'engine name',          35},
-    {'name',                 15},
-    {'status',               30},
-    {'install date',         30}
-);
-
+if (defined($report)) {
+  $output->addHeader(
+      {'engine name',          35},
+      {'from',                 15},
+      {'to',                   15},
+      {'step',                 30},
+      {'status',               15},
+      {'Start test date',      30}
+  );
+} else {
+  $output->addHeader(
+      {'engine name',          35},
+      {'name',                 15},
+      {'status',               30},
+      {'install date',         30}
+  );
+}
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -99,30 +109,43 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $version_obj = new Version_obj($engine_obj, $debug);
-  for my $oshash (@{$version_obj->getOSversions()}) {
-    my $installtime;
+  if (defined($report)) {
+    $version_obj->loadVerfication();
 
+    for my $repref (@{$version_obj->getReportList()}) {
+        my ($running_version, $verified_version) = $version_obj->getReportVersions($repref);
+        if (defined($target))  {
+          if ($target ne $verified_version) {
+            $ret = 1;
+            next;
+          } else {
+            # target found
+            $ret = 0;
+          }
+        } 
+        $output->addLine(
+            $engine,
+            $running_version,
+            $verified_version,
+            '',
+            '',
+            ''
+        );
+        $version_obj->getReportSteps($repref, $output);
+    }
 
-    # if (defined($osver->{$oshash}->{installDate})) {
-    #   $installtime = Toolkit_helpers::convert_from_utc ($osver->{$oshash}->{installDate}, $engine_obj->getTimezone(), 1);
-    # } else {
-    #   $installtime = 'N/A';
-    # }
-    #
-    $output->addLine(
-          $engine,
-          $version_obj->getOSName($oshash),
-          $version_obj->getOSStatus($oshash),
-          $version_obj->getInstalTime($oshash)
-    );
+  } else {
+    for my $oshash (@{$version_obj->getOSversions()}) {
+      $output->addLine(
+            $engine,
+            $version_obj->getOSName($oshash),
+            $version_obj->getOSStatus($oshash),
+            $version_obj->getInstalTime($oshash)
+      );
+    }
   }
 
-  $version_obj->loadVerfication();
 
-  for my $repref (@{$version_obj->getReportList()}) {
-    print Dumper $repref;
-    print Dumper $version_obj->getReportVersions($repref);
-  }
 
 
 
@@ -140,6 +163,8 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_osversions    [-engine|d <delphix identifier> | -all ]
+                      [-report]
+                      [-target targetversion]
                       [-format csv|json]
                       [-help|? ] [ -debug ]
 
@@ -172,6 +197,14 @@ A config file search order is as follow:
 
 =over 3
 
+=item B<-report>
+Print a verification report of the upgrade check
+
+
+=item B<-target targetversion>
+Limit a verification report output to a target version specified by targetversion
+
+
 =item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
@@ -195,5 +228,24 @@ Display a list of known Delphix versions
  53sys                               5.3.0.0         PREVIOUS                       2018-09-28 13:07:51 IST
  53sys                               5.3.2.0         PREVIOUS                       2019-02-15 14:57:16 GMT
  53sys                               5.3.3.0         CURRENTLY_RUNNING              2019-04-12 12:05:47 IST
+
+
+ dx_get_osversions -d myenginesys -report -target 6.0.10.1
+
+ engine name                         from            to              step                           status          Start test date
+ ----------------------------------- --------------- --------------- ------------------------------ --------------- ------------------------------
+ myenginesys                         6.0.4.2         6.0.10.1
+                                                                     InitializationRunReport        SUCCESS         2022-02-02 12:33:36 GMT
+                                                                     FileSystemCheckRunReport       SUCCESS         2022-02-02 12:46:01 GMT
+                                                                     Domain0ThresholdCheck          SUCCESS         2022-02-02 12:46:12 GMT
+                                                                     MigrationRunReport             SUCCESS         2022-02-02 12:46:12 GMT
+                                                                     ReplicationTargetCheck         SUCCESS         2022-02-02 12:46:21 GMT
+                                                                     DeprecatedRulesetEditOptionsCh SKIPPED         2022-02-02 12:46:21 GMT
+                                                                     PrimaryDbFileAvailabilityCheck SKIPPED         2022-02-02 12:46:21 GMT
+                                                                     EnclosureEscapeCharacterCheck  SKIPPED         2022-02-02 12:46:21 GMT
+                                                                     ReplicationSourceCheck         SUCCESS         2022-02-02 12:46:21 GMT
+                                                                     HotfixCheck                    SUCCESS         2022-02-02 12:46:21 GMT
+                                                                     SnapdirsVisibilityCheck        SUCCESS         2022-02-02 12:46:21 GMT
+
 
 =cut
