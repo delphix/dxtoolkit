@@ -1740,31 +1740,6 @@ sub getLicenseUsage {
 
 }
 
-# Procedure getOSversionList
-# parameters:
-# Return an array of hash with of OS version deployed
-
-sub getOSversions {
-   my $self = shift;
-
-   logger($self->{_debug}, "Entering Engine::getOSversions",1);
-
-   my %res;
-
-   my $operation = "resources/json/delphix/system/version";
-   my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-   if (defined($result->{status}) && ($result->{status} eq 'OK')) {
-       for my $osver (@{$result->{result}}) {
-         $res{$osver->{name}} = $osver;
-       }
-   } else {
-       print "No data returned for $operation. Try to increase timeout \n";
-   }
-
-
-   return \%res;
-
-}
 
 
 # Procedure verifyOSversion

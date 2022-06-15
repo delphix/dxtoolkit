@@ -36,7 +36,7 @@ use lib '../lib';
 use Engine;
 use Formater;
 use Toolkit_helpers;
-use Storage_obj;
+use Version_obj;
 use Jobs;
 use Action_obj;
 
@@ -149,8 +149,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'upload') {
 
-    my $osver = $engine_obj->getOSversions();
-    if (defined($osver->{$file_version})) {
+    my $version_obj = new Version_obj($engine_obj, $debug);
+    if ($version_obj->is_loaded($file_version)) {
       print "Version detected in upgrade file $file_version is already uploaded or running on Delphix Engine\n";
       $ret = $ret + 1;
       next;
