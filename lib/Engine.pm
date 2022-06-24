@@ -1370,8 +1370,8 @@ sub getJSONResult {
      } elsif ( $decoded_response =~ /STARTING UP/ ) {
         logger($self->{_debug}, "STARTING UP");
         return (\%booting, \%booting, 1);
-     } elsif ( $decoded_response =~ /502/ ) {
-        logger($self->{_debug}, "502");
+     } elsif ( $decoded_response =~ /Gateway/ ) {
+        logger($self->{_debug}, "Gateway");
         return (\%booting, \%booting, 1);
      } else {
         $result = decode_json($decoded_response);
