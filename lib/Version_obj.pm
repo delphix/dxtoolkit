@@ -90,6 +90,24 @@ sub getOSversions {
 }
 
 
+# Procedure getOSversion
+# parameters:
+# Return list of loaded
+
+sub getOSversion {
+   my $self = shift;
+   my $name = shift;
+   my @ver = grep { $self->{_versions}->{$_}->{name} eq $name } keys (%{$self->{_versions}});
+   
+   if (scalar(@ver) eq 0) {
+    print("Version $name not found");
+    return undef;
+   }
+
+   return $ver[-1];
+}
+
+
 # Procedure getInstalTime
 # parameters:
 # - reference
@@ -98,7 +116,13 @@ sub getOSversions {
 sub getInstalTime {
    my $self = shift;
    my $reference = shift;
-   return Toolkit_helpers::convert_from_utc ($self->{_versions}->{$reference}->{installDate}, $self->{_dlpxObject}->getTimezone(), 1);
+   my $timestamp = $self->{_versions}->{$reference}->{installDate};
+   if (defined($timestamp)) {
+    return Toolkit_helpers::convert_from_utc ($timestamp, $self->{_dlpxObject}->getTimezone(), 1);
+   } else {
+    return 'N/A';
+   }
+   
 }
 
 
@@ -216,13 +240,138 @@ sub getReportSteps {
          $start_time
        )
      };
+   }
+}
 
 
+# Procedure applyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub applyOSversion {
+   my $self = shift;
+   my $name = shift;
+   my $type = shift;
+   my $verify = shift;
+
+   logger($self->{_debug}, "Entering Engine::applyOSversion",1);
+
+   my $osref = $self->getOSversion($name);
+
+   if (!defined($osref)) {
+     print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+     return undef;
+   };
+
+
+   my %payload = (
+     "type" => "ApplyVersionParameters",
+     "upgradeType" => uc $type
+   );
+
+
+   my $json = to_json(\%payload);
+   my $operation = 'resources/json/delphix/system/version/' . $osref . '/apply';
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+   my $jobno;
+
+   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+       $jobno = $result->{job};
+   } else {
+       if (defined($result->{error})) {
+           print "Problem with starting job\n";
+           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+           logger($self->{_debug}, "Can't submit job for operation $operation",1);
+           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+           logger($self->{_debug}, $result->{error}->{action} ,1);
+       } else {
+           print "Unknown error. Try with debug flag\n";
+       }
    }
 
-
-
-
+   return $jobno;
 }
+
+
+# Procedure deleteOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub deleteOSversion {
+   my $self = shift;
+   my $name = shift;
+
+   logger($self->{_debug}, "Entering Engine::deleteOSversion",1);
+
+   my $osref = $self->getOSversion($name);
+
+   if (!defined($osref)) {
+     print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+     return undef;
+   };
+
+   my $operation = 'resources/json/delphix/system/version/' . $osref ;
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->deleteJSONResult($operation, '{}');
+   my $jobno;
+
+   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+       $jobno = $result->{action};
+   } else {
+       if (defined($result->{error})) {
+           print "Problem with starting job\n";
+           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+           logger($self->{_debug}, "Can't submit job for operation $operation",1);
+           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+           logger($self->{_debug}, $result->{error}->{action} ,1);
+       } else {
+           print "Unknown error. Try with debug flag\n";
+       }
+   }
+
+   return $jobno;
+}
+
+
+# Procedure verifyOSversion
+# parameters:
+# - OS version name
+# return jobid or undef
+
+sub verifyOSversion {
+   my $self = shift;
+   my $name = shift;
+
+   logger($self->{_debug}, "Entering Engine::verifyOSversion",1);
+
+   my $osref = $self->getOSversion($name);
+
+   if (!defined($osref)) {
+     print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
+     return undef;
+   };
+
+   my $operation = 'resources/json/delphix/system/version/' . $osref . '/verify';
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, '{}');
+   my $jobno;
+
+   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+       $jobno = $result->{job};
+   } else {
+       if (defined($result->{error})) {
+           print "Problem with starting job\n";
+           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+           logger($self->{_debug}, "Can't submit job for operation $operation",1);
+           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+           logger($self->{_debug}, $result->{error}->{action} ,1);
+       } else {
+           print "Unknown error. Try with debug flag\n";
+       }
+   }
+
+   return $jobno;
+}
+
 
 1;

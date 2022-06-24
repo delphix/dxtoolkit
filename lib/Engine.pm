@@ -1367,6 +1367,12 @@ sub getJSONResult {
      if ( $decoded_response =~ /Engine is booting up/ ) {
         logger($self->{_debug}, "Engine is booting up");
         return (\%booting, \%booting, 1);
+     } elsif ( $decoded_response =~ /STARTING UP/ ) {
+        logger($self->{_debug}, "STARTING UP");
+        return (\%booting, \%booting, 1);
+     } elsif ( $decoded_response =~ /502/ ) {
+        logger($self->{_debug}, "502");
+        return (\%booting, \%booting, 1);
      } else {
         $result = decode_json($decoded_response);
      }
@@ -1742,141 +1748,9 @@ sub getLicenseUsage {
 
 
 
-# Procedure verifyOSversion
-# parameters:
-# - OS version name
-# return jobid or undef
-
-sub verifyOSversion {
-   my $self = shift;
-   my $name = shift;
-
-   logger($self->{_debug}, "Entering Engine::verifyOSversion",1);
-
-   my $versions = $self->getOSversions();
-
-   if (!defined($versions->{$name})) {
-     print "Version with osname $name not found in Delphix Engine. No verification will be performed\n";
-     return undef;
-   };
-
-   my $osref = $versions->{$name}->{reference};
-   my $operation = 'resources/json/delphix/system/version/' . $osref . '/verify';
-   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, '{}');
-   my $jobno;
-
-   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-       $jobno = $result->{job};
-   } else {
-       if (defined($result->{error})) {
-           print "Problem with starting job\n";
-           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-           logger($self->{_debug}, "Can't submit job for operation $operation",1);
-           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-           logger($self->{_debug}, $result->{error}->{action} ,1);
-       } else {
-           print "Unknown error. Try with debug flag\n";
-       }
-   }
-
-   return $jobno;
-}
-
-
-# Procedure applyOSversion
-# parameters:
-# - OS version name
-# return jobid or undef
-
-sub applyOSversion {
-   my $self = shift;
-   my $name = shift;
-   my $type = shift;
-   my $verify = shift;
-
-   logger($self->{_debug}, "Entering Engine::applyOSversion",1);
-
-   my $versions = $self->getOSversions();
-
-   if (!defined($versions->{$name})) {
-     print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
-     return undef;
-   };
-
-   my $osref = $versions->{$name}->{reference};
 
 
 
-   my %payload = (
-     "type" => "ApplyVersionParameters",
-     "upgradeType" => uc $type
-   );
-
-
-   my $json = to_json(\%payload);
-   my $operation = 'resources/json/delphix/system/version/' . $osref . '/apply';
-   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, $json);
-   my $jobno;
-
-   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-       $jobno = $result->{job};
-   } else {
-       if (defined($result->{error})) {
-           print "Problem with starting job\n";
-           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-           logger($self->{_debug}, "Can't submit job for operation $operation",1);
-           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-           logger($self->{_debug}, $result->{error}->{action} ,1);
-       } else {
-           print "Unknown error. Try with debug flag\n";
-       }
-   }
-
-   return $jobno;
-}
-
-
-# Procedure deleteOSversion
-# parameters:
-# - OS version name
-# return jobid or undef
-
-sub deleteOSversion {
-   my $self = shift;
-   my $name = shift;
-
-   logger($self->{_debug}, "Entering Engine::deleteOSversion",1);
-
-   my $versions = $self->getOSversions();
-
-   if (!defined($versions->{$name})) {
-     print "Version with osname $name not found in Delphix Engine. Apply will not be performed\n";
-     return undef;
-   };
-
-   my $osref = $versions->{$name}->{reference};
-
-
-   my $operation = 'resources/json/delphix/system/version/' . $osref ;
-   my ($result,$result_fmt, $retcode) = $self->deleteJSONResult($operation, '{}');
-   my $jobno;
-
-   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
-       $jobno = $result->{action};
-   } else {
-       if (defined($result->{error})) {
-           print "Problem with starting job\n";
-           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
-           logger($self->{_debug}, "Can't submit job for operation $operation",1);
-           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
-           logger($self->{_debug}, $result->{error}->{action} ,1);
-       } else {
-           print "Unknown error. Try with debug flag\n";
-       }
-   }
-
-   return $jobno;
-}
 
 
 

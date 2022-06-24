@@ -320,6 +320,8 @@ jobs:
         brew install pioro/repo/perl@5.30
         brew install cpanminus
         brew install openssl@1.1
+        PERL=`brew --prefix pioro/repo/perl@5.30`
+        PATH=$PERL/bin:$PATH
         cpanm Crypt::CBC
         cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`

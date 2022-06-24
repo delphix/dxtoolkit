@@ -239,7 +239,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'verify') {
 
-    my $jobno = $engine_obj->verifyOSversion($osname);
+
+    my $version_obj = new Version_obj($engine_obj, $debug);
+    my $jobno = $version_obj->verifyOSversion($osname);
 
     if (defined($jobno)) {
       $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Verification OK", "Verification job failed");
@@ -251,7 +253,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'apply') {
 
-    my $jobno = $engine_obj->applyOSversion($osname, $upgradetype);
+    my $version_obj = new Version_obj($engine_obj, $debug);
+    my $jobno = $version_obj->applyOSversion($osname, $upgradetype);
 
     if (defined($jobno)) {
       $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Apply job finished.", "Apply job failed");
@@ -263,7 +266,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (lc $action eq 'delete') {
 
-    my $jobno = $engine_obj->deleteOSversion($osname);
+    my $version_obj = new Version_obj($engine_obj, $debug);
+    my $jobno = $version_obj->deleteOSversion($osname);
 
     if (defined($jobno)) {
       $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Delete job finished.", "Delete job failed");
