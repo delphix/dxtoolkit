@@ -349,7 +349,7 @@ jobs:
         $CELL/bin/cpanm utf8
         $CELL/bin/cpanm PAR::Packer
         $CELL/bin/cpanm List::MoreUtils::PP
-$CELL/bin/
+
     - name: Compile
       run: |
           CELL=`brew --prefix pioro/repo/perl@5.30`
