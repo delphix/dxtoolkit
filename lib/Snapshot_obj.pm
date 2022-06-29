@@ -448,6 +448,7 @@ sub getSnapshotTimeZone {
 sub getSnapshotTimewithzone {
     my $self = shift;
     my $reference = shift;
+    my $offset = shift;
     my $ret;
     logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotTimewithzone",1);
     my $tz = new Date::Manip::TZ;
@@ -462,7 +463,7 @@ sub getSnapshotTimewithzone {
     if ($timezone eq 'N/A') {
         $ret = 'N/A - timezone unknown';
     } else {
-        $ret = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1);
+        $ret = Toolkit_helpers::convert_from_utc($zulutime, $timezone, 1, $offset);
     }
     return ($ret,$timezone);
 }
@@ -473,12 +474,13 @@ sub getSnapshotTimewithzone {
 
 sub getLatestSnapshotTime {
     my $self = shift;
+    my $offset = shift;
     logger($self->{_debug}, "Entering Snapshot_obj::getLatestSnapshotTime",1);
     my $reference = $self->{_snapshot_list}[-1];
     my $ret;
     my $timezone;
     if (defined($reference)) {
-        ($ret,$timezone) = $self->getSnapshotTimewithzone($reference);
+        ($ret,$timezone) = $self->getSnapshotTimewithzone($reference, $offset);
     } else {
         $ret = 'N/A';
     }

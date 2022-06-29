@@ -1132,13 +1132,24 @@ sub getTimezone {
   if (defined($self->{timezone})) {
      $timezone = $self->{timezone};
   } else {
-     my $operation = "resources/json/service/configure/currentSystemTime";
-     my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
-     if ($result->{result} eq "ok") {
-        $timezone = $result->{systemTime}->{localTimeZone};
-        $self->{timezone} = $timezone;
+     if (version->parse($self->getApi()) < version->parse(1.11.15)) {
+      my $operation = "resources/json/service/configure/currentSystemTime";
+      my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+      if ($result->{result} eq "ok") {
+          $timezone = $result->{systemTime}->{localTimeZone};
+          $self->{timezone} = $timezone;
+      } else {
+          $timezone = 'N/A';
+      }
      } else {
-        $timezone = 'N/A';
+      my $operation = "resources/json/delphix/service/time";
+      my ($result,$result_fmt, $retcode) = $self->getJSONResult($operation);
+      if ($result->{status} eq "OK") {
+          $timezone = $result->{result}->{systemTimeZone};
+          $self->{timezone} = $timezone;
+      } else {
+          $timezone = 'N/A';
+      }
      }
   }
 

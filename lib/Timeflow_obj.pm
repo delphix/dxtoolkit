@@ -131,6 +131,7 @@ sub getParentPointTimestampWithTimezone {
     my $self = shift;
     my $reference = shift;
     my $timezone = shift;
+    my $offset = shift;
     logger($self->{_debug}, "Entering Timeflow_obj::getParentPointTimestampWithTimezone",1);
 
     my $timestamp = $self->getParentPointTimestamp($reference);
@@ -139,7 +140,7 @@ sub getParentPointTimestampWithTimezone {
       return 'N/A';
     }
 
-    my $ts = Toolkit_helpers::convert_from_utc($timestamp, $timezone,1);
+    my $ts = Toolkit_helpers::convert_from_utc($timestamp, $timezone,1, $offset);
     return $ts;
 
 }
