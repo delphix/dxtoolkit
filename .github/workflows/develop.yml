@@ -291,7 +291,7 @@ jobs:
 
   osx:
     needs: [centos7]
-    runs-on: macos-10.15
+    runs-on: macos-11
 
     steps:
     - name: checkout dxtoolkit code
