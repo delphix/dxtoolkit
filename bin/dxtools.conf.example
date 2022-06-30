@@ -58,6 +58,26 @@
 			"default" : "true",
 			"encrypted" : "false",
 			"timeout" : "60"
+	  },
+		{
+			"hostname" : "marcinapi",
+			"ip_address" : "192.168.1.32",
+			"oauth2_token_var" : "ENV_VARIABLE_WITH_TOKEN",
+			"port" : "443",
+			"default" : "true",
+			"encrypted" : "false",
+			"timeout" : "60",
+			"protocol": "https"
+	  },
+		{
+			"hostname" : "marcinapi",
+			"ip_address" : "192.168.1.32",
+			"oauth2_token" : "Bearer token",
+			"port" : "443",
+			"default" : "true",
+			"encrypted" : "false",
+			"timeout" : "60",
+			"protocol": "https"
 	  }
 	]
 }

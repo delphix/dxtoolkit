@@ -142,7 +142,9 @@ sub getSourceConfig {
 
     my $sources = $self->{_sources};
     my $ret;
-    if (defined($sources->{$container})) {
+    my $s = keys %{$sources->{$container}};
+    #print Dumper $sources->{$container};
+    if (defined($sources->{$container}) && ($s > 0)) {
       if (version->parse($self->{_dlpxObject}->getApi()) <= version->parse(1.11.10)) {
         # engine until 6.0.10
         logger($self->{_debug}, "getSourceConfig - API <= 1.11.10",2);

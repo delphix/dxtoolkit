@@ -632,5 +632,84 @@ sub deleteSourceConfig {
 
 }
 
+# Procedure update_cdb_tde_password
+# parameters:
+# - tde_password - TDE Keystore password
+# Set a password for keystore
+# Return jobno
+
+sub update_cdb_tde_password {
+    my $self = shift;
+    my $reference = shift;
+    my $tde_password = shift;
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::update_cdb_tde_password",1);
+
+    my %sourceconfig_hash;
+    my $jobno;
+
+
+    %sourceconfig_hash = (
+        "type" => $self->getType($reference)
+    );
+
+
+    if (defined($tde_password)) {
+      $sourceconfig_hash{"tdeKeystorePassword"} = $tde_password;
+      my $json_data = to_json(\%sourceconfig_hash);
+
+      logger($self->{_debug}, $json_data ,2);
+
+      my $operation = 'resources/json/delphix/sourceconfig/' . $reference;
+      $jobno = $self->runJobOperation($operation, $json_data, 'ACTION');
+    } else {
+      print "No TDE password to set\n";
+    }
+
+    return $jobno;
+
+}
+
+# Procedure runJobOperation
+# parameters:
+# - operation - API string
+# - json_data - JSON encoded data
+# Run POST command running background job for particular operation and json data
+# Return job number if job started or undef otherwise
+
+sub runJobOperation {
+    my $self = shift;
+    my $operation = shift;
+    my $json_data = shift;
+    my $action = shift;
+
+    logger($self->{_debug}, "Entering VDB_obj::runJobOperation",1);
+    logger($self->{_debug}, $operation, 2);
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->postJSONData($operation, $json_data);
+    my $jobno;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $self->{_currentobj} = $result->{result};
+        if (defined($action) && $action eq 'ACTION') {
+            $jobno = $result->{action};
+        } else {
+            $jobno = $result->{job};
+        }
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting job\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job for operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+    }
+
+    return $jobno;
+}
+
 
 1;

@@ -264,6 +264,11 @@ sub getConfig
         $config = join($joinsep,($config, $cust));
       }
 
+      my $tde = $self->getTDE($joinsep);
+      if ($tde ne '') {
+        $config = join($joinsep,($config, $tde));
+      }
+
 
     } else {
       # dSource config for Oracle
@@ -1095,6 +1100,9 @@ sub setNewDBID {
     logger($self->{_debug}, "Entering OracleVDB_obj::setNewDBID",1);
     $self->{"NEWDB"}->{"newDBID"} = JSON::true;
 }
+
+
+
 
 
 # Procedure getCustomEnv
@@ -2587,6 +2595,79 @@ sub upgradeVDB {
     logger($self->{_debug}, "Entering OracleVDB_obj::upgradeVDB",1);
     return $self->VDB_obj::upgradeVDB($home,'OracleSIConfig') ;
 
+}
+
+
+
+
+
+# Procedure setupTDE
+# parameters:
+# - tdeparentpassword - parent TDE keystore password
+# - tdeparentpath - parent TDE keystore path
+# - tdeexportsecret - TDE export
+# - tdekeyid - TDE keyid
+# Setup TDE for Oracle MT
+
+sub setupTDE {
+    my $self = shift;
+    my $tdeparentpassword = shift;
+    my $tdeparentpath = shift;
+    my $tdeexportsecret = shift;
+    my $tdekeyid = shift;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::setupTDE",1);
+
+    if (version->parse($self->{_dlpxObject}->getApi()) > version->parse(1.11.10)) {
+
+      if (defined($tdeparentpassword)) {
+        $self->{"NEWDB"}->{"source"}->{"parentTdeKeystorePassword"} = $tdeparentpassword;
+      }
+
+      if (defined($tdeparentpath)) {
+        $self->{"NEWDB"}->{"source"}->{"parentTdeKeystorePath"} = $tdeparentpath;
+      }
+
+      if (defined($tdeexportsecret)) {
+        $self->{"NEWDB"}->{"source"}->{"tdeExportedKeyFileSecret"} = $tdeexportsecret;
+      }
+
+      if (defined($tdekeyid)) {
+        $self->{"NEWDB"}->{"source"}->{"tdeKeyIdentifier"} = $tdekeyid;
+      }
+
+      return 0;
+
+    } else {
+      print "Error - native support for Oracle MT TDE requires engine version 6.0.8 or higher";
+      return 1;
+    }
+
+
+
+}
+
+# Procedure getTDE
+# parameters:
+# - separator - join using comma or blank
+# Return a string with TDE parameters
+
+sub getTDE {
+    my $self = shift;
+    my $separator = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getTDE",1);
+    my $ret = '';
+    if (defined($self->{"source"}->{"parentTdeKeystorePath"})) {
+       $ret = " -tdeparentpath " . $self->{"source"}->{"parentTdeKeystorePath"};
+       $ret = $ret . " -tdeparentpassword xxxxxx -tdeexportsecret xxxxxxx -tdecdbpassword xxxxxxx";
+       if (defined($self->{"source"}->{"tdeKeyIdentifier"})) {
+         $ret = $ret . " -tdekeyid " . $self->{"source"}->{"tdeKeyIdentifier"};
+       }
+    }
+
+
+
+    return $ret;
 }
 
 

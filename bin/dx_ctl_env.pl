@@ -39,6 +39,7 @@ use Toolkit_helpers;
 use Repository_obj;
 use Jobs_obj;
 use SourceConfig_obj;
+use Action_obj;
 
 my $version = $Toolkit_helpers::version;
 
@@ -66,6 +67,7 @@ GetOptions(
   'bits=n' => \(my $bits),
   'ohversion=s' => \(my $ohversion),
   'oraclebase=s' => \(my $oraclebase),
+  'tdecdbpassword=s' => \(my $tdecdbpassword),
   'parallel=n' => \(my $parallel),
   'debug:i' => \(my $debug),
   'restore=s' => \(my $restore),
@@ -102,7 +104,7 @@ if (!((lc $action eq 'refresh') || (lc $action eq 'enable')  || (lc $action eq '
     (lc $action eq 'adddatabase') || (lc $action eq 'deletedatabase') ||
     (lc $action eq 'addlistener') || (lc $action eq 'deletelistener') ||
     (lc $action eq 'adduser') || (lc $action eq 'deleteuser') ||
-    (lc $action eq 'updatehost')
+    (lc $action eq 'updatehost') || (lc $action eq 'settdepassword')
     ))
     {
       print "Unknown action $action\n";
@@ -124,6 +126,13 @@ if (lc $action eq 'updatehost') {
 if (lc $action eq 'addrepo') {
   if (!defined($repotype)) {
     print "Repository type has to be set\n";
+    exit 1;
+  }
+}
+
+if (lc $action eq 'settdepassword') {
+  if ((!defined($tdecdbpassword)) || (!defined($dbname))) {
+    print "TDE CDB password (tdecdbpassword) and database name (dbname) has to be set\n";
     exit 1;
   }
 }
@@ -478,6 +487,27 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
       }
     }
+
+    if ( lc $action eq 'settdepassword' ) {
+      print "Setting TDE password for CDB $dbname \n";
+      my $sourceconfigs = new SourceConfig_obj($engine_obj, $debug);
+      my $cdb_sourceconfig_obj = $sourceconfigs->getSourceConfigByName($dbname);
+      if (!defined($cdb_sourceconfig_obj)) {
+        print "CDB $dbname not found or has a duplicate\n";
+        $ret = $ret + 1;
+        next;
+      }
+
+      my $jobno = $sourceconfigs->update_cdb_tde_password( $cdb_sourceconfig_obj->{reference}, $tdecdbpassword );
+      if (defined($jobno)) {
+        if (Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with setting TDE password for CDB")) {
+          $ret = $ret + 1;
+          next;
+        }
+      }
+    }
+
+
   }
 
   if (defined($parallel) && (scalar(@jobs) > 0)) {
@@ -504,7 +534,7 @@ __DATA__
  dx_ctl_env [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
             [ -name env_name | -reference reference ]
             -action <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener
-                   |deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
+                   |deleteuser|deleterepo|deletedatabase|deletelistener|updatehost|settdepassword>
             [-dbname dbname]
             [-instancename instancename]
             [-uniquename db_unique_name]
@@ -517,6 +547,7 @@ __DATA__
             [-repotype oracle|vfiles|db2|postgresql|plugin]
             [-repopath ORACLE_HOME]
             [-plugin_params JSON_parameters]
+            [-tdecdbpassword password]
             [-host name/ip of existing host to update]
             [-newhost new name/ip of the host]
             [-help|? ]
@@ -551,7 +582,7 @@ A config file search order is as follow:
 
 =over 1
 
-=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener|updatehost>
+=item B<-action> <enable|disable|refresh|adduser|addrepo|adddatabase|addlistener|deleteuser|deleterepo|deletedatabase|deletelistener|updatehost|settdepassword>
 Run an action specified for environments selected by filter or all environments deployed on Delphix Engine
 
 =back
@@ -621,6 +652,9 @@ New Host name or IP of host being updated
 
 =item B<-plugin_params JSON_parameters>
 New Host name or IP of host being updated
+
+=item B<-tdecdbpassword password>
+TDE CDB password
 
 =item B<-help>
 Print this screen
@@ -745,5 +779,12 @@ Adding the MySQL database using EDSI plugin
                    -plugin_params  '{ "dbName": "testmysql", "baseDir":"/usr/sbin" }'
   Adding database testmysql into /usr/sbin (MySQL Community Server (GPL)) 5.6.29 on environment linuxtarget
   Plugin database testmysql added into environment linuxtarget
+
+Setting TDE password for CDB
+
+  dx_ctl_env -d dxtest -action settdepassword -dbname CDOMLOTG2E25 -tdecdbpassword delphix -name marcinoratgt.dlpxdc.co
+  Setting TDE password for CDB CDOMLOTG2E25
+  Waiting for all actions to complete. Parent action is ACTION-470
+  Action completed with success
 
 =cut

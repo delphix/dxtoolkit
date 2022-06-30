@@ -257,7 +257,7 @@ sub LoadDBList
             # pdb check
             my $cdb = $db->getCDBContainerRef();
 
-            if (defined($cdb)) {
+            if (defined($cdb) && defined($self->{_source}->getSourceByConfig($cdb))) {
               $db->{"cdb"} = $self->{_source}->getSourceByConfig($cdb)->{container};
             }
 
@@ -843,6 +843,13 @@ sub returnHierarchy
 
     return \@retarr;
 
+}
+
+
+sub get_sourceconfigs {
+  my $self = shift;
+  logger($self->{_debug}, "Entering Databases::get_sourceconfigs",1);
+  return $self->{_sourceconfigs};
 }
 
 

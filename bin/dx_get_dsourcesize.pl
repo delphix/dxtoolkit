@@ -82,7 +82,8 @@ if ($license) {
     {'Appliance', 10},
     {'Type',      40},
     {'Database',  40},
-    {'Size [GB]', 30}
+    {'Size [GB]', 30},
+    {'Timestamp', 30}
   );
 } else {
   $output->addHeader(
@@ -115,13 +116,26 @@ for my $engine ( sort (@{$engine_list}) ) {
     # use licence API
     if (version->parse($engine_obj->getApi()) >= version->parse(1.10.3)) {
       my $lic = $engine_obj->getLicenseUsage();
+      my $dbsize;
+      my $timestamp;
       if (defined($lic->{"databases"})) {
         for my $db ( @{$lic->{"databases"}}) {
+          if (defined($db->{"size"})) {
+            $dbsize = sprintf("%10.2f", $db->{"size"}/1024/1024/1024);
+          } else {
+            $dbsize = 'N/A';
+          }
+          if (defined($db->{"timestamp"})) {
+            $timestamp = Toolkit_helpers::convert_from_utc($db->{"timestamp"}, $engine_obj->getTimezone());
+          } else {
+            $timestamp = 'N/A';
+          }
           $output->addLine(
             $engine,
             $db->{"type"},
             $db->{"name"},
-            sprintf("%10.2f", $db->{"size"}/1024/1024/1024)
+            $dbsize,
+            $timestamp
           )
         }
       }
@@ -286,11 +300,11 @@ Display dSource sizes for license
   # you will need to run a query on the source system for the relevant data.
   # No size for FS_ABC. Skipping
 
-  Appliance  Type                                     Database                                 Size [GB]
-  ---------- ---------------------------------------- ---------------------------------------- ------------------------------
-  local      ORACLE                                   single_oracle_source_19c                     449.78
-  local      MSSQL                                    msprod1                                     2465.20
-
-
+  Appliance  Type                                     Database                                 Size [GB]                      Timestamp
+  ---------- ---------------------------------------- ---------------------------------------- ------------------------------ ------------------------------
+  613        MSSQL                                    AdventureWorks2012                             0.22                     2022-05-13 11:23:03
+  613        ORACLE                                   PDB19                                          0.78                     2022-05-13 11:23:03
+  613        ORACLE                                   test19                                         0.00                     2022-05-13 11:23:03
+  613        ORACLE                                   test19mt                                       1.97                     2022-05-13 11:23:03
 
 =cut

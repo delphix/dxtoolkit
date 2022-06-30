@@ -83,6 +83,7 @@ GetOptions(
   'save=s' => \(my $save),
   'timeflowparent' => \(my $timeflowparent),
   'dever=s' => \(my $dever),
+  'offset' => \(my $offset),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
@@ -455,8 +456,8 @@ for my $engine ( sort (@{$engine_list}) ) {
             print "Snapshot object not created\n";
             $ret = $ret + 1;
           }
-          ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap);
-          $parenttime = $timeflows->getParentPointTimestampWithTimezone($timeflow_for_parent, $timezone);
+          ($snaptime,$timezone) = $snapshots->getSnapshotTimewithzone($parentsnap, $offset);
+          $parenttime = $timeflows->getParentPointTimestampWithTimezone($timeflow_for_parent, $timezone, $offset);
           if (defined($parenttime) && ($parenttime eq 'N/A')) {
             my $loc = $timeflows->getParentPointLocation($timeflow_for_parent);
             my $lastsnaploc = $snapshots->getlatestChangePoint($parentsnap);
@@ -479,7 +480,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         my $dbref = $dbobj->getReference();
         my $dsource_snaps = new Snapshot_obj($engine_obj, $dbref, undef, $debug);
         $dsource_snaps->getSnapshotList($dbref);
-        ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime();
+        ($snaptime,$timezone) = $dsource_snaps->getLatestSnapshotTime($offset);
         $parenttime = 'N/A';
       }
 
@@ -601,6 +602,7 @@ __DATA__
                   [-configtype s|d]
                   [-backup path]
                   [-hostenv h|e]
+                  [-offset]
                   [-format csv|json ]
                   [-help|? ] [ -debug ]
 
@@ -714,6 +716,9 @@ By default Parent Snapshot / Parent time will display a parent object snapshot u
 or last refresh operation. With this flag set, dxtoolkit will use an old behaviour and
 display a timeflow parent snapshot which may be a parent database snapshot for provisioning / refresh
 or a current VDB snapshot if rollback operation was done.
+
+=item B<-offset>
+Print database timestamp with offset rather then timezone name
 
 =item B<-format>
 Display output in csv or json format
