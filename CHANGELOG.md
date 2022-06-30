@@ -6,10 +6,12 @@
 - TDE support for an Oracle MT
 - OAuth2 support - Bearer token access
 
+
 ### Changed
  - dx_get_vdbsize - documentation fix
  - dx_ctl_env - set TDE password for CDB
  - dx_provision_db - support for Oracle MT TDE
+ - dx_get_osversion - print upgrade verification results
 
 ## 2.4.15.1
 
