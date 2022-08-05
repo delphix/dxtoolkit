@@ -229,7 +229,14 @@ sub getReportSteps {
      my $report_dict = $self->{_verification}->{$reportref}->{report};
      my @ordered_by_date = sort { $a->{startTimestamp} cmp $b->{startTimestamp} } @{$report_dict->{checkReport}};
      my $start_time;
+     my $severity;
      for my $step (@ordered_by_date) {
+       if (scalar(@{$step->{notifications}}) > 0) {
+         $severity = (@{$step->{notifications}}[-1])->{severity};
+       } else {
+         $severity = "";
+       }
+
        $start_time = Toolkit_helpers::convert_from_utc ($step->{startTimestamp}, $self->{_dlpxObject}->getTimezone(), 1);
        $output->addLine(
          '',
@@ -237,6 +244,7 @@ sub getReportSteps {
          '',
          $step->{className},
          $step->{runStatus},
+         $severity,
          $start_time
        )
      };
