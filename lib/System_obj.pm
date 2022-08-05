@@ -567,6 +567,17 @@ sub getLDAPServers
     return \@retarray;
 }
 
+# Procedure getEngineType
+# parameters: none
+# return a engine type - masking / virtualization
+
+sub getEngineType
+{
+   my $self = shift;
+   logger($self->{_debug}, "Entering System_obj::getEngineType",1);
+   my $vMem = $self->{_system}->{engineType};
+   return $vMem;
+}
 
 
 1;

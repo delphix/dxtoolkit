@@ -85,7 +85,8 @@ if (defined($details)) {
     {'Total Objects', 8},
     {'vCpu',  8},
     {'vMem [GB]',  9},
-    {'UUID',40}
+    {'UUID',40},
+    {'Type',20}
   );
 } else {
   $output->addHeader(
@@ -114,6 +115,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $output->addLine(
         $engine,
         $status,
+        "",
         "",
         "",
         "",
@@ -169,7 +171,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       scalar(@dsource) +  scalar(@vdb),
       $system->getvCPU(),
       sprintf("%8.2f",$system->getvMem()),
-      $system->getUUID()
+      $system->getUUID(),
+      $system->getEngineType()
     );
   } else {
     $output->addLine(

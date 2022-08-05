@@ -77,6 +77,7 @@ if (defined($report)) {
       {'to',                   15},
       {'step',                 30},
       {'status',               15},
+      {'severity',             15},
       {'Start test date',      30}
   );
 } else {
@@ -127,6 +128,7 @@ for my $engine ( sort (@{$engine_list}) ) {
             $engine,
             $running_version,
             $verified_version,
+            '',
             '',
             '',
             ''
