@@ -41,11 +41,13 @@ sub new {
     my %versions;
     my %osmap;
     my %verification;
+    my %reports;
     my $self = {
         _versions => \%versions,
         _name_map => \%osmap,
         _verification => \%verification,
         _dlpxObject => $dlpxObject,
+        _reports => \%reports,
         _debug => $debug
     };
 
@@ -78,6 +80,29 @@ sub loadOSversions {
 
 
 }
+
+
+# Procedure loadUpgradeReport
+# parameters:
+# - oshash - reference to OS
+# Load upgrade checks
+
+sub loadUpgradeReport {
+   my $self = shift;
+   my $oshash = shift;
+
+   logger($self->{_debug}, "Entering Version_obj::loadUpgradeReport",1);
+   my $operation = "resources/json/delphix/system/version/" . $oshash . "/listUpgradeCheckResults";
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->getJSONResult($operation);
+   if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+      $self->{_reports}->{$oshash} = $result->{"result"};
+   } else {
+       print "No data returned for $operation. Try to increase timeout \n";
+   }
+}
+
+
+
 
 # Procedure getOSversions
 # parameters:
@@ -216,6 +241,24 @@ sub getReportVersions {
 
 
    return $running_version, $verified_version;
+
+}
+
+sub getReportResults {
+   my $self = shift;
+   my $oshash = shift;
+   my $output = shift;
+
+   for my $entry (@{$self->{_reports}->{$oshash}}) {
+       $output->addLine(
+         '',
+         '',
+         $entry->{title},
+         $entry->{status},
+         $entry->{severity}
+       );
+
+   }
 
 }
 

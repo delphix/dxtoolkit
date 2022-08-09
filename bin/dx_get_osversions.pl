@@ -45,6 +45,7 @@ GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
+  'steps' => \(my $steps),
   'report' => \(my $report),
   'target=s' => \(my $target),
   'debug:i' => \(my $debug),
@@ -68,9 +69,15 @@ if (defined($all) && defined($dx_host)) {
 }
 
 
+if (defined($steps) && defined($report)) {
+   print "Options -report and -steps are mutually exclusive \n";
+   pod2usage(-verbose => 1,  -input=>\*DATA);
+   exit (1);
+}
+
 my $output = new Formater();
 
-if (defined($report)) {
+if (defined($steps)) {
   $output->addHeader(
       {'engine name',          35},
       {'from',                 15},
@@ -79,6 +86,14 @@ if (defined($report)) {
       {'status',               15},
       {'severity',             15},
       {'Start test date',      30}
+  );
+} elsif (defined($report)) {
+  $output->addHeader(
+      {'engine name',          35},
+      {'to',                   15},
+      {'title',                30},
+      {'status',               15},
+      {'severity',             15}
   );
 } else {
   $output->addHeader(
@@ -110,7 +125,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $version_obj = new Version_obj($engine_obj, $debug);
-  if (defined($report)) {
+  if (defined($steps)) {
     $version_obj->loadVerfication();
 
     for my $repref (@{$version_obj->getReportList()}) {
@@ -134,6 +149,30 @@ for my $engine ( sort (@{$engine_list}) ) {
             ''
         );
         $version_obj->getReportSteps($repref, $output);
+    }
+  } elsif ( defined($report) ) {
+    $version_obj->loadVerfication();
+
+    for my $oshash (@{$version_obj->getOSversions()}) {
+      my $tover = $version_obj->getOSName($oshash);
+      if (defined($target))  {
+        if ($target ne $tover) {
+          $ret = 1;
+          next;
+        } else {
+          # target found
+          $ret = 0;
+        }
+      } 
+      $output->addLine(
+          $engine,
+          $tover,
+          '',
+          '',
+          ''
+      );
+      $version_obj->loadUpgradeReport($oshash);
+      $version_obj->getReportResults($oshash, $output)
     }
 
   } else {
