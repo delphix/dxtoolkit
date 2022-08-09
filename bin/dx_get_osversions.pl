@@ -204,7 +204,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_osversions    [-engine|d <delphix identifier> | -all ]
-                      [-report]
+                      [-steps | -report ]
                       [-target targetversion]
                       [-format csv|json]
                       [-help|? ] [ -debug ]
@@ -241,6 +241,9 @@ A config file search order is as follow:
 =item B<-report>
 Print a verification report of the upgrade check
 
+=item B<-steps>
+Print a verification steps of the upgrade check
+
 
 =item B<-target targetversion>
 Limit a verification report output to a target version specified by targetversion
@@ -271,7 +274,7 @@ Display a list of known Delphix versions
  53sys                               5.3.3.0         CURRENTLY_RUNNING              2019-04-12 12:05:47 IST
 
 
- dx_get_osversions -d myenginesys -report -target 6.0.10.1
+ dx_get_osversions -d myenginesys -steps -target 6.0.10.1
 
  engine name                         from            to              step                           status          Start test date
  ----------------------------------- --------------- --------------- ------------------------------ --------------- ------------------------------
@@ -288,5 +291,13 @@ Display a list of known Delphix versions
                                                                      HotfixCheck                    SUCCESS         2022-02-02 12:46:21 GMT
                                                                      SnapdirsVisibilityCheck        SUCCESS         2022-02-02 12:46:21 GMT
 
+
+ dx_get_osversions -d mask -report -target 6.0.15.0
+
+ engine name                         to              title                          status          severity
+ ----------------------------------- --------------- ------------------------------ --------------- ---------------
+ mask                                6.0.15.0
+                                                     Legacy algorithms are being re ACTIVE          WARNING
+                                                     Legacy algorithms are being re ACTIVE          WARNING
 
 =cut
