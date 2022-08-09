@@ -1,3 +1,10 @@
+## 2.4.16.2
+
+### Added
+
+- dx_get_osversion - will report an upgrade verification status 
+- dx_get_appliance - will show UUID and engine type (masking / virtualisation )
+
 ## 2.4.16.0
 
 ### Added

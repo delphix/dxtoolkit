@@ -45,6 +45,7 @@ GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
+  'steps' => \(my $steps),
   'report' => \(my $report),
   'target=s' => \(my $target),
   'debug:i' => \(my $debug),
@@ -68,16 +69,31 @@ if (defined($all) && defined($dx_host)) {
 }
 
 
+if (defined($steps) && defined($report)) {
+   print "Options -report and -steps are mutually exclusive \n";
+   pod2usage(-verbose => 1,  -input=>\*DATA);
+   exit (1);
+}
+
 my $output = new Formater();
 
-if (defined($report)) {
+if (defined($steps)) {
   $output->addHeader(
       {'engine name',          35},
       {'from',                 15},
       {'to',                   15},
       {'step',                 30},
       {'status',               15},
+      {'severity',             15},
       {'Start test date',      30}
+  );
+} elsif (defined($report)) {
+  $output->addHeader(
+      {'engine name',          35},
+      {'to',                   15},
+      {'title',                30},
+      {'status',               15},
+      {'severity',             15}
   );
 } else {
   $output->addHeader(
@@ -109,7 +125,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   my $version_obj = new Version_obj($engine_obj, $debug);
-  if (defined($report)) {
+  if (defined($steps)) {
     $version_obj->loadVerfication();
 
     for my $repref (@{$version_obj->getReportList()}) {
@@ -129,9 +145,34 @@ for my $engine ( sort (@{$engine_list}) ) {
             $verified_version,
             '',
             '',
+            '',
             ''
         );
         $version_obj->getReportSteps($repref, $output);
+    }
+  } elsif ( defined($report) ) {
+    $version_obj->loadVerfication();
+
+    for my $oshash (@{$version_obj->getOSversions()}) {
+      my $tover = $version_obj->getOSName($oshash);
+      if (defined($target))  {
+        if ($target ne $tover) {
+          $ret = 1;
+          next;
+        } else {
+          # target found
+          $ret = 0;
+        }
+      } 
+      $output->addLine(
+          $engine,
+          $tover,
+          '',
+          '',
+          ''
+      );
+      $version_obj->loadUpgradeReport($oshash);
+      $version_obj->getReportResults($oshash, $output)
     }
 
   } else {
@@ -163,7 +204,7 @@ __DATA__
 =head1 SYNOPSIS
 
  dx_get_osversions    [-engine|d <delphix identifier> | -all ]
-                      [-report]
+                      [-steps | -report ]
                       [-target targetversion]
                       [-format csv|json]
                       [-help|? ] [ -debug ]
@@ -200,6 +241,9 @@ A config file search order is as follow:
 =item B<-report>
 Print a verification report of the upgrade check
 
+=item B<-steps>
+Print a verification steps of the upgrade check
+
 
 =item B<-target targetversion>
 Limit a verification report output to a target version specified by targetversion
@@ -230,7 +274,7 @@ Display a list of known Delphix versions
  53sys                               5.3.3.0         CURRENTLY_RUNNING              2019-04-12 12:05:47 IST
 
 
- dx_get_osversions -d myenginesys -report -target 6.0.10.1
+ dx_get_osversions -d myenginesys -steps -target 6.0.10.1
 
  engine name                         from            to              step                           status          Start test date
  ----------------------------------- --------------- --------------- ------------------------------ --------------- ------------------------------
@@ -247,5 +291,13 @@ Display a list of known Delphix versions
                                                                      HotfixCheck                    SUCCESS         2022-02-02 12:46:21 GMT
                                                                      SnapdirsVisibilityCheck        SUCCESS         2022-02-02 12:46:21 GMT
 
+
+ dx_get_osversions -d mask -report -target 6.0.15.0
+
+ engine name                         to              title                          status          severity
+ ----------------------------------- --------------- ------------------------------ --------------- ---------------
+ mask                                6.0.15.0
+                                                     Legacy algorithms are being re ACTIVE          WARNING
+                                                     Legacy algorithms are being re ACTIVE          WARNING
 
 =cut

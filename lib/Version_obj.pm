@@ -41,11 +41,13 @@ sub new {
     my %versions;
     my %osmap;
     my %verification;
+    my %reports;
     my $self = {
         _versions => \%versions,
         _name_map => \%osmap,
         _verification => \%verification,
         _dlpxObject => $dlpxObject,
+        _reports => \%reports,
         _debug => $debug
     };
 
@@ -78,6 +80,29 @@ sub loadOSversions {
 
 
 }
+
+
+# Procedure loadUpgradeReport
+# parameters:
+# - oshash - reference to OS
+# Load upgrade checks
+
+sub loadUpgradeReport {
+   my $self = shift;
+   my $oshash = shift;
+
+   logger($self->{_debug}, "Entering Version_obj::loadUpgradeReport",1);
+   my $operation = "resources/json/delphix/system/version/" . $oshash . "/listUpgradeCheckResults";
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->getJSONResult($operation);
+   if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+      $self->{_reports}->{$oshash} = $result->{"result"};
+   } else {
+       print "No data returned for $operation. Try to increase timeout \n";
+   }
+}
+
+
+
 
 # Procedure getOSversions
 # parameters:
@@ -219,6 +244,24 @@ sub getReportVersions {
 
 }
 
+sub getReportResults {
+   my $self = shift;
+   my $oshash = shift;
+   my $output = shift;
+
+   for my $entry (@{$self->{_reports}->{$oshash}}) {
+       $output->addLine(
+         '',
+         '',
+         $entry->{title},
+         $entry->{status},
+         $entry->{severity}
+       );
+
+   }
+
+}
+
 
 sub getReportSteps {
    my $self = shift;
@@ -229,7 +272,14 @@ sub getReportSteps {
      my $report_dict = $self->{_verification}->{$reportref}->{report};
      my @ordered_by_date = sort { $a->{startTimestamp} cmp $b->{startTimestamp} } @{$report_dict->{checkReport}};
      my $start_time;
+     my $severity;
      for my $step (@ordered_by_date) {
+       if (scalar(@{$step->{notifications}}) > 0) {
+         $severity = (@{$step->{notifications}}[-1])->{severity};
+       } else {
+         $severity = "";
+       }
+
        $start_time = Toolkit_helpers::convert_from_utc ($step->{startTimestamp}, $self->{_dlpxObject}->getTimezone(), 1);
        $output->addLine(
          '',
@@ -237,6 +287,7 @@ sub getReportSteps {
          '',
          $step->{className},
          $step->{runStatus},
+         $severity,
          $start_time
        )
      };
