@@ -513,6 +513,7 @@ sub finddSource
     logger($self->{_debug}, "Entering Timeflow_obj::finddSource",1);
 
     my $local_ref = $ref . "\@l";
+    my $parent_clean;
     my $child;
     my $parent;
 
@@ -532,12 +533,15 @@ sub finddSource
 
       logger($self->{_debug}, "Parent " . $parent . " for " . $local_ref, 2);
 
+
+      ($parent_clean) = $parent =~ /(.*)\@l/;
+
       if (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') ) {
           $child = $local_ref;
           $local_ref = $parent;
       }
 
-    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal'));
+    } while (($parent ne '') && ($parent ne 'deleted') && ($parent ne 'notlocal') && ($self->{_timeflows}->{$parent_clean}->{creationType} ne 'SOURCE_CONTINUITY' ) );
 
     if ($parent eq 'deleted') {
       $local_ref = 'deleted';
