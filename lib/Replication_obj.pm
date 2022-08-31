@@ -266,7 +266,7 @@ sub getEnabled {
 
   my $ret;
 
-  print Dumper $replication->{$reference};
+  #print Dumper $replication->{$reference};
 
   if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
     $ret = $replication->{$reference}->{enabled} ? 'ENABLED' : 'DISABLED';
