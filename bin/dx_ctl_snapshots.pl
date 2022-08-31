@@ -87,7 +87,7 @@ if ( ( lc $action eq 'update') && (!defined($retention)) ) {
 }
 
 my $w = ($retention =~ /^[[:digit:]]+$/);
-print Dumper !$w;
+#print Dumper !$w;
 
 
 

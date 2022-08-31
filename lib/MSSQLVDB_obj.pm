@@ -319,7 +319,12 @@ sub setFileSystemLayout {
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::setFileSystemLayout",1);
 
-    $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "TimeflowFilesystemLayout";
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.14)) {
+      # until 6.0.14
+      $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "TimeflowFilesystemLayout";
+    } else {
+      $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "MSSqlTimeflowFilesystemLayout";
+    }
 
     if (! defined($targetDirectory)) {
         return 1;
