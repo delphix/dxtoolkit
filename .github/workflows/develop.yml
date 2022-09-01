@@ -331,7 +331,7 @@ jobs:
         # eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
         # echo $PERL_MB_OPT
         brew install openssl@1.1
-        $CELL/bin/cpanm Crypt::CBC
+        $CELL/bin/cpanm Crypt::CBC@2.33
         $CELL/bin/cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
