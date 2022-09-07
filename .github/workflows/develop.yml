@@ -82,7 +82,7 @@ jobs:
 
   ubuntu:
     needs: [centos7]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: checkout dxtoolkit code
@@ -331,7 +331,7 @@ jobs:
         # eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
         # echo $PERL_MB_OPT
         brew install openssl@1.1
-        $CELL/bin/cpanm Crypt::CBC
+        $CELL/bin/cpanm Crypt::CBC@2.33
         $CELL/bin/cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
@@ -347,7 +347,7 @@ jobs:
         $CELL/bin/cpanm LWP::UserAgent
         $CELL/bin/cpanm Net::SSLeay
         $CELL/bin/cpanm Mozilla::CA@20180117
-        $CELL/bin/cpanm IO::Socket::SSL@2.068
+        $CELL/bin/cpanm -f IO::Socket::SSL@2.068
         $CELL/bin/cpanm LWP::Protocol::https
         $CELL/bin/cpanm Term::ReadKey
         $CELL/bin/cpanm -f Archive::Zip

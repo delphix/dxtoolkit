@@ -123,8 +123,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       next;
     }
 
-    print Dumper $dbobj->getDBType();
-    print Dumper $dbobj->getName();
+    #print Dumper $dbobj->getDBType();
+    #print Dumper $dbobj->getName();
 
 
     my $dbname = $dbobj->getName();
@@ -140,7 +140,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       $dbobj = $databases->getDB($contsource->{container});
     }
 
-    print Dumper $dbobj->getInstances();
+    #print Dumper $dbobj->getInstances();
 
     if ($dbobj->getInstances() eq 'UNKNOWN') {
       # Oracle is detached, so no information about instances, skip to next
