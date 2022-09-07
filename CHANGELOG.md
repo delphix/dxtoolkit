@@ -1,3 +1,9 @@
+## 2.4.16.3
+
+### Changes
+
+- fix to disable debug data in various scripts
+- [bug #215](https://github.com/delphix/dxtoolkit/issues/215) - v2p for MS SQL fix for 6.0.14 and higher
 ## 2.4.16.2
 
 ### Added
