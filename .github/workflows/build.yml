@@ -289,13 +289,8 @@ jobs:
         CELL=`brew --prefix perl`
         $CELL/bin/perl -MCPAN -e 'install App::cpanminus'
         brew install openssl@1.1
-<<<<<<< HEAD
-        $CELL/bin/cpanm Crypt::CBC
-        $CELL/bin/cpanm Crypt::Blowfish
-=======
         cpanm Crypt::CBC@2.33
         cpanm Crypt::Blowfish
->>>>>>> develop
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
         export LIBS="-d=$OPENSSL_PREFIX"
@@ -303,22 +298,6 @@ jobs:
         $CELL/bin/cpanm JSON
         $CELL/bin/cpanm Date::Manip
         # force requires after 1/1/2020 ?
-<<<<<<< HEAD
-        $CELL/bin/cpanm -f Date::Parse
-        $CELL/bin/cpanm DateTime::Event::Cron::Quartz
-        $CELL/bin/cpanm DateTime::Format::DateParse
-        $CELL/bin/cpanm Text::CSV
-        $CELL/bin/cpanm LWP::UserAgent
-        $CELL/bin/cpanm Net::SSLeay
-        $CELL/bin/cpanm Mozilla::CA@20180117
-        $CELL/bin/cpanm IO::Socket::SSL@2.068
-        $CELL/bin/cpanm LWP::Protocol::https
-        $CELL/bin/cpanm Term::ReadKey
-        $CELL/bin/cpanm -f Archive::Zip
-        $CELL/bin/cpanm utf8
-        $CELL/bin/cpanm PAR::Packer
-        $CELL/bin/cpanm List::MoreUtils::PP
-=======
         cpanm -f Date::Parse
         cpanm DateTime::Event::Cron::Quartz
         cpanm DateTime::Format::DateParse
@@ -333,7 +312,6 @@ jobs:
         cpanm utf8
         cpanm PAR::Packer
         cpanm List::MoreUtils::PP
->>>>>>> develop
 
     - name: Compile
       run: |
