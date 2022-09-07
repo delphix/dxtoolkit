@@ -294,9 +294,9 @@ jobs:
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
         export LIBS="-d=$OPENSSL_PREFIX"
-        cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
-        cpanm JSON
-        cpanm Date::Manip
+        $CELL/bin/cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
+        $CELL/bin/cpanm JSON
+        $CELL/bin/cpanm Date::Manip
         # force requires after 1/1/2020 ?
         cpanm -f Date::Parse
         cpanm DateTime::Event::Cron::Quartz
