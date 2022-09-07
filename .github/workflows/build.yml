@@ -289,7 +289,7 @@ jobs:
         CELL=`brew --prefix perl`
         $CELL/bin/perl -MCPAN -e 'install App::cpanminus'
         brew install openssl@1.1
-        cpanm Crypt::CBC
+        cpanm Crypt::CBC@2.33
         cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
@@ -305,7 +305,7 @@ jobs:
         cpanm LWP::UserAgent
         cpanm Net::SSLeay
         cpanm Mozilla::CA@20180117
-        cpanm IO::Socket::SSL@2.068
+        cpanm -f IO::Socket::SSL@2.068
         cpanm LWP::Protocol::https
         cpanm Term::ReadKey
         cpanm -f Archive::Zip
