@@ -58,6 +58,7 @@ sub new {
         _endTime => $endTime,
         _state => $state,
         _parentAction => $parentAction,
+        _booting => 0,
         _debug => $debug
     };
 
@@ -459,6 +460,17 @@ sub loadActionListbyID
       $operation = "resources/json/delphix/action/" . $loaditem;
 
       my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+      if ( ($self->{_booting} eq 1) && (!defined($result))) {
+        # boot happened
+        if ($self->{_dlpxObject}->dlpx_connect($self->{_dlpxObject}->getEngineName(),1 ) ) {
+            logger($self->{_debug}, "Still can't connect after reboot" ,1);
+        } else {
+            # we connected after reboot
+            $self->{_booting} = 0;
+        }
+      }
+
       if (defined($result->{status}) && ($result->{status} eq 'OK')) {
 
         my $actions = $self->{_actions};
@@ -472,7 +484,15 @@ sub loadActionListbyID
 
         $self->{_parent_action} = \%parent_action;
       } else {
-        print "No data returned for $operation. Try to increase timeout \n";
+        # here is no data as well - if status is undefined
+        if (defined($result->{status}) && ($result->{status} ne 'booting')) {
+            print "No data returned for $operation. Try to increase timeout \n";
+            logger($self->{_debug}, "No data returned for $operation. Try to increase timeout" ,1);
+        } else {
+          # no response - assuming we are booting engine
+          logger($self->{_debug}, "booting", 1);
+          $self->{_booting} = 1;
+        }
       }
     }
 
