@@ -2386,6 +2386,56 @@ sub deleteJSONResult {
  return ($result,$result_fmt, $retcode);
 }
 
+# Procedure initializeEngine
+# parameters:
+# - disks
+# - email
+# - password
+# return jobid or undef
+
+sub initializeEngine {
+   my $self = shift;
+   my $user = shift;
+   my $disks = shift;
+   my $email = shift;
+   my $password = shift;
+
+   logger($self->{_debug}, "Entering Engine::initializeEngine",1);
+
+
+   #my @disks = ("STORAGE_DEVICE-xvdb","STORAGE_DEVICE-xvdc","STORAGE_DEVICE-xvdd");
+
+   my %engine_init = (
+    "type"=> "SystemInitializationParameters",
+    "defaultUser" => $user, 
+    "defaultPassword" => $password, 
+    "defaultEmail" => $email, 
+    "devices" => $disks
+   );
+
+   
+   my $json = to_json(\%engine_init);
+   my $operation = 'resources/json/delphix/domain/initializeSystem';
+   my ($result,$result_fmt, $retcode) = $self->postJSONData($operation, $json);
+   my $jobno;
+
+   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+       $jobno = $result->{action};
+   } else {
+       if (defined($result->{error})) {
+           print "Problem with starting job\n";
+           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+           logger($self->{_debug}, "Can't submit job for operation $operation",1);
+           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+           logger($self->{_debug}, $result->{error}->{action} ,1);
+       } else {
+           print "Unknown error. Try with debug flag\n";
+       }
+   }
+
+   return $jobno;
+}
+
 
 
 # this is good test

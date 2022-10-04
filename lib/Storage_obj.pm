@@ -14,7 +14,7 @@
 # Copyright (c) 2016 by Delphix. All rights reserved.
 #
 # Program Name : Storage_obj.pm
-# Description  : Delphix Engine Capacity object
+# Description  : Delphix Engine Storage object
 # It's include the following classes:
 # - System_obj - class which map a Delphix Engine Storage API object
 # Author       : Marcin Przepiorowski
@@ -45,15 +45,16 @@ sub new {
     logger($debug, "Entering Storage_obj::constructor",1);
 
     my %storage_test;
+    my %devices;
     my $self = {
         _dlpxObject => $dlpxObject,
         _debug => $debug,
-        _storage_test => \%storage_test
+        _storage_test => \%storage_test,
+        _devices => \%devices
     };
     
     bless($self,$classname);
     
-    $self->LoadStorageTest();
     return $self;
 }
 
@@ -434,6 +435,82 @@ sub LoadStorageTest
 
 
     
+}
+
+
+# Procedure LoadStorageDevices
+# parameters: none
+# Load a list of Storage disks from Delphix Engine
+
+sub LoadStorageDevices
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering Storage_obj::LoadStorageDevices",1);
+    my $operation = "resources/json/delphix/storage/device";
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+      my @res = @{$result->{result}};
+      
+      my $devices = $self->{_devices};
+
+      for my $disk (@res) {
+          $devices->{$disk->{reference}} = $disk;
+      }
+    } else {
+      print "No data returned for $operation. Try to increase timeout \n";
+    } 
+}
+
+# Procedure getDisks
+# parameters: 
+# - osinclude
+# - details
+# Get a list of appliance disks with size and fragmentation
+
+#{"type": "SystemInitializationParameters","defaultUser":"admin", "defaultPassword": "delphix", "defaultEmail": "test@delphix.com", "devices": ["STORAGE_DEVICE-nvme0n1","STORAGE_DEVICE-xvdb","STORAGE_DEVICE-xvdc","STORAGE_DEVICE-xvdd"]}
+
+
+sub getDisks
+{
+    my $self = shift;
+    my $osinclude = shift;
+    my $details = shift;
+    logger($self->{_debug}, "Entering Storage_obj::getDisks",1);
+    
+    my $devices = $self->{_devices};
+
+    my @retdisks;
+    
+    for my $disk (keys(%{$devices})) {
+ 
+      if (defined($devices->{$disk}->{"bootDevice"})) {
+        if (($osinclude eq 0) && ($devices->{$disk}->{"bootDevice"} eq 1)) {
+          next;
+        }
+      }
+
+      my %diskhash = (
+        "name" => $devices->{$disk}->{"name"},
+        "size" => $devices->{$disk}->{"size"},
+        "reference" => $devices->{$disk}->{"reference"}
+      );
+
+      if (defined($details)) {
+        $diskhash{"fragmentation"} = $devices->{$disk}->{"fragmentation"};
+        $diskhash{"model"} = $devices->{$disk}->{"model"};
+        $diskhash{"serial"} = $devices->{$disk}->{"serial"};
+        $diskhash{"expandableSize"} = $devices->{$disk}->{"expandableSize"};
+        $diskhash{"usedSize"} = $devices->{$disk}->{"usedSize"};
+      }
+      
+      push(@retdisks, \%diskhash);
+
+    };
+    
+    #print Dumper $devices;
+
+    return \@retdisks;
 }
 
 1;

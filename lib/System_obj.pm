@@ -223,6 +223,85 @@ sub getDNSDomains
     return $domain;
 }
 
+# Procedure getDNSSource
+# parameters: none
+# return source of dns
+
+sub getDNSSource
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getDNSSource",1);
+    my $domain;
+    if (defined($self->getDNS()->{source})) {
+      $domain = $self->getDNS()->{source};
+    } else {
+      $domain = 'STATIC';
+    }
+    return $domain;
+}
+
+# Procedure setDNSServers
+# parameters: 
+# - servers - comma separeted
+# - source 
+# - domain
+# Set a DNS servers
+
+sub setDNSServers
+{
+    my $self = shift;
+    my $servers = shift;
+    my $source = shift;
+    my $domain = shift;
+    logger($self->{_debug}, "Entering System_obj::setDNSServers",1);
+
+
+    my @dns_servers;
+    
+    my @dns_domains;
+
+    my %dns_hash = (
+      "type" => "DNSConfig",
+      "source" => $source
+    );
+
+    if (defined($servers)) {
+     @dns_servers = split(',', $servers);
+     $dns_hash{"servers"} = \@dns_servers;
+    }
+
+    if (defined($domain)) {
+     @dns_domains = split(',', $domain);
+     $dns_hash{"domain"} = \@dns_domains;
+    }
+
+    my $json = to_json(\%dns_hash);
+    my $operation = 'resources/json/delphix/service/dns';
+
+    my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting action\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job action operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+
+    return $ret;
+
+
+
+}
+
 # Procedure getSNMP
 # parameters: none
 # Load a SNMP settings of Delphix Engine
@@ -248,6 +327,7 @@ sub getSNMP
     return $self->{_snmp};
 
 }
+
 
 # Procedure getSNMPStatus
 # parameters: none
@@ -368,6 +448,72 @@ sub getNTPStatus
     return $servers;
 }
 
+
+# Procedure setNTP
+# parameters: 
+# - servers - comma separeted
+# - timezone 
+# Set a NTP servers
+
+sub setNTP
+{
+    my $self = shift;
+    my $servers = shift;
+    my $status = shift;
+    my $timezone = shift;
+    logger($self->{_debug}, "Entering System_obj::setNTP",1);
+
+    my $ntpstatus;
+
+    if (uc $status eq 'DISABLED') {
+      $ntpstatus = JSON::false;
+    } elsif (uc $status eq 'ENABLED') {
+      $ntpstatus = JSON::true;
+    } else {
+      return 1;
+    }
+
+    my @ntp_servers;
+    my %ntp_hash = (
+      "type" => "TimeConfig",
+      "ntpConfig" => {
+        "type" => "NTPConfig",
+        "enabled" => $ntpstatus
+      },
+      "systemTimeZone" => $timezone
+    );
+
+    if (defined($servers)) {
+     @ntp_servers = split(',', $servers);
+     $ntp_hash{"ntpConfig"}{"servers"} = \@ntp_servers;
+    }
+
+    my $json = to_json(\%ntp_hash);
+    # it's is causing a restart of management stack
+    my $operation = 'resources/json/delphix/service/time';
+
+    my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting action\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job action operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+
+    return $ret;
+}
+
+
 # Procedure getSMTP
 # parameters: none
 # Load a SMTP settings of Delphix Engine
@@ -403,7 +549,11 @@ sub getSMTPServer
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSMTPServer",1);
     my $servers = $self->getSMTP()->{server};
-    return $servers;
+    if (defined($servers)) {
+      return $servers
+    } else {
+      return "N/A";
+    }
 }
 
 # Procedure getSMTPStatus
@@ -444,16 +594,95 @@ sub getSyslog
 
 }
 
+
+# Procedure setSyslog
+# parameters: 
+# - servers - comma separeted
+# - timezone 
+# Set a NTP servers
+
+sub setSyslog
+{
+
+    my $self = shift;
+    my $servers = shift;
+    my $status = shift;
+    my $severity = shift;
+    logger($self->{_debug}, "Entering System_obj::setSyslog",1);
+
+    my $syslogstatus;
+
+    if (uc $status eq 'DISABLED') {
+      $syslogstatus = JSON::false;
+    } elsif (uc $status eq 'ENABLED') {
+      $syslogstatus = JSON::true;
+    } else {
+      return 1;
+    }
+
+    my @syslog_servers;
+    my %syslog_hash = (
+      "type" => "SyslogConfig",
+      "enabled" => $syslogstatus,
+      "severity" => $severity
+    );
+
+    if (defined($servers)) {
+     for my $ser (split(',', $servers)) {
+      my @serentry = split(':', $ser);
+      if (scalar(@serentry) ne 3) {
+        print("Config entry for syslog server is wrong: ". $ser);
+        return 1;
+      }
+      my %serhash = (
+        "type" => "SyslogServer",
+        "protocol" => $serentry[2],
+        "port" => $serentry[1] + 0,
+        "address" => $serentry[0]
+      );
+      push(@syslog_servers, \%serhash);
+     }
+     $syslog_hash{"servers"} = \@syslog_servers;
+    }
+
+    my $json = to_json(\%syslog_hash);
+    # it's is causing a restart of management stack
+    my $operation = 'resources/json/delphix/service/syslog';
+
+    my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting action\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job action operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+
+    return $ret;
+}
+
+
+
 # Procedure getSyslogServers
 # parameters: none
-# Return a Syslog servers in Delphix Engine
+# Return a Syslog servers in Delphix Engine in the list of the following format
+# server:port:protocol[,server:port:protocol]
 
 sub getSyslogServers
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getSyslogServers",1);
     my $servers = $self->getSyslog()->{servers};
-    return $servers;
+    return join(',', map { "$_->{address}:$_->{port}:$_->{protocol}"  } @{$servers});
 }
 
 # Procedure getSyslogStatus
@@ -506,6 +735,73 @@ sub getLDAP
 
 }
 
+# Procedure setLDAP
+# parameters: 
+# - status
+# - servers
+# Set LDAP 
+
+sub setLDAP
+{
+    my $self = shift;
+    my $server = shift;
+    my $status = shift;
+
+    logger($self->{_debug}, "Entering System_obj::setLDAP",1);
+
+    my $ldapstatus;
+
+    if (uc $status eq 'DISABLED') {
+      $ldapstatus = JSON::false;
+    } elsif (uc $status eq 'ENABLED') {
+      $ldapstatus = JSON::true;
+    } else {
+      return 1;
+    }
+
+    my $usessl;
+    if ($server->{ssl}) {
+      $usessl = JSON::true;
+    } else {
+      $usessl = JSON::false;
+    } 
+
+    my %ldap_hash = (
+      "type" => "LdapServer",
+      "host" => $server->{server},
+      "port" => $server->{port},
+      "authMethod" => $server->{authentication},
+      "useSSL" => $usessl
+    );
+
+
+
+    my $json = to_json(\%ldap_hash);
+    # it's is causing a restart of management stack
+    my $operation = 'resources/json/delphix/service/ldap/server';
+
+    my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+    my $ret;
+
+    if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+        $ret = 0;
+    } else {
+        if (defined($result->{error})) {
+            print "Problem with starting action\n";
+            print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+            logger($self->{_debug}, "Can't submit job action operation $operation",1);
+            logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+            logger($self->{_debug}, $result->{error}->{action} ,1);
+        } else {
+            print "Unknown error. Try with debug flag\n";
+        }
+        $ret = 1;
+    }
+
+    return $ret;
+
+}
+
 # Procedure getLDAPStatus
 # parameters: none
 # Return a LDAP status in Delphix Engine
@@ -552,19 +848,10 @@ sub getLDAPServers
 {
     my $self = shift;
     logger($self->{_debug}, "Entering System_obj::getLDAPServers",1);
-    my $servers = $self->getLDAPServerConf();
-    my @retarray;
-    # it's one server for now
-    for my $seritem (@{$servers}) {
-      my %serhash;
-      $serhash{address} = $seritem->{host};
-      $serhash{port} = $seritem->{port};
-      $serhash{authMethod} = $seritem->{authMethod};
-      $serhash{useSSL} = $seritem->{useSSL};
-      push(@retarray, \%serhash);
-    }
 
-    return \@retarray;
+    my $servers = $self->getLDAPServerConf();
+    # there is only one server - no point to return an array
+    return $servers->[0];
 }
 
 # Procedure getEngineType
@@ -579,5 +866,197 @@ sub getEngineType
    return $vMem;
 }
 
+# Procedure setEngineType
+# parameters: 
+# - type
+# return a action
+
+sub setEngineType
+{
+   my $self = shift;
+   my $type = shift;
+   logger($self->{_debug}, "Entering System_obj::setEngineType",1);
+
+   if (! ((uc $type eq 'VIRTUALIZATION') || (uc $type eq 'MASKING'))) {
+    return undef;
+   }
+   my %type_hash = (
+      "type"=> "SystemInfo",
+      "engineType"=> uc $type
+   );
+
+   my $json = to_json(\%type_hash);
+   my $operation = 'resources/json/delphix/system';
+
+   my ($result,$result_fmt, $retcode) = $self->{_dlpxObject}->postJSONData($operation, $json);
+   my $jobno;
+
+   if ( defined($result->{status}) && ($result->{status} eq 'OK' )) {
+       $jobno = $result->{action};
+   } else {
+       if (defined($result->{error})) {
+           print "Problem with starting action\n";
+           print "Error: " . Toolkit_helpers::extractErrorFromHash($result->{error}->{details}) . "\n";
+           logger($self->{_debug}, "Can't submit job action operation $operation",1);
+           logger($self->{_debug}, "error " . Dumper $result->{error}->{details},1);
+           logger($self->{_debug}, $result->{error}->{action} ,1);
+       } else {
+           print "Unknown error. Try with debug flag\n";
+       }
+   }
+
+   return $jobno;
+
+}
+
+# Procedure configEngine
+# parameters:
+# - engine_obj 
+# - storage
+
+sub configEngine {
+   my $self = shift;
+   my $engine_obj = shift;
+   my $engine_name = shift;
+   my $storage = shift;
+   my $email = shift;
+   my $password = shift;
+
+   $storage->LoadStorageDevices();
+
+   my $ret = 0;
+  
+   my @init_disks;
+ 
+   for my $disk (@{$storage->getDisks(0)}) {
+     push(@init_disks, $disk->{"reference"});   
+   }
+
+
+   my $job = $engine_obj->initializeEngine('admin',\@init_disks,$email,$password);
+   $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $job,'Engine initialized','Problem with engine initialization');
+   # wait for boot to complete
+
+   $ret = $ret + $self->wait_for_restart($engine_obj, $engine_name);
+
+   return $ret;
+}
+
+
+sub wait_for_restart {
+   my $self = shift;
+   my $engine_obj = shift;
+   my $engine_name = shift;
+   my $ret = 0;
+
+   print("wait for restart\n");
+   sleep 15;
+   my $booting = 1;
+
+   while($booting eq 1) {
+    my ($ret, $ret_for, $boot) = $engine_obj->getJSONResult('resources/json/delphix/session');
+    $booting = $boot;
+   }
+
+   # try at least 5 times
+   my $retry = 5; 
+   my $connected = 0;
+   
+   while(($retry>0) && ($connected eq 0)) {
+    sleep 15;
+    if ($engine_obj->dlpx_connect($engine_name)) {
+      print "Can't reconnect to Dephix Engine " . $engine_name . "\n\n";
+      $retry = $retry - 1;
+    } else {
+      $connected = 1;
+    }
+   }
+
+   if ($connected eq 1) {
+    $ret = 0;
+   } else {
+    $ret = 1;
+   }
+
+   return $ret;
+}
+
+
+# Procedure getSSO
+# parameters: none
+# Load SSO settings from engine
+
+sub getSSO
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSSO",1);
+
+    if (!defined($self->{_sso})) {
+
+      my $operation = "resources/json/delphix/service/sso";
+      my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+      if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+        $self->{_sso} = $result->{result};
+      } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+      }
+
+    }
+
+    return $self->{_sso};
+}
+
+# Procedure getSSOEntityId
+# parameters: none
+# Return a SSO EntityId 
+
+sub getSSOEntityId
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSSOEntityId",1);
+
+    my $sso = $self->getSSO();
+    return $sso->{"entityId"};
+}
+
+# Procedure getSSOsamlMetadata
+# parameters: none
+# Return a SSO samlMetadata 
+
+sub getSSOsamlMetadata
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSSOsamlMetadata",1);
+
+    my $sso = $self->getSSO();
+    return $sso->{"samlMetadata"};
+}
+
+# Procedure getSSOmaxAuthenticationAge
+# parameters: none
+# Return a SSO maxAuthenticationAge 
+
+sub getSSOmaxAuthenticationAge
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSSOmaxAuthenticationAge",1);
+
+    my $sso = $self->getSSO();
+    return $sso->{"maxAuthenticationAge"};
+}
+
+# Procedure getSSOresponseSkewTime
+# parameters: none
+# Return a SSO responseSkewTime 
+
+sub getSSOresponseSkewTime
+{
+    my $self = shift;
+    logger($self->{_debug}, "Entering System_obj::getSSOresponseSkewTime",1);
+
+    my $sso = $self->getSSO();
+    return $sso->{"responseSkewTime"};
+}
 
 1;
