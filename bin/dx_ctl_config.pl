@@ -13,10 +13,10 @@
 #
 # Copyright (c) 2016 by Delphix. All rights reserved.
 
-# Program Name : dx_get_config.pl
-# Description  : Get engine configuration
+# Program Name : dx_ctl_config.pl
+# Description  : Configure engine
 # Author       : Marcin Przepiorowski
-# Created      : 15 Sep 2016 (v2.2.7)
+# Created      : Oct 2022 (v2.4.17)
 #
 
 
@@ -47,6 +47,8 @@ GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
+  'filename=s' => \(my $filename),
+  'initializeonly' => \(my $initialize),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -67,17 +69,25 @@ if (defined($all) && defined($dx_host)) {
    exit (1);
 }
 
+if (defined($filename) && defined($initialize)) {
+   print "Option filename and initializeonly are mutually exclusive \n";
+   pod2usage(-verbose => 1,  -input=>\*DATA);
+   exit (1);
+}
 
 
-my $output = new Formater();
-
-
-
-$output->addHeader(
-  {'engine name',          35},
-  {'parameter name',       30},
-  {'value',                30}
-);
+if (!defined(defined($initialize))) {
+  if (defined($filename)) {
+    if (! -f $filename) {
+      print "File $filename is not accessiable \n";
+      exit (1);
+    }
+  } else {
+    print "Filename option is mandatory\n";
+    pod2usage(-verbose => 1,  -input=>\*DATA);
+    exit (1);
+  }
+}
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -98,162 +108,202 @@ for my $engine ( sort (@{$engine_list}) ) {
      next;
    }
 
-   my $filename = '/tmp/dxtestsys.json';
-
-   open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-
-   local $/ = undef;
-   my $json = JSON->new();
-   my $config = $json->decode(<$FD>);
- 
-   close $FD;
-
-   print Dumper $config;
-
-
    my $system = new System_obj ($engine_obj, $debug);
    my $storage = new Storage_obj ($engine_obj, $debug);
 
-
   # initialize engine
 
-  #  print("Initialize engine\n");
+   print("Initialize engine\n");
 
-  #  if ($system->configEngine($engine_obj, $engine, $storage, "marcin\@delphix.com", "slon")) {
-  #   print Dumper "engine config failed";
-  #   $ret = $ret + 1;
-  #   next;
-  #  } else {
-  #   print("Engine initialization completed\n");
-  #  }
+   if ($system->configEngine($engine_obj, $engine, $storage, "marcin\@delphix.com", "slon")) {
+    print("engine config failed\n");
+    $ret = $ret + 1;
+    next;
+   } else {
+    print("Engine initialization completed\n");
+   }
 
-#    if ((defined($config->{"type"})) && (defined($config->{"type"}->{"engine"}))) {
-#     if (!((uc $config->{"type"}->{"engine"} eq 'VIRTUALIZATION') || (uc $config->{"type"}->{"engine"} eq 'MASKING'))) {
-#       print("Engine type is wrong: " . $config->{"type"}->{"engine"});
-#       $ret = $ret + 1;
-#     } 
-#    } else {
-#     print("Engine type not found in config file\n");
-#     $ret = $ret + 1;
-#     next;
-#    }
+   if (!defined($initialize)) {
 
-#    print("Setting engine type\n");
+    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
 
-#    my $type_action = $system->setEngineType($config->{"type"}->{"engine"});
-#    if (defined($type_action)) {
-#     $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $type_action,'OK','Error with setting type action');
-#    } else {
-#     print("Can't set type - is it already set");
-#    }
+    local $/ = undef;
+    my $json = JSON->new();
+    my $config = $json->decode(<$FD>);
+  
+    close $FD;
 
-
-# # - servers - array of comma separeted
-# # - source 
-# # - domain
-
-#    my $dns_servers;
-#    my $dns_source;
-#    my $dns_domain;
-
-#    if (! defined($config->{"dns"})) {
-#     print Dumper "dns is required";
-#     $ret = $ret + 1;
-#     next;
-#    } else {
-#     print("Setting DNS\n");
-#     if (defined($config->{"dns"}->{"source"})) {
-#       $dns_source = uc $config->{"dns"}->{"source"};
-#       if ($dns_source eq 'STATIC') {
-#         if (!defined($config->{"dns"}->{"dns_domain"})) {
-#           print Dumper "dns domain is required";
-#           exit;
-#         } else {
-#           $dns_domain = $config->{"dns"}->{"dns_domain"};
-#         }
-
-#         if (!defined($config->{"dns"}->{"dns_server"})) {
-#           print Dumper "dns domain is required";
-#           exit;
-#         } else {
-#           $dns_servers = $config->{"dns"}->{"dns_server"};
-#         }
-
-#       } elsif ($dns_source eq 'DHCP') {
-#         if (!defined($config->{"dns"}->{"dns_domain"})) {
-#           print Dumper "dns domain is required";
-#           exit;
-#         } else {
-#           $dns_domain = $config->{"dns"}->{"dns_domain"};
-#         }
-#       } else {
-#         print Dumper "dns source can be STATIC or DHCP";
-#         exit;
-#       }
-#     } else {
-#       print Dumper "dns source is required";
-#       exit;
-#     }
-#    }
-
-#    $system->setDNSServers($dns_servers, $dns_source, $dns_domain);
-
-  #  if (defined($config->{"syslog"})) {
-  #   my $syslog_servers;
-  #   my $syslog_status = 'Disabled';
-  #   my $syslog_severity;
-  #   print("Setting syslog\n");
-  #   if (defined($config->{"syslog"}->{"status"})) {
-  #     $syslog_status = $config->{"syslog"}->{"status"};
-  #   }
-  #   if (defined($config->{"syslog"}->{"servers"})) {
-  #     $syslog_servers = $config->{"syslog"}->{"servers"};
-  #   }
-  #   if (defined($config->{"syslog"}->{"severity"})) {
-  #     $syslog_severity = $config->{"syslog"}->{"severity"};
-  #   }
-  #   $system->setSyslog($syslog_servers, $syslog_status, $syslog_severity);
-  #  }
-
-   if (defined($config->{"ldap"})) {
-    my $ldap_server;
-    my $ldap_status = 'Disabled';
-    print("Setting LDAP\n");
-    if (defined($config->{"ldap"}->{"status"})) {
-      $ldap_status = $config->{"ldap"}->{"status"};
+    if ((defined($config->{"type"})) && (defined($config->{"type"}->{"engine"}))) {
+      if (!((uc $config->{"type"}->{"engine"} eq 'VIRTUALIZATION') || (uc $config->{"type"}->{"engine"} eq 'MASKING'))) {
+        print("Engine type is wrong: " . $config->{"type"}->{"engine"});
+        $ret = $ret + 1;
+      } 
+    } else {
+      print("Engine type not found in config file\n");
+      $ret = $ret + 1;
+      next;
     }
 
-    if (uc $ldap_status eq 'ENABLED') {
-      if (defined($config->{"ldap"}->{"server"})) {
-        $ldap_server = $config->{"ldap"}->{"server"};
+    print("Setting engine type\n");
+
+    my $type_action = $system->setEngineType($config->{"type"}->{"engine"});
+    if (defined($type_action)) {
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $type_action,'OK','Error with setting type action');
+    } else {
+      print("Can't set type - is it already set");
+    }
+
+    if (defined($config->{"dns"})) {
+      my $dns_servers;
+      my $dns_source;
+      my $dns_domain;
+      print("Setting DNS\n");
+      if (defined($config->{"dns"}->{"source"})) {
+        $dns_source = uc $config->{"dns"}->{"source"};
+        if ($dns_source eq 'STATIC') {
+          if (!defined($config->{"dns"}->{"dns_domain"})) {
+            print "dns domain is required";
+            $ret = $ret + 1;
+            next;
+          } else {
+            $dns_domain = $config->{"dns"}->{"dns_domain"};
+          }
+
+          if (!defined($config->{"dns"}->{"dns_server"})) {
+            print "dns domain is required";
+            $ret = $ret + 1;
+            next;
+          } else {
+            $dns_servers = $config->{"dns"}->{"dns_server"};
+          }
+
+        } elsif ($dns_source eq 'DHCP') {
+          if (!defined($config->{"dns"}->{"dns_domain"})) {
+            print "dns domain is required";
+            $ret = $ret + 1;
+            next;
+          } else {
+            $dns_domain = $config->{"dns"}->{"dns_domain"};
+          }
+        } else {
+          print "dns source can be STATIC or DHCP";
+          $ret = $ret + 1;
+          next;
+        }
       } else {
-        print("LDAP server definition is missing\n");
+        print "dns source is required\n";
+        $ret = $ret + 1;
+        next;
+      }
+      $system->setDNSServers($dns_servers, $dns_source, $dns_domain);
+    }
+
+
+
+    if (defined($config->{"syslog"})) {
+      my $syslog_servers;
+      my $syslog_status = 'Disabled';
+      my $syslog_severity;
+      print("Setting syslog\n");
+      if (defined($config->{"syslog"}->{"status"})) {
+        $syslog_status = $config->{"syslog"}->{"status"};
+      }
+      if (defined($config->{"syslog"}->{"servers"})) {
+        $syslog_servers = $config->{"syslog"}->{"servers"};
+      }
+      if (defined($config->{"syslog"}->{"severity"})) {
+        $syslog_severity = $config->{"syslog"}->{"severity"};
+      }
+      $system->setSyslog($syslog_servers, $syslog_status, $syslog_severity);
+    }
+
+    if (defined($config->{"ldap"})) {
+      my $ldap_server;
+      my $ldap_status = 'Disabled';
+      print("Setting LDAP\n");
+      if (defined($config->{"ldap"}->{"status"})) {
+        $ldap_status = $config->{"ldap"}->{"status"};
+      }
+
+      if (uc $ldap_status eq 'ENABLED') {
+        if (defined($config->{"ldap"}->{"server"})) {
+          $ldap_server = $config->{"ldap"}->{"server"};
+        } else {
+          print("LDAP server definition is missing\n");
+          $ret = $ret + 1;
+          next;
+        }
+
+        $system->setLDAP($ldap_server, $ldap_status);
+      }
+    }
+
+    if (defined($config->{"sso"})) {
+      my $sso_status = 'Disabled';
+      print("Setting SSO\n");
+      if (defined($config->{"sso"}->{"status"})) {
+        $sso_status = $config->{"sso"}->{"status"};
+      }
+
+      my $entityId;
+      my $samlMetadata;
+      my $maxAuthenticationAge;
+      my $responseSkewTime;
+
+      if (defined($config->{"sso"}->{"entityId"})) {
+        $entityId = $config->{"sso"}->{"entityId"};
+      } else {
+        print("entityID is required to set SSO");
         $ret = $ret + 1;
         next;
       }
 
-      $system->setLDAP($ldap_server, $ldap_status);
+      if (defined($config->{"sso"}->{"samlMetadata"})) {
+        $samlMetadata = $config->{"sso"}->{"samlMetadata"};
+      } else {
+        print("samlMetadata is required to set SSO");
+        $ret = $ret + 1;
+        next;
+      }
+
+      if (defined($config->{"sso"}->{"maxAuthenticationAge"})) {
+        $maxAuthenticationAge = $config->{"sso"}->{"maxAuthenticationAge"};
+      } 
+
+      if (defined($config->{"sso"}->{"responseSkewTime"})) {
+        $responseSkewTime = $config->{"sso"}->{"responseSkewTime"};
+      } 
+
+      if (uc $sso_status eq 'ENABLED') {
+        $system->setSSO($entityId, $samlMetadata, $responseSkewTime, $maxAuthenticationAge);
+      }
+
+    }
+
+    if (defined($config->{"time"})) {
+      my $ntp_servers;
+      my $ntp_status = 'Disabled';
+      my $timezone;
+      print("Setting timezone and NTP\n");
+      if (defined($config->{"time"}->{"ntp_status"})) {
+        $ntp_status = $config->{"time"}->{"ntp_status"};
+      }
+      if (defined($config->{"time"}->{"ntp_server"})) {
+        $ntp_servers = $config->{"time"}->{"ntp_server"};
+      }
+      if (defined($config->{"time"}->{"timezone"})) {
+        $timezone = $config->{"time"}->{"timezone"};
+      }
+
+      $system->setNTP($ntp_servers, $ntp_status, $timezone);
+      $system->wait_for_restart($engine_obj, $engine);
     }
    }
-
-  #  if (defined($config->{"time"})) {
-  #   my $ntp_servers;
-  #   my $ntp_status = 'Disabled';
-  #   my $timezone;
-  #   print("Setting timezone and NTP\n");
-  #   if (defined($config->{"time"}->{"ntp_status"})) {
-  #     $ntp_status = $config->{"time"}->{"ntp_status"};
-  #   }
-  #   if (defined($config->{"time"}->{"ntp_server"})) {
-  #     $ntp_servers = $config->{"time"}->{"ntp_server"};
-  #   }
-  #   if (defined($config->{"time"}->{"timezone"})) {
-  #     $timezone = $config->{"time"}->{"timezone"};
-  #   }
-
-  #   $system->setNTP($ntp_servers, $ntp_status, $timezone);
-  #   $system->wait_for_restart($engine_obj, $engine);
-  #  }
+   if ($ret eq 0) {
+    print "Engine $engine configured without problems\n";
+   } else {
+    print "Engine $engine configuration issues\n";
+   }
 
 }
 
@@ -265,14 +315,15 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_config [-engine|d <delphix identifier> | -all ]
-               [-format csv|json]
+ dx_ctl_config [-engine|d <delphix identifier> | -all ]
+                -filename name | -initializeonly 
                [-help|? ]
                [-debug ]
 
 =head1 DESCRIPTION
 
-Display Delphix Engine configuration
+Configure or initialize Delphix engine. Configuration file is JSON based and can be created by dx_get_config 
+with backup option
 
 =head1 ARGUMENTS
 
@@ -285,7 +336,7 @@ Warning - this scripts require a sysadmin user to run
 Specify Delphix Engine name from dxtools.conf file
 
 =item B<-all>
-Display databases on all Delphix appliance
+Run on all Delphix Engines configured in dxtoos.conf
 
 =item B<-configfile file>
 Location of the configuration file.
@@ -294,15 +345,17 @@ A config file search order is as follow:
 - DXTOOLKIT_CONF variable
 - dxtools.conf from dxtoolkit location
 
+=item B<-filename name>
+Initialize engine and apply configuration file
+
+=item B<-initializeonly>
+Initialize engine only
+
 =back
 
 =head1 OPTIONS
 
 =over 3
-
-=item B<-format>
-Display output in csv or json format
-If not specified pretty formatting is used.
 
 =item B<-help>
 Print this screen
@@ -314,29 +367,24 @@ Turn on debugging
 
 =head1 EXAMPLES
 
-Display a Delphix Engine configuration
+Initialize a new engine and apply configuration with config file.
 
-  dx_get_config -d Landshark5sys
-
-  engine name                         parameter name                 value
-  ----------------------------------- ------------------------------ ------------------------------
-  Landshark5sys                       DNS server                     172.16.180.2
-  Landshark5sys                       DNS Domain                     localdomain
-  Landshark5sys                       SNMP Status                    Disabled
-  Landshark5sys                       SNMP Servers
-  Landshark5sys                       SNMP Severity                  WARNING
-  Landshark5sys                       NTP Servers                    Europe.pool.ntp.org
-  Landshark5sys                       NTP Status                     Enabled
-  Landshark5sys                       SMTP Server                    N/A
-  Landshark5sys                       SMTP Status                    Disabled
-  Landshark5sys                       Syslog Status                  Disabled
-  Landshark5sys                       Syslog Servers
-  Landshark5sys                       Syslog severity                WARNING
-  Landshark5sys                       LDAP status                    Enabled
-  Landshark5sys                       LDAP server 1 name             1.2.3.4
-  Landshark5sys                       LDAP server 1 port             389
-  Landshark5sys                       LDAP server 1 use SSL          false
-  Landshark5sys                       LDAP server 1 authentication   SIMPLE
+  dx_ctl_config -d dxtestsys1  -filename /tmp/dxtestsys.json
+  Initialize engine
+  Waiting for all actions to complete. Parent action is ACTION-2
+  Engine initialized
+  wait for restart
+  Engine initialization completed
+  Setting engine type
+  Waiting for all actions to complete. Parent action is ACTION-4
+  OK
+  Setting DNS
+  Setting syslog
+  Setting LDAP
+  Setting SSO
+  Setting timezone and NTP
+  wait for restart
+  Engine dxtestsys1 configured without problems
 
 
 =cut

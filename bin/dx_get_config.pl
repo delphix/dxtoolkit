@@ -163,16 +163,17 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     $config{"ldap"}{"server"} = \%ldap_entry;
 
-    $config{"ldap"}{"sso"}{"entityId"} = $system->getSSOEntityId();
-    $config{"ldap"}{"sso"}{"samlMetadata"} = $system->getSSOsamlMetadata();
-    $config{"ldap"}{"sso"}{"maxAuthenticationAge"} = $system->getSSOmaxAuthenticationAge();
-    $config{"ldap"}{"sso"}{"responseSkewTime"} = $system->getSSOresponseSkewTime();
    }
 
    $config{"storage"} = $storage->getDisks(0);
 
-   
-
+   $config{"sso"}{"status"} = $system->getSSOStatus();
+   if ($config{"sso"}{"status"} eq 'Enabled') {
+    $config{"sso"}{"entityId"} = $system->getSSOEntityId();
+    $config{"sso"}{"samlMetadata"} = $system->getSSOsamlMetadata();
+    $config{"sso"}{"maxAuthenticationAge"} = $system->getSSOmaxAuthenticationAge();
+    $config{"sso"}{"responseSkewTime"} = $system->getSSOresponseSkewTime();
+   }
 
    if (defined($backup)) {
     my $filename = File::Spec->catfile($backup,$engine_obj->getEngineName() . '.json'); 
