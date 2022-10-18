@@ -110,7 +110,7 @@ sub loadUpgradeReport {
 
 sub getOSversions {
    my $self = shift;
-   my @ret = sort(keys (%{$self->{_versions}}));
+   my @ret = sort { version->parse($self->{_versions}->{$a}->{name}) cmp version->parse($self->{_versions}->{$b}->{name})  } (keys (%{$self->{_versions}}));
    return \@ret;
 }
 
