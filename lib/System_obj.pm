@@ -140,8 +140,11 @@ sub getUUID {
 sub getvCPU {
    my $self = shift;
    logger($self->{_debug}, "Entering System_obj::getvCPU",1);
-   my $vCPU = $self->{_system}->{processors};
-   return scalar(@{$vCPU});
+   my $cpucount = 0;
+   for my $vCPU (@{$self->{_system}->{processors}}) {
+    $cpucount = $cpucount + $vCPU->{cores};
+   }
+   return $cpucount;
 }
 
 # Procedure getvMem
