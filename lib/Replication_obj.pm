@@ -42,12 +42,17 @@ sub new {
   my %replication_state;
   my %replication_points;
 
+  my %new_spec = (
+    "type"=> "ReplicationSpec"
+  );
+
   my $self = {
     _replication_points => \%replication_points,
     _replication_state  => \%replication_state,
     _replication        => \%replication,
     _dlpxObject         => $dlpxObject,
-    _debug              => $debug
+    _debug              => $debug,
+    _new                => \%new_spec
   };
 
   bless( $self, $classname );
@@ -121,6 +126,29 @@ sub getNamespace {
   return $replication->{$reference};
 }
 
+
+# Procedure isSDD
+# parameters:
+# - reference
+# Return True if SDD
+
+sub isSDD {
+  my $self      = shift;
+  my $reference = shift;
+
+  logger( $self->{_debug}, "Entering Replication_obj::isSDD", 1 );
+
+  my $replication = $self->{_replication};
+  if ($replication->{$reference}->{objectSpecification}->{type} eq 'ReplicationList') {
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+
+
+
 # Procedure getReplicationByName
 # parameters:
 # Return replication refernce for name
@@ -128,11 +156,14 @@ sub getNamespace {
 sub getReplicationByName {
   my $self = shift;
   my $name = shift;
+  my $silent = shift;
   my $ret;
   logger( $self->{_debug}, "Entering Replication_obj::getReplicationByName", 1 );
   my @list = grep { $self->getName($_) eq $name } keys %{ $self->{_replication} };
   if ( scalar(@list) < 1 ) {
-    print "Can't find replication specification using name - $name\n";
+    if (!defined($silent)) {
+      print "Can't find replication specification using name - $name\n";
+    }
   }
   elsif ( scalar(@list) > 1 ) {
     print "Too many replication specification using same name - $name\n";
@@ -227,7 +258,13 @@ sub getLastPoint {
   if ( scalar(@stateforref) > 0 ) {
     my $last_replication_point_ref = $replication_state->{ $stateforref[-1] }->{lastPoint};
 
-    my $last_point = $self->{_replication_points}->{$last_replication_point_ref};
+    my $last_point;
+
+    if (defined($last_replication_point_ref)) {
+      $last_point = $self->{_replication_points}->{$last_replication_point_ref};
+    } else {
+      $last_point = undef;
+    }
 
     if ( defined( $last_point->{dataTimestamp} ) ) {
       my $timezone = $self->{_dlpxObject}->getTimezone();
@@ -290,6 +327,22 @@ sub getTargetHost {
 
   my $replication = $self->{_replication};
   return $replication->{$reference}->{targetHost};
+}
+
+
+# Procedure getUser
+# parameters:
+# - reference
+# Return user
+
+sub getUser {
+  my $self      = shift;
+  my $reference = shift;
+
+  logger( $self->{_debug}, "Entering Replication_obj::getUser", 1 );
+
+  my $replication = $self->{_replication};
+  return $replication->{$reference}->{targetPrincipal};
 }
 
 # Procedure getObjects
@@ -356,7 +409,8 @@ sub getObjectsName {
       else {
         my $db = $self->{_databases}->getDB($objitem);
         if ( defined($db) ) {
-          push( @objnames, $db->getName() );
+          my $name = $self->{_groups}->getName($db->getGroup()) . "/" . $db->getName();
+          push( @objnames, $name );
         }
       }
 
@@ -685,5 +739,319 @@ sub runJobOperation {
 
   return $jobno;
 }
+
+# Procedure getReplicationObj
+# parameters:
+# - repref - current replication id to process
+# Return a Replication Obj, new if repref is not defined
+
+sub getReplicationObj {
+  my $self = shift;
+  my $repref = shift;
+
+  if (defined($repref)) {
+    if (defined($self->{_replication}->{$repref})) {
+      delete $self->{_replication}->{$repref}->{reference};
+      delete $self->{_replication}->{$repref}->{namespace};
+      delete $self->{_replication}->{$repref}->{runtime};
+      delete $self->{_replication}->{$repref}->{tag};
+      delete $self->{_replication}->{$repref}->{objectSpecification}->{namespace};
+      delete $self->{_replication}->{$repref}->{objectSpecification}->{name};
+      delete $self->{_replication}->{$repref}->{objectSpecification}->{reference};
+
+      return $self->{_replication}->{$repref};
+    } else {
+      logger( $self->{_debug}, "replication spec not found", 2 );
+      print Dumper "replication spec not found";
+      return undef;
+    }
+  } 
+}
+
+
+# Procedure backup
+# parameters:
+# - backup - path to backup directory
+# - repref - current replication id to process
+# Generate replication backup
+
+sub backup {
+  my $self = shift;
+  my $path = shift;
+  my $repref = shift;
+  my $enginename = shift;
+
+  
+  logger( $self->{_debug}, "Entering Replication_obj::backup", 1 );
+  logger( $self->{_debug}, "Obj rep " . $repref , 2 );
+
+  my $backup_cmd = "dx_ctl_replication -d " . $enginename . " -action create -profilename " . $self->getName($repref);
+  $backup_cmd = $backup_cmd . " -objects " . $self->getObjectsName($repref);
+  $backup_cmd = $backup_cmd . " -host " . $self->getTargetHost($repref);
+  $backup_cmd = $backup_cmd . " -user ". $self->getUser($repref);
+  $backup_cmd = $backup_cmd . " -password xxxxxxxx";
+  if (uc $self->getEnabled($repref) eq 'ENABLED') {
+    $backup_cmd = $backup_cmd . " -enabled yes";
+    if (defined(my $schedule = $self->getSchedule($repref))) {
+      $backup_cmd = $backup_cmd . " -schedule \"" . $schedule . "\"";
+    }
+  } else {
+    $backup_cmd = $backup_cmd . " -enabled no";
+  }
+
+  if ($self->isSDD($repref)) {
+    $backup_cmd = $backup_cmd . " -type sdd";
+  } else {
+    $backup_cmd = $backup_cmd . " -type replica";
+  }
+
+  return $backup_cmd;
+
+}
+
+# Procedure createreplication
+# parameters:
+# - repobj - replication object
+# - profilename - profile name
+# Generate replication backup
+
+sub createreplication {
+  my $self = shift;
+  my $repobj = shift;
+  my $profilename = shift;
+  logger( $self->{_debug}, "Entering Replication_obj::createreplication", 1 );
+  logger( $self->{_debug}, "Obj rep " . $profilename , 2 );
+  $repobj->{"name"} = $profilename;
+
+  my $json = to_json($repobj);
+  my $operation = "resources/json/delphix/replication/spec/";
+  return $self->runJobOperation( $operation, $json, 'ACTION' );
+
+}
+
+# Procedure updateprofile
+# parameters:
+# - repboj - current object
+# Update a profile
+
+sub updateprofile {
+  my $self = shift;
+  my $repobj = shift;
+  my $repref = shift;
+
+  logger( $self->{_debug}, "Entering Replication_obj::updateprofile", 1 );
+  logger( $self->{_debug}, "Obj ref " . $repref , 2 );
+  my $operation = "resources/json/delphix/replication/spec/" . $repref;
+  my $json = to_json($repobj);
+  return $self->runJobOperation( $operation, $json, 'ACTION' );
+}
+
+# Procedure deletereplication
+# parameters:
+# - repref - current replication id to process
+# Delete a profile
+
+sub deletereplication {
+  my $self = shift;
+  my $repref = shift;
+  logger( $self->{_debug}, "Entering Replication_obj::deletereplication", 1 );
+  logger( $self->{_debug}, "Obj ref " . $repref , 2 );
+  my $operation = "resources/json/delphix/replication/spec/" . $repref . "/delete";
+  return $self->runJobOperation( $operation, '{}', 'ACTION' );
+}
+
+
+# Procedure failover
+# parameters:
+# - repref - current replication id to process
+# Delete a profile
+
+sub failover {
+  my $self = shift;
+  my $repref = shift;
+  logger( $self->{_debug}, "Entering Replication_obj::failover", 1 );
+  logger( $self->{_debug}, "Obj ref " . $repref , 2 );
+  my $operation = "resources/json/delphix/replication/spec/" . $repref . "/delete";
+  return $self->runJobOperation( $operation, '{}', 'ACTION' );
+}
+
+# Procedure setObjects
+# parameters:
+# - repobj - replication obj
+# - object_names - array of names
+# Set objects in objectSpecification
+
+sub setObjects {
+  my $self = shift;
+  my $repobj = shift;
+  my $object_names = shift;
+  my $type = shift;
+
+  $self->setGroups();
+  $self->setDatabases();
+
+  my @object_list = ();
+
+  for my $objname ( sort ( @{$object_names} ) ) {
+
+    if ((my $groupname, my $dbname) = $objname =~ '(.*)/(.*)') {
+
+      my $grpobj = $self->{_groups}->getGroupByName($groupname);
+
+      if (!defined($grpobj)) {
+        print Dumper "Group not found";
+        print Dumper $groupname;
+        return undef;
+      }
+        
+      my $dbobj = Toolkit_helpers::get_dblist_from_filter(undef, $groupname, undef, $dbname, $self->{_databases}, $self->{_groups});
+
+      if (!defined($dbobj)) {
+        print Dumper "database not found";
+        return undef;
+      }
+
+      if (scalar(@{$dbobj}) ne 1 ) {
+        print Dumper "database name is not unique";
+        return undef;
+      }
+
+      push(@object_list, $dbobj->[0]);
+    } else {
+      
+      if (uc $objname eq 'DOMAIN') {
+        @object_list = ('DOMAIN');
+        last;
+      } else {
+        my $grpobj = $self->{_groups}->getGroupByName($objname);
+        if (!defined($grpobj)) {
+          print Dumper "Group not found";
+          print Dumper $objname;
+          return undef;
+        }
+        push(@object_list, $grpobj->{reference});
+      }
+
+    }
+
+  }
+
+
+  if (lc $type eq 'replica') {
+    $repobj->{"objectSpecification"}->{type} = 'ReplicationList';
+    $repobj->{"objectSpecification"}->{"objects"} = \@object_list;
+  } elsif (lc $type eq 'sdd') {
+    $repobj->{"objectSpecification"}->{type} = 'ReplicationSecureList';
+    $repobj->{"objectSpecification"}->{"containers "} = \@object_list;
+  } else {
+    print "Unknown type\n";
+    return undef;
+  }
+  return 1;
+
+}
+
+# Procedure setHost
+# parameters:
+# - repobj - replication obj
+# - host - host
+# - username - username
+# - password - password
+# Set host related data
+
+sub setHost {
+  my $self = shift;
+  my $repobj = shift;
+  my $host = shift;
+  my $user = shift;
+  my $password = shift;
+
+  if (defined($host)) {
+    $repobj->{"targetHost"} = $host;
+  }
+
+  if (defined($user)) {
+    $repobj->{"targetPrincipal"} = $user;
+  }
+
+  if (defined($password)) {
+    $repobj->{"targetCredential"}->{"type"} = "PasswordCredential";
+    $repobj->{"targetCredential"}->{"password"} = $password;
+  }
+
+}
+
+# Procedure setEnabled
+# parameters:
+# - repobj
+# Set enabled and set schedule
+
+sub setEnabled {
+  my $self      = shift;
+  my $repobj    = shift;
+  my $schedule  = shift;
+  my $enabled   = shift;
+
+  if ($enabled eq 'yes') {
+    $enabled = JSON::true;
+    $repobj->{"schedule"} = $schedule;
+  } else {
+    $enabled = JSON::false;
+  }
+
+  logger( $self->{_debug}, "Entering Replication_obj::setEnabled", 1 );
+
+  my $replication = $self->{_replication};
+
+  my $ret;
+
+  if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
+    $repobj->{enabled} = $enabled;
+  } else {
+    $repobj->{automaticReplication} = $enabled;
+  }
+
+  
+}
+
+# Procedure setType
+# parameters:
+# - repobj
+# - type
+# Set a proper objectlist type
+
+# sub setType {
+#   my $self      = shift;
+#   my $repobj = shift;
+#   my $type = shift;
+
+#   logger( $self->{_debug}, "Entering Replication_obj::setType", 1 );
+#   if (lc $type eq 'replica') {
+#     $repobj->{"objectSpecification"}->{type} = 'ReplicationList';
+#   } elsif (lc $type eq 'sdd') {
+#     $repobj->{"objectSpecification"}->{type} = 'ReplicationSecureList';
+#   } else {
+#     print Dumper "wrong type";
+#     return undef;
+#   }    
+# }
+
+
+# {
+#     "type": "ReplicationSpec",
+#     "name": "dupazbita",
+#     "targetHost": "10.0.0.1",
+#     "targetPrincipal": "admin",
+#     "targetCredential": {
+#         "type": "PasswordCredential",
+#         "password": "dupa"
+#     },
+#     "objectSpecification": {
+#         "type": "ReplicationList",
+#         "objects": [
+#             "ORACLE_DB_CONTAINER-5"
+#         ]
+#     }
+# }
 
 1;

@@ -44,6 +44,8 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'list' => \(my $list),
   'last' => \(my $last),
+  'backup=s' => \(my $backup),
+  'profilename=s' => \(my $profilename),
   'format=s' => \(my $format), 
   'debug:i' => \(my $debug), 
   'cron'    => \(my $cron),
@@ -78,6 +80,13 @@ if (defined($last) && (defined($list))) {
   exit (1);
 }
 
+
+if (defined($backup) && (defined($last) || (defined($list)))) {
+  print "Option -backup and -last or -list are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
 if (defined($last)) {
   $output->addHeader(
       {'Appliance',          10},
@@ -93,6 +102,10 @@ if (defined($last)) {
       {'Profile name',       20},
       {'Replication target', 20},
       {'Enable',              9}
+  );
+} elsif (defined($backup)) {
+  $output->addHeader(
+      {'Command',          200},
   );
 } else {
   $output->addHeader(
@@ -124,6 +137,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   for my $repitem ( $replication->getReplicationList() ) {
 
+    if (defined($profilename) && (uc $replication->getName($repitem) ne uc $profilename)) {
+      $ret = $ret + 1;
+      next;
+    }
+
     if (defined($list)) {
       $output->addLine(
         $engine,
@@ -143,6 +161,11 @@ for my $engine ( sort (@{$engine_list}) ) {
           $lastpoint->{size}
         );    
       }
+    } elsif (defined($backup)) {
+      my $path = $backup;
+      $output->addLine(
+        $replication->backup($path, $repitem, $engine)
+      );
     } else {
 
       my $lastjob = $replication->getLastJob($repitem);
@@ -168,8 +191,21 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 }
 
+if (!defined($backup)) {
+  Toolkit_helpers::print_output($output, $format, $nohead);
+} else {
+  my $FD;
+  my $filename = File::Spec->catfile($backup,'backup_replica.txt');
 
-Toolkit_helpers::print_output($output, $format, $nohead);
+  if ( open($FD,'>', $filename) ) {
+    $output->savecsv(1,$FD);
+    print "Backup exported into $filename \n";
+  } else {
+    print "Can't create a backup file $filename \n";
+    $ret = $ret + 1;
+  }
+  close ($FD);
+}
 
 exit $ret;
 
@@ -177,7 +213,13 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_get_replication [ -engine|d <delphix identifier> | -all ] [ -configfile file ][-cron] [ -format csv|json ]  [ -help|? ] [ -debug ]
+ dx_get_replication [ -engine|d <delphix identifier> | -all ] 
+                    [ -profilename profile ]
+                    [ -configfile file ]
+                    [ -backup path ]
+                    [ -cron] 
+                    [ -format csv|json ]  
+                    [ -help|? ] [ -debug ]
 
 =head1 DESCRIPTION
 
@@ -208,12 +250,17 @@ A config file search order is as follow:
 
 =over 3
 
+=item B<-profilename profile>
+Limit output to single profile
+
 =item B<-list>
 Display list of replication profiles
 
 =item B<-last>
 Display last status of replication profile
 
+=item B<-backup path>
+Path to location where backup of the exiting replication profile(s) will be created
 
 =item B<-cron>
 Display schedule using a cron expression
@@ -261,6 +308,11 @@ List a replication profiles (>4.2)
  ---------- -------------------- -------------------- ---------
  Landshark5 DB1-Landshark5-rep   Landshark5-rep       ENABLED
  Landshark5 DB2-Landshark5-rep   Landshark5-rep       ENABLED
+
+Backup replication profiles
+
+ dx_get_replication -d DE -backup /tmp
+ Backup exported into /tmp/backup_replica.txt
 
 =cut
 
