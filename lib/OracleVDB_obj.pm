@@ -2492,6 +2492,7 @@ sub setFileSystemLayout {
     my $externalDirectory = shift;
     my $scriptDirectory = shift;
     my $tempDirectory = shift;
+    my $useabsolute = shift;
 
     logger($self->{_debug}, "Entering VDB_obj::setFileSystemLayout",1);
 
@@ -2528,6 +2529,10 @@ sub setFileSystemLayout {
 
     if ( defined($dataDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
+    }
+
+    if ( defined($useabsolute)) {
+      $self->{"NEWDB"}->{"filesystemLayout"}->{"useAbsolutePathForDataFiles"} = JSON::true;
     }
 
     return 0;

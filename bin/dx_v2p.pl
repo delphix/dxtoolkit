@@ -64,6 +64,7 @@ GetOptions(
   'externalDirectory=s' => \(my $externalDirectory),
   'scriptDirectory=s' => \(my $scriptDirectory),
   'tempDirectory=s' => \(my $tempDirectory),
+  'useabsolute' => \(my $useabsolute),
   'timestamp=s' => \($timestamp),
   'noopen' => \(my $noopen),
   'norecovery' => \(my $norecovery),
@@ -185,7 +186,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if ( $type eq 'oracle' ) {
 
-    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory, $useabsolute) ) {
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
       exit(1);
     }
@@ -261,7 +262,7 @@ __DATA__
             -type oracle|mssql|sybase
             -envinst OracleHome/MSSQLinstance/SybaseInstance
           [ -targetDirectory target_directory ]
-          [-envUser username]
+          [ -envUser username]
           [ -timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp ]
           [ -template template_name ]
           [ -mapfile mapping_file ]
@@ -273,6 +274,7 @@ __DATA__
           [ -dataDirectory data_dir ]
           [ -externalDirectory external_dir ]
           [ -tempDirectory temp_dir ]
+          [ -useabsolute ]
           [ -dspconnections=n ]
           [ -dspusecompression ]
           [ -dspuseencryption ]
@@ -358,6 +360,9 @@ External directory
 
 =item B<-temp>
 Temp directory
+
+=item B<-useabsolute>
+Use absolute paths
 
 =item B<-norecovery>
 Do not run recovery (for MS SQL and Sybase only)
