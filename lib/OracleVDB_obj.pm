@@ -2530,6 +2530,8 @@ sub setFileSystemLayout {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
     }
 
+    return 0;
+
 }
 
 
