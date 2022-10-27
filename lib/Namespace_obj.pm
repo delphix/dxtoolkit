@@ -30,6 +30,10 @@ use Data::Dumper;
 use JSON;
 use Toolkit_helpers qw (logger);
 
+use lib '../lib';
+
+use Jobs;
+
 # constructor
 # parameters 
 # - dlpxObject - connection to DE
@@ -42,14 +46,15 @@ sub new {
     logger($debug, "Entering Namespace_obj::constructor",1);
 
     my %namespace;
+    my %replica_state;
     my $self = {
         _namespace => \%namespace,
         _dlpxObject => $dlpxObject,
-        _debug => $debug
+        _debug => $debug,
+        _replication_state => \%replica_state
     };
     
-    bless($self,$classname);
-    
+    bless($self,$classname);    
     $self->loadNamespaceList($debug);
     return $self;
 }
@@ -104,7 +109,7 @@ sub getNamespaceList {
     
     logger($self->{_debug}, "Entering Namespace_obj::getNamespaceList",1);    
 
-    return keys %{$self->{_namespace}};
+    return sort(keys %{$self->{_namespace}});
 }
 
 
@@ -163,6 +168,120 @@ sub loadNamespaceList
     } else {
         print "No data returned for $operation. Try to increase timeout \n";
     }
+}
+
+
+# Procedure findlastreplica
+# parameters: none
+# Find last replica
+
+sub findlastreplica {
+  my $self = shift;
+  logger( $self->{_debug}, "Entering Namespace_obj::findlastreplica", 1 );
+
+  $self->loadReplicationState();
+  my $jobs;
+
+  my %times;
+
+  for my $spec (keys(%{$self->{_replication_state}})) {
+    my @objarray = ($spec);
+    $jobs = new Jobs($self->{_dlpxObject}, undef, undef, 'COMPLETED', undef, undef, undef, \@objarray, undef, undef, $self->{_debug});
+    my $jobobj;
+
+    
+
+    my $jobref = (@{$jobs->getJobList()})[-1];
+    my $nsref = $self->getNamespaceByName($self->{_replication_state}->{$spec}->{"name"});
+    if (defined($jobref)) {
+      $jobobj = $jobs->getJob($jobref);
+      if (defined($jobobj)) {
+        $times{$nsref} = $jobobj->getJobStartTimeWithTZ();
+      } else {
+        $times{$nsref} = "N/A";
+      }
+    } else {
+      $times{$nsref} = "N/A";
+    }
+    
+  }
+
+  return \%times;
+  
+
+}
+
+# Procedure loadReplicationState
+# parameters: none
+# Load replication state
+
+sub loadReplicationState {
+  my $self = shift;
+  logger( $self->{_debug}, "Entering Namespace_obj::loadReplicationState", 1 );
+
+  my $operation = "resources/json/delphix/replication/targetstate";
+  my ( $result, $result_fmt ) = $self->{_dlpxObject}->getJSONResult($operation);
+  my $replication_state;
+  if ( defined( $result->{status} ) && ( $result->{status} eq 'OK' ) ) {
+    my @res = @{ $result->{result} };
+    if ( scalar( @{ $result->{result} } ) ) {
+
+      $replication_state = $self->{_replication_state};
+
+      for my $repitem (@res) {
+        $replication_state->{ $repitem->{reference} } = $repitem;
+      }
+
+    }
+  }
+  else {
+    print "No data returned for $operation. Try to increase timeout \n";
+  }
+
+
+}
+
+
+# Procedure deletenamespace
+# parameters:
+# - repref - current replication id to process
+# Delete a profile
+
+sub deletenamespace {
+  my $self = shift;
+  my $repref = shift;
+  logger( $self->{_debug}, "Entering Namespace_obj::deletenamespace", 1 );
+  logger( $self->{_debug}, "Obj ref " . $repref , 2 );
+  my $operation = "resources/json/delphix/namespace/" . $repref . "/delete";
+  return $self->runJobOperation( $operation, '{}', 'ACTION' );
+}
+
+# Procedure failovernamespace
+# parameters:
+# - repref - current replication id to process
+# Delete a profile
+
+sub failovernamespace {
+  my $self = shift;
+  my $repref = shift;
+  my $smart = shift;
+  logger( $self->{_debug}, "Entering Namespace_obj::failovernamespace", 1 );
+  logger( $self->{_debug}, "Obj ref " . $repref , 2 );
+
+  my %failhash = (
+    "type" => "NamespaceFailoverParameters"
+  );
+
+  if (lc $smart eq 'yes') {
+    $failhash{"smartFailover"} = JSON::true;
+  } else {
+    $failhash{"smartFailover"} = JSON::false;
+  }
+
+  my $json = to_json(\%failhash);
+
+  my $operation = "resources/json/delphix/namespace/" . $repref . "/failover";
+  return $self->runJobOperation( $operation, $json, 'ACTION' );
 }
 
 # Procedure translateObject
@@ -272,5 +391,47 @@ sub generate_replicate_mapping {
   
 }
 
+# Procedure runJobOperation
+# parameters:
+# - operation - API string
+# - json_data - JSON encoded data
+# Run POST command running background job for particular operation and json data
+# Return job number if job started or undef otherwise
+
+sub runJobOperation {
+  my $self      = shift;
+  my $operation = shift;
+  my $json_data = shift;
+  my $action    = shift;
+
+  logger( $self->{_debug}, "Entering Namespace_obj::runJobOperation", 1 );
+  logger( $self->{_debug}, $operation, 2 );
+
+  my ( $result, $result_fmt ) = $self->{_dlpxObject}->postJSONData( $operation, $json_data );
+  my $jobno;
+
+  if ( defined( $result->{status} ) && ( $result->{status} eq 'OK' ) ) {
+    if ( defined($action) && $action eq 'ACTION' ) {
+      $jobno = $result->{action};
+    }
+    else {
+      $jobno = $result->{job};
+    }
+  }
+  else {
+    if ( defined( $result->{error} ) ) {
+      print "Problem with starting job\n";
+      print "Error: " . Toolkit_helpers::extractErrorFromHash( $result->{error}->{details} ) . "\n";
+      logger( $self->{_debug}, "Can't submit job for operation $operation",   1 );
+      logger( $self->{_debug}, "error " . Dumper $result->{error}->{details}, 1 );
+      logger( $self->{_debug}, $result->{error}->{action},                    1 );
+    }
+    else {
+      print "Unknown error. Try with debug flag\n";
+    }
+  }
+
+  return $jobno;
+}
 
 1;

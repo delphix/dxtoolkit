@@ -48,6 +48,8 @@ GetOptions(
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
   'filename=s' => \(my $filename),
+  'email=s' => \(my $email),
+  'password=s' => \(my $password),
   'initializeonly' => \(my $initialize),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -76,7 +78,7 @@ if (defined($filename) && defined($initialize)) {
 }
 
 
-if (!defined(defined($initialize))) {
+if (!defined($initialize)) {
   if (defined($filename)) {
     if (! -f $filename) {
       print "File $filename is not accessiable \n";
@@ -115,7 +117,47 @@ for my $engine ( sort (@{$engine_list}) ) {
 
    print("Initialize engine\n");
 
-   if ($system->configEngine($engine_obj, $engine, $storage, "marcin\@delphix.com", "slon")) {
+   my $config;
+   if (defined($filename)) {
+    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
+
+    local $/ = undef;
+    my $json = JSON->new();
+    $config = $json->decode(<$FD>);
+  
+    close $FD;
+
+    if ((defined($config->{"engine"})) && (defined($config->{"engine"}->{"email"}))) {
+      $email = $config->{"engine"}->{"email"};
+    } else {
+      print("Missing engine->email entry in config file");
+      $ret = $ret + 1;
+      next;
+    }
+
+    if ((defined($config->{"engine"})) && (defined($config->{"engine"}->{"password"}))) {
+      $password = $config->{"engine"}->{"password"};
+    } else {
+      print("Missing engine->password entry in config file");
+      $ret = $ret + 1;
+      next;
+    }
+
+   } else {
+    if (!defined($email)) {
+      print("if no configuration file is used email needs to be provided as parameter\n");
+      $ret = $ret + 1;
+      next;
+    }
+    if (!defined($password)) {
+      print("if no configuration file is used password needs to be provided as parameter\n");
+      $ret = $ret + 1;
+      next;
+    }
+
+   }
+
+   if ($system->configEngine($engine_obj, $engine, $storage, $email, $password)) {
     print("engine config failed\n");
     $ret = $ret + 1;
     next;
@@ -125,17 +167,9 @@ for my $engine ( sort (@{$engine_list}) ) {
 
    if (!defined($initialize)) {
 
-    open (my $FD, '<', "$filename") or die ("Can't open file $filename : $!");
-
-    local $/ = undef;
-    my $json = JSON->new();
-    my $config = $json->decode(<$FD>);
-  
-    close $FD;
-
-    if ((defined($config->{"type"})) && (defined($config->{"type"}->{"engine"}))) {
-      if (!((uc $config->{"type"}->{"engine"} eq 'VIRTUALIZATION') || (uc $config->{"type"}->{"engine"} eq 'MASKING'))) {
-        print("Engine type is wrong: " . $config->{"type"}->{"engine"});
+    if ((defined($config->{"engine"})) && (defined($config->{"engine"}->{"type"}))) {
+      if (!((uc $config->{"engine"}->{"type"} eq 'VIRTUALIZATION') || (uc $config->{"engine"}->{"type"} eq 'MASKING'))) {
+        print("Engine type is wrong: " . $config->{"engine"}->{"type"});
         $ret = $ret + 1;
       } 
     } else {
@@ -146,7 +180,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     print("Setting engine type\n");
 
-    my $type_action = $system->setEngineType($config->{"type"}->{"engine"});
+    my $type_action = $system->setEngineType($config->{"engine"}->{"type"});
     if (defined($type_action)) {
       $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $type_action,'OK','Error with setting type action');
     } else {
@@ -317,6 +351,8 @@ __DATA__
 
  dx_ctl_config [-engine|d <delphix identifier> | -all ]
                 -filename name | -initializeonly 
+               [-email email ]
+               [-password password ]
                [-help|? ]
                [-debug ]
 
@@ -357,6 +393,12 @@ Initialize engine only
 
 =over 3
 
+=item B<-email email>
+For initialize only - set admin user email address
+
+=item B<-password password>
+For initialize only - set admin user password
+
 =item B<-help>
 Print this screen
 
@@ -386,5 +428,15 @@ Initialize a new engine and apply configuration with config file.
   wait for restart
   Engine dxtestsys1 configured without problems
 
+
+Initialize with default settings
+
+  dx_ctl_config -d dxtestsys1 -initializeonly -email test@delphix.com -password delphix
+  Initialize engine
+  Waiting for all actions to complete. Parent action is ACTION-2
+  Engine initialized
+  wait for restart
+  Engine initialization completed
+  Engine dxtestsys1 configured without problems
 
 =cut
