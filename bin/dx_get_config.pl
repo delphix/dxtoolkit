@@ -41,6 +41,7 @@ use Storage_obj;
 use Action_obj;
 
 
+
 my $version = $Toolkit_helpers::version;
 
 GetOptions(
@@ -111,7 +112,7 @@ for my $engine ( sort (@{$engine_list}) ) {
    }
 
    my %config = (
-    "type" => {},
+    "engine" => {},
     "dns" => {},
     "storage" => {},
     "snmp" => {},
@@ -127,8 +128,10 @@ for my $engine ( sort (@{$engine_list}) ) {
    my $storage = new Storage_obj ($engine_obj, $debug);
    $storage->LoadStorageDevices();
 
-   $config{"type"}{"engine"} = $system->getEngineType();
-  
+   $config{"engine"}{"type"} = $system->getEngineType();
+   $config{"engine"}{"password"} = "adminpass_changeme";
+   $config{"engine"}{"email"} = "admin\@delphix.com";
+
    $config{"dns"}{"dns_server"} = join(',' ,@{$system->getDNSServers()}) ;
    $config{"dns"}{"dns_domain"} = join(',' ,@{$system->getDNSDomains()}) ;
    $config{"dns"}{"source"} = $system->getDNSSource() ;   
@@ -174,6 +177,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     $config{"sso"}{"maxAuthenticationAge"} = $system->getSSOmaxAuthenticationAge();
     $config{"sso"}{"responseSkewTime"} = $system->getSSOresponseSkewTime();
    }
+
+
 
    if (defined($backup)) {
     my $filename = File::Spec->catfile($backup,$engine_obj->getEngineName() . '.json'); 
