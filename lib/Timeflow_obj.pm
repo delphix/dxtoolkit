@@ -699,6 +699,11 @@ sub findrefresh
 
     logger($self->{_debug}, "Entering Timeflow_obj::findrenew",1);
 
+    if (!defined($ref)) {
+      # sometimes there is no currentTimeflow set so needs to stop processing
+      return undef;
+    }
+
     my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
