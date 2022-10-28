@@ -193,6 +193,7 @@ sub convert_text_todxconf {
 			foreach (keys %{$eng}) {
  			   delete $eng->{$_} unless defined $eng->{$_};
 			}
+			$eng->{"hostname"} = $en;
 			push(@engine_list, $eng);
 		}
 	}
