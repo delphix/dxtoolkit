@@ -153,15 +153,16 @@ for my $engine ( sort (@{$engine_list}) ) {
   } elsif ( defined($report) ) {
     $version_obj->loadVerfication();
 
+    my $found = 1;
+
     for my $oshash (@{$version_obj->getOSversions()}) {
       my $tover = $version_obj->getOSName($oshash);
       if (defined($target))  {
         if ($target ne $tover) {
-          $ret = 1;
           next;
         } else {
           # target found
-          $ret = 0;
+          $found = 0;
         }
       } 
       $output->addLine(
@@ -173,6 +174,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       );
       $version_obj->loadUpgradeReport($oshash);
       $version_obj->getReportResults($oshash, $output)
+    }
+
+    if ($found eq 0) {
+      $ret = 0;
     }
 
   } else {

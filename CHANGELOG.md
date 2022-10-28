@@ -1,3 +1,25 @@
+## 2.4.17
+
+<B>Breaking change</B> 
+If dx_ctl_replication script is used please review your scipts
+and add <i>-action replicate</i> to keep current functionality
+
+### Changes
+
+-  dx_ctl_replication - <b>Breaking change</b> - More functionality (create/update/delete profile) has been added and parameter <i>-action</i> is required 
+-  dx_get_replication - backup of the replication profiles has been added 
+-  dx_get_osversion - fix
+-  dx_get_config - backup of engine configuration to the JSON file has been added
+-  fix to issue with some database names / comments 
+-  [bug #218](https://github.com/delphix/dxtoolkit/issues/218) - fix in dx_v2p
+-  [bug #214](https://github.com/delphix/dxtoolkit/issues/214) - fix to no of CPU
+-  [bug #208](https://github.com/delphix/dxtoolkit/issues/208) - fix to limited user privileges
+
+### Added
+
+-  dx_ctl_config - initialise and configure engine using JSON file
+-  dx_get_namespace - list all replicated namespace
+-  dx_ctl_namespace - failover or delete namespace
 ## 2.4.16.3
 
 ### Changes

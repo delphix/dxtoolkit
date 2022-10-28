@@ -699,6 +699,11 @@ sub findrefresh
 
     logger($self->{_debug}, "Entering Timeflow_obj::findrenew",1);
 
+    if (!defined($ref)) {
+      # sometimes there is no currentTimeflow set so needs to stop processing
+      return undef;
+    }
+
     my $local_ref = $ref . "\@l";
     my $child;
     my $parent;
@@ -734,7 +739,9 @@ sub findrefresh
 
       if ($parent ne 'deleted') {
         $tfcont = $self->getContainer($parentref);
-
+        if (!defined($tfcont)) {
+          return 'N/A';
+        }
         if ($dbref eq $tfcont) {
           # still same container, move forward
           logger($self->{_debug}, "Same container", 2);
@@ -818,12 +825,14 @@ sub findrefreshtime
 
     my $refresh_timeflow = $self->findrefresh($ref, $hier, $dbref);
 
-    if (defined($refresh_timeflow)) {
+    if (defined($refresh_timeflow) && ($refresh_timeflow ne 'N/A')) {
       my $tfname = $self->getName($refresh_timeflow);
       logger($self->{_debug}, "Name of timeflow: " . $tfname, 2);
       ($refreshtime) = $tfname =~ /.*@(.*)/; # engine time not Zulu
       logger($self->{_debug}, "time of refresh: " . $refreshtime,2);
       $refreshtime =~ s/T/ /;
+    } else {
+      $refreshtime = 'N/A';
     }
 
     return $refreshtime;

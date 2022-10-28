@@ -352,9 +352,14 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if ( $dbobj->getParentContainer() ne '' ) {
-      $parentname = $databases->getDB($dbobj->getParentContainer())->getName();
-      my $parentgroup_ref = $databases->getDB($dbobj->getParentContainer())->getGroup();
-      $parentgroup = $groups->getName($parentgroup_ref);
+      my $parentdb = $databases->getDB($dbobj->getParentContainer());
+      if (defined($parentdb)) {
+        $parentname = $parentdb->getName();
+        my $parentgroup_ref = $databases->getDB($dbobj->getParentContainer())->getGroup();
+        $parentgroup = $groups->getName($parentgroup_ref);
+      } else {
+        $parentname = 'N/A';
+      }
     } else {
       $parentname = '';
     }

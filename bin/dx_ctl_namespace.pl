@@ -39,19 +39,15 @@ use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
+my $smart = 'yes';
+
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
-  'profilename=s' => \(my $profilename),
+  'namespacename=s' => \(my $namespacename),
   'action=s' => \(my $action),
-  'objects=s' => \(my $objects),
-  'host=s' => \(my $host),
-  'user=s' => \(my $user),
-  'password=s' => \(my $password),
-  'type=s' => \(my $type),
-  'enabled=s' => \(my $enabled),
   'skip' => \(my $skip),
-  'schedule=s' => \(my $schedule),
+  'smart=s' => \($smart),
   'nowait' => \(my $nowait),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
@@ -74,8 +70,8 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-if (!defined($profilename)) {
-  print "Profile name is mandatory. Please specify -profilename parameter \n";
+if (!defined($namespacename)) {
+  print "Namespace name is mandatory. Please specify -namespacename parameter \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -94,173 +90,52 @@ for my $engine ( sort (@{$engine_list}) ) {
     next;
   };
 
-  my $replication = new Replication_obj( $engine_obj, $debug );
+  my $namespaces = new Namespace_obj( $engine_obj, $debug );
 
-  if (lc $action eq 'replicate') {
+  my $ref = $namespaces->getNamespaceByName($namespacename);
+  if (!defined($ref)) {
+    print "Replicated namespace with name $namespacename doesn't exist\n";
+    $ret = $ret + 1;
+    next;
+  }
 
-    my $ref = $replication->getReplicationByName($profilename);
-    if (!defined($ref)) {
-      $ret = $ret + 1;
-      next;
-    }
-    my $jobno;
+  print "Going to $action namespace - $namespacename\n";
 
-    if (defined($ref)) {
+  if (!defined ($skip)) {
 
-      if (defined($safe)) {
-        my $lastjob = $replication->getLastJob($ref, 1);
-        my $actions = new Action_obj($engine_obj, $lastjob->{StartTime}, undef, undef, undef, $debug);
-        $actions->loadActionList();
-        my @deletelist = @{$actions->getActionList('asc', 'DB_DELETE', undef)};
+    print "Are you sure (y/(n)) - use -skip to skip this confirmation \n";
 
-        if (scalar(@deletelist)>0) {
-          print "There was a delete database operation on primary engine. List of databases:\n";
-          my $name;
-          for my $ar (@deletelist) {
-            $name = $actions->getDetails($ar);
-            $name =~ s/Delete dataset//;
-            $name =~ s/"//g;
-            $name =~ s/\.//;
-            print Toolkit_helpers::trim($name) . "\n";
-          }
-          print "Replication won't be kicked off\n";
-          $ret = $ret + 1;
-          next;
-        }
+    my $ok = <STDIN>;
 
-      }
+    chomp $ok;
 
-      $jobno = $replication->replicate($ref);
-      if (defined($nowait)) {
-        if (defined($jobno)) {
-          print "Replication job $jobno started in background\n";
-        } else {
-          print "Problem with defining a replication job. Please run with -debug\n";
-        }
-      } else {
-        if (defined($jobno)) {
-          print "Starting replication job $jobno\n";
-          $ret = $ret + Toolkit_helpers::waitForJob($engine_obj, $jobno, "Replication job finished","Problem with replication");
-        } else {
-          print "Problem with defining a replication job. Please run with -debug\n";
-        }
-      }
-    }
-  } elsif (lc $action eq 'create') {
-
-    my $ref = $replication->getReplicationByName($profilename, 1);
-
-    if (defined($ref)) {
-      print "Replication profile with name $profilename exist\n";
-      $ret = $ret + 1;
-      next;
+    if (($ok eq '') || (lc $ok ne 'y')) {
+      print "Exiting.\n";
+      exit(1);
     }
 
-    my @objnamearray = split(',', $objects);
-    my $repobj = $replication->{_new};
+  }
 
-    if (!defined($replication->setObjects($replication->{_new}, \@objnamearray, $type))) {
-      print "Problem with setting objects\n";
-      $ret = $ret + 1;
-      next;
-    };
-    if (lc $enabled eq 'yes') {
-      $replication->setEnabled($repobj, $schedule, 'yes');
-    }
-    $replication->setHost($repobj, $host, $user, $password);
-    my $jobno = $replication->createreplication($repobj, $profilename);
+  if (lc $action eq 'failover') {
+
+    my $jobno = $namespaces->failovernamespace($ref, $smart);
 
     if (defined($jobno)) {
-      print "Creating replication profile $profilename\n";
-      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Profile created","Problem with profile creation");
+      print "Failing over replicated namespace $namespacename\n";
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Namespace failed over","Problem with namespace fail over");
     } else {
-      print "Problem with defining a replication spec. Please run with -debug\n";
-    }
-
-  } elsif (lc $action eq 'update') {
-
-    my $ref = $replication->getReplicationByName($profilename, 1);
-
-    if (!defined($ref)) {
-      print "Replication profile with name $profilename doesn't exist\n";
-      $ret = $ret + 1;
-      next;
-    }
-
-    my $repobj = $replication->getReplicationObj($ref);
-    my $type;
-
-    if ($replication->isSDD($ref)) {
-      $type = "sdd";
-    } else {
-      $type = "replica";
-    }
-
-    if (defined($objects)) {
-      my @objnamearray = split(',', $objects);
-      if (!defined($replication->setObjects($repobj, \@objnamearray, $type))) {
-        print "Problem with setting objects\n";
-        $ret = $ret + 1;
-        next;
-      };
-    }
-    if (defined($enabled)) {
-      my $updschedule;
-      if (defined($schedule)) {
-        $updschedule = $schedule;
-      } else {
-        $updschedule = $repobj->{"schedule"};
-      }
-      if (lc $enabled eq 'yes') {
-        $replication->setEnabled($repobj, $updschedule, 'yes');
-      } else {
-        $replication->setEnabled($repobj, $updschedule, 'no');
-      }
-    }
-    $replication->setHost($repobj, $host, $user, $password);
-    my $jobno = $replication->updateprofile($repobj, $ref);
-
-    if (defined($jobno)) {
-      print "Updating replication profile $profilename\n";
-      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Profile updated","Problem with profile update");
-    } else {
-      print "Problem with defining a replication spec. Please run with -debug\n";
+      print "Problem with defining a namespace deletion. Please run with -debug\n";
     }
 
   } elsif (lc $action eq 'delete') {
 
-    my $ref = $replication->getReplicationByName($profilename, 1);
-
-    if (!defined($ref)) {
-      print "Replication profile with name $profilename doesn't exist\n";
-      $ret = $ret + 1;
-      next;
-    }
-
-    print "Going to delete replication profile - $profilename\n";
-
-    if (!defined ($skip)) {
-
-      print "Are you sure (y/(n)) - use -skip to skip this confirmation \n";
-
-      my $ok = <STDIN>;
-
-      chomp $ok;
-
-      if (($ok eq '') || (lc $ok ne 'y')) {
-        print "Exiting.\n";
-        exit(1);
-      }
-
-    }
-
-    my $jobno = $replication->deletereplication($ref);
+    my $jobno = $namespaces->deletenamespace($ref);
 
     if (defined($jobno)) {
-      print "Deleting replication profile $profilename\n";
-      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Profile deleted","Problem with profile deletion");
+      print "Deleting replicated namespace $namespacename\n";
+      $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Namespace deleted","Problem with namespace deletion");
     } else {
-      print "Problem with defining a replication spec. Please run with -debug\n";
+      print "Problem with defining a namespace deletion. Please run with -debug\n";
     }
 
   } else {

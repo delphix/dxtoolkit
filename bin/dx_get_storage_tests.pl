@@ -181,6 +181,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
    my $st = new Storage_obj ($engine_obj, $debug);
 
+   $st->LoadStorageTest();
+
    my @testidloop;
 
    if (defined($testid)) {

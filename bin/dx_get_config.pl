@@ -37,6 +37,9 @@ use Engine;
 use Formater;
 use Toolkit_helpers;
 use System_obj;
+use Storage_obj;
+use Action_obj;
+
 
 
 my $version = $Toolkit_helpers::version;
@@ -45,6 +48,7 @@ GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
   'format=s' => \(my $format),
+  'backup=s' => \(my $backup),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -78,6 +82,17 @@ $output->addHeader(
 );
 
 
+if (defined($backup)) {
+  if (! -d $backup) {
+    print "Path $backup is not a directory \n";
+    exit (1);
+  }
+  if (! -w $backup) {
+    print "Path $backup is not writtable \n";
+    exit (1);
+  }
+}
+
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
@@ -96,121 +111,101 @@ for my $engine ( sort (@{$engine_list}) ) {
      next;
    }
 
+   my %config = (
+    "engine" => {},
+    "dns" => {},
+    "storage" => {},
+    "snmp" => {},
+    "time" => {},
+    "smpt" => {},
+    "syslog" => {},
+    "ldap" => {},
+    "storage" => {},
+    "ssl" => {}
+   );
+
    my $system = new System_obj ($engine_obj, $debug);
+   my $storage = new Storage_obj ($engine_obj, $debug);
+   $storage->LoadStorageDevices();
 
-   $output->addLine(
-    $engine,
-    'DNS server',
-    join(',' ,@{$system->getDNSServers()} )
-   );
+   $config{"engine"}{"type"} = $system->getEngineType();
+   $config{"engine"}{"password"} = "adminpass_changeme";
+   $config{"engine"}{"email"} = "admin\@delphix.com";
 
-   $output->addLine(
-    $engine,
-    'DNS Domain',
-    join(',', @{$system->getDNSDomains()} )
-   );
+   $config{"dns"}{"dns_server"} = join(',' ,@{$system->getDNSServers()}) ;
+   $config{"dns"}{"dns_domain"} = join(',' ,@{$system->getDNSDomains()}) ;
+   $config{"dns"}{"source"} = $system->getDNSSource() ;   
+   $config{"snmp"}{"status"} = $system->getSNMPStatus() ;  
+   $config{"snmp"}{"snmp_servers"} = join(',', @{$system->getSNMPServers() });
+   $config{"snmp"}{"snmp_severity"} = $system->getSNMPSeverity();
+   $config{"time"}{"ntp_server"} = join(',', @{$system->getNTPServer() }); 
+   $config{"time"}{"ntp_status"} = $system->getNTPStatus(); 
+   $config{"time"}{"timezone"} = $engine_obj->getTimezone();
+   my $smtpserver = $system->getSMTPServer();
 
-   $output->addLine(
-    $engine,
-    'SNMP Status',
-    $system->getSNMPStatus()
-   );
+   if ($smtpserver ne 'N/A') {
+    $config{"smtp"}{"server"} = $smtpserver;
+    $config{"smtp"}{"status"} = $system->getSMTPStatus();
+   }
 
-   $output->addLine(
-    $engine,
-    'SNMP Servers',
-    join(',', @{$system->getSNMPServers() })
-   );
+   $config{"syslog"}{"status"} = $system->getSyslogStatus();
+   $config{"syslog"}{"servers"} = $system->getSyslogServers();
+   $config{"syslog"}{"severity"} = $system->getSyslogSeverity();
 
-   $output->addLine(
-    $engine,
-    'SNMP Severity',
-    $system->getSNMPSeverity()
-   );
+   $config{"ldap"}{"status"} = $system->getLDAPStatus();
 
-   $output->addLine(
-    $engine,
-    'NTP Servers',
-    join(',', @{$system->getNTPServer() })
-   );
+   if ($config{"ldap"}{"status"} eq 'Enabled') {
 
-   $output->addLine(
-    $engine,
-    'NTP Status',
-    $system->getNTPStatus()
-   );
+    my $ser = $system->getLDAPServers();
+    my %ldap_entry = (
+      "server" => $ser->{host},
+      "port"   => $ser->{port},
+      "ssl"    => $ser->{useSSL},
+      "authentication" => $ser->{authMethod}
+    );
 
-   my $smtpserver = $system->getSMTPServer() ? $system->getSMTPServer() : "N/A";
+    $config{"ldap"}{"server"} = \%ldap_entry;
 
-   $output->addLine(
-    $engine,
-    'SMTP Server',
-    $smtpserver
-   );
+   }
 
-   $output->addLine(
-    $engine,
-    'SMTP Status',
-    $system->getSMTPStatus()
-   );
+   $config{"storage"} = $storage->getDisks(0);
 
-   $output->addLine(
-    $engine,
-    'Syslog Status',
-    $system->getSyslogStatus()
-   );
-
-   $output->addLine(
-    $engine,
-    'Syslog Servers',
-    join(',', @{$system->getSyslogServers() })
-   );
-
-   $output->addLine(
-    $engine,
-    'Syslog severity',
-    $system->getSyslogSeverity()
-   );
-
-   $output->addLine(
-    $engine,
-    'LDAP status',
-    $system->getLDAPStatus()
-   );
-
-   my $n = 1;
-
-   for my $ser (@{$system->getLDAPServers()}) {
-     my $servername='LDAP server ' . $n . ' ';
-     $output->addLine(
-      $engine,
-      $servername .'name',
-      $ser->{address}
-     );
-     $output->addLine(
-      $engine,
-      $servername . 'port',
-      $ser->{port}
-     );
-     $output->addLine(
-      $engine,
-      $servername . 'use SSL',
-      $ser->{useSSL} ? 'true' : 'false'
-     );
-     $output->addLine(
-      $engine,
-      $servername . 'authentication',
-      $ser->{authMethod}
-     );
-     $n++;
+   $config{"sso"}{"status"} = $system->getSSOStatus();
+   if ($config{"sso"}{"status"} eq 'Enabled') {
+    $config{"sso"}{"entityId"} = $system->getSSOEntityId();
+    $config{"sso"}{"samlMetadata"} = $system->getSSOsamlMetadata();
+    $config{"sso"}{"maxAuthenticationAge"} = $system->getSSOmaxAuthenticationAge();
+    $config{"sso"}{"responseSkewTime"} = $system->getSSOresponseSkewTime();
    }
 
 
+
+   if (defined($backup)) {
+    my $filename = File::Spec->catfile($backup,$engine_obj->getEngineName() . '.json'); 
+    open (my $FD, '>', "$filename") or die ("Can't open file $filename : $!");
+    print "Exporting configuration into file $filename \n";
+    print $FD to_json(\%config, {pretty => 1});
+    close $FD;
+   } else {
+    for my $confclass (sort(keys(%config))) {
+      if ($confclass eq 'storage') {
+        next;
+      }
+      for my $par (sort(keys(%{$config{$confclass}}))) {
+        $output->addLine(
+          $engine,
+          $confclass . '_' . $par,
+          $config{$confclass}{$par}
+      );
+      }
+    }
+   }
+
 }
 
-
-Toolkit_helpers::print_output($output, $format, $nohead);
-
+if (!defined($backup)) {
+  Toolkit_helpers::print_output($output, $format, $nohead);
+}
 
 exit $ret;
 
@@ -274,23 +269,18 @@ Display a Delphix Engine configuration
 
   engine name                         parameter name                 value
   ----------------------------------- ------------------------------ ------------------------------
-  Landshark5sys                       DNS server                     172.16.180.2
-  Landshark5sys                       DNS Domain                     localdomain
-  Landshark5sys                       SNMP Status                    Disabled
-  Landshark5sys                       SNMP Servers
-  Landshark5sys                       SNMP Severity                  WARNING
-  Landshark5sys                       NTP Servers                    Europe.pool.ntp.org
-  Landshark5sys                       NTP Status                     Enabled
-  Landshark5sys                       SMTP Server                    N/A
-  Landshark5sys                       SMTP Status                    Disabled
-  Landshark5sys                       Syslog Status                  Disabled
-  Landshark5sys                       Syslog Servers
-  Landshark5sys                       Syslog severity                WARNING
-  Landshark5sys                       LDAP status                    Enabled
-  Landshark5sys                       LDAP server 1 name             1.2.3.4
-  Landshark5sys                       LDAP server 1 port             389
-  Landshark5sys                       LDAP server 1 use SSL          false
-  Landshark5sys                       LDAP server 1 authentication   SIMPLE
+  dxtestsys                           dns_dns_domain                 delphix.com
+  dxtestsys                           dns_dns_server                 172.16.105.2,172.16.101.11
+  dxtestsys                           ldap_status                    Disabled
+  dxtestsys                           snmp_snmp_servers
+  dxtestsys                           snmp_snmp_severity             WARNING
+  dxtestsys                           snmp_status                    Disabled
+  dxtestsys                           syslog_servers
+  dxtestsys                           syslog_severity                WARNING
+  dxtestsys                           syslog_status                  Disabled
+  dxtestsys                           time_ntp_server
+  dxtestsys                           time_ntp_status                Disabled
+  dxtestsys                           time_timezone                  US/Pacific
 
 
 =cut
