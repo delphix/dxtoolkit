@@ -45,6 +45,7 @@ GetOptions(
 'debug' => \(my $debug),
 'convert=s' => \(my $convert),
 'csvfile|f=s' => \(my $csvfile),
+'append' => \(my $append),
 'text|c=s' => \(my $conf_param_file),
 'configfile|c=s' => \(my $configfile),
 'version|v' => \(my $print_version)
@@ -73,7 +74,7 @@ if ( ($convert eq 'todxconf' ) &&  (defined(($csvfile)) ) ) {
 }
 
 if ( ($convert eq 'todxconf')  &&  (defined($conf_param_file)))  {
-	convert_text_todxconf($conf_param_file, $configfile);
+	convert_text_todxconf($conf_param_file, $configfile, $append);
 }
 
 
@@ -160,7 +161,8 @@ sub convert_todxconf {
 sub convert_text_todxconf {
 	my $conf_param_file = shift;
 	my $configfile = shift;
-  my @engine_list;
+    my $append = shift;
+	my @engine_list;
 	chomp $conf_param_file;
 
 
@@ -179,7 +181,24 @@ sub convert_text_todxconf {
       exit 1;
     }
 
-		my %engine;
+	if (defined($append)) {
+		if (! -e $configfile ) {
+			print("Config file must exist for append option\n");
+			exit 1;
+		}
+		my $engine_obj = new Engine ('1.4');
+		$engine_obj->load_config($configfile);
+		for my $en ($engine_obj->getAllEngines()) {
+			my $eng = $engine_obj->getEngine($en);
+			foreach (keys %{$eng}) {
+ 			   delete $eng->{$_} unless defined $eng->{$_};
+			}
+			push(@engine_list, $eng);
+		}
+	}
+
+
+	my %engine;
 
     if ($username ne '') {
       %engine = (
