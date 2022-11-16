@@ -1963,11 +1963,9 @@ sub setFileSystemLayout {
 
     $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "TimeflowFilesystemLayout";
 
-    if (! defined($targetDirectory)) {
-        return 1;
+    if (defined($targetDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"targetDirectory"} = $targetDirectory;
     }
-
-    $self->{"NEWDB"}->{"filesystemLayout"}->{"targetDirectory"} = $targetDirectory;
 
     if ( defined($archiveDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"archiveDirectory"} = $archiveDirectory;

@@ -108,12 +108,6 @@ if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') ) )
 }
 
 
-if ( ( ( $type eq 'oracle') || ( $type eq 'mssql') ) && (! defined($targetDirectory)) ) {
-  print "Option targetDirectory is required. \n";
-  pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);
-}
-
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -199,7 +193,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if ( defined($map_file) ) {
-      my $filemap_obj = new FileMap($engine_obj,$debug);
+      my $filemap_obj = new FileMap($engine_obj,$type,$debug);
       $filemap_obj->loadMapFile($map_file);
       $filemap_obj->setSource($source);
       if ($filemap_obj->validate()) {
@@ -228,9 +222,23 @@ for my $engine ( sort (@{$engine_list}) ) {
   elsif ($type eq 'mssql') {
 
     if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+      print Dumper "ale tu";
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
       exit(1);
     }
+
+    if ( defined($map_file) ) {
+      my $filemap_obj = new FileMap($engine_obj,$type,$debug);
+      $filemap_obj->loadMapFile($map_file);
+      $filemap_obj->setSource($source);
+      if ($filemap_obj->validate($db->{"NEWDB"}->{"filesystemLayout"})) {
+        die ("Problem with mapping file. V2P process won't be created.")
+      }
+
+      $db->setMapFileV2P($filemap_obj->GetMapping_rule());
+
+    }
+
 
     if (defined($norecovery)) {
       $db->setNoRecovery();
@@ -341,7 +349,20 @@ Target environment Oracle Home or MS SQL server instance
 Target VDB template name (for Oracle)
 
 =item B<-mapfile>
-Target VDB mapping file (for Oracle)
+Target VDB mapping file. Use colon as separator for both MS SQL and Oracle
+Dxtoolkit will use a proper separator for API call. 
+
+
+Oracle mapfile example:
+
+# this is comment
+/u01:/u02
+
+MS SQL mapfile example:
+
+# this is comment
+Biscuit_Data_1.ndf : c:\\tmp\\los1\\slon_Data_1.ndf
+Biscuit_Bogus_1_data.ndf : c:\\tmp\\los2\\slon_Bogus_1_data.ndf
 
 =item B<-instname>
 Target VDB instance name (for Oracle)

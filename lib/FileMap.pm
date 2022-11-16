@@ -38,12 +38,14 @@ use Toolkit_helpers qw (logger);
 sub new {
     my $classname  = shift;
     my $dlpxObject = shift;
+    my $type = shift;
     my $debug = shift;
     logger($debug, "Entering FileMap::constructor",1);
 
     my %hosts;
     my $self = {
         _hosts => \%hosts,
+        _type => $type,
         _dlpxObject => $dlpxObject,
         _debug => $debug
     };
@@ -66,13 +68,20 @@ sub setMapFile {
 
     $self->{_mapping_rule_hash} = $mapfile;
 
+    my $join_char;
+    if (lc $self->{_type} eq 'mssql') {
+        $join_char = "?";
+    } else {
+        $join_char = ":";
+    }
+
     my $mapping_rule_de = '';
 
     while ( my ($key,$value) = each %{$mapfile} ) {
         if ($mapping_rule_de eq '') {
-            $mapping_rule_de = $key . ":" . $value;
+            $mapping_rule_de = $key . $join_char . $value;
         } else {
-            $mapping_rule_de = $mapping_rule_de . "\n" . $key . ":" . $value;
+            $mapping_rule_de = $mapping_rule_de . "\n" . $key . $join_char . $value;
         }
     }
 
@@ -94,12 +103,26 @@ sub loadMapFile {
 
     open (my $FD, $file) or die ("Can't open file $file : $!");
 
+    my $split_char;
+
+    if (lc $self->{_type} eq 'mssql') {
+        $split_char = ":";
+    } else {
+        $split_char = ":";
+    }
+    
     while(my $line = <$FD>) {
         chomp $line;
         if ($line =~ m/^#/ ) {
             next;
         }
-        my @line_split = split (":",$line);
+        if ($line =~ m/^$/ ) {
+            next;
+        }
+        my @line_split = split ($split_char,$line, 2);
+
+        $line_split[0] =~ s/^\s+|\s+$//g;
+        $line_split[1] =~ s/^\s+|\s+$//g;
 
         if (! defined($line_split[0])) {
             die ("Line $line in file $file has an error. Check if there is colon sign. Can't continue");
@@ -114,7 +137,6 @@ sub loadMapFile {
     }
 
     close $FD;
-
     $self->setMapFile(\%map_hash);
 
 }
@@ -140,16 +162,22 @@ sub setSource {
 
 sub validate {
     my $self = shift;
+    my $filesystemLayout = shift;
     my %fileMapping_request;
     logger($self->{_debug}, "Entering FileMap::validate",1);
 
+    if (lc $self->{_type} eq 'mssql') {
+        $fileMapping_request{"type"} = "MSSqlFileMappingParameters";
+        $fileMapping_request{"filesystemLayout"} = $filesystemLayout;
+    } else {
+        $fileMapping_request{"type"} = "FileMappingParameters";
+    }
+
     if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.9.0)) {
-      $fileMapping_request{"type"} = "FileMappingParameters";
       $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
       $fileMapping_request{"timeflowPointParameters"}{"type"} = "TimeflowPointSemantic";
       $fileMapping_request{"timeflowPointParameters"}{"container"} = $self->{_source_ref};
     } else {
-      $fileMapping_request{"type"} = "FileMappingParameters";
       $fileMapping_request{"mappingRules"} = $self->{_mapping_rule};
       my %timeflowhash = (
         "type"=>"TimeflowPointSemantic",

@@ -326,11 +326,9 @@ sub setFileSystemLayout {
       $self->{"NEWDB"}->{"filesystemLayout"}->{"type"} = "MSSqlTimeflowFilesystemLayout";
     }
 
-    if (! defined($targetDirectory)) {
-        return 1;
+    if (defined($targetDirectory)) {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"targetDirectory"} = $targetDirectory;
     }
-
-    $self->{"NEWDB"}->{"filesystemLayout"}->{"targetDirectory"} = $targetDirectory;
 
     if (defined($dataDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"dataDirectory"} = $dataDirectory;
@@ -357,7 +355,11 @@ sub setFileSystemLayout {
 
     if ( defined($externalDirectory)) {
         $self->{"NEWDB"}->{"filesystemLayout"}->{"externalDirectory"} = $externalDirectory;
+    } else {
+        $self->{"NEWDB"}->{"filesystemLayout"}->{"scriptDirectory"} = "external";
     }
+
+    return undef;
 
 }
 
