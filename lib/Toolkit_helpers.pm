@@ -485,7 +485,7 @@ sub timestamp {
 	}
 
 	my $tz = new Date::Manip::TZ;
-	my $detz = $engine->getTimezone();
+	my $detz = timezone_fix($engine->getTimezone());
 	my $dt = ParseDate($timestamp);
 	if ($dt ne '') {
 		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
