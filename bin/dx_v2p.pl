@@ -160,19 +160,21 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if ( $db->setSource($source) ) {
-    print "Problem with setting source. V2P won't be created.\n";
-    exit(1);
+    print "Problem with setting source. V2P won't be started.\n";
+    $ret = $ret + 1;
+    next;
   }
 
   if ( $db->setTimestamp($timestamp) ) {
     print "Problem with setting timestamp $timestamp. V2P process won't be started.\n";
-    exit(1);
+    $ret = $ret + 1;
+    next;
   }
 
   $db->setName($dbname, $dbname);
 
   if ( $db->setEnvironment($environment, $envUser) ) {
-    print "Environment $environment or user $envUser not found. VDB won't be created\n";
+    print "Environment $environment or user $envUser not found. V2P process won't be started\n";
     $ret = $ret + 1;
     next;
   }
@@ -182,13 +184,15 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory, $useabsolute) ) {
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-      exit(1);
+      $ret = $ret + 1;
+      next;
     }
 
     if ( defined($template) ) {
       if ( $db->setTemplateV2P($template) ) {
-        print  "Template $template not found. V2P process won't be created\n";
-        exit(1);
+        print  "Template $template not found. V2P process won't be started\n";
+        $ret = $ret + 1;
+        next;
       }
     }
 
@@ -197,7 +201,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       $filemap_obj->loadMapFile($map_file);
       $filemap_obj->setSource($source);
       if ($filemap_obj->validate()) {
-        die ("Problem with mapping file. V2P process won't be created.")
+        print ("Problem with mapping file. V2P process won't be started.\n");
+        $ret = $ret + 1;
+        next;
       }
 
       $db->setMapFileV2P($filemap_obj->GetMapping_rule());
@@ -211,7 +217,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($concurrentfiles)) {
       if ($db->setFileParallelism($concurrentfiles)) {
         print "Problem with setting number of concurrent files\n";
-        exit(1);
+        $ret = $ret + 1;
+        next;
       }
     };
 
@@ -221,10 +228,10 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
   elsif ($type eq 'mssql') {
 
-    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
-      print Dumper "ale tu";
+    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {;
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-      exit(1);
+      $ret = $ret + 1;
+      next;
     }
 
     if ( defined($map_file) ) {
@@ -232,7 +239,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       $filemap_obj->loadMapFile($map_file);
       $filemap_obj->setSource($source);
       if ($filemap_obj->validate($db->{"NEWDB"}->{"filesystemLayout"})) {
-        die ("Problem with mapping file. V2P process won't be created.")
+        print("Problem with mapping file. V2P process won't be started.\n");
+        $ret = $ret + 1;
+        next;
       }
 
       $db->setMapFileV2P($filemap_obj->GetMapping_rule());
