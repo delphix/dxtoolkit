@@ -199,6 +199,7 @@ sub validate {
         $self->{mappedFiles} = $mapped_files;
         return 0;
     } else {
+        print("Error with validation: " .  $result->{error}->{details} . "\n");
         return 1;
     }
 
