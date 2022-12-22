@@ -108,12 +108,6 @@ if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') ) )
 }
 
 
-if ( ( ( $type eq 'oracle') || ( $type eq 'mssql') ) && (! defined($targetDirectory)) ) {
-  print "Option targetDirectory is required. \n";
-  pod2usage(-verbose => 1,  -input=>\*DATA);
-  exit (1);
-}
-
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -166,19 +160,21 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   if ( $db->setSource($source) ) {
-    print "Problem with setting source. V2P won't be created.\n";
-    exit(1);
+    print "Problem with setting source. V2P won't be started.\n";
+    $ret = $ret + 1;
+    next;
   }
 
   if ( $db->setTimestamp($timestamp) ) {
     print "Problem with setting timestamp $timestamp. V2P process won't be started.\n";
-    exit(1);
+    $ret = $ret + 1;
+    next;
   }
 
   $db->setName($dbname, $dbname);
 
   if ( $db->setEnvironment($environment, $envUser) ) {
-    print "Environment $environment or user $envUser not found. VDB won't be created\n";
+    print "Environment $environment or user $envUser not found. V2P process won't be started\n";
     $ret = $ret + 1;
     next;
   }
@@ -188,22 +184,26 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory, $useabsolute) ) {
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-      exit(1);
+      $ret = $ret + 1;
+      next;
     }
 
     if ( defined($template) ) {
       if ( $db->setTemplateV2P($template) ) {
-        print  "Template $template not found. V2P process won't be created\n";
-        exit(1);
+        print  "Template $template not found. V2P process won't be started\n";
+        $ret = $ret + 1;
+        next;
       }
     }
 
     if ( defined($map_file) ) {
-      my $filemap_obj = new FileMap($engine_obj,$debug);
+      my $filemap_obj = new FileMap($engine_obj,$type,$debug);
       $filemap_obj->loadMapFile($map_file);
       $filemap_obj->setSource($source);
       if ($filemap_obj->validate()) {
-        die ("Problem with mapping file. V2P process won't be created.")
+        print ("Problem with mapping file. V2P process won't be started.\n");
+        $ret = $ret + 1;
+        next;
       }
 
       $db->setMapFileV2P($filemap_obj->GetMapping_rule());
@@ -217,7 +217,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     if (defined($concurrentfiles)) {
       if ($db->setFileParallelism($concurrentfiles)) {
         print "Problem with setting number of concurrent files\n";
-        exit(1);
+        $ret = $ret + 1;
+        next;
       }
     };
 
@@ -227,10 +228,26 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
   elsif ($type eq 'mssql') {
 
-    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {
+    if ( $db->setFileSystemLayout($targetDirectory,$archiveDirectory,$dataDirectory,$externalDirectory,$scriptDirectory,$tempDirectory) ) {;
       print "Problem with export file system layout. Is targetDiretory and dataDirectory set ?\n";
-      exit(1);
+      $ret = $ret + 1;
+      next;
     }
+
+    if ( defined($map_file) ) {
+      my $filemap_obj = new FileMap($engine_obj,$type,$debug);
+      $filemap_obj->loadMapFile($map_file);
+      $filemap_obj->setSource($source);
+      if ($filemap_obj->validate($db->{"NEWDB"}->{"filesystemLayout"})) {
+        print("Problem with mapping file. V2P process won't be started.\n");
+        $ret = $ret + 1;
+        next;
+      }
+
+      $db->setMapFileV2P($filemap_obj->GetMapping_rule());
+
+    }
+
 
     if (defined($norecovery)) {
       $db->setNoRecovery();
@@ -341,7 +358,20 @@ Target environment Oracle Home or MS SQL server instance
 Target VDB template name (for Oracle)
 
 =item B<-mapfile>
-Target VDB mapping file (for Oracle)
+Target VDB mapping file. Use colon as separator for both MS SQL and Oracle
+Dxtoolkit will use a proper separator for API call. 
+
+
+Oracle mapfile example:
+
+# this is comment
+/u01:/u02
+
+MS SQL mapfile example:
+
+# this is comment
+Biscuit_Data_1.ndf : c:\\tmp\\los1\\slon_Data_1.ndf
+Biscuit_Bogus_1_data.ndf : c:\\tmp\\los2\\slon_Bogus_1_data.ndf
 
 =item B<-instname>
 Target VDB instance name (for Oracle)
