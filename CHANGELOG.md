@@ -1,3 +1,9 @@
+## 2.4.17.2
+
+### Changes:
+- dx_v2p - fix for MS SQL database to support file mapping
+- Fix for various commands for better support of Delphix Engine timezones ( ex. dx_get_jobs and similar ) 
+
 ## 2.4.17
 
 <B>Breaking change</B> 
