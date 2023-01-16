@@ -13,6 +13,13 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
+    - name: add version 
+      run: |
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)/\1-${{ github.run_id }}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
+
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
       uses: docker://pioro/dxperlcent7:5.26

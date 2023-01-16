@@ -41,6 +41,8 @@ use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
+my $output_unit = 'G';
+
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
@@ -49,6 +51,7 @@ GetOptions(
   'details' => \(my $details),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
+  'output_unit:s' => \($output_unit),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
@@ -76,9 +79,9 @@ if (defined($details)) {
     {'Appliance', 20},
     {'Status',  8},
     {'Version', 8},
-    {'Total (GB)', 10},
-    {'Used (GB)',  10},
-    {'Free (GB)',  10},
+    {Toolkit_helpers::get_unit('Total',$output_unit), 10},
+    {Toolkit_helpers::get_unit('Used',$output_unit),  10},
+    {Toolkit_helpers::get_unit('Free',$output_unit),  10},
     {'PctUsed(%)', 10},
     {'dSource#',   8},
     {'VDBs#',      8},
@@ -93,9 +96,9 @@ if (defined($details)) {
     {'Appliance', 20},
     {'Status',  8},
     {'Version', 8},
-    {'Total (GB)', 10},
-    {'Used (GB)',  10},
-    {'Free (GB)',  10},
+    {Toolkit_helpers::get_unit('Total',$output_unit), 10},
+    {Toolkit_helpers::get_unit('Used',$output_unit),  10},
+    {Toolkit_helpers::get_unit('Free',$output_unit),  10},
     {'PctUsed(%)', 10},
     {'dSource#',   8},
     {'VDBs#',      8},
@@ -162,9 +165,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       $engine,
       $status,
       $system->getVersion(),
-      $storageinfo->{Total},
-      $storageinfo->{Used},
-      $storageinfo->{Free},
+      Toolkit_helpers::print_size($storageinfo->{Total}, 'G', $output_unit), 
+      Toolkit_helpers::print_size($storageinfo->{Used}, 'G', $output_unit), 
+      Toolkit_helpers::print_size($storageinfo->{Free}, 'G', $output_unit), 
       $storageinfo->{pctused},
       scalar(@dsource),
       scalar(@vdb),
@@ -179,9 +182,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       $engine,
       $status,
       $system->getVersion(),
-      $storageinfo->{Total},
-      $storageinfo->{Used},
-      $storageinfo->{Free},
+      Toolkit_helpers::print_size($storageinfo->{Total}, 'G', $output_unit), 
+      Toolkit_helpers::print_size($storageinfo->{Used}, 'G', $output_unit), 
+      Toolkit_helpers::print_size($storageinfo->{Free}, 'G', $output_unit), 
       $storageinfo->{pctused},
       scalar(@dsource),
       scalar(@vdb),
@@ -200,11 +203,12 @@ __DATA__
 
 =head1 SYNOPSIS
 
-dx_get_appliance [-d <delphix identifier> | -all ]
-                 [-format csv|json ]
-                 [-nohead ]
-                 [-details ]
-                 [-help|? ]
+ dx_get_appliance [-d <delphix identifier> | -all ]
+                  [-format csv|json ]
+                  [-output_unit K|M|G|T]
+                  [-nohead ]
+                  [-details ]
+                  [-help|? ]
 
 =head1 ARGUMENTS
 
@@ -230,6 +234,10 @@ A config file search order is as follow:
 =head1 OPTIONS
 
 =over 4
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-details>
 Display vCPU and vMemory

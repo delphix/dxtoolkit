@@ -23,7 +23,7 @@ script_compiles('../../bin/dx_get_db_env.pl');
 script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-timeflowparent',  "list databases"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
+#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used [GB],Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
 local,10.110.196.207,CDOMLOTG2E25,Analytics,CDB,,N/A,0.82,RUNNING,enabled,CDOMLOTG2E25,N/A,2021-12-17 02:05:50,N/A
 local,marcinmssqltgt.dlpxdc.co,mssqltest,Analytics,VDB,Soda,2021-12-17 05:08:25 PST,0.00,RUNNING,enabled,N/A,2021-12-17 05:08:25 PST,2021-12-17 05:14:08,2021-12-17 05:14:11
 local,10.110.196.207,oratest,Analytics,VDB,DBOMSR3A85E9,2021-12-17 05:42:50 EST,0.10,RUNNING,enabled,oratest,2021-12-17 05:42:51 EST,2021-12-17 02:05:00,2021-12-17 02:40:23
@@ -44,7 +44,7 @@ script_stdout_is $expected_stdout, "list databades results compare";
 script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv',  "list databases - realrefresh"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
+#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used [GB],Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
 local,10.110.196.207,CDOMLOTG2E25,Analytics,CDB,,N/A,0.82,RUNNING,enabled,CDOMLOTG2E25,N/A,2021-12-17 02:05:50,N/A
 local,marcinmssqltgt.dlpxdc.co,mssqltest,Analytics,VDB,Soda,2021-12-17 05:08:25 PST,0.00,RUNNING,enabled,N/A,2021-12-17 05:08:25 PST,2021-12-17 05:14:08,2021-12-17 05:14:11
 local,10.110.196.207,oratest,Analytics,VDB,DBOMSR3A85E9,2021-12-17 05:04:11 EST,0.10,RUNNING,enabled,oratest,2021-12-17 05:04:16 EST,2021-12-17 02:05:00,2021-12-17 02:40:23
@@ -77,7 +77,7 @@ compare_ok($some_file, $other_file, "backup dsource file looks OK");
 script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2',"list pdbtest2 database"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
+#Appliance,Hostname,Database,Group,Type,SourceDB,Parent snapshot,Used [GB],Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
 local,10.110.196.207,pdbtest2,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 05:05:09 EST,0.02,RUNNING,enabled,N/A,2021-12-17 05:05:09 EST,2021-12-17 02:06:16,2021-12-17 02:44:03
 EOF
 
@@ -87,7 +87,7 @@ script_stdout_is $expected_stdout, "list pdbtest2 database results compare";
 script_runs(['../../bin/dx_get_db_env.pl', '-d', 'local', '-format','csv','-name','pdbtest2','-parentlast','l',"list pdbtest2 database - last snapshot"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Hostname,Database,Group,Type,SourceDB,Last snapshot,Used(GB),Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
+#Appliance,Hostname,Database,Group,Type,SourceDB,Last snapshot,Used [GB],Status,Enabled,Unique Name,Parent time,VDB creation time,VDB refresh time
 local,10.110.196.207,pdbtest2,Analytics,VDB,CDOMLOSRCA1DPDB1,2021-12-17 06:30:15 EST,0.02,RUNNING,enabled,N/A,N/A,2021-12-17 02:06:16,2021-12-17 02:44:03
 EOF
 

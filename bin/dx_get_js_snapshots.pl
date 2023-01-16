@@ -49,7 +49,7 @@ use Toolkit_helpers qw (logger);
 
 
 my $version = $Toolkit_helpers::version;
-
+my $output_unit = 'G';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -62,6 +62,7 @@ GetOptions(
   'dever=s' => \(my $dever),
   'nohead' => \(my $nohead),
   'debug:i' => \(my $debug),
+  'output_unit:s' => \($output_unit),
   'configfile|c=s' => \(my $config_file)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
@@ -78,6 +79,11 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
+if ( !  ( ( uc $output_unit eq 'G') || ( uc $output_unit eq 'M') || ( uc $output_unit eq 'K') ) ) {
+  print "Option -output_unit can be only G for GB, M for MB and K for KB \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
 
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
@@ -94,9 +100,9 @@ $output->addHeader(
     {'VDB name'   ,           15},
     {'Branch name',           15},
     {'Bookmark snapshot',     30},
-    {'Bookmark snap size',    20},
+    {Toolkit_helpers::get_unit('Bookmark snap size',$output_unit),    20},
     {'Parent snapshot',       30},
-    {'Parent snap size',      20}
+    {Toolkit_helpers::get_unit('Parent snap size',$output_unit),      20}
 );
 
 
@@ -221,7 +227,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           if (!defined($snapshot_sizes{$snapref})) {
             $snapsize = $snapshots->getSnapshotSize($snapref);
             if (defined($snapsize)) {
-              $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
+              $snapsize = Toolkit_helpers::print_size($snapsize, 'B', $output_unit);
             } else {
               $snapsize = 'N/A';
             }
@@ -354,7 +360,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           if (!defined($snapshot_sizes{$parentsnapshotref})) {
             $parentsnapsize = $snapshots->getSnapshotSize($parentsnapshotref);
             if (defined($parentsnapsize)) {
-              $parentsnapsize = sprintf("%12.2f", $parentsnapsize/1024/1024);
+              $parentsnapsize = Toolkit_helpers::print_size($parentsnapsize, 'B', $output_unit);
             } else {
               $parentsnapsize = 'N/A';
             }
@@ -368,7 +374,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         if (!defined($snapshot_sizes{$snap->{snapshotref}})) {
           $snapsize = $cont_snapshots->getSnapshotSize($snap->{snapshotref});
           if (defined($snapsize)) {
-            $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
+            $snapsize = Toolkit_helpers::print_size($snapsize, 'B', $output_unit);
           } else {
             $snapsize = 'N/A';
           }
@@ -417,6 +423,7 @@ __DATA__
  dx_get_js_snapshots    [-engine|d <delphix identifier> | -all ]
                         [-template_name template_name]
                         [-container_name container_name]
+                        [-output_unit K|M|G|T]
                         [-format csv|json ]
                         [-help|? ] [ -debug ]
 
@@ -457,6 +464,10 @@ Limit display to containers using a template template_name
 
 =item B<-container_name container_name>
 Limit display to containers using container_name
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-format>
 Display output in csv or json format

@@ -1,5 +1,5 @@
 {
+   "type" : "LinkedSourceOperations",
    "postSync" : [],
-   "preSync" : [],
-   "type" : "LinkedSourceOperations"
+   "preSync" : []
 }
