@@ -39,6 +39,7 @@ use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
+my $output_unit = 'G';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -52,6 +53,7 @@ GetOptions(
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
+  'output_unit:s' => \($output_unit),
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'configfile|c=s' => \(my $config_file)
@@ -82,7 +84,7 @@ if ($license) {
     {'Appliance', 10},
     {'Type',      40},
     {'Database',  40},
-    {'Size [GB]', 30},
+    {Toolkit_helpers::get_unit('Size',$output_unit), 30},
     {'Timestamp', 30}
   );
 } else {
@@ -91,7 +93,7 @@ if ($license) {
     {'Env name',  20},
     {'Group',     15},
     {'Database',  30},
-    {'Size [GB]', 30},
+    {Toolkit_helpers::get_unit('Size',$output_unit), 30},
     {"Status",    30},
     {"Enabled",   30}
   );
@@ -121,7 +123,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       if (defined($lic->{"databases"})) {
         for my $db ( @{$lic->{"databases"}}) {
           if (defined($db->{"size"})) {
-            $dbsize = sprintf("%10.2f", $db->{"size"}/1024/1024/1024);
+            $dbsize = Toolkit_helpers::print_size($db->{"size"}, 'B', $output_unit);
           } else {
             $dbsize = 'N/A';
           }
@@ -169,7 +171,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $dbobj->getEnvironmentName(),
         $groups->getName($dbobj->getGroup()),
         $dbobj->getName(),
-        $dbobj->getRuntimeSize(),
+        Toolkit_helpers::print_size($dbobj->getRuntimeSize(), 'G', $output_unit),
         $dbobj->getRuntimeStatus(),
         $dbobj->getEnabled()
       );
@@ -193,6 +195,7 @@ __DATA__
 
  dx_get_dsourcesize  [-engine|d <delphix identifier> | -all ]
                      [-group group_name | -name db_name | -host host_name | -envname env_name ]
+                     [-output_unit K|M|G|T]
                      [-format csv|json ]
                      [-license ]
                      [-help|? ]
@@ -254,6 +257,10 @@ Environment name
 
 =item B<-license>
 Use License API to display dSource sizes
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-format>
 Display output in csv or json format

@@ -56,6 +56,7 @@ my $version = $Toolkit_helpers::version;
 my $parentlast = 'p';
 my $hostenv = 'h';
 my $configtype = 's';
+my $output_unit = 'G';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -82,6 +83,7 @@ GetOptions(
   'olderthan=s' => \(my $creationtime),
   'save=s' => \(my $save),
   'timeflowparent' => \(my $timeflowparent),
+  'output_unit:s' => \($output_unit),
   'dever=s' => \(my $dever),
   'offset' => \(my $offset),
   'all' => (\my $all),
@@ -106,6 +108,12 @@ if (defined($all) && defined($dx_host)) {
 
 if (defined($instance) && defined($instancename)) {
   print "Filter -instance and -instancename are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if ( !  ( ( uc $output_unit eq 'G') || ( uc $output_unit eq 'M') || ( uc $output_unit eq 'K') ) ) {
+  print "Option -output_unit can be only G for GB, M for MB and K for KB \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -233,7 +241,7 @@ if (defined($backup)) {
       {'Type'            ,8},
       {'SourceDB'       ,30},
       {$parentlast_head ,35},
-      {'Used(GB)'       ,10},
+      {Toolkit_helpers::get_unit('Used',$output_unit)       ,10},
       {'Status'         ,10},
       {'Enabled'        ,10},
       {'Unique Name'    ,30},
@@ -534,7 +542,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $dbobj->getType(),
           $parentname,
           $snaptime,
-          $capacity->getDatabaseUsage($dbobj->getReference()),
+          Toolkit_helpers::print_size($capacity->getDatabaseUsage($dbobj->getReference()), 'G', $output_unit),
           $dbobj->getRuntimeStatus(),
           $dbobj->getEnabled(),
           $uniquename,
@@ -608,6 +616,7 @@ __DATA__
                   [-backup path]
                   [-hostenv h|e]
                   [-offset]
+                  [-output_unit K|M|G|T]
                   [-format csv|json ]
                   [-help|? ] [ -debug ]
 
@@ -724,6 +733,10 @@ or a current VDB snapshot if rollback operation was done.
 
 =item B<-offset>
 Print database timestamp with offset rather then timezone name
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-format>
 Display output in csv or json format

@@ -411,6 +411,7 @@ sub processSystemHistory
     my $self = shift;
     my $output = shift;
     my $details = shift;
+    my $output_unit = shift;
     logger($self->{_debug}, "Entering Capacity_obj::processSystemHistory",1);
 
     my $total;
@@ -439,15 +440,15 @@ sub processSystemHistory
         $output->addLine(
           $enginename,
           $histtime,
-          sprintf("%15.2f" ,$histitem->{source}->{actualSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{source}->{activeSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{source}->{logSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{source}->{syncSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{virtual}->{actualSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{virtual}->{activeSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{virtual}->{logSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$histitem->{virtual}->{syncSpace}/1024/1024/1024),
-          sprintf("%15.2f" ,$total/1024/1024/1024),
+          Toolkit_helpers::print_size($histitem->{source}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{source}->{activeSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{source}->{logSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{source}->{syncSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{virtual}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{virtual}->{activeSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{virtual}->{logSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{virtual}->{syncSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($total, 'B', $output_unit),
           sprintf("%12.2f" ,$usage)
         );
 
@@ -456,9 +457,9 @@ sub processSystemHistory
         $output->addLine(
           $enginename,
           $histtime,
-          sprintf("%12.2f" ,$histitem->{source}->{actualSpace}/1024/1024/1024),
-          sprintf("%12.2f" ,$histitem->{virtual}->{actualSpace}/1024/1024/1024),
-          sprintf("%12.2f" ,$total/1024/1024/1024),
+          Toolkit_helpers::print_size($histitem->{source}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{virtual}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($total, 'B', $output_unit),
           sprintf("%12.2f" ,$usage)
         );
       }

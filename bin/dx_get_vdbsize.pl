@@ -46,6 +46,7 @@ use Capacity_obj;
 
 my $version = $Toolkit_helpers::version;
 
+my $output_unit = 'G';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -60,6 +61,7 @@ GetOptions(
   'reponame=s' => \(my $repositoryname),
   'primary' => \(my $primary),
   'snapname' => \(my $snapname),
+  'output_unit:s' => \($output_unit),
   'parent' => \(my $parent),
   'forcerefresh' => \(my $forcerefresh),
   'all' => (\my $all),
@@ -84,7 +86,11 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
-
+if ( !  ( ( uc $output_unit eq 'G') || ( uc $output_unit eq 'M') || ( uc $output_unit eq 'K') ) ) {
+  print "Option -output_unit can be only G for GB, M for MB and K for KB \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
 
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
@@ -97,14 +103,14 @@ if (defined($parent)) {
       {'Group',                 15},
       {'Database',              30},
       {'Timeflow name',         30},
-      {'VDB size',              15},
+      {Toolkit_helpers::get_unit('VDB size',$output_unit),              15},
       {'Parent DB',             30},
       {'Parent Timeflow',       30},
       {'Parent snapshot',       30},
-      {'Parent snap size',      20},
-      {'Total dSource size',    20},
-      {'Locked snapshots size', 20},
-      {'Total size',            20},
+      {Toolkit_helpers::get_unit('Parent snap size',$output_unit),      22},
+      {Toolkit_helpers::get_unit('Total dSource size',$output_unit),    25},
+      {Toolkit_helpers::get_unit('Locked snapshots size',$output_unit), 26},
+      {Toolkit_helpers::get_unit('Total size',$output_unit),            20}
   );
 
 } else {
@@ -114,13 +120,13 @@ if (defined($parent)) {
       {'Group',                 15},
       {'Database',              30},
       {'Timeflow name',         30},
-      {'VDB size',              15},
+      {Toolkit_helpers::get_unit('VDB size',$output_unit),              15},
       {'dSource name',          30},
       {'dSource snapshot',      30},
-      {'dSource snap size',     20},
-      {'Total dSource size',    20},
-      {'Locked snapshots size', 20},
-      {'Total size',            20},
+      {Toolkit_helpers::get_unit('dSource snap size',$output_unit),     24},
+      {Toolkit_helpers::get_unit('Total dSource size',$output_unit),    24},
+      {Toolkit_helpers::get_unit('Locked snapshots size',$output_unit), 26},
+      {Toolkit_helpers::get_unit('Total size',$output_unit),            20},
   );
 
 
@@ -216,7 +222,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $capacity_hash = $capacity->getDetailedDBUsage($dSourceref, undef);
       $ds_size = $capacity_hash->{totalsize} * 1024;
       $totalsize = $totalsize + $ds_size;
-      $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
+      $locked_snaps = Toolkit_helpers::print_size($capacity_hash->{descendantSpace}, 'G', $output_unit);
 
     } else {
       logger($debug, "SDD replica",2);
@@ -238,7 +244,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       $ds_size = $held_size*1024;
       $totalsize = $totalsize + $ds_size;
-      $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
+      $locked_snaps = Toolkit_helpers::print_size($capacity_hash->{descendantSpace}, 'G', $output_unit);
     }
 
     my $snapshots = new Snapshot_obj( $engine_obj, $dbobj->getParentContainer(), undef, $debug);
@@ -327,7 +333,7 @@ for my $engine ( sort (@{$engine_list}) ) {
                     next;
                   }
 
-                  $ds_size = $capacity_hash->{totalsize} * 1024;
+                  $ds_size = Toolkit_helpers::print_size($capacity_hash->{totalsize}, 'G', $output_unit);
                   #$locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024);
                   #$totalsize = $totalsize + $ds_size;
                 }
@@ -384,7 +390,7 @@ for my $engine ( sort (@{$engine_list}) ) {
                     my $capacity_hash = $capacity->getDetailedDBUsage($dSourceref, undef);
                     $ds_size = $capacity_hash->{totalsize} * 1024;
                     $parentsnap_size = $capacity_hash->{unownedSnapshotSpace} * 1024;
-                    $locked_snaps = sprintf("%12.2f", $capacity_hash->{descendantSpace} * 1024) ;
+                    $locked_snaps = Toolkit_helpers::print_size($capacity_hash->{descendantSpace}, 'G', $output_unit);
                     #$totalsize = $totalsize + $ds_size;
                   } else {
 
@@ -405,7 +411,7 @@ for my $engine ( sort (@{$engine_list}) ) {
                       }
                     }
 
-                    $parentsnap_size = sprintf("%12.2f",$held_snapshot * 1024);
+                    $parentsnap_size = Toolkit_helpers::print_size($held_snapshot, 'G', $output_unit); 
                     $locked_snaps = 0;
                     $ds_size = $held_size*1024;
                     #$totalsize = $totalsize + $ds_size;
@@ -442,14 +448,14 @@ for my $engine ( sort (@{$engine_list}) ) {
             $groupname,
             $dbobj->getName(),
             $timeflows->getName($dbtimeflow),
-            sprintf("%12.2f", $dbsize),
+            Toolkit_helpers::print_size($dbsize, 'M', $output_unit),
             '',
             '',
             '',
             '',
-            sprintf("%12.2f", $ds_size),
+            Toolkit_helpers::print_size($ds_size, 'M', $output_unit),
             $locked_snaps,
-            sprintf("%12.2f", $totalsize)
+            Toolkit_helpers::print_size($totalsize, 'M', $output_unit)
         )
       } else {
           $output->addLineRev(
@@ -457,13 +463,13 @@ for my $engine ( sort (@{$engine_list}) ) {
               $groupname,
               $dbobj->getName(),
               $timeflows->getName($dbtimeflow),
-              sprintf("%12.2f", $dbsize),
+              Toolkit_helpers::print_size($dbsize, 'M', $output_unit),
               $dsourcename,
               $dsourcesnapshot_name,
               $dsourcesnapshot_size,
-              sprintf("%12.2f", $ds_size),
+              Toolkit_helpers::print_size($ds_size, 'M', $output_unit),
               $locked_snaps,
-              sprintf("%12.2f", $totalsize)
+              Toolkit_helpers::print_size($totalsize, 'M', $output_unit)
             );
 
         }
@@ -511,7 +517,7 @@ sub get_snapshot_data {
       $parenttf = $snapshots->getSnapshotTimeflow($snapref);
       $parentstart = $snapshots->getStartPointwithzone($snapref);
       if (defined($snapsize)) {
-        $snapsize = sprintf("%12.2f", $snapsize/1024/1024);
+        $snapsize = Toolkit_helpers::print_size($snapsize, 'B', $output_unit);
       } else {
         $snapsize = 'N/A';
       }
@@ -554,6 +560,7 @@ __DATA__
                   [-parent]
                   [-snapname]
                   [-forcerefresh]
+                  [-output_unit K|M|G|T]
                   [-format csv|json ]
                   [-nohead]
                   [-help|? ]
@@ -620,6 +627,10 @@ Filter using repository_name ( Oracle Home, MS SQL instance, etc)
 =head2 Options
 
 =over 4
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-parent>
 Display a list of all timeflows with depended snapshots

@@ -44,6 +44,7 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 my $timeloc = 't';
 my $timeflow = 'c';
+my $output_unit = 'G';
 my $notime = 0;
 
 GetOptions(
@@ -60,6 +61,7 @@ GetOptions(
   'startDate=s' => \(my $startDate),
   'endDate=s' => \(my $endDate),
   'snapshotname=s' => \(my $snapshotname),
+  'output_unit:s' => \($output_unit),
   'size:s'    => \(my $size),
   'debug:i' => \(my $debug),
   'details' => \(my $details),
@@ -80,6 +82,12 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if ( !  ( ( uc $output_unit eq 'G') || ( uc $output_unit eq 'M') || ( uc $output_unit eq 'K') ) ) {
+  print "Option -output_unit can be only G for GB, M for MB and K for KB \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -129,7 +137,7 @@ if (defined($size)) {
       {'Database',       30},
       {'Snapshot name',  30},
       {'Creation time ', 30},
-      {'Size',           30},
+      {Toolkit_helpers::get_unit('Size',$output_unit),           30},
       {'Depended objects', 60}
   );
 
@@ -429,7 +437,7 @@ sub snapshot_size {
       $dbobj->getName(),
       $snapshots->getSnapshotName($snap_ref),
       $snapshots->getSnapshotCreationTimeWithTimezone($snap_ref),
-      sprintf("%10.5f",$snap->{space}),
+      Toolkit_helpers::print_size($snap->{space}, 'G', $output_unit, 5),
       $depend_string
     );
 
@@ -447,6 +455,7 @@ __DATA__
                      [ -startDate startDate]
                      [ -endDate endDate]
                      [ -snapshotname snapshotname]
+                     [-output_unit K|M|G|T]
                      [ -format csv|json ]
                      [ -notime ]
                      [ -help|? ] [ -debug ]
@@ -537,6 +546,10 @@ Display current fimeflow - c (default value), or display all timeflows
 =item B<-details>
 Display more details about snapshot - version and retention time in days
 
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
+
 =item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
@@ -613,7 +626,7 @@ List size of all snapshots in descending order
 
  dx_get_snapshots -d dc -size desc
 
- Engine                         Group                Database                       Snapshot name                  Creation time                  Size                           Depended objects
+ Engine                         Group                Database                       Snapshot name                  Creation time                  Size [GB]                      Depended objects
  ------------------------------ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------------------------------------------------------
  dc                             group1               vcdb2                          @2017-10-10T14:01:41.692Z      2017-10-10 07:01:41 PDT           0.00203
  dc                             Sources              marina                         @2017-10-10T11:06:21.139Z      2017-10-10 04:06:21 PDT           0.00125                     group1/test/previous tf
