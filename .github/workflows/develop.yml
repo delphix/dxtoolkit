@@ -42,8 +42,9 @@ jobs:
 
     - name: add examples
       run: |
+        ls -l 
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
         tar -rvf dxtoolkit.tar dxtoolkit/dxtools.conf.example dxtoolkit/dxusers.csv.example
         gzip dxtoolkit.tar
 
@@ -134,7 +135,7 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
         tar -rvf dxtoolkit.tar dxtoolkit/dxtools.conf.example dxtoolkit/dxusers.csv.example
         gzip dxtoolkit.tar
 
@@ -186,7 +187,7 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
         tar -rvf dxtoolkit.tar dxtoolkit/dxtools.conf.example dxtoolkit/dxusers.csv.example
         gzip dxtoolkit.tar
 
@@ -239,7 +240,7 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
         tar -rvf dxtoolkit.tar dxtoolkit/dxtools.conf.example dxtoolkit/dxusers.csv.example
         gzip dxtoolkit.tar
 
