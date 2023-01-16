@@ -424,6 +424,9 @@ jobs:
           cd ./lib
           mv dbutils.pm dbutils.orig.pm
           cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
           cd ../bin
           $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
           -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
