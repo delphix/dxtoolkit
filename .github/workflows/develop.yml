@@ -299,7 +299,7 @@ jobs:
 
 
         mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-        $raw = Get-Content -path .\Toolkit_helpers.orig.pm -Raw | % { $_ -replace "(version.*?\d+\.\d+\.\d+\.?\d?)","`$1-${GITHUB_SHA}" }
+        $raw = Get-Content -path .\Toolkit_helpers.orig.pm -Raw | % { $_ -replace "(version.*?\d+\.\d+\.\d+\.?\d?)","`$1-${env:GITHUB_SHA}" }
         Set-Content -Path .\Toolkit_helpers.pm -Value $raw
 
         cd D:\a\dxtoolkit\dxtoolkit\
