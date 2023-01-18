@@ -750,6 +750,9 @@ sub getVDBBackup
     my $vendor = $self->{_dbtype};
     my $rephome = $self->getHome();
 
+    
+    my $parentdb;
+
     $self->exportDBHooks($backup);
 
     my $restore_args;
@@ -762,6 +765,8 @@ sub getVDBBackup
       $parentgroup = "PARENTDELETED";
       logger($self->{_debug}, "Parent deleted for VDB - replication ?",2);
       print "There is no parent for VDB. It can happen if replicated objects are deleted. Parent name is set to PARENTDELETED\n";
+    } else {
+      $parentdb = $self->{_databases}->getDBByName($parentname)->[-1];
     }
 
     $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup";
@@ -778,13 +783,26 @@ sub getVDBBackup
 
     if ($masked) {
       my $masking;
-      if ($maskingjob eq '') {
-        # masked by script
-        $masking = "-maskedbyscript ";
+      if (defined($parentdb)) {
+        logger($self->{_debug}, "database object has a parent",2);
+        
+        if (($parentdb->getType() eq 'VDB') && ($parentdb->getMasked())) {
+          logger($self->{_debug}, "database is child of the masked VDB - return unmasked",2);
+          # if parent is masked we should just return that next child is not masked
+          $masking = '';
+        } else {
+          if ($maskingjob eq '') {
+            # masked by script
+            $masking = "-maskedbyscript ";
+          } else {
+            # masked by job
+            $masking = "-maskingjob $maskingjob";
+          }
+        }
       } else {
-        # masked by job
-        $masking = "-maskingjob $maskingjob";
+        $masking = "";
       }
+
       $restore_args = $restore_args . $masking;
     }
 
