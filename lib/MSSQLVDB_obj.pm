@@ -821,6 +821,15 @@ sub addSource {
      }
 
 
+    my $ds_hooks = $self->set_dsource_hooks();
+    if (defined($ds_hooks)) {
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+        $dsource_params{"source"}{"operations"} = $ds_hooks;
+      } else {
+        $dsource_params{"linkData"}{"operations"} = $ds_hooks;
+      }
+    }
+
     my $operation = 'resources/json/delphix/database/link';
     my $json_data =to_json(\%dsource_params, {pretty=>1});
     #my $json_data = encode_json(\%dsource_params, pretty=>1);

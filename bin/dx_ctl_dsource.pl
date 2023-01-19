@@ -29,6 +29,7 @@ use Pod::Usage;
 use FindBin;
 use Data::Dumper;
 use version;
+use Try::Tiny;
 
 my $abspath = $FindBin::Bin;
 
@@ -80,6 +81,9 @@ GetOptions(
   'hadr=s' => \(my $hadr),
   'compression=s' => \($compression),
   'type=s' => \(my $type),
+  'presync=s@' =>\(my $presync),
+  'postsync=s@' =>\(my $postsync),
+  'hooks=s' => \(my $hooks),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -348,22 +352,42 @@ for my $engine ( sort (@{$engine_list}) ) {
           next;
         }
       }
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync);
     }
     elsif ($type eq 'sybase') {
       my $db = new SybaseVDB_obj($engine_obj,$debug);
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $mountbase);
     }
     elsif ($type eq 'mssql') {
       my $db = new MSSQLVDB_obj($engine_obj,$debug);
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, \%commvault);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dsourcename,$group, $exclude);
     }
     elsif ($type eq 'db2') {
       my $db = new DB2VDB_obj($engine_obj,$debug);
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr);
     }
 
@@ -378,42 +402,93 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 exit $ret;
 
+
+sub addhooks {
+  my $hooks = shift;
+  my $db = shift;
+  my $presync = shift;
+  my $postsync = shift;
+
+  if ( defined($presync) ) {
+    if ($db->setPreSyncHook($presync)) {
+      return 1;
+    }
+  }
+
+  if ( defined($postsync) ) {
+    if ($db->setPostSyncHook($postsync)) {
+      return 1;
+    }
+  }
+
+  if (defined($hooks)) {
+    my $FD;
+    if (!open ($FD, '<', "$hooks")) {
+      print "Can't open a file with hooks: $hooks\n";
+      return 1;
+    }
+    local $/ = undef;
+    my $json = JSON->new();
+    my $loadedHooks;
+    try {
+      $loadedHooks = $json->decode(<$FD>);
+    } catch {
+      print 'Error parsing hooks file. Please check it. ' . $_ . " \n" ;
+      close $FD;
+      return 1;
+    };
+    close $FD;
+
+    if ($loadedHooks->{type} ne 'LinkedSourceOperations') {
+      print '$hooks is not a export file from dx_get_dbhooks\n' ;
+      return 1;
+    }
+
+    $db->setHooksfromJSON($loadedHooks);
+
+  }
+  return 0;
+}
+
 __DATA__
 
 
 =head1 SYNOPSIS
 
  dx_ctl_dsource [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
-  -action create, attach, detach
-  -type dsourcetype
-  -sourcename name
-  -dsourcename dsourcename
-  -group groupname
-  -sourceinst source_instance
-  -sourceenv source_environment
-  -dbuser username
-  -password password
-  -source_os_user osusername
-  [-creategroup]
-  [-logsync yes/no ]
-  [-logsyncmode redo|arch]
-  [-stageinst staging_inst ]
-  [-stageenv staging_env ]
-  [-stage_os_user staging_osuser ]
-  [-backup_dir backup_dir ]
-  [-dumppwd password ]
-  [-mountbase mountpoint ]
-  [-validatedsync mode ]
-  [-delphixmanaged yes/no ]
-  [-dbusertype database|environment|domain]
-  [-cdbcont container -cdbuser user -cdbpass password]
-  [-commserver Commvault servername]
-  [-commsourceclient Commvault client name]
-  [-commstagingclient Commvault staging name]
-  [-exclude path]
-  [-debug ]
-  [-version ]
-  [-help|? ]
+                -action create, attach, detach
+                -type dsourcetype
+                -sourcename name
+                -dsourcename dsourcename
+                -group groupname
+                -sourceinst source_instance
+                -sourceenv source_environment
+                -dbuser username
+                -password password
+                -source_os_user osusername
+                [-creategroup]
+                [-logsync yes/no ]
+                [-logsyncmode redo|arch]
+                [-stageinst staging_inst ]
+                [-stageenv staging_env ]
+                [-stage_os_user staging_osuser ]
+                [-backup_dir backup_dir ]
+                [-dumppwd password ]
+                [-mountbase mountpoint ]
+                [-validatedsync mode ]
+                [-delphixmanaged yes/no ]
+                [-dbusertype database|environment|domain]
+                [-cdbcont container -cdbuser user -cdbpass password]
+                [-commserver Commvault servername]
+                [-commsourceclient Commvault client name]
+                [-commstagingclient Commvault staging name]
+                [-exclude path]
+                [-hooks path_to_hooks]
+                [-presync [hookname,]template|filename[,OS_shell] ]
+                [-postsync [hookname,]template|filename[,OS_shell] ]
+                [-debug ]
+                [-version ]
+                [-help|? ]
 
 =head1 DESCRIPTION
 
@@ -549,6 +624,48 @@ hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:500
 =item B<-exclude path>
 Exclude path for vFiles dSources
 
+=item B<-hooks path_to_hooks>
+Import hooks exported using dx_get_hooks
+
+=back
+
+=head2 Hooks
+
+Hook definition.
+
+File name is a path to a file with a hook body on machine
+with dxtoolkit.
+
+Template name is an operational template name
+
+Allowed combinations:
+
+ - hookname,template_name,OS_shell
+
+ - hookname,filename,OS_shell
+
+ - hookname,template_name
+
+ - hookname,filename
+
+ - template_name
+
+ - filename
+
+
+OS sheel allowed:
+- BASH - to force bash
+- SHELL - to use default OS user shell
+- PS - to force PowerShell 2
+- PSD - to use default PowerShell
+
+=over 1
+
+=item B<-presync [hookname,]template|filename[,OS_shell]>
+PreSync hook
+
+=item B<-postsync [hookname,]template|filename[,OS_shell]>
+PostSync hook
 
 =back
 
@@ -563,6 +680,8 @@ Print this screen
 Turn on debugging
 
 =back
+
+
 
 =head1 EXAMPLES
 

@@ -874,6 +874,7 @@ sub getdSourceBackup
     }
 
     $restore_args = $restore_args . " -logsync $logsync";
+    $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
     $restore_args = $restore_args . $self->getConfig(undef, 1);
 
@@ -2841,6 +2842,61 @@ sub importDBHooks {
     return 0;
 }
 
+
+# Procedure set_dsource_hooks
+# parameters:
+# - none
+# Return a hash with dSource hooks if those are configured,
+# otherwise return undef
+
+sub set_dsource_hooks {
+  my $self = shift;
+
+  logger($self->{_debug}, "Entering VDB_obj::set_dsource_hooks",1);
+  my %hooks = ();
+  my @dsource_hooks = ( 'preSync', 'postSync');
+
+  for my $hooktype (@dsource_hooks) {
+    if (defined($self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}) && (scalar(@{$self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}}) > 0)) {
+      $hooks{"type"} = "LinkedSourceOperations";
+      $hooks{$hooktype} = $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype};
+    }
+  }
+
+  if (! %hooks) {
+    return undef;
+  } else {
+    return \%hooks;
+  }
+
+}
+
+
+# Procedure setPreSyncHook
+# parameters:
+# - hook - shell command (line sepatated by /r)
+# Set Pre Snapshot Hook
+
+sub setPreSyncHook {
+    my $self = shift;
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreSyncHook",1);
+
+    $self->setAnyHook('preSync', $hook);
+}
+
+# Procedure setPostSyncHook
+# parameters:
+# - hook - shell command (line sepatated by /r)
+# Set Pre Snapshot Hook
+
+sub setPostSyncHook {
+    my $self = shift;
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPostSyncHook",1);
+
+    $self->setAnyHook('postSync', $hook);
+}
 
 #######################
 # end of VDB_obj class
