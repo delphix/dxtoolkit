@@ -3,3 +3,8 @@ tools/*
 bin/dxtools.conf
 test/debug*
 test/test_database_list/*.dbhooks
+.vscode
+bin/debug*
+*.conf
+# test file
+bin/a.pl
