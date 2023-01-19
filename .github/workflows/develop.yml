@@ -19,7 +19,7 @@ jobs:
           chmod 777 dxtoolkit2
           cd ./lib
           mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
           grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
@@ -74,7 +74,7 @@ jobs:
             chmod 777 dxtoolkit2
             cd ./lib
             mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-            cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+            cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
             grep "version" Toolkit_helpers.pm
 
       - name: Docker meta
@@ -115,7 +115,7 @@ jobs:
           chmod 777 dxtoolkit2
           cd ./lib
           mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
           grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
@@ -169,7 +169,7 @@ jobs:
           chmod 777 dxtoolkit2
           cd ./lib
           mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
           grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
@@ -224,7 +224,7 @@ jobs:
           chmod 777 dxtoolkit2
           cd ./lib
           mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
           grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
@@ -299,7 +299,7 @@ jobs:
 
 
         mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-        $raw = Get-Content -path .\Toolkit_helpers.orig.pm -Raw | % { $_ -replace "(version.*?\d+\.\d+\.\d+\.?\d?)","`$1-${env:GITHUB_SHA}" }
+        $raw = Get-Content -path .\Toolkit_helpers.orig.pm -Raw | % { $_ -replace "(version.*?\d+\.\d+\.\d+\.?\d?)","`$1-dev-${env:GITHUB_SHA}" }
         Set-Content -Path .\Toolkit_helpers.pm -Value $raw
 
         cd D:\a\dxtoolkit\dxtoolkit\
@@ -425,7 +425,7 @@ jobs:
           mv dbutils.pm dbutils.orig.pm
           cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
           mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
-          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
           grep "version" Toolkit_helpers.pm
           cd ../bin
           $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
