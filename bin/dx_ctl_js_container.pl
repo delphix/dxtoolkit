@@ -136,6 +136,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $jscontainer_ref = $jscontainers->getJSContainerByName($container_name);
     if (! defined($jscontainer_ref)) {
       print "Can't find container name $container_name\n";
+      $ret = $ret + 1;
       next;
     }
 
