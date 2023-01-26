@@ -1,3 +1,20 @@
+## 2.4.18
+
+### Added
+- [bug #206](https://github.com/delphix/dxtoolkit/issues/206) - dsource hooks support
+- [bug #217](https://github.com/delphix/dxtoolkit/issues/217) - dx_ctl_namespace added with option to failover and delete a namespace
+- [bug #220](https://github.com/delphix/dxtoolkit/issues/220) - Support for different metrics - MB/TB/GB/KB added to commands displaying space
+
+
+
+### Changes:
+- [bug #223](https://github.com/delphix/dxtoolkit/issues/223) - dx_ctl_js_container fix with return code
+- [bug #222](https://github.com/delphix/dxtoolkit/issues/222) - db_get_db_env backup is now generating proper output for masked child VDB
+- [bug #221](https://github.com/delphix/dxtoolkit/issues/221) - dbname for Oracle PDB can be now up to 30 characters
+- build fixes
+
+
+
 ## 2.4.17.2
 
 ### Changes:
