@@ -797,11 +797,25 @@ sub setName {
         $instance_name = $dbname;
     }
 
+    if ($self->{_sourcedb}->{container}->{contentType} eq "NON_CDB") {
+      if (length($dbname) > 8) {
+        print "Max. size of DB_NAME for Oracle is 8 characters\n.";
+        print "VDB won't be created\n";
+        return 1
+      }
+    } else {
+      if (length($dbname) > 30) {
+        print "Max. size of PDB name for Oracle is 30 characters\n.";
+        print "VDB won't be created\n";
+        return 1
+      }
+    }
+
     $self->{"NEWDB"}->{"container"}->{"name"} = $contname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"databaseName"} = $dbname;
     $self->{"NEWDB"}->{"sourceConfig"}->{"uniqueName"} = $unique_name;
     $self->{"NEWDB"}->{"sourceConfig"}->{"instance"}->{"instanceName"} = $instance_name;
-
+    return 0;
 }
 
 # Procedure getRuntimeStatus
@@ -2174,6 +2188,15 @@ sub addSource {
 
     }
 
+
+    my $ds_hooks = $self->set_dsource_hooks();
+    if (defined($ds_hooks)) {
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+        $dsource_params{"source"}{"operations"} = $ds_hooks;
+      } else {
+        $dsource_params{"linkData"}{"operations"} = $ds_hooks;
+      }
+    }
 
     my $operation = 'resources/json/delphix/database/link';
     my $json_data = to_json(\%dsource_params, {pretty=>1});

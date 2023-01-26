@@ -198,7 +198,8 @@ sub savecsv {
 		print $FD "\n";
 	}
 	for my $line ( @{$self->{_lines}} ) {
-		print $FD join(',',@{$line});
+    my @trimmed_line = map { Toolkit_helpers::trim($_) } @{$line};
+		print $FD join(',', @trimmed_line);
 		print $FD "\n";
 	}
 }

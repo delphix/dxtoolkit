@@ -13,6 +13,15 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
+
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
       uses: docker://pioro/dxperlcent7:5.26
@@ -35,8 +44,10 @@ jobs:
 
     - name: add examples
       run: |
+        ls -l 
         gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
 
@@ -55,24 +66,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@master
+
+      - name: add version 
+        run: |
+            mkdir dxtoolkit2
+            chmod 777 dxtoolkit2
+            cd ./lib
+            mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+            cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+            grep "version" Toolkit_helpers.pm
+
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@master
         with:
           images: pioro/dxtoolkit
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@master
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@master
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@master
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@master
         with:
           context: docker/
           push: true
@@ -88,6 +109,14 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
@@ -112,7 +141,8 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
@@ -132,6 +162,15 @@ jobs:
     steps:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
+
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
@@ -156,7 +195,8 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
@@ -177,6 +217,15 @@ jobs:
     steps:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
+
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
 
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
@@ -201,7 +250,8 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        tar -rvf dxtoolkit.tar bin/dxtools.conf.example bin/dxusers.csv.example
+        cp bin/dxtools.conf.example bin/dxusers.csv.example dxtoolkit2
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
@@ -246,6 +296,12 @@ jobs:
         mv dbutils.pm dbutils.orig.pm
         $raw = (Get-Content -path .\dbutils.orig.pm -Raw) -replace 'put your encryption key here','${{ secrets.ENCKEY_WINDOWS }}'
         Set-Content -Path .\dbutils.pm -Value $raw
+
+
+        mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+        $raw = Get-Content -path .\Toolkit_helpers.orig.pm -Raw | % { $_ -replace "(version.*?\d+\.\d+\.\d+\.?\d?)","`$1-dev-${env:GITHUB_SHA}" }
+        Set-Content -Path .\Toolkit_helpers.pm -Value $raw
+
         cd D:\a\dxtoolkit\dxtoolkit\
       shell: powershell
 
@@ -368,6 +424,9 @@ jobs:
           cd ./lib
           mv dbutils.pm dbutils.orig.pm
           cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
           cd ../bin
           $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
           -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`

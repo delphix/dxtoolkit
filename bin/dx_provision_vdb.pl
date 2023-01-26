@@ -507,12 +507,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   # Database specific code
   if ( $type eq 'oracle' ) {
-    if (length($dbname) > 8) {
-      print "Max. size of dbname for Oracle is 8 characters\n.";
-      print "VDB won't be created\n";
-      $ret = $ret + 1;
-      last;
-    }
+
 
     if (defined($instname) && (length($instname) > 12)) {
       print "Max. size of instance name for Oracle is 12 characters\n.";
@@ -581,7 +576,10 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     }
 
-    $db->setName($targetname,$dbname, $uniqname, $instname);
+    if ($db->setName($targetname,$dbname, $uniqname, $instname)) {
+      $ret = $ret + 1;
+      next;
+    }
 
 
     if (defined($listeners)) {

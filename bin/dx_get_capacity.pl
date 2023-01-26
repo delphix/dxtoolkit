@@ -43,6 +43,8 @@ use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
+my $output_unit = 'G';
+
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
@@ -56,6 +58,7 @@ GetOptions(
   'forcerefresh' => \(my $forcerefresh),
   'dbdetails'   => \(my $dbdetails),
   'debug:i' => \(my $debug),
+  'output_unit:s' => \($output_unit),
   'details:s' => \(my $details),
   'dever=s' => \(my $dever),
   'unvirt'    => \(my $unvirt),
@@ -78,6 +81,11 @@ if (defined($all) && defined($dx_host)) {
   exit (1);
 }
 
+if ( !  ( ( uc $output_unit eq 'G') || ( uc $output_unit eq 'M') || ( uc $output_unit eq 'K') ) ) {
+  print "Option -output_unit can be only G for GB, M for MB and K for KB \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
 
 if (defined($details) && defined($dbdetails)) {
   print "Options -details and -dbdetails are mutually exclusive \n";
@@ -103,19 +111,19 @@ my @header_array = (
   {'Group',          20},
   {'Database',       35},
   {'Replica',         3},
-  {'Size [GB]',      10}
+  {Toolkit_helpers::get_unit('Size',$output_unit),      10}
 );
 
 if (defined($details)) {
   push (@header_array, {'Type',20});
-  push (@header_array, {'Size [GB]',10});
+  push (@header_array, {Toolkit_helpers::get_unit('Size',$output_unit),10});
   if (lc $details eq 'all') {
     push (@header_array, {'Snapshots',35});
-    push (@header_array, {'Size [GB]',10});
+    push (@header_array, {Toolkit_helpers::get_unit('Size',$output_unit),10});
   }
 } else {
   if (defined($unvirt)) {
-    push (@header_array, {'Unvirt [GB]',11});
+    push (@header_array, {Toolkit_helpers::get_unit('Unvirt',$output_unit),11});
   }
 
   if (defined($dbdetails)) {
@@ -177,7 +185,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $groups->getName($dbobj->getGroup()),
         $dbobj->getName(),
         $dbobj->isReplica(),
-        sprintf("%10.2f", $capacity_hash->{totalsize}),
+        Toolkit_helpers::print_size($capacity_hash->{totalsize}, 'G', $output_unit),
         '',
         ''
       );
@@ -189,7 +197,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         '',
         '',
         'Current copy',
-        sprintf("%10.2f", $capacity_hash->{currentcopy})
+        Toolkit_helpers::print_size($capacity_hash->{currentcopy}, 'G', $output_unit)
       );
 
       $output->addLine(
@@ -199,7 +207,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         '',
         '',
         'DB Logs',
-        sprintf("%10.2f", $capacity_hash->{dblogs})
+        Toolkit_helpers::print_size($capacity_hash->{dblogs}, 'G', $output_unit)
       );
 
       $output->addLine(
@@ -209,7 +217,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         '',
         '',
         'Snapshots total',
-        sprintf("%10.2f", $capacity_hash->{snapshots_total})
+        Toolkit_helpers::print_size($capacity_hash->{snapshots_total}, 'G', $output_unit)
       );
     } elsif (defined($details) && (lc $details eq 'all')) {
 
@@ -218,7 +226,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           $groups->getName($dbobj->getGroup()),
           $dbobj->getName(),
           $dbobj->isReplica(),
-          sprintf("%10.2f", $capacity_hash->{totalsize}),
+          Toolkit_helpers::print_size($capacity_hash->{totalsize}, 'G', $output_unit),
           '',
           '',
           '',
@@ -232,7 +240,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           '',
           '',
           'Current copy',
-          sprintf("%10.2f", $capacity_hash->{currentcopy}),
+          Toolkit_helpers::print_size($capacity_hash->{currentcopy}, 'G', $output_unit),
           '',
           ''
         );
@@ -244,7 +252,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           '',
           '',
           'DB Logs',
-          sprintf("%10.2f", $capacity_hash->{dblogs}),
+          Toolkit_helpers::print_size($capacity_hash->{dblogs}, 'G', $output_unit),
           '',
           ''
         );
@@ -256,7 +264,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           '',
           '',
           'Snapshots total',
-          sprintf("%10.2f", $capacity_hash->{snapshots_total}),
+          Toolkit_helpers::print_size($capacity_hash->{snapshots_total}, 'G', $output_unit),
           '',
           ''
         );
@@ -270,7 +278,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           '',
           '',
           'Snapshots shared',
-          sprintf("%10.2f", $capacity_hash->{snapshots_shared})
+          Toolkit_helpers::print_size($capacity_hash->{snapshots_shared}, 'G', $output_unit),
         );
 
         for my $snapitem ( @{$capacity_hash->{snapshots_list}} ) {
@@ -283,7 +291,7 @@ for my $engine ( sort (@{$engine_list}) ) {
             '',
             '',
             'Snapshot ' . $snapitem->{snapshotTimestamp},
-            sprintf("%10.2f", $snapitem->{space})
+            Toolkit_helpers::print_size($snapitem->{space}, 'G', $output_unit)
           );
         }
     } else {
@@ -292,10 +300,10 @@ for my $engine ( sort (@{$engine_list}) ) {
         $groups->getName($dbobj->getGroup()),
         $dbobj->getName(),
         $dbobj->isReplica(),
-        sprintf("%10.2f", $capacity_hash->{totalsize})
+        Toolkit_helpers::print_size($capacity_hash->{totalsize}, 'G', $output_unit)
       );
       if (defined($unvirt)) {
-        push(@linearray, sprintf("%10.2f", $capacity_hash->{unvirtualized}));
+        push(@linearray, Toolkit_helpers::print_size($capacity_hash->{unvirtualized}, 'G', $output_unit));
       }
 
       if (defined($dbdetails)) {
@@ -378,6 +386,7 @@ __DATA__
                     [-group group_name | -name db_name | -host host_name | -type dsource|vdb | -dsource name ]
                     [-details [all]]
                     [-sortby size ]
+                    [-output_unit K|M|G|T]
                     [-format csv|json ]
                     [-forcerefresh]
                     [-unvirt]
@@ -450,6 +459,10 @@ By default ourput is sorted by group name and db name
 =item B<-unvirt>
 Display a information about unvirtualized size of object - can't be mixed with -details flag
 
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-format>
 Display output in csv or json format

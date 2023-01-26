@@ -750,6 +750,9 @@ sub getVDBBackup
     my $vendor = $self->{_dbtype};
     my $rephome = $self->getHome();
 
+    
+    my $parentdb;
+
     $self->exportDBHooks($backup);
 
     my $restore_args;
@@ -762,6 +765,8 @@ sub getVDBBackup
       $parentgroup = "PARENTDELETED";
       logger($self->{_debug}, "Parent deleted for VDB - replication ?",2);
       print "There is no parent for VDB. It can happen if replicated objects are deleted. Parent name is set to PARENTDELETED\n";
+    } else {
+      $parentdb = $self->{_databases}->getDBByName($parentname)->[-1];
     }
 
     $restore_args = "dx_provision_vdb$suffix -d $engine -type $vendor -group \"$groupname\" -creategroup";
@@ -778,13 +783,26 @@ sub getVDBBackup
 
     if ($masked) {
       my $masking;
-      if ($maskingjob eq '') {
-        # masked by script
-        $masking = "-maskedbyscript ";
+      if (defined($parentdb)) {
+        logger($self->{_debug}, "database object has a parent",2);
+        
+        if (($parentdb->getType() eq 'VDB') && ($parentdb->getMasked())) {
+          logger($self->{_debug}, "database is child of the masked VDB - return unmasked",2);
+          # if parent is masked we should just return that next child is not masked
+          $masking = '';
+        } else {
+          if ($maskingjob eq '') {
+            # masked by script
+            $masking = "-maskedbyscript ";
+          } else {
+            # masked by job
+            $masking = "-maskingjob $maskingjob";
+          }
+        }
       } else {
-        # masked by job
-        $masking = "-maskingjob $maskingjob";
+        $masking = "";
       }
+
       $restore_args = $restore_args . $masking;
     }
 
@@ -856,6 +874,7 @@ sub getdSourceBackup
     }
 
     $restore_args = $restore_args . " -logsync $logsync";
+    $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
     $restore_args = $restore_args . $self->getConfig(undef, 1);
 
@@ -2823,6 +2842,61 @@ sub importDBHooks {
     return 0;
 }
 
+
+# Procedure set_dsource_hooks
+# parameters:
+# - none
+# Return a hash with dSource hooks if those are configured,
+# otherwise return undef
+
+sub set_dsource_hooks {
+  my $self = shift;
+
+  logger($self->{_debug}, "Entering VDB_obj::set_dsource_hooks",1);
+  my %hooks = ();
+  my @dsource_hooks = ( 'preSync', 'postSync');
+
+  for my $hooktype (@dsource_hooks) {
+    if (defined($self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}) && (scalar(@{$self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}}) > 0)) {
+      $hooks{"type"} = "LinkedSourceOperations";
+      $hooks{$hooktype} = $self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype};
+    }
+  }
+
+  if (! %hooks) {
+    return undef;
+  } else {
+    return \%hooks;
+  }
+
+}
+
+
+# Procedure setPreSyncHook
+# parameters:
+# - hook - shell command (line sepatated by /r)
+# Set Pre Snapshot Hook
+
+sub setPreSyncHook {
+    my $self = shift;
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPreSyncHook",1);
+
+    $self->setAnyHook('preSync', $hook);
+}
+
+# Procedure setPostSyncHook
+# parameters:
+# - hook - shell command (line sepatated by /r)
+# Set Pre Snapshot Hook
+
+sub setPostSyncHook {
+    my $self = shift;
+    my $hook = shift;
+    logger($self->{_debug}, "Entering VDB_obj::setPostSyncHook",1);
+
+    $self->setAnyHook('postSync', $hook);
+}
 
 #######################
 # end of VDB_obj class

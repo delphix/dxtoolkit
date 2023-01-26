@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.17.2';
+our $version = '2.4.18';
 
 my $tz = new Date::Manip::TZ;
 my $dt = new Date::Manip::Date;
@@ -951,7 +951,60 @@ sub convert_to_utc {
 	}
 }
 
+sub get_unit {
+    my $text = shift;
+    my $flag = uc shift;
+    if ($flag eq 'G') {
+        return $text . ' [GB]';
+    } elsif ($flag eq 'T') {
+        return $text . ' [TB]';
+    } elsif ($flag eq 'M') {
+        return $text . ' [MB]';
+    } elsif ($flag eq 'K') {
+        return $text . ' [KB]';
+    }
+}
 
+sub print_size {
+    my $bytes = shift;
+    my $input = uc shift;
+    my $flag = uc shift;
+	my $decnum = shift;
+
+    my $localbytes;
+
+	if (!defined($decnum)) {
+		$decnum = 2;
+	}
+
+    # convert input to bytes
+    if ($input eq 'G') {
+        $localbytes = $bytes * 1024 * 1024 * 1024;
+    } elsif ($input eq 'M') {
+        $localbytes = $bytes * 1024 * 1024;
+    }  elsif ($input eq 'K') {
+        $localbytes = $bytes * 1024;
+    }  elsif ($input eq 'B') {
+        $localbytes = $bytes;
+    } else {
+        print("Missing input conversion\n");
+        exit(-1);
+    }
+
+
+    if ($flag eq 'G') {
+        return sprintf("%10.${decnum}f", $localbytes/1024/1024/1024);
+    } elsif ($flag eq 'T') {
+        return sprintf("%10.${decnum}f", $localbytes/1024/1024/1024/1024);
+	} elsif ($flag eq 'M') {
+        return sprintf("%10.${decnum}f", $localbytes/1024/1024);
+    } elsif ($flag eq 'K') {
+        return sprintf("%10.${decnum}f", $localbytes/1024);
+    } else {
+        print("Missing output conversion\n");
+        exit(-1);  
+    }
+}
 
 
 # end of package

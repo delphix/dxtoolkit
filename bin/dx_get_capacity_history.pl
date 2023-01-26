@@ -40,6 +40,7 @@ use Toolkit_helpers;
 my $version = $Toolkit_helpers::version;
 
 my $resolution = 'd';
+my $output_unit = 'G';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -49,6 +50,7 @@ GetOptions(
   'et=s' => \(my $et),
   'debug:i' => \(my $debug),
   'details' => \(my $details),
+  'output_unit:s' => \($output_unit),
   'resolution=s' => \($resolution),
   'dever=s' => \(my $dever),
   'all' => (\my $all),
@@ -92,24 +94,24 @@ if (defined($details)) {
   $output->addHeader(
     {'Engine',         30},
     {'Timestamp',      30},
-    {'dS total [GB]',  15},
-    {'dS current [GB]',15},
-    {'dS log [GB]'    ,15},
-    {'dS snaps [GB]'  ,15},
-    {'VDB total [GB]' ,15},
-    {'VDB current [GB]',15},
-    {'VDB log [GB]'   ,15},
-    {'VDB snaps [GB]' ,15},
-    {'Total [GB]',     15},
+    {Toolkit_helpers::get_unit('dS total',$output_unit) ,  15},
+    {Toolkit_helpers::get_unit('dS current',$output_unit) ,15},
+    {Toolkit_helpers::get_unit('dS log',$output_unit)     ,15},
+    {Toolkit_helpers::get_unit('dS snaps',$output_unit)   ,15},
+    {Toolkit_helpers::get_unit('VDB total',$output_unit)  ,15},
+    {Toolkit_helpers::get_unit('VDB current',$output_unit) ,15},
+    {Toolkit_helpers::get_unit('VDB log',$output_unit)    ,15},
+    {Toolkit_helpers::get_unit('VDB snaps',$output_unit)  ,15},
+    {Toolkit_helpers::get_unit('Total',$output_unit) ,     15},
     {'Usage [%]',      12}
   );
 } else {
   $output->addHeader(
     {'Engine',         30},
     {'Timestamp',      30},
-    {'dSource [GB]',   12},
-    {'Virtual [GB]',   12},
-    {'Total [GB]',     12},
+    {Toolkit_helpers::get_unit('dSource',$output_unit),   12},
+    {Toolkit_helpers::get_unit('Virtual',$output_unit),   12},
+    {Toolkit_helpers::get_unit('Total',$output_unit),     12},
     {'Usage [%]'     , 12}
   );
 }
@@ -152,7 +154,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $capacity = new Capacity_obj($engine_obj, $debug);
   #$capacity->LoadDatabases();
   $capacity->LoadSystemHistory($st_timestamp, $et_timestamp, $reshash{$resolution});
-  $capacity->processSystemHistory($output,$details);
+  $capacity->processSystemHistory($output,$details, $output_unit);
 
 
 }
@@ -174,6 +176,7 @@ __DATA__
                          [-st "YYYY-MM-DD [HH24:MI:SS]" ]
                          [-et "YYYY-MM-DD [HH24:MI:SS]" ]
                          [-resolution d|h ]
+                         [-output_unit K|M|G|T]
                          [-format csv|json ]
                          [-help|? ]
                          [-debug ]
@@ -215,6 +218,10 @@ EndTime (format: YYYY-MM-DD [HH24:MI:SS]). Default is "now"
 
 =item B<-details>
 Display breakdown of usage.
+
+=item B<-output_unit K|M|G|T>
+Display usage using different unit. By default GB are used
+Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
 =item B<-format>
 Display output in csv or json format

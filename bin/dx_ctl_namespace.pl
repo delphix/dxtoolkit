@@ -13,10 +13,10 @@
 #
 # Copyright (c) 2015,2016 by Delphix. All rights reserved.
 #
-# Program Name : dx_ctl_replication.pl
-# Description  : Get information about replication
+# Program Name : dx_ctl_namespace.pl
+# Description  : Control namespaces
 # Author       : Marcin Przepiorowski
-# Created      : 28 Sept 2016 (v2.2.0)
+# Created      : Nov 2022 
 #
 #
 
@@ -48,10 +48,8 @@ GetOptions(
   'action=s' => \(my $action),
   'skip' => \(my $skip),
   'smart=s' => \($smart),
-  'nowait' => \(my $nowait),
   'debug:i' => \(my $debug),
   'dever=s' => \(my $dever),
-  'safe' => \(my $safe),
   'all' => (\my $all),
   'version' => \(my $print_version),
   'configfile|c=s' => \(my $config_file)
@@ -155,23 +153,17 @@ __DATA__
 
 =head1 SYNOPSIS
 
- dx_ctl_replication [-engine|d <delphix identifier> | -all ]
-                    -profilename profile
-                    -action create|delete|update|replicate
-                    [-enabled yes|no]
-                    [-schedule "* * * * *"]
-                    [-objects "Groupname/dbname"[,"Groupname"]]
-                    [-host hostname]
-                    [-user username]
-                    [-password password]
-                    [-safe]
-                    [-nowait]
+ dx_ctl_namespace   [-engine|d <delphix identifier> | -all ]
+                    -namespacename namespace
+                    -action delete|failover
+                    [-skip]
+                    [-smart yes|no]
                     [-help|?]
                     [-debug ]
 
 =head1 DESCRIPTION
 
-Start an replication using a profile name
+Control a replicated namespace - delete or failover
 
 =head1 ARGUMENTS
 
@@ -192,19 +184,15 @@ A config file search order is as follow:
 - DXTOOLKIT_CONF variable
 - dxtools.conf from dxtoolkit location
 
-=item B<-profilename profile>
-Specify a profile name to run
+=item B<-namespacename namespace>
+Specify a namespace name for action
 
-=item B<-action create|delete|update|replicate>
-Specify an action to run with profile name
+=item B<-action delete|failover>
+Specify an action to run with namespace name
 
-- create - to create a new profile
+- delete - to delete an existing namespace
 
-- delete - to delete an existing profile
-
-- update - to update an existing profile
-
-- replicate - to kick off replication
+- failover - to failover an existing namespace
 
 =back
 
@@ -213,37 +201,11 @@ Specify an action to run with profile name
 
 =over 3
 
-=item B<-enabled yes|no>
-Enable automatic replication
+=item B<-skip>
+To skip confirmation - handle with care
 
-=item B<-schedule "* * * * *">
-Replication schedule using Quartz-cron expression
-
-Ex:
-"0 0 */4 ? * *" - run every 4 hour
-
-=item B<-objects "Groupname/dbname"[,"Groupname"]>
-Comma separated list of objects [ dataset / group ] to replicate.
-Database has to be provided with a group name.
-
-Ex:
-PRD,TEST/test19 - group PRD and dataset test19 from group TEST will be added to replication
-
-=item B<-host hostname>
-Replica engine hostname / IP
-
-=item B<-user username>
-Replica engine username
-
-=item B<-password password>
-Replica engine password
-
-=item B<-nowait>
-Don't wait for a replication job to complete. Job will be running in background.
-
-=item B<-safe>
-Enable "safe" replication. If there was a VDB/dSource deletion operation
-on primary engine, replication job won't be started
+=item B<-smart yes|no>
+Use Delphix smart failover 
 
 =item B<-help>
 Print this screen
@@ -255,21 +217,32 @@ Turn on debugging
 
 =head1 Example
 
-Replicate a profile called "backup"
+Failover namespace
 
-  dx_ctl_replication -d DelphixEngine -profilename backup -nowait
-  Replication job JOB-7425 started in background
+  dx_ctl_namespace -d replica -action failover -namespacename ip-10-110-215-98-1
+  Going to failover namespace - ip-10-110-215-98-1
+  Are you sure (y/(n)) - use -skip to skip this confirmation
+  y
+  Failing over replicated namespace ip-10-110-215-98-1
+  Waiting for all actions to complete. Parent action is ACTION-11
+  Namespace failed over
 
-Create a replica profile called newprof replicating group PRD and one VDB (test19) from group TEST every 2 hours
+Failover namespace skipping confirmation and using a smart failover option
 
-  dx_ctl_replication -d DE -action create -profilename newprof -objects PRD,TEST/test19 -host 10.0.0.1 -user admin -password xxxxxxxx -enabled yes -type replica  -schedule "0 0 */2 ? * *"
+  dx_ctl_namespace -d replica -action failover -namespacename ip-10-110-215-98-3 -skip -smart yes
+  Going to failover namespace - ip-10-110-215-98-3
+  Failing over replicated namespace ip-10-110-215-98-3
+  Waiting for all actions to complete. Parent action is ACTION-30
+  Namespace failed over
 
-Update an existing replica profile
+Deleting namespace
 
-  dx_ctl_replication -d DE -action update -profilename newprof -enabled no
-
-Delete an existing replica profile
-
-  dx_ctl_replication -d DE -action delete -profilename newprof 
+  dx_ctl_namespace -d replica -action delete -namespacename ip-10-110-215-98-3
+  Going to delete namespace - ip-10-110-215-98-3
+  Are you sure (y/(n)) - use -skip to skip this confirmation
+  y
+  Deleting replicated namespace ip-10-110-215-98-3
+  Waiting for all actions to complete. Parent action is ACTION-31
+  Namespace deleted
 
 =cut
