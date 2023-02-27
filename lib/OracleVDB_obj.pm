@@ -1636,9 +1636,11 @@ sub attach_dsource
 
     if ($authtype ne 'kerberos') {
       # assuming we have kerberos and no dbuser is enabled
-      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-          print "Username or password is invalid.\n";
-          return undef;
+      if (defined($dbuser)) {
+        if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+            print "Username or password is invalid.\n";
+            return undef;
+        }
       }
     }
 
@@ -1697,11 +1699,15 @@ sub attach_dsource
           "attachData" => {
                 "type" => "OracleAttachData",
                 "config" => $config->{reference},
-                "oracleFallbackCredentials" => $password,
-                "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
       );
+
+      if (defined($dbuser)) {
+        $attach_data{"attachData"}{"oracleFallbackUser"} = $dbuser;
+        $attach_data{"attachData"}{"oracleFallbackCredentials"} = $password;
+      }
+
     } else {
       # 6.0.4 and above so far
       %attach_data = (
@@ -1709,14 +1715,17 @@ sub attach_dsource
           "attachData" => {
                 "type" => "OracleAttachData",
                 "config" => $config->{reference},
-                "oracleFallbackCredentials" => {
-                    "type" => "PasswordCredential",
-                    "password" => $password
-                  },
-                "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
       );
+
+      if (defined($dbuser)) {
+        $attach_data{"attachData"}{"oracleFallbackUser"} = $dbuser;
+        $attach_data{"attachData"}{"oracleFallbackCredentials"}{"type"} = "PasswordCredential";
+        $attach_data{"attachData"}{"oracleFallbackCredentials"}{"password"} = $password;
+        $attach_data{"attachData"}{"oracleFallbackCredentials"} = $password;
+      }
+
     }
 
     if ($config->{type} eq 'OraclePDBConfig') {
