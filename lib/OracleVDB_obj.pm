@@ -1723,7 +1723,6 @@ sub attach_dsource
         $attach_data{"attachData"}{"oracleFallbackUser"} = $dbuser;
         $attach_data{"attachData"}{"oracleFallbackCredentials"}{"type"} = "PasswordCredential";
         $attach_data{"attachData"}{"oracleFallbackCredentials"}{"password"} = $password;
-        $attach_data{"attachData"}{"oracleFallbackCredentials"} = $password;
       }
 
     }
