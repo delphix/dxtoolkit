@@ -215,6 +215,33 @@ sub getSourceConfigByName {
     return $ret;
 }
 
+# Procedure getSourceByCDB
+# parameters:
+# - name
+# - cdb ref
+# Return source hash for specific source name
+
+sub getSourceByCDB {
+    my $self = shift;
+    my $name = shift;
+    my $cdb = shift;
+    my $ret;
+
+    logger($self->{_debug}, "Entering SourceConfig_obj::getSourceByCDB",1);
+
+    for my $sourceitem ( sort ( keys %{$self->{_sourceconfigs}} ) ) {
+
+        if ( defined($self->getName($sourceitem))  && ( $self->getName($sourceitem) eq $name  )
+             && defined($self->{_sourceconfigs}->{$sourceitem}->{cdbConfig}) 
+             && ($self->{_sourceconfigs}->{$sourceitem}->{cdbConfig} eq $cdb)  ) {
+            $ret = $self->getSourceConfig($sourceitem);
+        }
+
+    }
+
+    return $ret;
+}
+
 
 # Procedure validateDBCredentials
 # parameters:
