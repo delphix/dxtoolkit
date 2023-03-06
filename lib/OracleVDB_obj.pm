@@ -1599,6 +1599,49 @@ sub snapshot
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
+
+sub setConfig {
+    my $self = shift;
+    my $name = shift;
+    my $source_inst = shift;
+    my $source_env = shift;
+    my $cdbcont = shift;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::setConfig",1);
+
+    my $dlpxObject = $self->{_dlpxObject};
+    my $debug = $self->{_debug};
+
+    my $sourceconfig;
+
+
+    if (!defined($self->{_sourceconfig})) {
+        $sourceconfig = new SourceConfig_obj($dlpxObject, $debug);
+        $self->{_sourceconfig} = $sourceconfig;
+    }
+
+    my $ret;
+
+
+    if (defined($cdbcont)) {
+      my $container_obj = $self->{_sourceconfig}->getSourceConfigByName($cdbcont);
+      $ret = $self->{_sourceconfig}->getSourceByCDB($name, $container_obj->{reference});
+    } else {
+      my $sourceconfig_db = $self->{_sourceconfig}->getSourceConfigByName($name);
+      if ($sourceconfig_db->{"type"} ne 'OraclePDBConfig') {
+        if (!defined($sourceconfig_db)) {
+          print "Source database $name not found\n";
+        } else {
+          $ret = $sourceconfig_db;
+        }
+      } else {
+        print "Oracle PDB specified without CDB. Please add -cdbcont parameter\n";
+      }
+    }
+
+    return $ret
+}
+
 # Procedure attach_dsource
 # parameters:
 # - dbuser
@@ -1618,16 +1661,15 @@ sub attach_dsource
     my $source_osuser = shift;
     my $dbuser = shift;
     my $password = shift;
+    my $cdbcont = shift;
 
     logger($self->{_debug}, "Entering OracleVDB_obj::attach_dsource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env);
+    my $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
 
     if (! defined($config)) {
-        print "Source database $source not found\n";
         return undef;
     }
-
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
