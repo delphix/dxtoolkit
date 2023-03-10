@@ -112,6 +112,8 @@ GetOptions(
   'vcdbuniqname=s' => \(my $vcdbuniqname),
   'vcdbinstname=s' => \(my $vcdbinstname),
   'vcdbtemplate=s' => \(my $vcdbtemplate),
+  'vdbtdepassword=s' => \(my $vdbtdepassword), 
+  'vcdbtdekeystore=s' => \(my $vcdbtdekeystore),
   'vcdbrac_instance=s@' => \(my $vcdbrac_instance),
   'customerenvfile=s@' => \(my $customerenvfile),
   'customerenvpair=s@' => \(my $customerenvpair),
@@ -593,7 +595,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
     if (defined($vcdbname)) {
-      $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate, $vcdbrac_instance);
+      $db->setupVCDB($vcdbname,$vcdbgroup,$vcdbdbname,$vcdbinstname,$vcdbuniqname,$vcdbtemplate, $vcdbrac_instance, $vdbtdepassword, $vcdbtdekeystore);
     }
 
 
@@ -767,6 +769,8 @@ __DATA__
                   [-vcdbinstname vcdb_instance_name]
                   [-vcdbtemplate vcdb_template_name]
                   [-vcdbrac_instance env_node,instance_name,instance_no]
+                  [-vdbtdepassword vcdb_TDE_keystore_password]
+                  [-vcdbtdekeystore vcdb_TDE_keystore_location]
                   [-customerenvfile path_to_env_file[,nodename]]
                   [-customerenvpair key,value[,nodename]]
                   [-tdeparentpassword tde_parent_keystore_password
@@ -902,6 +906,12 @@ Comma separated information about node name, instance name and instance number f
 Repeat option if you want to provide information for more nodes
 
 ex. -vcdbrac_instance node1,vCBD1,1 -vcdbrac_instance node2,vCBD2,2
+
+=item B<-vdbtdepassword vcdb_TDE_keystore_password>
+VCDB password for a new keystore
+
+=item B<-vcdbtdekeystore vcdb_TDE_keystore_location>
+VCDB location of the new keystore
 
 =item B<-noopen>
 Don't open database after provision (for Oracle)

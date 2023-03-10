@@ -145,13 +145,19 @@ sub getConfig
 
     my $config = '';
     my $joinsep;
+    my $vcdb;
+
+    if (!defined($self->{_databases}->{_vcdblist})) {
+      my %vcdblist;
+      $self->{_databases}->{_vcdblist} = \%vcdblist;
+    }
+
 
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
       $joinsep = ',';
     }
-
 
     if ($self->getType() eq 'VDB') {
 
@@ -171,14 +177,15 @@ sub getConfig
 
         my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
 
-        if ($sourceobj->{type} eq 'OracleVirtualSource') {
+        if (($sourceobj->{type} eq 'OracleVirtualSource') && (! defined($self->{_databases}->{_vcdblist}->{$cdbref}))) {
             # this is a vCDB
+            # it is first time we see it 
+            $self->{_databases}->{_vcdblist}->{$cdbref} = 1;
 
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
               $config = join($joinsep,($config, "-vcdbtemplate \"$vcdbtempname\""));
             }
-
 
 
             my $dbobj = $self->{_databases}->getDB($sourceobj->{container});
@@ -202,6 +209,17 @@ sub getConfig
                 if ($instances ne 'UNKNOWN') {
                   $config = join($joinsep,($config, "-vcdbinstname " . $instances->[-1]->{instanceName}));
                 }
+              }
+
+              $vcdb = 1;
+
+              if (defined($dbobj->{sourceConfig}->{"tdeKeystorePassword"})) {
+                $config = join($joinsep,($config, "-vdbtdepassword xxxxxxxx"));
+              }
+
+
+              if (defined($self->{"source"}->{"targetVcdbTdeKeystorePath"})) {
+                $config = join($joinsep,($config, "-vcdbtdekeystore " . $self->{"source"}->{"targetVcdbTdeKeystorePath"}));
               }
 
 
@@ -264,7 +282,7 @@ sub getConfig
         $config = join($joinsep,($config, $cust));
       }
 
-      my $tde = $self->getTDE($joinsep);
+      my $tde = $self->getTDE($joinsep, $vcdb);
       if ($tde ne '') {
         $config = join($joinsep,($config, $tde));
       }
@@ -2324,6 +2342,8 @@ sub setupVCDB {
     my $vcdbuniqname = shift;
     my $vcdbtemplate = shift;
     my $vcdbrac_instance = shift;
+    my $vcdbtdepassword = shift;
+    my $vcdbtdekeystore = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setupVCDB",1);
 
     $self->{_vcdbname} = $vcdbname;
@@ -2334,6 +2354,12 @@ sub setupVCDB {
     $self->{_vcdbtemplate} = $vcdbtemplate;
     $self->{_vcdbtemplate} = $vcdbtemplate;
     $self->{_vcdbrac_instance} = $vcdbrac_instance;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.18)) {
+      $self->{_vcdbtdepassword} = $vcdbtdepassword;
+      $self->{_vcdbtdekeystore} = $vcdbtdekeystore;
+    }
+
 }
 
 
@@ -2539,6 +2565,13 @@ sub createVDB {
           $virtcdbhash{"source"}{"configTemplate"} = $vcdbtemplateref;
         }
 
+
+        if (defined($self->{_vcdbtdepassword})) {
+          $self->{"NEWDB"}{"source"}{"targetVcdbTdeKeystorePath"} = $self->{_vcdbtdekeystore};
+          $virtcdbhash{"sourceConfig"}{"tdeKeystorePassword"} = $self->{_vcdbtdepassword};
+        }
+        
+
         $self->{"NEWDB"}->{"virtualCdb"} = \%virtcdbhash;
 
       }
@@ -2735,17 +2768,20 @@ sub setupTDE {
 sub getTDE {
     my $self = shift;
     my $separator = shift;
+    my $vcdb = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getTDE",1);
     my $ret = '';
     if (defined($self->{"source"}->{"parentTdeKeystorePath"})) {
        $ret = " -tdeparentpath " . $self->{"source"}->{"parentTdeKeystorePath"};
-       $ret = $ret . " -tdeparentpassword xxxxxx -tdeexportsecret xxxxxxx -tdecdbpassword xxxxxxx";
+       $ret = $ret . " -tdeparentpassword xxxxxx -tdeexportsecret xxxxxxx ";
+       if (defined($vcdb)) {
+       } else {
+        $ret = $ret . "-tdecdbpassword xxxxxxx";
+       }
        if (defined($self->{"source"}->{"tdeKeyIdentifier"})) {
          $ret = $ret . " -tdekeyid " . $self->{"source"}->{"tdeKeyIdentifier"};
        }
     }
-
-
 
     return $ret;
 }
