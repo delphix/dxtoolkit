@@ -174,8 +174,9 @@ sub getSnapshots {
         my @retarr = grep { $self->getSnapshotName($_) eq $snapshotname } @{$self->{_snapshot_list}} ;
         $ret = \@retarr;
     } else {
-        $ret = $self->{_snapshot_list} ;
+        $ret = $self->{_snapshot_list};
     }
+
     return $ret;
 }
 
@@ -1194,9 +1195,8 @@ sub getSnapshotList
       push (@all_snaps, @{$arr});
     }
 
-
-
-    @all_snaps = sort { Toolkit_helpers::sort_by_number($a, $b) } @all_snaps;
+    # pages are sorted
+    # sorting by snapshot reference id doesn't guarantee proper order - #227
     $self->{_snapshot_list} = \@all_snaps;
 
 }
@@ -1302,7 +1302,10 @@ sub getSnapshotList_worker
           print "No data returned for $operation. Try to increase timeout \n";
           exit 1;
       }
+
     }
+
+
 
     return \@snapshot_order;
 
