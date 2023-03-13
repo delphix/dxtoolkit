@@ -1627,6 +1627,12 @@ sub setConfig {
 
     logger($self->{_debug}, "Entering OracleVDB_obj::setConfig",1);
 
+    logger($self->{_debug}, "name: " . Dumper $name, 2);
+    logger($self->{_debug}, "source_inst: " . Dumper $source_inst, 2);
+    logger($self->{_debug}, "source_env: " . Dumper $source_env, 2);
+    logger($self->{_debug}, "cdbcont: " . Dumper $cdbcont, 2);
+    
+    
     my $dlpxObject = $self->{_dlpxObject};
     my $debug = $self->{_debug};
 
@@ -1977,11 +1983,12 @@ sub addSource {
     my $dsource_name = shift;
     my $group = shift;
     my $logsync = shift;
+    my $cdbcont = shift;
 
 
     logger($self->{_debug}, "Entering OracleVDB_obj::addSource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env);
+    my $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
 
     if (! defined($config)) {
         print "Source database $source not found\n";

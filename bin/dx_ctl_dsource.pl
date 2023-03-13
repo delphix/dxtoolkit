@@ -346,7 +346,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if ( $type eq 'oracle' ) {
       my $db = new OracleVDB_obj($engine_obj,$debug);
 
-      if (defined($cdbcont)) {
+      if (defined($cdbcont) && defined($cdbuser)) {
         if ($db->discoverPDB($sourceinst,$sourceenv,$cdbcont,$cdbuser,$cdbpass)) {
           print "There was an error with PDB discovery \n";
           $ret = $ret + 1;
@@ -357,7 +357,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont);
     }
     elsif ($type eq 'sybase') {
       my $db = new SybaseVDB_obj($engine_obj,$debug);
