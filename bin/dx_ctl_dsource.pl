@@ -117,11 +117,11 @@ if ( (! defined($action) ) || ( ! ( ( $action eq 'create') || ( $action eq 'atta
 
 if (! (($action eq 'detach') || ($action eq 'update')) )  {
 
-  if (defined($cdbcont) && ((!defined($cdbpass)) || (!defined($cdbuser)))) {
-    print "Option -cdbcont required a cdbpass and cdbuser to be defined \n";
-    pod2usage(-verbose => 1,  -input=>\*DATA);
-    exit (1);
-  }
+  # if (defined($cdbcont) && ((!defined($cdbpass)) || (!defined($cdbuser)))) {
+  #   print "Option -cdbcont required a cdbpass and cdbuser to be defined \n";
+  #   pod2usage(-verbose => 1,  -input=>\*DATA);
+  #   exit (1);
+  # }
 
   if (!defined($type)) {
     print "Option -type is required for this action \n";
@@ -237,7 +237,8 @@ for my $engine ( sort (@{$engine_list}) ) {
       print "Source database not found.\n";
       $ret = $ret + 1;
       next;
-    }
+    } 
+
 
     for my $dbref (@{$source_ref}) {
 
@@ -307,7 +308,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $source = ($databases->getDB($source_ref->[0]));
 
     if ( $type eq 'oracle' ) {
-      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir);
+      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$cdbcont);
     } else {
       $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression, $dbusertype);
     }
@@ -345,7 +346,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     if ( $type eq 'oracle' ) {
       my $db = new OracleVDB_obj($engine_obj,$debug);
 
-      if (defined($cdbcont)) {
+      if (defined($cdbcont) && defined($cdbuser)) {
         if ($db->discoverPDB($sourceinst,$sourceenv,$cdbcont,$cdbuser,$cdbpass)) {
           print "There was an error with PDB discovery \n";
           $ret = $ret + 1;
@@ -356,7 +357,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont);
     }
     elsif ($type eq 'sybase') {
       my $db = new SybaseVDB_obj($engine_obj,$debug);
@@ -735,6 +736,15 @@ Attach Oracle dsource
                               -group Sources -dsourcename "Oracle dsource"
  Waiting for all actions to complete. Parent action is ACTION-12691
  Action completed with success
+
+
+Attach Oracle PDB dsource
+
+ dx_ctl_dsource -d Landshark5 -action attach -type oracle -sourcename PDB1 -source_os_user delphix  \
+                              -group Sources -dsourcename "PDB1" -cdbcont CDOML_A
+ Waiting for all actions to complete. Parent action is ACTION-1023
+ Action completed with success
+
 
 Adding an Oracle PDB dSource
 

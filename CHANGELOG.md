@@ -1,3 +1,14 @@
+## 2.4.19
+
+### Changes:
+- [bug #227](https://github.com/delphix/dxtoolkit/issues/227) - snapshot order fixed
+- [bug #226](https://github.com/delphix/dxtoolkit/issues/226) - link / unlink (attach / detech) works for vPDB and CDB
+- build fixes
+
+### Added
+- [bug #225](https://github.com/delphix/dxtoolkit/issues/225) - support for vPDB/vCDB with TDE
+
+
 ## 2.4.18
 
 ### Added

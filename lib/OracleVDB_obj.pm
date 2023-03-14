@@ -145,13 +145,19 @@ sub getConfig
 
     my $config = '';
     my $joinsep;
+    my $vcdb;
+
+    if (!defined($self->{_databases}->{_vcdblist})) {
+      my %vcdblist;
+      $self->{_databases}->{_vcdblist} = \%vcdblist;
+    }
+
 
     if (defined($backup)) {
       $joinsep = ' ';
     } else {
       $joinsep = ',';
     }
-
 
     if ($self->getType() eq 'VDB') {
 
@@ -171,14 +177,15 @@ sub getConfig
 
         my $sourceobj = $self->{_source}->getSourceByConfig($cdbref);
 
-        if ($sourceobj->{type} eq 'OracleVirtualSource') {
+        if (($sourceobj->{type} eq 'OracleVirtualSource') && (! defined($self->{_databases}->{_vcdblist}->{$cdbref}))) {
             # this is a vCDB
+            # it is first time we see it 
+            $self->{_databases}->{_vcdblist}->{$cdbref} = 1;
 
             if (defined($sourceobj->{configTemplate})) {
               my $vcdbtempname = $templates->getTemplate($sourceobj->{configTemplate})->{name};
               $config = join($joinsep,($config, "-vcdbtemplate \"$vcdbtempname\""));
             }
-
 
 
             my $dbobj = $self->{_databases}->getDB($sourceobj->{container});
@@ -202,6 +209,17 @@ sub getConfig
                 if ($instances ne 'UNKNOWN') {
                   $config = join($joinsep,($config, "-vcdbinstname " . $instances->[-1]->{instanceName}));
                 }
+              }
+
+              $vcdb = 1;
+
+              if (defined($dbobj->{sourceConfig}->{"tdeKeystorePassword"})) {
+                $config = join($joinsep,($config, "-vdbtdepassword xxxxxxxx"));
+              }
+
+
+              if (defined($self->{"source"}->{"targetVcdbTdeKeystorePath"})) {
+                $config = join($joinsep,($config, "-vcdbtdekeystore " . $self->{"source"}->{"targetVcdbTdeKeystorePath"}));
               }
 
 
@@ -264,7 +282,7 @@ sub getConfig
         $config = join($joinsep,($config, $cust));
       }
 
-      my $tde = $self->getTDE($joinsep);
+      my $tde = $self->getTDE($joinsep, $vcdb);
       if ($tde ne '') {
         $config = join($joinsep,($config, $tde));
       }
@@ -1599,6 +1617,55 @@ sub snapshot
     return $self->VDB_obj::snapshot(\%snapshot_type) ;
 }
 
+
+sub setConfig {
+    my $self = shift;
+    my $name = shift;
+    my $source_inst = shift;
+    my $source_env = shift;
+    my $cdbcont = shift;
+
+    logger($self->{_debug}, "Entering OracleVDB_obj::setConfig",1);
+
+    logger($self->{_debug}, "name: " . Dumper $name, 2);
+    logger($self->{_debug}, "source_inst: " . Dumper $source_inst, 2);
+    logger($self->{_debug}, "source_env: " . Dumper $source_env, 2);
+    logger($self->{_debug}, "cdbcont: " . Dumper $cdbcont, 2);
+    
+    
+    my $dlpxObject = $self->{_dlpxObject};
+    my $debug = $self->{_debug};
+
+    my $sourceconfig;
+
+
+    if (!defined($self->{_sourceconfig})) {
+        $sourceconfig = new SourceConfig_obj($dlpxObject, $debug);
+        $self->{_sourceconfig} = $sourceconfig;
+    }
+
+    my $ret;
+
+
+    if (defined($cdbcont)) {
+      my $container_obj = $self->{_sourceconfig}->getSourceConfigByName($cdbcont);
+      $ret = $self->{_sourceconfig}->getSourceByCDB($name, $container_obj->{reference});
+    } else {
+      my $sourceconfig_db = $self->{_sourceconfig}->getSourceConfigByName($name);
+      if ($sourceconfig_db->{"type"} ne 'OraclePDBConfig') {
+        if (!defined($sourceconfig_db)) {
+          print "Source database $name not found\n";
+        } else {
+          $ret = $sourceconfig_db;
+        }
+      } else {
+        print "Oracle PDB specified without CDB. Please add -cdbcont parameter\n";
+      }
+    }
+
+    return $ret
+}
+
 # Procedure attach_dsource
 # parameters:
 # - dbuser
@@ -1618,16 +1685,15 @@ sub attach_dsource
     my $source_osuser = shift;
     my $dbuser = shift;
     my $password = shift;
+    my $cdbcont = shift;
 
     logger($self->{_debug}, "Entering OracleVDB_obj::attach_dsource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env);
+    my $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
 
     if (! defined($config)) {
-        print "Source database $source not found\n";
         return undef;
     }
-
 
     my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
     my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
@@ -1636,9 +1702,11 @@ sub attach_dsource
 
     if ($authtype ne 'kerberos') {
       # assuming we have kerberos and no dbuser is enabled
-      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-          print "Username or password is invalid.\n";
-          return undef;
+      if (defined($dbuser)) {
+        if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+            print "Username or password is invalid.\n";
+            return undef;
+        }
       }
     }
 
@@ -1697,11 +1765,15 @@ sub attach_dsource
           "attachData" => {
                 "type" => "OracleAttachData",
                 "config" => $config->{reference},
-                "oracleFallbackCredentials" => $password,
-                "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
       );
+
+      if (defined($dbuser)) {
+        $attach_data{"attachData"}{"oracleFallbackUser"} = $dbuser;
+        $attach_data{"attachData"}{"oracleFallbackCredentials"} = $password;
+      }
+
     } else {
       # 6.0.4 and above so far
       %attach_data = (
@@ -1709,14 +1781,16 @@ sub attach_dsource
           "attachData" => {
                 "type" => "OracleAttachData",
                 "config" => $config->{reference},
-                "oracleFallbackCredentials" => {
-                    "type" => "PasswordCredential",
-                    "password" => $password
-                  },
-                "oracleFallbackUser" => $dbuser,
                 "environmentUser" => $source_os_ref
           }
       );
+
+      if (defined($dbuser)) {
+        $attach_data{"attachData"}{"oracleFallbackUser"} = $dbuser;
+        $attach_data{"attachData"}{"oracleFallbackCredentials"}{"type"} = "PasswordCredential";
+        $attach_data{"attachData"}{"oracleFallbackCredentials"}{"password"} = $password;
+      }
+
     }
 
     if ($config->{type} eq 'OraclePDBConfig') {
@@ -1909,11 +1983,12 @@ sub addSource {
     my $dsource_name = shift;
     my $group = shift;
     my $logsync = shift;
+    my $cdbcont = shift;
 
 
     logger($self->{_debug}, "Entering OracleVDB_obj::addSource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env);
+    my $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
 
     if (! defined($config)) {
         print "Source database $source not found\n";
@@ -2274,6 +2349,8 @@ sub setupVCDB {
     my $vcdbuniqname = shift;
     my $vcdbtemplate = shift;
     my $vcdbrac_instance = shift;
+    my $vcdbtdepassword = shift;
+    my $vcdbtdekeystore = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::setupVCDB",1);
 
     $self->{_vcdbname} = $vcdbname;
@@ -2284,6 +2361,12 @@ sub setupVCDB {
     $self->{_vcdbtemplate} = $vcdbtemplate;
     $self->{_vcdbtemplate} = $vcdbtemplate;
     $self->{_vcdbrac_instance} = $vcdbrac_instance;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.18)) {
+      $self->{_vcdbtdepassword} = $vcdbtdepassword;
+      $self->{_vcdbtdekeystore} = $vcdbtdekeystore;
+    }
+
 }
 
 
@@ -2489,6 +2572,13 @@ sub createVDB {
           $virtcdbhash{"source"}{"configTemplate"} = $vcdbtemplateref;
         }
 
+
+        if (defined($self->{_vcdbtdepassword})) {
+          $self->{"NEWDB"}{"source"}{"targetVcdbTdeKeystorePath"} = $self->{_vcdbtdekeystore};
+          $virtcdbhash{"sourceConfig"}{"tdeKeystorePassword"} = $self->{_vcdbtdepassword};
+        }
+        
+
         $self->{"NEWDB"}->{"virtualCdb"} = \%virtcdbhash;
 
       }
@@ -2685,17 +2775,20 @@ sub setupTDE {
 sub getTDE {
     my $self = shift;
     my $separator = shift;
+    my $vcdb = shift;
     logger($self->{_debug}, "Entering OracleVDB_obj::getTDE",1);
     my $ret = '';
     if (defined($self->{"source"}->{"parentTdeKeystorePath"})) {
        $ret = " -tdeparentpath " . $self->{"source"}->{"parentTdeKeystorePath"};
-       $ret = $ret . " -tdeparentpassword xxxxxx -tdeexportsecret xxxxxxx -tdecdbpassword xxxxxxx";
+       $ret = $ret . " -tdeparentpassword xxxxxx -tdeexportsecret xxxxxxx ";
+       if (defined($vcdb)) {
+       } else {
+        $ret = $ret . "-tdecdbpassword xxxxxxx";
+       }
        if (defined($self->{"source"}->{"tdeKeyIdentifier"})) {
          $ret = $ret . " -tdekeyid " . $self->{"source"}->{"tdeKeyIdentifier"};
        }
     }
-
-
 
     return $ret;
 }
