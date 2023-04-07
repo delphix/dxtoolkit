@@ -1,3 +1,6 @@
+use lib '../../lib/';
+use lib '../';
+use lib '.';
 use server;
 
 my $server = server->new(8080);
