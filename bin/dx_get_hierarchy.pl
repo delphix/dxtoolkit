@@ -111,7 +111,8 @@ $output->addHeader(
       {'dSource',     30},
       {'dS time',     35},
       {'Physical DB', 30},
-      {'First child DB', 30}
+      {'First child DB', 30},
+      {'Parent database', 30}
     );
 
 
@@ -212,6 +213,8 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $hierc = $databases->generateHierarchy($object_map, $databases_parent);
 
   my $parentname;
+  my $parent1leveldb;
+  my $parent1levelname;
 
   # for filtered databases on current engine - display status
   for my $dbitem ( @{$db_list} ) {
@@ -252,6 +255,18 @@ for my $engine ( sort (@{$engine_list}) ) {
         my ($topdsc, $childc);
         ($topds, $child) = $timeflows->finddSource($dbobj->getCurrentTimeflow(), $hier);
         ($topdsc, $childc) = $databases->finddSource($dbitem, $hierc);
+
+
+        if ( $dbobj->getParentContainer() ne '' ) {
+          my $parent1leveldb = $databases->getDB($dbobj->getParentContainer());
+          if (defined($parent1leveldb)) {
+            $parent1levelname = $parent1leveldb->getName();
+          } else {
+            $parent1levelname = 'N/A';
+          }
+        } else {
+          $parent1levelname = 'N/A';
+        }
 
 
         if (defined($topdsc)) {
@@ -346,6 +361,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $snaptime = 'N/A';
         $childname = 'N/A';
         $parentname = '';
+        $parent1levelname = '';
         if ($dbobj->getType() ne 'detached' ) {
           $physicaldb = $dbobj->getSourceConfigName();
         } else {
@@ -361,7 +377,8 @@ for my $engine ( sort (@{$engine_list}) ) {
           $parentname,
           $snaptime,
           $physicaldb,
-          $childname
+          $childname,
+          $parent1levelname
         );
       }
 
