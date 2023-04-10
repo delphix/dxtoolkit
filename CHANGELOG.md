@@ -1,3 +1,8 @@
+## 2.4.19.2
+
+### Added
+- [bug #224](https://github.com/delphix/dxtoolkit/issues/224) - dx_get_hierarchy - print parent name
+
 ## 2.4.19
 
 ### Changes:
