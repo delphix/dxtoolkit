@@ -1405,6 +1405,9 @@ sub attach_dsource
     my $source_env_ref;
     my $source_os_ref;
 
+    print Dumper "slon";
+    print Dumper $self->getName();
+
     if ( $self->setEnvironment($env) ) {
         print "Staging environment $env not found. dSource won't be attached\n";
         return undef;
@@ -1623,8 +1626,14 @@ sub attach_dsource
         $attach_data{"attachData"}{"syncStrategy"}{"compressionEnabled"} = $compression_json;
       } elsif (defined($stagingpush)) {
         $attach_data{"attachData"}{"syncStrategy"}{"type"} = "MSSqlStagingPushSyncStrategy"; 
-        $attach_data{"attachData"}{"syncParameters"}{"type"} = "MSSqlNoBackupSyncParameters";  
-        $attach_data{"attachData"}{"syncStrategy"}{"stagingDatabaseName"} = $source; 
+        $attach_data{"attachData"}{"syncParameters"}{"type"} = "MSSqlNoBackupSyncParameters"; 
+        my $staging_name;
+        if (defined($source)) {
+          $staging_name = $source;
+        } else {
+          $staging_name = $self->getName();
+        }
+        $attach_data{"attachData"}{"syncStrategy"}{"stagingDatabaseName"} = $staging_name; 
       } else {
         $attach_data{"attachData"}{"syncStrategy"}{"config"} = $config->{reference};
         $attach_data{"attachData"}{"sharedBackupLocations"} = \@backup_loc;
