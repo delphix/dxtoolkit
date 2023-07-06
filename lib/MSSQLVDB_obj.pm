@@ -126,9 +126,14 @@ sub getConfig
 
       my $vsm = $self->getValidatedMode();
       my $dmb = $self->getDelphixManaged();
+      my $staging = $self->getStagingPush();
 
       if ($dmb eq 'yes') {
+        # Delphix manage backup type
         $config = join($joinsep,($config, "-delphixmanaged $dmb"));
+      } elsif ($staging eq 'yes') {
+        # Staging push
+        $config = join($joinsep,($config, "-stagingpush"));
       } else {
         my $backup_path = $self->getBackupPath();
         if (!defined($backup_path)) {
@@ -292,10 +297,18 @@ sub snapshot
                 "type" => "MSSqlExistingMostRecentBackupSyncParameters"
             );
           } else {
-            %snapshot_type = (
-                "type" => "MSSqlNewCopyOnlyFullBackupSyncParameters",
-                "compressionEnabled" => JSON::false
-            );
+
+            if ($self->getStagingPush() eq 'yes') {
+              %snapshot_type = (
+                  "type" => "MSSqlNoBackupSyncParameters",
+                  "compressionEnabled" => JSON::false
+              );
+            } else {
+              %snapshot_type = (
+                  "type" => "MSSqlNewCopyOnlyFullBackupSyncParameters",
+                  "compressionEnabled" => JSON::false
+              );
+            }
           }
       }
 
@@ -401,17 +414,9 @@ sub addSource {
     my $compression = shift;
     my $dbusertype = shift;
     my $commvault = shift;
+    my $stagingpush = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::addSource",1);
-
-    my $config = $self->setConfig($source, $source_inst, $source_env);
-
-    if (! defined($config)) {
-        print "Source database $source not found\n";
-        return undef;
-    }
-
-
 
     if ( $self->setGroup($group) ) {
         print "Group $group not found. dSource won't be created\n";
@@ -430,37 +435,48 @@ sub addSource {
 
     my $stagingrepo = $self->{"NEWDB"}->{"sourceConfig"}->{"repository"};
 
-    # if ( $self->setHost() ) {
-    #     print "Host is not set. VDB won't be created\n";
-    #     return undef;
-    # }
-
-    # if ( ! defined($self->{"NEWDB"}->{"container"}->{"name"} ) ) {
-    #     print "Set name using setName procedure before calling create VDB. VDB won't be created\n";
-    #     return undef;
-    # }
+    my $config;
+    my $source_env_ref;
+    my $source_os_ref;
 
 
-    my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
-
-    my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
-
-    if (!defined($source_os_ref)) {
-        logger($self->{_debug}, "Source OS user $source_osuser not found",2);
-        print "Source OS user $source_osuser not found\n";
+    if (defined($stagingpush)) {
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.13)) {
+        print "Staging push not supported in engine below 6.0.13\n";
         return undef;
-    }
+      }
+    } else {
 
-    if ($dbusertype eq 'environment') {
-      # for environment - we need to change dbuser into referencial
-      logger($self->{_debug}, "changing user into ref for non database",2);
-      $dbuser = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$dbuser);
-      logger($self->{_debug}, "new dbuser $dbuser",2);
-    }
+      $config = $self->setConfig($source, $source_inst, $source_env);
 
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
-        print "Username or password is invalid.\n";
-        return undef;
+      if (! defined($config)) {
+          print "Source database $source not found\n";
+          return undef;
+      }
+
+
+      $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
+
+      $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+      if (!defined($source_os_ref)) {
+          logger($self->{_debug}, "Source OS user $source_osuser not found",2);
+          print "Source OS user $source_osuser not found\n";
+          return undef;
+      }
+
+      if ($dbusertype eq 'environment') {
+        # for environment - we need to change dbuser into referencial
+        logger($self->{_debug}, "changing user into ref for non database",2);
+        $dbuser = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$dbuser);
+        logger($self->{_debug}, "new dbuser $dbuser",2);
+      }
+
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
+          print "Username or password is invalid.\n";
+          return undef;
+      }
+
     }
 
     my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
@@ -701,14 +717,11 @@ sub addSource {
         "name" => $dsource_name,
         "linkData" => {
             "type" => "MSSqlLinkData",
-            "syncStrategy" => {
-              "config" => $config->{reference}
-            },
+            "syncStrategy" => {},
             "sourcingPolicy" => {
                 "type" => "SourcingPolicy",
                 "logsyncEnabled" => $logsync_param
             },
-            "sourceHostUser" => $source_os_ref,
             "pptHostUser" => $stage_osuser_ref,
             "pptRepository"=> $stagingrepo
           }
@@ -721,6 +734,8 @@ sub addSource {
 
 
         if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+          $dsource_params{"linkData"}{"sourceHostUser"} = $source_os_ref;
+          $dsource_params{"linkData"}{"syncStrategy"}{"config"} = $config->{reference};
           my $compression_json = JSON::false;
 
           if (lc $compression eq "yes") {
@@ -730,8 +745,13 @@ sub addSource {
           $dsource_params{"linkData"}{"syncStrategy"}{"compressionEnabled"} = $compression_json;
           $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNewCopyOnlyFullBackupSyncParameters";
           $dsource_params{"linkData"}{"syncParameters"}{"compressionEnabled"} = $compression_json;
+        } elsif (defined($stagingpush)) {
+          $dsource_params{"linkData"}{"syncStrategy"}{"type"} = "MSSqlStagingPushSyncStrategy"; 
+          $dsource_params{"linkData"}{"syncParameters"}{"type"} = "MSSqlNoBackupSyncParameters";  
+          $dsource_params{"linkData"}{"syncStrategy"}{"stagingDatabaseName"} = $dsource_name; 
         } else {
-
+          $dsource_params{"linkData"}{"sourceHostUser"} = $source_os_ref;
+          $dsource_params{"linkData"}{"syncStrategy"}{"config"} = $config->{reference};
           if (defined($validatedSyncMode)) {
             $dsource_params{"linkData"}{"syncStrategy"}{"type"} = "MSSqlExternalManagedSourceSyncStrategy";
             $dsource_params{"linkData"}{"syncStrategy"}{"validatedSyncMode"} = $vsm;
@@ -792,29 +812,33 @@ sub addSource {
          }
      } else {
        # from 6.0.8
-       if (!defined($dbusertype)) {
-         print "MS SQL database user type is now required\n";
-         return undef;
-       }
 
-       $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
-       if (lc $dbusertype eq 'database') {
-         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
-         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
-                           "type" => "PasswordCredential",
-                           "password" => $password
-                         };
-       } elsif (lc $dbusertype eq "environment") {
-         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
-       } elsif (lc $dbusertype eq "domain") {
-         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
-         $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
-                           "type" => "PasswordCredential",
-                           "password" => $password
-                         };
-       } else {
-         print "Unknown MS SQL database user type\n";
-         return undef;
+       if (!defined($stagingpush)) {
+        if (!defined($dbusertype)) {
+          print "MS SQL database user type is now required\n";
+          return undef;
+        }
+
+        $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
+        if (lc $dbusertype eq 'database') {
+          $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+          $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } elsif (lc $dbusertype eq "environment") {
+          $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+        } elsif (lc $dbusertype eq "domain") {
+          $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+          $dsource_params{"linkData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } else {
+          print "Unknown MS SQL database user type\n";
+          return undef;
+        }
+
        }
 
 
@@ -1268,6 +1292,33 @@ sub setValidatedMode {
 
 }
 
+# Procedure getStagingPush
+# parameters:
+# Return is staging push is configured
+
+sub getStagingPush {
+  my $self = shift;
+  logger($self->{_debug}, "Entering MSSQLVDB_obj::getStagingPush",1);
+  my $ret;
+
+  if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.10)) {
+      # 6.0.11 and above
+      if (defined($self->{source}->{syncStrategy})) {
+        if ($self->{source}->{syncStrategy}->{type} eq 'MSSqlStagingPushSyncStrategy') {
+          $ret = 'yes';
+        } else {
+          $ret = 'no';
+        }
+      }
+
+  } else {
+    $ret = 'N/A';
+  }
+
+  return $ret;
+
+}
+
 
 # Procedure getDelphixManaged
 # parameters:
@@ -1346,17 +1397,13 @@ sub attach_dsource
     my $delphixmanaged = shift;
     my $compression = shift;
     my $dbusertype = shift;
+    my $stagingpush = shift;
 
     logger($self->{_debug}, "Entering MSSQLVDB_obj::attachSource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env);
-
-    if (! defined($config)) {
-        print "Source database $source not found\n";
-        return undef;
-    }
-
-
+    my $config;
+    my $source_env_ref;
+    my $source_os_ref;
 
     if ( $self->setEnvironment($env) ) {
         print "Staging environment $env not found. dSource won't be attached\n";
@@ -1370,29 +1417,44 @@ sub attach_dsource
 
     my $stagingrepo = $self->{"NEWDB"}->{"sourceConfig"}->{"repository"};
 
-    my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
-
-    my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
-
-    if (!defined($source_os_ref)) {
-        print "Source OS user $source_osuser not found\n";
+    if (defined($stagingpush)) {
+      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.13)) {
+        print "Staging push not supported in engine below 6.0.13\n";
         return undef;
+      }
+
+    } else {  
+      $config = $self->setConfig($source, $source_inst, $source_env);
+
+      if (! defined($config)) {
+          print "Source database $source not found\n";
+          return undef;
+      }
+
+      $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
+
+      $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+      if (!defined($source_os_ref)) {
+          print "Source OS user $source_osuser not found\n";
+          return undef;
+      }
+
+      if ($dbusertype eq 'environment') {
+        # for environment - we need to change dbuser into referencial
+        logger($self->{_debug}, "changing user into ref for non database",2);
+        $dbuser = $source_os_ref;
+        logger($self->{_debug}, "new dbuser $dbuser",2);
+      }
+
+      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
+          print "Username or password is invalid.\n";
+          return undef;
+      }
+
     }
 
     my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
-
-    if ($dbusertype eq 'environment') {
-      # for environment - we need to change dbuser into referencial
-      logger($self->{_debug}, "changing user into ref for non database",2);
-      $dbuser = $source_os_ref;
-      logger($self->{_debug}, "new dbuser $dbuser",2);
-    }
-
-
-    if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password, $dbusertype)) {
-        print "Username or password is invalid.\n";
-        return undef;
-    }
 
     if (!defined($stage_osuser_ref)) {
         print "Source OS user $stage_osuser not found\n";
@@ -1542,17 +1604,16 @@ sub attach_dsource
           "attachData" =>  {
               "type" => "MSSqlAttachData",
               "operations" => \%operations,
-              "sharedBackupLocations" => \@backup_loc,
               "pptRepository" => $stagingrepo,
-              "sourceHostUser" => $source_os_ref,
               "pptHostUser" => $stage_osuser_ref,
-              "syncStrategy" => {
-                "config" => $config->{reference},
-              }
+              "syncStrategy" => {}
           }
       );
 
       if (defined($delphixmanaged) && ($delphixmanaged eq 'yes')) {
+        $attach_data{"attachData"}{"syncStrategy"}{"config"} = $config->{reference};
+        $attach_data{"attachData"}{"sharedBackupLocations"} = \@backup_loc;
+        $attach_data{"attachData"}{"sourceHostUser"} = $source_os_ref;
         my $compression_json = JSON::false;
 
         if (lc $compression eq "yes") {
@@ -1560,7 +1621,14 @@ sub attach_dsource
         }
         $attach_data{"attachData"}{"syncStrategy"}{"type"} = "MSSqlDelphixManagedSyncStrategy";
         $attach_data{"attachData"}{"syncStrategy"}{"compressionEnabled"} = $compression_json;
+      } elsif (defined($stagingpush)) {
+        $attach_data{"attachData"}{"syncStrategy"}{"type"} = "MSSqlStagingPushSyncStrategy"; 
+        $attach_data{"attachData"}{"syncParameters"}{"type"} = "MSSqlNoBackupSyncParameters";  
+        $attach_data{"attachData"}{"syncStrategy"}{"stagingDatabaseName"} = $source; 
       } else {
+        $attach_data{"attachData"}{"syncStrategy"}{"config"} = $config->{reference};
+        $attach_data{"attachData"}{"sharedBackupLocations"} = \@backup_loc;
+        $attach_data{"attachData"}{"sourceHostUser"} = $source_os_ref;
         if (defined($vsm)) {
           $vsm = uc $vsm;
 
@@ -1633,30 +1701,32 @@ sub attach_dsource
           return undef;
         }
     } else {
-      # 6.0.8 and above
-      if (!defined($dbusertype)) {
-        print "MS SQL database user type is now required\n";
-        return undef;
-      }
+      if (!defined($stagingpush)) {
+        # 6.0.8 and above - no staging push
+        if (!defined($dbusertype)) {
+          print "MS SQL database user type is now required\n";
+          return undef;
+        }
 
-      $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
-      if (lc $dbusertype eq 'database') {
-        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
-        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
-                          "type" => "PasswordCredential",
-                          "password" => $password
-                        };
-      } elsif (lc $dbusertype eq "environment") {
-        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
-      } elsif (lc $dbusertype eq "domain") {
-        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
-        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
-                          "type" => "PasswordCredential",
-                          "password" => $password
-                        };
-      } else {
-        print "Unknown MS SQL database user type\n";
-        return undef;
+        $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"user"} = $dbuser;
+        if (lc $dbusertype eq 'database') {
+          $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDatabaseUser";
+          $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } elsif (lc $dbusertype eq "environment") {
+          $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlEnvironmentUser";
+        } elsif (lc $dbusertype eq "domain") {
+          $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"type"} = "MSSqlDomainUser";
+          $attach_data{"attachData"}{"syncStrategy"}{"mssqlUser"}{"password"} = {
+                            "type" => "PasswordCredential",
+                            "password" => $password
+                          };
+        } else {
+          print "Unknown MS SQL database user type\n";
+          return undef;
+        }
       }
     }
 

@@ -1984,6 +1984,7 @@ sub addSource {
     my $group = shift;
     my $logsync = shift;
     my $cdbcont = shift;
+    my $stagingpush = shift;
 
 
     logger($self->{_debug}, "Entering OracleVDB_obj::addSource",1);
@@ -2793,6 +2794,33 @@ sub getTDE {
     return $ret;
 }
 
+
+# Procedure getStagingPush
+# parameters:
+# Return is staging push is configured
+
+sub getStagingPush {
+  my $self = shift;
+  logger($self->{_debug}, "Entering OracleVDB_obj::getStagingPush",1);
+  my $ret = 'N/A';
+
+  # if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.10)) {
+  #     # 6.0.11 and above
+  #     if (defined($self->{source}->{syncStrategy})) {
+  #       if ($self->{source}->{syncStrategy}->{type} eq 'MSSqlStagingPushSyncStrategy') {
+  #         $ret = 'yes';
+  #       } else {
+  #         $ret = 'no';
+  #       }
+  #     }
+
+  # } else {
+  #   $ret = 'N/A';
+  # }
+
+  return $ret;
+
+}
 
 #######################
 # end of OracleVDB_obj class
