@@ -85,6 +85,10 @@ GetOptions(
   'postsync=s@' =>\(my $postsync),
   'hooks=s' => \(my $hooks),
   'stagingpush' => \(my $stagingpush),
+  'instname=s'  => \(my $instname),
+  'uniqname=s'  => \(my $uniqname),
+  'template=s' => \(my $template),
+  'oracledbtype=s' => \(my $oracledbtype),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -368,7 +372,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont, $stagingpush);
+      if (defined($stagingpush)) {
+        $jobno = $db->addSource($sourcename,$stageinst,$stageenv,$stage_os_user,undef, undef, $dsourcename, $group, $logsync, $cdbcont, $stagingpush, $instname, $uniqname, $template, $oracledbtype, $mountbase);
+      } else {
+        $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont, $stagingpush);
+      }
     }
     elsif ($type eq 'sybase') {
       my $db = new SybaseVDB_obj($engine_obj,$debug);
@@ -451,7 +459,7 @@ sub addhooks {
     };
     close $FD;
 
-    if ($loadedHooks->{type} ne 'LinkedSourceOperations') {
+    if (($loadedHooks->{type} ne 'LinkedSourceOperations') && ($loadedHooks->{type} ne 'OracleLinkedSourceOperations') ){
       print '$hooks is not a export file from dx_get_dbhooks\n' ;
       return 1;
     }
@@ -499,6 +507,7 @@ __DATA__
                 [-presync [hookname,]template|filename[,OS_shell] ]
                 [-postsync [hookname,]template|filename[,OS_shell] ]
                 [-stagingpush]
+                [-oracledbtype nonmt|cdb|pdb]
                 [-debug ]
                 [-version ]
                 [-help|? ]
@@ -629,6 +638,13 @@ Commvault staging name
 
 =item B<-stagingpush>
 Create dsource using staging push technology ( current support MS SQL )
+
+=item B<-oracledbtype nonmt|cdb|pdb>
+Oracle staging push database type:
+
+ - nonmt - for Oracle non multitenant
+ - cdb - for Oracle Container ( required before PDB )
+ - pdb - for Oracle Pluggable database
 
 =item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
 Add DB2 dSource with HADR support
