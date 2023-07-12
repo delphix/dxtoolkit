@@ -46,9 +46,9 @@ jobs:
       run: |
         ls -l 
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example dxtools.conf.example
-        cp bin/dxusers.csv.example dxusers.csv.example
-        tar -rvf dxtoolkit.tar dxtools.conf.example dxusers.csv.example
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
 
@@ -142,9 +142,9 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example dxtools.conf.example
-        cp bin/dxusers.csv.example dxusers.csv.example
-        tar -rvf dxtoolkit.tar dxtools.conf.example dxusers.csv.example
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
@@ -197,9 +197,9 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example dxtools.conf.example
-        cp bin/dxusers.csv.example dxusers.csv.example
-        tar -rvf dxtoolkit.tar dxtools.conf.example dxusers.csv.example
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
@@ -253,9 +253,9 @@ jobs:
     - name: add examples
       run: |
         gzip -d dxtoolkit.tar.gz
-        cp bin/dxtools.conf.example dxtools.conf.example
-        cp bin/dxusers.csv.example dxusers.csv.example
-        tar -rvf dxtoolkit.tar dxtools.conf.example dxusers.csv.example
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
         gzip dxtoolkit.tar
 
     - name: compress toolkit
