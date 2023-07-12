@@ -1669,9 +1669,17 @@ sub snapshot
       );
     } else {
       # Delphix 6.0
-      %snapshot_type = (
-          "type" => "OracleSyncFromExternalParameters"
-      );
+
+
+      if ($self->getStagingPush() eq 'yes') {
+        %snapshot_type = (
+            "type" => "OracleStagingPushSyncParameters"
+        );
+      } else {
+        %snapshot_type = (
+            "type" => "OracleSyncFromExternalParameters"
+        );
+      }
     }
 
     if (defined($full)) {
@@ -2353,6 +2361,16 @@ sub addSource {
       } else {
         # staging push
 
+        my $sourcingpolicy_type;
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.23)) {
+          # until and including 11
+          $sourcingpolicy_type = "OracleSourcingPolicy";
+        } else {
+          # from 12 
+          $sourcingpolicy_type = "OracleStagingSourcingPolicy";
+        }
+
+
         if (!defined($source)) {
           $source = $dsource_name;
         }
@@ -2394,7 +2412,7 @@ sub addSource {
               "databaseName" => $source,
               "allowAutoStagingRestartOnHostReboot" => JSON::true,
               "sourcingPolicy" => {
-                  "type" => "OracleSourcingPolicy",
+                  "type" => $sourcingpolicy_type,
                   "logsyncEnabled" => $logsync_param
               },
               "syncStrategy" => {
