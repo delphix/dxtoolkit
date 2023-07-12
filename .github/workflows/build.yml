@@ -13,6 +13,11 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
+    - name: make dir 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2      
+
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
       uses: docker://pioro/dxperlcent7:5.26
@@ -82,6 +87,11 @@ jobs:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
 
+    - name: make dir 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2  
+
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
       uses: docker://pioro/dxperlubuntu18:5.26
@@ -98,6 +108,8 @@ jobs:
 
     - name: add examples
       run: |
+        mkdir dxtoolkit2
+        chmod 777 dxtoolkit2
         gzip -d dxtoolkit.tar.gz
         cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
         cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
@@ -121,6 +133,11 @@ jobs:
     steps:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
+
+    - name: make dir 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2  
 
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
@@ -162,6 +179,11 @@ jobs:
     steps:
     - name: checkout dxtoolkit code
       uses: actions/checkout@master
+
+    - name: make dir 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2  
 
     - name: Set up a Perl container
       #uses: pioro/dxtoolkit@develop
