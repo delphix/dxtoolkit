@@ -108,8 +108,6 @@ jobs:
 
     - name: add examples
       run: |
-        mkdir dxtoolkit2
-        chmod 777 dxtoolkit2
         gzip -d dxtoolkit.tar.gz
         cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
         cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
