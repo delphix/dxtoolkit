@@ -1,3 +1,13 @@
+## 2.4.20
+
+### Added
+- support for Staging push ( MS SQL / Oracle )
+- [bug #332](https://github.com/delphix/dxtoolkit/issues/232) - dx_snapshot_db supports staging push
+
+### Changes:
+- [bug #230](https://github.com/delphix/dxtoolkit/issues/232) - example files location
+- compability with new engines (up to 12)
+
 ## 2.4.19.2
 
 ### Added

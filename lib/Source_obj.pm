@@ -186,7 +186,20 @@ sub getStaging {
 
     logger($self->{_debug}, "Entering Source_obj::getStaging",1);
     my $sources = $self->{_sources};
-    return $sources->{$container}->{stagingSource};
+
+    my $ret = $sources->{$container}->{stagingSource};
+
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.18)) {
+        # 7.0 and above
+        if (defined($sources->{$container}->{syncStrategy})) {
+            if ($sources->{$container}->{syncStrategy}->{type} eq 'OracleStagingPushSyncStrategy') {
+                $ret = $sources->{$container}->{syncStrategy}->{stagingSource};
+            } 
+        }
+
+    } 
+
+    return $ret;
 }
 
 

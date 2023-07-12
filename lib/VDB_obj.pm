@@ -857,25 +857,36 @@ sub getdSourceBackup
 
     my $osuser = $self->getOSUser();
 
-    my $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
-    $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor -sourcename \"$dbhostname\" ";
-    $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
+    my $staging_push = 'no';
 
-    my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
-    my $dbuser = $self->getDbUser();
-
-    if ($dbuser ne 'N/A') {
-      if ($dbuser =~ /dbusertype environment/ ) {
-        $restore_args = $restore_args . " $dbuser ";
-      } else {
-        # this is for all users but not an dbuser type environent for ms sql
-        $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
-      }
+    if (( $vendor eq "mssql") or ($vendor eq "oracle")) {
+      $staging_push = $self->getStagingPush();
     }
 
-    $restore_args = $restore_args . " -logsync $logsync";
-    $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
 
+    my $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
+    $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor ";
+
+    if (($staging_push eq 'no') || ($staging_push eq 'N/A')) {
+      # for normal dsources
+      $restore_args = $restore_args . "-sourcename \"$dbhostname\" "; 
+      $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
+      my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
+      my $dbuser = $self->getDbUser();
+
+      if ($dbuser ne 'N/A') {
+        if ($dbuser =~ /dbusertype environment/ ) {
+          $restore_args = $restore_args . " $dbuser ";
+        } else {
+          # this is for all users but not an dbuser type environent for ms sql
+          $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+        }
+      }
+
+      $restore_args = $restore_args . " -logsync $logsync";
+    } 
+
+    $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
     $restore_args = $restore_args . $self->getConfig(undef, 1);
 
     $output->addLine(

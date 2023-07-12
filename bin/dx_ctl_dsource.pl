@@ -84,6 +84,11 @@ GetOptions(
   'presync=s@' =>\(my $presync),
   'postsync=s@' =>\(my $postsync),
   'hooks=s' => \(my $hooks),
+  'stagingpush' => \(my $stagingpush),
+  'instname=s'  => \(my $instname),
+  'uniqname=s'  => \(my $uniqname),
+  'template=s' => \(my $template),
+  'oracledbtype=s' => \(my $oracledbtype),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -140,7 +145,15 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
     exit (1);
   }
 
-  if ( ( lc $type ne 'db2' ) && ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) )  {
+
+  if (defined($stagingpush)) {
+    if (! defined($group)) {
+      print "For staging push -group is required. \n";
+      pod2usage(-verbose => 1,  -input=>\*DATA);
+      exit (1);
+    }
+  }
+  elsif ( ( lc $type ne 'db2' ) && ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) )  {
     print "Options -sourcename, -dsourcename, -group, -source_os_user are required. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
@@ -207,18 +220,20 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   if (((lc $action eq 'attach') || (lc $action eq 'create')) && (( lc $type ne 'db2' ) && ( lc $type ne 'vfiles' ) && (! ( defined($dbuser) && defined($password)  ) ) ) ) {
     # no db user exceptions
-    if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
-      $dbuser = $source_os_user;
-    } elsif (lc $type eq 'oracle') {
-        if ( ! (version->parse($engine_obj->getApi()) >= version->parse(1.11.7) ) ) {
-          print "Options -dbuser and -password are required for Oracle for version lower than 6.0.7 \n";
-          pod2usage(-verbose => 1,  -input=>\*DATA);
-          exit (1)
-        }
-    } else {
-      print "Options -dbuser and -password are required for non vFiles dsources. \n";
-      pod2usage(-verbose => 1,  -input=>\*DATA);
-      exit (1);
+    if (!defined($stagingpush)) {
+      if (( lc $type eq 'mssql' ) && ( lc $dbusertype eq 'environment' ) )   {
+        $dbuser = $source_os_user;
+      } elsif (lc $type eq 'oracle') {
+          if ( ! (version->parse($engine_obj->getApi()) >= version->parse(1.11.7) ) ) {
+            print "Options -dbuser and -password are required for Oracle for version lower than 6.0.7 \n";
+            pod2usage(-verbose => 1,  -input=>\*DATA);
+            exit (1)
+          }
+      } else {
+        print "Options -dbuser and -password are required for non vFiles dsources. \n";
+        pod2usage(-verbose => 1,  -input=>\*DATA);
+        exit (1);
+      }
     }
   }
 
@@ -308,9 +323,9 @@ for my $engine ( sort (@{$engine_list}) ) {
     my $source = ($databases->getDB($source_ref->[0]));
 
     if ( $type eq 'oracle' ) {
-      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$cdbcont);
+      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$cdbcont, $stagingpush);
     } else {
-      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression, $dbusertype);
+      $jobno = $source->attach_dsource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$stageenv,$stageinst,$stage_os_user, $backup_dir, $validatedsync, $delphixmanaged, $compression, $dbusertype, $stagingpush);
     }
 
 
@@ -357,7 +372,11 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont);
+      if (defined($stagingpush)) {
+        $jobno = $db->addSource($sourcename,$stageinst,$stageenv,$stage_os_user,undef, undef, $dsourcename, $group, $logsync, $cdbcont, $stagingpush, $instname, $uniqname, $template, $oracledbtype, $mountbase);
+      } else {
+        $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync, $cdbcont, $stagingpush);
+      }
     }
     elsif ($type eq 'sybase') {
       my $db = new SybaseVDB_obj($engine_obj,$debug);
@@ -373,7 +392,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, \%commvault);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $dumppwd, $validatedsync, $delphixmanaged, $compression, $dbusertype, \%commvault, $stagingpush);
     }
     elsif ($type eq 'vFiles') {
       my $db = new AppDataVDB_obj($engine_obj,$debug);
@@ -440,7 +459,7 @@ sub addhooks {
     };
     close $FD;
 
-    if ($loadedHooks->{type} ne 'LinkedSourceOperations') {
+    if (($loadedHooks->{type} ne 'LinkedSourceOperations') && ($loadedHooks->{type} ne 'OracleLinkedSourceOperations') ){
       print '$hooks is not a export file from dx_get_dbhooks\n' ;
       return 1;
     }
@@ -487,6 +506,8 @@ __DATA__
                 [-hooks path_to_hooks]
                 [-presync [hookname,]template|filename[,OS_shell] ]
                 [-postsync [hookname,]template|filename[,OS_shell] ]
+                [-stagingpush]
+                [-oracledbtype nonmt|cdb|pdb]
                 [-debug ]
                 [-version ]
                 [-help|? ]
@@ -614,6 +635,16 @@ Commvault client name
 
 =item B<-commstagingclient Commvault staging name>
 Commvault staging name
+
+=item B<-stagingpush>
+Create dsource using staging push technology ( current support MS SQL )
+
+=item B<-oracledbtype nonmt|cdb|pdb>
+Oracle staging push database type:
+
+ - nonmt - for Oracle non multitenant
+ - cdb - for Oracle Container ( required before PDB )
+ - pdb - for Oracle Pluggable database
 
 =item B<-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY>
 Add DB2 dSource with HADR support

@@ -130,6 +130,37 @@ sub new {
 }
 
 
+# Procedure getBackup`
+# parameters:
+# -engine
+# -output
+# Return a definition of backup metadata
+
+sub getBackup
+{
+    my $self = shift;
+    my $engine = shift;
+    my $output = shift;
+    my $dsource_output = shift;
+    my $backup = shift;
+    my $groupname = shift;
+    my $parentname = shift;
+    my $parentgroup = shift;
+    my $templates = shift;
+    my $groups = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getBackup",1);
+
+    if ($self->getType() eq 'VDB') {
+      $self->getVDBBackup($engine, $output, $backup, $groupname, $parentname, $parentgroup, $templates, $groups);
+    } elsif (($self->getType() eq 'dSource') || ($self->getType() eq 'detached')) {
+      $self->getdSourceBackup($engine, $dsource_output, $backup, $groupname );
+    } elsif (($self->getType() eq 'CDB') && ($self->getStagingPush() eq 'yes') ) {
+      # with staging push we need to export also a CDB 
+      $self->getdSourceBackup($engine, $dsource_output, $backup, $groupname );
+    }
+}
+
+
 # Procedure getConfig
 # parameters: none
 # Return database config
@@ -290,28 +321,65 @@ sub getConfig
 
     } else {
       # dSource config for Oracle
+      
+      my $staging = $self->getStagingPush();
 
-      my $logsyncmode = $self->getLogSyncMode();
-      if ($logsyncmode ne 'unknown') {
-        $config = join($joinsep,($config, "-logsyncmode $logsyncmode"));
-      }
+      if ($staging ne 'yes') {
 
-      my $cdbref = $self->getCDBContainerRef();
-      if (defined($cdbref)) {
-
-        my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
-        my $cdbname = $self->{_sourceconfig}->getName($cdbref);
-
-        if (defined($cdbuser)) {
-          $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
-          $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
-          $config = join($joinsep,($config, "-cdbcont $cdbname"));
+        my $logsyncmode = $self->getLogSyncMode();
+        if ($logsyncmode ne 'unknown') {
+          $config = join($joinsep,($config, "-logsyncmode $logsyncmode"));
         }
 
+        my $cdbref = $self->getCDBContainerRef();
+        if (defined($cdbref)) {
 
+          my $cdbuser = $self->{_sourceconfig}->getDBUser($cdbref);
+          my $cdbname = $self->{_sourceconfig}->getName($cdbref);
+
+          if (defined($cdbuser)) {
+            $config = join($joinsep,($config, "-cdbuser \"$cdbuser\""));
+            $config = join($joinsep,($config, "-cdbpass xxxxxxxx"));
+            $config = join($joinsep,($config, "-cdbcont $cdbname"));
+          }
+
+
+
+        }
+
+      } else {
+
+        my $staging_user = $self->getStagingUser();
+        my $staging_env = $self->getStagingEnvironment();
+        my $staging_inst = $self->getStagingInst();
+
+        $config = join($joinsep,($config, "-sourcename \"" . $self->{staging_sourceConfig}->{databaseName} . "\""));
+        $config = join($joinsep,($config, "-stageinst \"$staging_inst\""));
+        $config = join($joinsep,($config, "-stageenv \"$staging_env\""));
+        $config = join($joinsep,($config, "-stage_os_user \"$staging_user\""));
+        $config = join($joinsep,($config, "-mountbase \"" . $self->{staging_source}->{mountBase} . "\""));
+
+        my $oracledbtype;
+
+        if ($self->{container}->{contentType} eq 'NON_CDB') {
+          $oracledbtype = "nonmt";
+        } elsif ($self->{container}->{contentType} eq 'ROOT_CDB') {
+          $oracledbtype = "cdb";
+        } elsif ($self->{container}->{contentType} eq 'PDB') {
+          $oracledbtype = "pdb";
+
+          my $cdbname = $self->{_sourceconfig}->getName( $self->{staging_sourceConfig}->{cdbConfig} );
+          $config = join($joinsep,($config, "-cdbcont $cdbname"));
+
+         
+        } else {
+          $oracledbtype = 'N/A';
+        }
+
+        $config = join($joinsep,($config, "-oracledbtype $oracledbtype"));
+        $config = join($joinsep,($config, "-stagingpush"));
 
       }
-
 
     }
 
@@ -1601,9 +1669,17 @@ sub snapshot
       );
     } else {
       # Delphix 6.0
-      %snapshot_type = (
-          "type" => "OracleSyncFromExternalParameters"
-      );
+
+
+      if ($self->getStagingPush() eq 'yes') {
+        %snapshot_type = (
+            "type" => "OracleStagingPushSyncParameters"
+        );
+      } else {
+        %snapshot_type = (
+            "type" => "OracleSyncFromExternalParameters"
+        );
+      }
     }
 
     if (defined($full)) {
@@ -1984,24 +2060,17 @@ sub addSource {
     my $group = shift;
     my $logsync = shift;
     my $cdbcont = shift;
+    my $stagingpush = shift;
+    my $instname = shift;
+    my $uniqname = shift; 
+    my $template = shift;
+    my $oracledbtype = shift;
+    my $mountbase = shift;
 
 
     logger($self->{_debug}, "Entering OracleVDB_obj::addSource",1);
 
-    my $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
-
-    if (! defined($config)) {
-        print "Source database $source not found\n";
-        return undef;
-    }
-
-
-    if (defined($dbuser)) {
-      if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
-          print "Username or password is invalid or database is down.\n";
-          return undef;
-      }
-    }
+    my $config;
 
     if ( $self->setGroup($group) ) {
         print "Group $group not found. dSource won't be created\n";
@@ -2016,15 +2085,44 @@ sub addSource {
         $self->{_environment} = new Environment_obj($self->{_dlpxObject}, $self->{_debug});
     }
 
-    my $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
 
-    my $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+    my $source_env_ref;
+    my $source_os_ref;
+    my $stage_repository;
 
-    if (!defined($source_os_ref)) {
-        print "Source OS user $source_osuser not found\n";
-        return undef;
+    if (!(defined($stagingpush))) { 
+      $config = $self->setConfig($source, $source_inst, $source_env, $cdbcont);
+
+      if (! defined($config)) {
+          print "Source database $source not found\n";
+          return undef;
+      }
+
+
+      if (defined($dbuser)) {
+        if ($self->{_sourceconfig}->validateDBCredentials($config->{reference}, $dbuser, $password)) {
+            print "Username or password is invalid or database is down.\n";
+            return undef;
+        }
+      }
+
+      $source_env_ref = $self->{_repository}->getEnvironment($config->{repository});
+
+      $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+
+      if (!defined($source_os_ref)) {
+          print "Source OS user $source_osuser not found\n";
+          return undef;
+      }
+
+    } else {
+      # staging push 
+
+      $source_env_ref = $self->{_environment}->getEnvironmentByName($source_env)->{"reference"};
+      $source_os_ref = $self->{_environment}->getEnvironmentUserByName($source_env_ref,$source_osuser);
+      $stage_repository = $self->{_repository}->getRepositoryByNameForEnv($source_inst, $source_env_ref)->{"reference"};
+
     }
-
 
     my $logsync_param = $logsync eq 'yes' ? JSON::true : JSON::false;
 
@@ -2205,61 +2303,162 @@ sub addSource {
     } else {
       # Delphix 6.0.11 and higher - so far
 
-      if (defined($dbuser)) {
+      if (!defined($stagingpush)) {
+        if (defined($dbuser)) {
 
-        %dsource_params = (
-          "type" => "LinkParameters",
-          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
-          "name" => $dsource_name,
-          "linkData" => {
-              "type" => "OracleLinkFromExternal",
-              "sourcingPolicy" => {
-                  "type" => "OracleSourcingPolicy",
-                  "logsyncEnabled" => $logsync_param
-              },
-              "oracleFallbackCredentials" => {
-                  "type" => "PasswordCredential",
-                  "password" => $password
-              },
-              "oracleFallbackUser" => $dbuser,
-              "environmentUser" => $source_os_ref,
-              "linkNow" => JSON::true,
-              "compressedLinkingEnabled" => JSON::true,
-              "syncStrategy" => {
-                  "type" => "OracleSourceBasedSyncStrategy",
-                  "config" => $config->{reference}
-              }
-          }
-        );
 
+          %dsource_params = (
+            "type" => "LinkParameters",
+            "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+            "name" => $dsource_name,
+            "linkData" => {
+                "type" => "OracleLinkFromExternal",
+                "sourcingPolicy" => {
+                    "type" => "OracleSourcingPolicy",
+                    "logsyncEnabled" => $logsync_param
+                },
+                "oracleFallbackCredentials" => {
+                    "type" => "PasswordCredential",
+                    "password" => $password
+                },
+                "oracleFallbackUser" => $dbuser,
+                "environmentUser" => $source_os_ref,
+                "linkNow" => JSON::true,
+                "compressedLinkingEnabled" => JSON::true,
+                "syncStrategy" => {
+                    "type" => "OracleSourceBasedSyncStrategy",
+                    "config" => $config->{reference}
+                }
+            }
+          );
+
+        } else {
+
+          %dsource_params = (
+            "type" => "LinkParameters",
+            "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+            "name" => $dsource_name,
+            "linkData" => {
+                "type" => "OracleLinkFromExternal",
+                "sourcingPolicy" => {
+                    "type" => "OracleSourcingPolicy",
+                    "logsyncEnabled" => $logsync_param
+                },
+                "environmentUser" => $source_os_ref,
+                "linkNow" => JSON::true,
+                "compressedLinkingEnabled" => JSON::true,
+                "syncStrategy" => {
+                    "type" => "OracleSourceBasedSyncStrategy",
+                    "config" => $config->{reference}
+                }
+            }
+          );
+
+        }
+        if ($config->{type} eq 'OraclePDBConfig') {
+          $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
+        }
       } else {
+        # staging push
+
+        my $sourcingpolicy_type;
+        if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.23)) {
+          # until and including 11
+          $sourcingpolicy_type = "OracleSourcingPolicy";
+        } else {
+          # from 12 
+          $sourcingpolicy_type = "OracleStagingSourcingPolicy";
+        }
+
+
+        if (!defined($source)) {
+          $source = $dsource_name;
+        }
+
+        if (!defined($instname)) {
+          $instname = $dsource_name;
+        }
+
+        if (!defined($uniqname)) {
+          $uniqname = $dsource_name;
+        }
+
+        my $template;
+
+        my $oracle_type;
+
+        if (!defined($oracledbtype)) {
+          print "Oracle database (-oracledbtype) type needs to be defined for staging push";
+          return undef;
+        }
+
+        if (lc $oracledbtype eq 'nonmt') {
+          $oracle_type = 'NON_CDB';
+        } elsif (lc $oracledbtype eq 'cdb') {
+          $oracle_type = 'ROOT_CDB';
+        } elsif (lc $oracledbtype eq 'pdb') {
+          $oracle_type = 'PDB'
+        } else {
+          print "Unknown value for -oracledbtype type parameter: " . $oracledbtype;
+          return undef;
+        }
 
         %dsource_params = (
           "type" => "LinkParameters",
-          "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+          "group" =>  $self->{"NEWDB"}->{"container"}->{"group"},
           "name" => $dsource_name,
           "linkData" => {
-              "type" => "OracleLinkFromExternal",
+              "type" => "OracleLinkFromStaging",
+              "databaseName" => $source,
+              "allowAutoStagingRestartOnHostReboot" => JSON::true,
               "sourcingPolicy" => {
-                  "type" => "OracleSourcingPolicy",
+                  "type" => $sourcingpolicy_type,
                   "logsyncEnabled" => $logsync_param
               },
-              "environmentUser" => $source_os_ref,
-              "linkNow" => JSON::true,
-              "compressedLinkingEnabled" => JSON::true,
               "syncStrategy" => {
-                  "type" => "OracleSourceBasedSyncStrategy",
-                  "config" => $config->{reference}
+                  "type" => "OracleStagingPushSyncStrategy"
+              },
+              "syncParameters" => {
+                  "type" => "OracleStagingPushSyncParameters"
               }
           }
         );
 
-      }
+        if ($oracle_type ne 'PDB') {
 
-      if ($config->{type} eq 'OraclePDBConfig') {
-        $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromExternal";
-      }
+          $dsource_params{"linkData"}{"uniqueName"}= $uniqname;
+          $dsource_params{"linkData"}{"containerType"}= $oracle_type;
+          $dsource_params{"linkData"}{"stagingSourceParameters"} = {
+                  "repository"=> $stage_repository,
+                  "environmentUser"=> $source_os_ref,
+                  "mountBase"=> $mountbase,
+                  "configTemplate"=> $template,
+                  "instanceName"=> $instname,
+                  "physicalStandby"=> JSON::true,
+                  "type"=> "OracleStagingSourceParameters"
+          };
+        } else {
 
+          if (defined($cdbcont)) {
+            if (!defined($self->{_sourceconfig})) {
+                my $sourceconfig = new SourceConfig_obj($self->{_dlpxObject}, $self->{_debug});
+                $self->{_sourceconfig} = $sourceconfig;
+            }
+            my $container_obj = $self->{_sourceconfig}->getSourceConfigByName($cdbcont);
+            if (!defined($container_obj)) {
+              print "CDB with name " . $cdbcont . " not found";
+              return undef;              
+            }
+            $dsource_params{"linkData"}{"cdbConfig"} = $container_obj->{"reference"};
+            $dsource_params{"linkData"}{"type"} = "OraclePDBLinkFromStaging";
+          } else {
+            print "Parameter -cdbcont is required to configure staging push for PDB";
+            return undef;
+          }
+        }
+
+
+      }
 
     }
 
@@ -2793,6 +2992,33 @@ sub getTDE {
     return $ret;
 }
 
+
+# Procedure getStagingPush
+# parameters:
+# Return is staging push is configured
+
+sub getStagingPush {
+  my $self = shift;
+  logger($self->{_debug}, "Entering OracleVDB_obj::getStagingPush",1);
+  my $ret = 'N/A';
+
+  if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.18)) {
+      # 7.0 and above
+      if (defined($self->{source}->{syncStrategy})) {
+        if ($self->{source}->{syncStrategy}->{type} eq 'OracleStagingPushSyncStrategy') {
+          $ret = 'yes';
+        } else {
+          $ret = 'no';
+        }
+      }
+
+  } else {
+    $ret = 'N/A';
+  }
+
+  return $ret;
+
+}
 
 #######################
 # end of OracleVDB_obj class
