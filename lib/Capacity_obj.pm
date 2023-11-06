@@ -433,7 +433,11 @@ sub processSystemHistory
       }
 
       $total = ($histitem->{source}->{actualSpace} + $histitem->{virtual}->{actualSpace});
-      $usage = $total / $histitem->{totalSpace} * 100;
+      if ($histitem->{totalSpace} != 0) {
+        $usage = sprintf("%12.2f", $total / $histitem->{totalSpace} * 100);
+      } else {
+        $usage = 'N/A';
+      }
 
       if (defined($details)) {
 
@@ -449,7 +453,7 @@ sub processSystemHistory
           Toolkit_helpers::print_size($histitem->{virtual}->{logSpace}, 'B', $output_unit),
           Toolkit_helpers::print_size($histitem->{virtual}->{syncSpace}, 'B', $output_unit),
           Toolkit_helpers::print_size($total, 'B', $output_unit),
-          sprintf("%12.2f" ,$usage)
+          $usage
         );
 
       } else {
@@ -460,7 +464,119 @@ sub processSystemHistory
           Toolkit_helpers::print_size($histitem->{source}->{actualSpace}, 'B', $output_unit),
           Toolkit_helpers::print_size($histitem->{virtual}->{actualSpace}, 'B', $output_unit),
           Toolkit_helpers::print_size($total, 'B', $output_unit),
-          sprintf("%12.2f" ,$usage)
+          $usage
+        );
+      }
+
+    }
+}
+
+
+# Procedure LoadObjectHistory
+# parameters:
+# - object ref
+# - start date
+# - end date
+# - resolution in sec
+# Load system capacity history from Delphix Engine
+
+sub LoadObjectHistory
+{
+    my $self = shift;
+    my $obj_ref = shift;
+    my $startDate = shift;
+    my $endDate = shift;
+    my $resolution = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::LoadObjectHistory",1);
+    my $operation = "resources/json/delphix/capacity/consumer/historical?container=" . $obj_ref ."&resolution=" . $resolution;
+
+    if (defined($startDate)) {
+      $operation = $operation . "&startDate=" . $startDate;
+    }
+
+    if (defined($endDate)) {
+      $operation = $operation . "&endDate=" . $endDate;
+    }
+
+    my ($result, $result_fmt) = $self->{_dlpxObject}->getJSONResult($operation);
+
+    my @res;
+    my @sorted;
+
+    if (defined($result->{status}) && ($result->{status} eq 'OK')) {
+
+        @res = @{$result->{result}};
+        @sorted = sort { $a->{timestamp} cmp $b->{timestamp} } @res;
+        $self->{_objectHistory} = \@sorted;
+
+    } else {
+        print "No data returned for $operation. Try to increase timeout \n";
+    }
+
+}
+
+
+# Procedure processObjectHistory
+# parameters:
+# - output
+# - details
+# Process capacity history and put into Formatter object
+
+sub processObjectHistory
+{
+    my $self = shift;
+    my $output = shift;
+    my $details = shift;
+    my $output_unit = shift;
+    logger($self->{_debug}, "Entering Capacity_obj::processObjectHistory",1);
+
+    my $total;
+    my $enginename = $self->{_dlpxObject}->getEngineName();
+    my $enginezone = $self->{_dlpxObject}->getTimezone();
+
+    my $histtime;
+    my $usage;
+
+
+    for my $histitem (@{$self->{_objectHistory}}) {
+
+      my $time = Toolkit_helpers::convert_from_utc($histitem->{timestamp}, $enginezone, 1);
+
+      if (defined($time)) {
+          $histtime = $time;
+      } else {
+          $histtime = 'N/A';
+      }
+
+      
+      if (defined($details)) {
+
+        $output->addLine(
+          $enginename,
+          $histtime,
+          $histitem->{groupName},
+          $histitem->{name},
+          Toolkit_helpers::print_size($histitem->{breakdown}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{activeSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{logSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{syncSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{descendantSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{unownedSnapshotSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{policySpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{manualSpace}, 'B', $output_unit)
+        );
+
+      } else {
+
+        $output->addLine(
+          $enginename,
+          $histtime,
+          $histitem->{groupName},
+          $histitem->{name},
+          Toolkit_helpers::print_size($histitem->{breakdown}->{actualSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{activeSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{logSpace}, 'B', $output_unit),
+          Toolkit_helpers::print_size($histitem->{breakdown}->{syncSpace}, 'B', $output_unit)
         );
       }
 
@@ -468,3 +584,5 @@ sub processSystemHistory
 }
 
 1;
+
+

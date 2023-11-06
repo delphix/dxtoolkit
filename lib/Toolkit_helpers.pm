@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.20';
+our $version = '2.4.21';
 
 my $tz = new Date::Manip::TZ;
 my $dt = new Date::Manip::Date;
