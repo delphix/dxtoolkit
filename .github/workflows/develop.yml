@@ -379,7 +379,6 @@ jobs:
         #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
         #brew install pioro/repo/perl@5.30
         #brew install cpanminus
-        brew uninstall --ignore-dependencies openssl@3.0
         #CELL=`brew --prefix pioro/repo/perl@5.30`
         CELL=`brew --prefix perl`
         #export PATH=$CELL/bin:$PATH
@@ -396,7 +395,7 @@ jobs:
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
         echo $OPENSSL_PREFIX
         export LIBS="-d=$OPENSSL_PREFIX"
-        $CELL/bin/cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
+        $CELL/bin/cpanm --configure-args=$LIBS Filter::Crypto::Decrypt@2.09
         $CELL/bin/cpanm JSON
         $CELL/bin/cpanm Date::Manip
         # force requires after 1/1/2020 ?
