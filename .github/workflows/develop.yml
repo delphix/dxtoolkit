@@ -391,8 +391,8 @@ jobs:
         # echo $PERL_MB_OPT
         brew uninstall --ignore-dependencies openssl@1.1
         curl https://raw.githubusercontent.com/Homebrew/homebrew-core/ffa0f6655cbbbecaafb5334cefaae4c3eb1ffb8a/Formula/openssl%401.1.rb -o openssl\@1.1.rb
-        cat ./openssl\@1.1.rb
-        brew install  --build-from-source  ./openssl1.1.rb
+        #cat ./openssl\@1.1.rb
+        brew install  --build-from-source  ./openssl\@1.1.rb
         $CELL/bin/cpanm Crypt::CBC@2.33
         $CELL/bin/cpanm Crypt::Blowfish
         export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
