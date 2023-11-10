@@ -379,7 +379,7 @@ jobs:
         #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
         #brew install pioro/repo/perl@5.30
         #brew install cpanminus
-       
+        brew uninstall --ignore-dependencies openssl@3.0
         #CELL=`brew --prefix pioro/repo/perl@5.30`
         CELL=`brew --prefix perl`
         #export PATH=$CELL/bin:$PATH
