@@ -50,6 +50,7 @@ GetOptions(
   'reference|r=s' => \(my $reference),
   'userlist' => \(my $userlist),
   'config' => \(my $config),
+  'cluster' => \(my $cluster),
   'backup=s' => \(my $backup),
   'replist' => \(my $replist),
   'nohead' => \(my $nohead),
@@ -117,6 +118,15 @@ if (defined($userlist)) {
   $output->addHeader(
     {'Command',        200}
   )
+} elsif (defined($cluster)) {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Environment Name',  30},
+    {'Type',      25},
+    {'Status',     8},
+    {'OS Version', 50},
+    {'cluster nodes', 50}
+  );
 }
 else {
   $output->addHeader(
@@ -251,24 +261,39 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       }
     } else {
-
+      my $cluster_nodes;
       my $host_ref = $environments->getHost($envitem);
       my $hostos;
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
         $hostos = $host_obj->getOSVersion($host_ref);
+        $cluster_nodes = 'N/A';
       } else {
         my $clusenvnode = $environments->getClusterNode($envitem);
         $host_ref = $environments->getHost($clusenvnode);
         $hostos = $host_obj->getOSVersion($host_ref);
+        if ($cluster) {
+          $cluster_nodes = join(",", map { $host_obj->getHostAddr($environments->getHost($_)) } @{$environments->getClusterNodes($envitem)});
+        }
       }
 
-      $output->addLine(
-        $engine,
-        $environments->getName($envitem),
-        $environments->getType($envitem),
-        $environments->getStatus($envitem),
-        $hostos
-      );
+      if ($cluster) {
+        $output->addLine(
+          $engine,
+          $environments->getName($envitem),
+          $environments->getType($envitem),
+          $environments->getStatus($envitem),
+          $hostos,
+          $cluster_nodes
+        );
+      } else {
+        $output->addLine(
+          $engine,
+          $environments->getName($envitem),
+          $environments->getType($envitem),
+          $environments->getStatus($envitem),
+          $hostos
+        );
+      }
     }
 
     $save_state{$envitem} = $environments->getStatus($envitem);
