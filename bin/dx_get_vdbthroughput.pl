@@ -102,6 +102,8 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $st_timestamp;
 
+  print Dumper "ROBIE ST";
+
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj, 1))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -109,6 +111,7 @@ for my $engine ( sort (@{$engine_list}) ) {
   }
 
 
+  print Dumper "END ST";
 
   my $et_timestamp;
 
@@ -126,6 +129,9 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit (1);
     }
   }
+
+  print Dumper $st_timestamp;
+  print Dumper $et_timestamp;
 
 
   my $db = new Databases ( $engine_obj, $debug );

@@ -123,6 +123,10 @@ sub getPerformance
       return undef;
     }
 
+    print Dumper "noofdbs";
+    print Dumper $noofdbs;
+    
+
     # number of datapoint need to be below $enginelimit
     # so number of objects matter
     my $numberofsec = floor($enginelimit/$noofdbs);
@@ -139,22 +143,41 @@ sub getPerformance
     # 26 hours check
     my $maxstartdate = Toolkit_helpers::convert_to_utc($self->{_dlpxObject}->getTime(1560),'UTC',undef,1);
 
+    print Dumper "in PerfHistory";
+    print Dumper $maxstartdate;
+
+
     if ($maxstartdate gt $startDate) {
       $localstartdate = $maxstartdate;
     } else {
       $localstartdate = $startDate;
     }
 
+    print Dumper $startDate;
+    print Dumper $endDate;
+    print Dumper "localstart";
+    print Dumper $localstartdate;
+  
 
     # looping through data
     while ($stop == 0) {
       # calculate localenddate keeping in mind data point limit
+      my $dateobj = new Date::Manip::Date;
+      $dateobj->config("setdate","zone,GMT");
+      print Dumper "ParseDate";
+      $dateobj->parse($localstartdate);
+      print Dumper $dateobj->printf("%Y-%m-%dT%H:%M:%S"); 
       $deltadate = DateCalc(ParseDate($localstartdate), ParseDateDelta('+ ' . $numberofsec . ' second'));
+      print Dumper "DateCalc";
+      print Dumper $deltadate;
       $localenddate = Toolkit_helpers::convert_to_utc($deltadate,'UTC',undef,1);
       if ($localenddate ge $endDate) {
         $localenddate = $endDate;
         $stop = 1;
       }
+
+      print Dumper "local end date";
+      print Dumper $localenddate;
 
       # this is protection if engine was stopped / freezed and results are odd
       # basically if localstartdate is not moving forward we shoud stop a loop

@@ -1161,7 +1161,7 @@ sub getTimezone {
 # Procedure getTime
 # parameters:
 # - minus - date current date minus minus minutes
-# return timezone of Delphix engine
+# return engine time in engine timezone
 
 sub getTime {
   my $self = shift;
@@ -1175,19 +1175,25 @@ sub getTime {
      $time = $result->{result}->{currentTime};
      my $tz = $result->{result}->{systemTimeZone};
 
+     logger($self->{_debug}, "engine time in UTC: " . $time,2);
+     logger($self->{_debug}, "engine timezone: " . $tz,2);
+
      $time = Toolkit_helpers::convert_from_utc($time, $tz);
 
-     if (defined($minus)) {
-       my $date = new Date::Manip::Date;
+     logger($self->{_debug}, "engine time in engine timezone: " . $time,2);
 
+     if (defined($minus)) {
+       logger($self->{_debug}, "MINUS defined, needs to change time by: " . $minus,2);
+       my $date = new Date::Manip::Date;
+       $date->config("setdate","zone," . $tz );
        if ($date->parse($time)) {
          print "Date parsing error\n";
          return 'N/A';
        }
 
-
        my $delta = $date->new_delta();
        my $deltastr = $minus . ' minutes ago';
+
        if ($delta->parse($deltastr)) {
          print "Delta time parsing error\n";
          return 'N/A';
@@ -1195,6 +1201,7 @@ sub getTime {
        my $d = $date->calc($delta);
        $time = $d->printf("%Y-%m-%d %H:%M:%S");
 
+       logger($self->{_debug}, "MINUS defined, new time: " . $time,2);
      }
 
   } else {

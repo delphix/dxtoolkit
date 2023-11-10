@@ -203,6 +203,8 @@ sub getEnvironmentUserAuth {
       if ($auth eq 'PasswordCredential') {
         $ret = 'password';
       } elsif ($auth eq 'KeyPairCredential') {
+        $ret = 'userkey';
+      } elsif ($auth eq 'SystemKeyCredential') {
         $ret = 'systemkey';
       } elsif ($auth eq 'KerberosCredential') {
         $ret = 'kerberos';
