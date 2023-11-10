@@ -460,6 +460,12 @@ sub parallel_job {
 
 
 
+# Procedure timestamp
+# parameters:
+# - timestamp - YYYY-MM-DD HH24:MI:SS or YYYY-MM-DD or -Xmin or -Xdays
+# - engine - engine object
+# - nourl - escape for URL
+# return timestamp using a UTC timezone
 
 sub timestamp {
 	my $timestamp = shift;
@@ -486,10 +492,14 @@ sub timestamp {
 
 	my $tz = new Date::Manip::TZ;
 	my $detz = timezone_fix($engine->getTimezone());
-	my $dt = ParseDate($timestamp);
-	if ($dt ne '') {
-		my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
-		my $tstz = sprintf("%04.4d-%02.2d-%02.2dT%02.2d:%02.2d:%02.2d.000Z",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5]);
+	#my $dt = ParseDate($timestamp);
+
+
+	my $dt = convert_to_utc($timestamp, $detz, undef, 1);
+
+
+	if ( ( defined($dt) ) && ( $dt ne '' ) ) {
+		my $tstz = $dt;
 		if (defined($nourl)) {
 			$ret = $tstz;
 		} else {
@@ -500,36 +510,7 @@ sub timestamp {
    return $ret;
 }
 
-sub timestamp_to_urits_de_timezone {
-	my $timestamp = shift;
-	my $engine = shift;
 
-	my $tz = new Date::Manip::TZ;
-	my $detz = $engine->getTimezone();
-
-	$timestamp =~ s/\....Z//;
-	my $dt = ParseDate($timestamp);
-
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
-	return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-
-}
-
-
-sub timestamp_to_timestamp_with_de_timezone {
-	my $timestamp = shift;
-	my $engine = shift;
-
-	my $tz = new Date::Manip::TZ;
-	my $detz = $engine->getTimezone();
-
-	$timestamp =~ s/\....Z//;
-	my $dt = ParseDate($timestamp);
-
-    my ($err,$date,$offset,$isdst,$abbrev) = $tz->convert_to_gmt($dt, $detz);
-	return sprintf("%04.4d-%02.2d-%02.2d %02.2d:%02.2d:%02.2d %s",$date->[0],$date->[1],$date->[2],$date->[3],$date->[4],$date->[5], $abbrev);
-
-}
 
 sub opname_options {
 	my $opname = shift;

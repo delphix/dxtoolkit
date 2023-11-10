@@ -144,13 +144,24 @@ sub getPerformance
     } else {
       $localstartdate = $startDate;
     }
-
+    
+    my $dateobj = new Date::Manip::Date;
+    $dateobj->config("setdate","zone,GMT");
 
     # looping through data
     while ($stop == 0) {
       # calculate localenddate keeping in mind data point limit
-      $deltadate = DateCalc(ParseDate($localstartdate), ParseDateDelta('+ ' . $numberofsec . ' second'));
-      $localenddate = Toolkit_helpers::convert_to_utc($deltadate,'UTC',undef,1);
+      $dateobj->parse($localstartdate);
+      my $delta = $dateobj->new_delta();
+      my $deltastr = '+ ' . $numberofsec . ' second';
+
+      if ($delta->parse($deltastr)) {
+        print "Delta time parsing error\n";
+        return 'N/A';
+      }
+      my $d = $dateobj->calc($delta);
+      $deltadate = $d->printf("%Y-%m-%dT%H:%M:%S.000Z");
+      $localenddate = $deltadate;
       if ($localenddate ge $endDate) {
         $localenddate = $endDate;
         $stop = 1;
