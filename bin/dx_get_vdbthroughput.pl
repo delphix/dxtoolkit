@@ -102,16 +102,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $st_timestamp;
 
-  print Dumper "ROBIE ST";
-
   if (! defined($st_timestamp = Toolkit_helpers::timestamp($st, $engine_obj, 1))) {
     print "Wrong start time (st) format \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
-
-
-  print Dumper "END ST";
 
   my $et_timestamp;
 
@@ -129,9 +124,6 @@ for my $engine ( sort (@{$engine_list}) ) {
       exit (1);
     }
   }
-
-  print Dumper $st_timestamp;
-  print Dumper $et_timestamp;
 
 
   my $db = new Databases ( $engine_obj, $debug );
@@ -163,9 +155,13 @@ for my $engine ( sort (@{$engine_list}) ) {
     );
 
 
+    my $detz = $engine_obj->getTimezone();
+    my $ts_with_tz;
+
     for my $ts (sort (keys(%{$perfdata}))) {
       my @tarray = map { $perfdata->{$ts}->{$_} } sort(keys(%{$perfdata->{$ts}}));
-      my @fullarray = ($ts, @tarray);
+      $ts_with_tz = Toolkit_helpers::convert_from_utc($ts, $detz, 1);
+      my @fullarray = ($ts_with_tz, @tarray);
       $output->addLine(@fullarray);
     }
 
