@@ -958,6 +958,10 @@ sub print_size {
 		$decnum = 2;
 	}
 
+	if ($bytes eq 'N/A') {
+		return 'N/A';
+	}
+
     # convert input to bytes
     if ($input eq 'G') {
         $localbytes = $bytes * 1024 * 1024 * 1024;

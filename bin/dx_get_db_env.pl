@@ -90,7 +90,8 @@ GetOptions(
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'snappervdb' => \(my $snappervdb),
-  'configfile|c=s' => \(my $config_file)
+  'configfile|c=s' => \(my $config_file),
+  'cluster' => \(my $cluster)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -373,7 +374,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if (lc $hostenv eq 'h') {
-      $hostenv_line = $dbobj->getHost();
+      $hostenv_line = $dbobj->getHost($cluster);
     } else {
       $hostenv_line = $dbobj->getEnvironmentName();
     }

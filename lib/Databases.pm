@@ -219,6 +219,10 @@ sub LoadDBList
 
         # load host information
         my $host = $self->{_environments}->getHost($environment); # host name is inside environment object
+        print Dumper "------------";
+        print Dumper $dbitem->{name};
+        print Dumper $host;
+        print Dumper $environment;
         logger($self->{_debug},"host name - $host ",2);
         if ( $host eq 'CLUSTER' ) {
 
@@ -228,7 +232,7 @@ sub LoadDBList
             $db->{"host"}  = $self->{_hosts}->getHost($host);
         }
 
-
+        $db->{"_hosts"}  = $self->{_hosts};
         # for oracle load instances
 
         if ($db->getDBType eq 'oracle') {
