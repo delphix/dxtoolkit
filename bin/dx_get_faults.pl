@@ -131,7 +131,6 @@ for my $engine ( sort (@{$engine_list}) ) {
   my $et_timestamp;
 
   if (defined($et)) {
-    $et = Toolkit_helpers::timestamp_to_timestamp_with_de_timezone($et, $engine_obj);
     if (! defined($et_timestamp = Toolkit_helpers::timestamp($et, $engine_obj))) {
       print "Wrong end time (et) format \n";
       pod2usage(-verbose => 1,  -input=>\*DATA);

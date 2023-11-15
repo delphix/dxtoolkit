@@ -35,17 +35,27 @@ use lib '../lib';
 use Engine;
 use Capacity_obj;
 use Formater;
+use Databases;
+use Group_obj;
 use Toolkit_helpers;
 
 my $version = $Toolkit_helpers::version;
 
 my $resolution = 'd';
 my $output_unit = 'G';
+my $scope = 'system';
+
 
 GetOptions(
   'help|?' => \(my $help),
   'd|engine=s' => \(my $dx_host),
+  'scope=s' => \($scope),
   'format=s' => \(my $format),
+  'name=s' => \(my $dbname),
+  'type=s' => \(my $type),
+  'group=s' => \(my $group),
+  'dsource=s' => \(my $dsource),
+  'host=s' => \(my $host),
   'st=s' => \(my $st),
   'et=s' => \(my $et),
   'debug:i' => \(my $debug),
@@ -84,38 +94,77 @@ if (!((lc $resolution eq 'd') || (lc $resolution eq 'h'))) {
   exit (1);
 }
 
+
+if (!((lc $scope eq 'system') || (lc $scope eq 'object'))) {
+  print "Option scope can have only value system or object \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+
+Toolkit_helpers::check_filer_options (undef,$type, $group, $host, $dbname);
+
 # this array will have all engines to go through (if -d is specified it will be only one engine)
 my $engine_list = Toolkit_helpers::get_engine_list($all, $dx_host, $engine_obj);
 
 my $output = new Formater();
 
 
-if (defined($details)) {
-  $output->addHeader(
-    {'Engine',         30},
-    {'Timestamp',      30},
-    {Toolkit_helpers::get_unit('dS total',$output_unit) ,  15},
-    {Toolkit_helpers::get_unit('dS current',$output_unit) ,15},
-    {Toolkit_helpers::get_unit('dS log',$output_unit)     ,15},
-    {Toolkit_helpers::get_unit('dS snaps',$output_unit)   ,15},
-    {Toolkit_helpers::get_unit('VDB total',$output_unit)  ,15},
-    {Toolkit_helpers::get_unit('VDB current',$output_unit) ,15},
-    {Toolkit_helpers::get_unit('VDB log',$output_unit)    ,15},
-    {Toolkit_helpers::get_unit('VDB snaps',$output_unit)  ,15},
-    {Toolkit_helpers::get_unit('Total',$output_unit) ,     15},
-    {'Usage [%]',      12}
-  );
+if (lc $scope eq 'system') {
+  if (defined($details)) {
+    $output->addHeader(
+      {'Engine',         30},
+      {'Timestamp',      30},
+      {Toolkit_helpers::get_unit('dS total',$output_unit) ,  15},
+      {Toolkit_helpers::get_unit('dS current',$output_unit) ,15},
+      {Toolkit_helpers::get_unit('dS log',$output_unit)     ,15},
+      {Toolkit_helpers::get_unit('dS snaps',$output_unit)   ,15},
+      {Toolkit_helpers::get_unit('VDB total',$output_unit)  ,15},
+      {Toolkit_helpers::get_unit('VDB current',$output_unit) ,15},
+      {Toolkit_helpers::get_unit('VDB log',$output_unit)    ,15},
+      {Toolkit_helpers::get_unit('VDB snaps',$output_unit)  ,15},
+      {Toolkit_helpers::get_unit('Total',$output_unit) ,     15},
+      {'Usage [%]',      12}
+    );
+  } else {
+    $output->addHeader(
+      {'Engine',         30},
+      {'Timestamp',      30},
+      {Toolkit_helpers::get_unit('dSource',$output_unit),   12},
+      {Toolkit_helpers::get_unit('Virtual',$output_unit),   12},
+      {Toolkit_helpers::get_unit('Total',$output_unit),     12},
+      {'Usage [%]'     , 12}
+    );
+  }
 } else {
-  $output->addHeader(
-    {'Engine',         30},
-    {'Timestamp',      30},
-    {Toolkit_helpers::get_unit('dSource',$output_unit),   12},
-    {Toolkit_helpers::get_unit('Virtual',$output_unit),   12},
-    {Toolkit_helpers::get_unit('Total',$output_unit),     12},
-    {'Usage [%]'     , 12}
-  );
+  if (defined($details)) {
+    $output->addHeader(
+      {'Engine',         30},
+      {'Timestamp',      30},
+      {'Group',          30},
+      {'Name',           30},
+      {Toolkit_helpers::get_unit('total',$output_unit),   12},
+      {Toolkit_helpers::get_unit('current',$output_unit),   12},
+      {Toolkit_helpers::get_unit('logS',$output_unit),   12},
+      {Toolkit_helpers::get_unit('snaps',$output_unit),   12},
+      {Toolkit_helpers::get_unit('locked snaps',$output_unit),   12},
+      {Toolkit_helpers::get_unit('held snaps',$output_unit),   12},
+      {Toolkit_helpers::get_unit('policy',$output_unit),   12},
+      {Toolkit_helpers::get_unit('manual',$output_unit),   12}
+    );
+  } else {
+    $output->addHeader(
+      {'Engine',         30},
+      {'Timestamp',      30},
+      {'Group',          30},
+      {'Name',           30},
+      {Toolkit_helpers::get_unit('total',$output_unit),   12},
+      {Toolkit_helpers::get_unit('current',$output_unit),   12},
+      {Toolkit_helpers::get_unit('logS',$output_unit),   12},
+      {Toolkit_helpers::get_unit('snaps',$output_unit),   12}
+    );
+  }
 }
-
 
 my $ret = 0;
 
@@ -151,11 +200,31 @@ for my $engine ( sort (@{$engine_list}) ) {
 
 
   # load objects for current engine
-  my $capacity = new Capacity_obj($engine_obj, $debug);
-  #$capacity->LoadDatabases();
-  $capacity->LoadSystemHistory($st_timestamp, $et_timestamp, $reshash{$resolution});
-  $capacity->processSystemHistory($output,$details, $output_unit);
+  my $databases = new Databases( $engine_obj, $debug);
+  my $groups = new Group_obj($engine_obj, $debug);
 
+  # filter implementation
+
+  my $db_list = Toolkit_helpers::get_dblist_from_filter($type, $group, $host, $dbname, $databases, $groups, undef, $dsource, undef, undef, undef, undef, undef, $debug);
+  if (! defined($db_list)) {
+    print "There is no DB selected to process on $engine . Please check filter definitions. \n";
+    $ret = 1;
+    next;
+  }
+
+  my $capacity = new Capacity_obj($engine_obj, $debug);
+
+  if (lc $scope eq 'system') {
+    # load objects for current engine
+    $capacity->LoadSystemHistory($st_timestamp, $et_timestamp, $reshash{$resolution});
+    $capacity->processSystemHistory($output,$details, $output_unit);
+  } else {
+    for my $db_ref (@{$db_list}) {
+      my $db_obj = $databases->getDB($db_ref);
+      $capacity->LoadObjectHistory($db_ref, $st_timestamp, $et_timestamp, $reshash{$resolution});
+      $capacity->processObjectHistory($output,$details, $output_unit);
+    }
+  }
 
 }
 
@@ -177,6 +246,12 @@ __DATA__
                          [-et "YYYY-MM-DD [HH24:MI:SS]" ]
                          [-resolution d|h ]
                          [-output_unit K|M|G|T]
+                         [-scope system | object ]
+                         [-name database_name ]
+                         [-type vdb | dsource ]
+                         [-group group_name ]
+                         [-dsource dsource_name ]
+                         [-host host_name ]
                          [-format csv|json ]
                          [-help|? ]
                          [-debug ]
@@ -223,6 +298,25 @@ Display breakdown of usage.
 Display usage using different unit. By default GB are used
 Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
+=item B<-scope system | object >
+Switch to display system capacity history or object capacity history.
+Default value is system
+
+=item B<-name database_name >
+If scope is set to object, display capacity history of the database_name
+
+=item B<-type vdb | dsource >
+If scope is set to object, display capacity history of the objects with db type VDB or dSource
+
+=item B<-group group_name >
+If scope is set to object, display capacity history of the objects from group_name
+
+=item B<-dsource dsource_name >
+If scope is set to object, display capacity history of the objects with dSource dsource_name
+
+=item B<-host host_name >
+If scope is set to object, display capacity history of the objects located on the host host_name
+
 =item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
@@ -268,5 +362,21 @@ Display a history of Delphix Engine utilization with details
  Landshark51                    2017-03-07 13:53:25 GMT                   1.22            1.21            0.00            0.00            0.03            0.03            0.00            0.00            1.25         4.34
  Landshark51                    2017-03-09 09:52:50 GMT                   1.22            1.21            0.00            0.00            0.03            0.03            0.00            0.00            1.25         4.34
  Landshark51                    2017-03-09 13:22:50 GMT                   1.23            1.21            0.00            0.01            0.05            0.03            0.01            0.00            1.28         4.46
+
+Display a history of Delphix Engine utilization of the database oratest
+
+ dx_get_capacity_history -d dxtest -scope object -name oratest -output_unit M
+ 
+ Engine                         Timestamp                      Group                          Name                           total [MB]   current [MB] logS [MB]    snaps [MB]
+ ------------------------------ ------------------------------ ------------------------------ ------------------------------ ------------ ------------ ------------ ------------
+ dxtest                         2023-10-31 02:43:46 PDT        Analytics                      oratest                            589.91       166.58       147.63       250.62
+ dxtest                         2023-11-01 02:33:46 PDT        Analytics                      oratest                            761.77       164.85       233.53       338.27
+ dxtest                         2023-11-02 02:33:46 PDT        Analytics                      oratest                            922.44       166.20       306.78       424.38
+ dxtest                         2023-11-03 02:33:46 PDT        Analytics                      oratest                           1045.52       166.66       351.34       502.41
+ dxtest                         2023-11-06 02:21:50 PST        Analytics                      oratest                            907.87       166.67       213.66       502.42
+ dxtest                         2023-11-06 03:11:50 PST        Analytics                      oratest                            907.87       166.67       213.66       502.42
+
+
+
 
 =cut
