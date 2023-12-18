@@ -1,3 +1,8 @@
+## 2.4.21.1
+
+### Changes:
+- group name added to dx_get_vdbthroughput - new parameter fullname
+
 ## 2.4.21
 
 ### Added
