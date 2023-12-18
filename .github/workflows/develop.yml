@@ -408,7 +408,9 @@ jobs:
         $CELL/bin/cpanm DateTime::Format::DateParse
         $CELL/bin/cpanm Text::CSV
         $CELL/bin/cpanm LWP::UserAgent
+        rm -rf /Users/runner/.cpanm/work/*
         $CELL/bin/cpanm Net::SSLeay
+        cat /Users/runner/.cpanm/work/*/build.log
         $CELL/bin/cpanm Mozilla::CA@20180117
         $CELL/bin/cpanm -f IO::Socket::SSL@2.068
         $CELL/bin/cpanm LWP::Protocol::https
