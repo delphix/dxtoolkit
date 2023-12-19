@@ -36,6 +36,7 @@ use Formater;
 use Toolkit_helpers;
 use PerfHistory_obj;
 use Databases;
+use Group_obj;
 
 my $version = $Toolkit_helpers::version;
 my $interval = 60;
@@ -49,6 +50,7 @@ GetOptions(
   'i=s' => \($interval),
   'outdir=s' => \(my $outdir),
   'format=s' => \($format),
+  'fullname' => \(my $fullname),
   'all' => (\my $all),
   'dever=s' => \(my $dever),
   'version' => \(my $print_version),
@@ -136,6 +138,11 @@ for my $engine ( sort (@{$engine_list}) ) {
 
   my $perfdata = $perfhist->returndata();
 
+  my $groups;
+
+  if (defined($fullname)) {
+    $groups = new Group_obj($engine_obj, $debug);
+  }
 
   # check if no data returned
   my $firstts = (keys(%{$perfdata}))[0];
@@ -145,9 +152,15 @@ for my $engine ( sort (@{$engine_list}) ) {
     my @dbnamelist;
     push(@dbnamelist, {'timestamp', '30'});
 
+    my $fulldbname;
     for my $dbref (sort(keys(%{$perfdata->{$firstts}}))) {
       $dbobj = $db->getDB($dbref);
-      push(@dbnamelist, {$dbobj->getName(), '30'});
+      if (defined($fullname)) {
+        $fulldbname = $groups->getName($dbobj->getGroup()) . "/" . $dbobj->getName();
+      } else {
+        $fulldbname = $dbobj->getName();
+      }
+      push(@dbnamelist, {$fulldbname, '30'});
     }
 
     $output->addHeader(
@@ -188,6 +201,7 @@ __DATA__
  dx_get_vdbthroughput    [ -engine|d <delphix identifier> | -all ] [ -configfile file ]
                          [-st timestamp]
                          [-et timestamp]
+                         [-fullname]
                          [-i 1|60|3600]
                          [-outdir path]
                          [ --help|? ]
@@ -236,6 +250,9 @@ Write output into a directory specified by path.
 =item B<-i interval>
 Use the specified interval for export. Allowed values are:
 1, 60, 3600
+
+=item B<-fullname>
+Add groupname to the output. Full name is printed as "group name/database name"
 
 =item B<-help>
 Print this screen
