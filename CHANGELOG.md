@@ -1,3 +1,17 @@
+## 2.4.21.1
+
+### Changes:
+- group name added to dx_get_vdbthroughput - new parameter fullname
+
+## 2.4.21
+
+### Added
+- support for object level stats in the dx_get_capacity_history
+
+### Changes:
+- compability with new engines (up to 16)
+- fixes in the timestamp support (-st) and (-et)
+
 ## 2.4.20
 
 ### Added
