@@ -1405,8 +1405,6 @@ sub attach_dsource
     my $source_env_ref;
     my $source_os_ref;
 
-    print Dumper "slon";
-    print Dumper $self->getName();
 
     if ( $self->setEnvironment($env) ) {
         print "Staging environment $env not found. dSource won't be attached\n";
@@ -1920,6 +1918,8 @@ sub update_dsource {
     return $jobno;
 
 }
+
+
 
 
 1;

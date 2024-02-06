@@ -29,7 +29,7 @@ use File::Spec;
 
 use lib '../lib';
 
-our $version = '2.4.21.1';
+our $version = '2.4.22-rc';
 
 my $tz = new Date::Manip::TZ;
 my $dt = new Date::Manip::Date;
@@ -956,6 +956,10 @@ sub print_size {
 
 	if (!defined($decnum)) {
 		$decnum = 2;
+	}
+
+	if ($bytes eq 'N/A') {
+		return 'N/A';
 	}
 
     # convert input to bytes

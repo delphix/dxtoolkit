@@ -611,16 +611,29 @@ sub getSourceConfigType
     return $ret;
 }
 
-# Procedure getHost
-# parameters: none
-# Return database hostname
+
 
 sub getHost
 {
     my $self = shift;
+    my $cluster = shift;
     logger($self->{_debug}, "Entering VDB_obj::getHost",1);
-    return $self->{host}->{name};
+    my $hostname = $self->{host}->{name};
+
+    if (($hostname eq 'CLUSTER') && (defined($cluster))) {
+      
+      my $clusenvnode = $self->{_environment}->getClusterNode($self->{"environment"}->{"reference"});
+      my $host_ref = $self->{_environment}->getHost($clusenvnode);
+      my $hostos = $self->{"_hosts"}->getOSVersion($host_ref);
+      $hostname = join(";", map { $self->{"_hosts"}->getHostAddr($self->{_environment}->getHost($_)) } @{$self->{_environment}->getClusterNodes($self->{"environment"}->{"reference"})});
+      
+    } 
+
+    return $hostname;
+
 }
+
+
 
 # Procedure getType
 # parameters: none
