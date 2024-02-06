@@ -337,6 +337,7 @@ __DATA__
             [-name env_name | -reference reference ]
             [-backup]
             [-replist ]
+            [-cluster ]
             [-format csv|json ]
             [-help|? ]
             [-debug ]
@@ -389,6 +390,10 @@ Display dxtoolkit commands to recreate environments ( support for SI Oracle / MS
 
 =item B<-replist>
 Display repository list (Orcle Home / MS SQL instance / etc ) for environment
+
+=item B<-cluster>
+Print ; segrageted list of cluster nodes from the environment into a new column called cluster nodes
+
 
 =item B<-format>
 Display output in csv or json format
