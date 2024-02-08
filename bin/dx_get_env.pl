@@ -125,7 +125,7 @@ if (defined($userlist)) {
     {'Type',      25},
     {'Status',     8},
     {'OS Version', 50},
-    {'cluster nodes', 50}
+    {'Hostname',  50}
   );
 }
 else {
@@ -266,13 +266,13 @@ for my $engine ( sort (@{$engine_list}) ) {
       my $hostos;
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
         $hostos = $host_obj->getOSVersion($host_ref);
-        $cluster_nodes = 'N/A';
+        $cluster_nodes =  $host_obj->getHostAddr($host_ref);
       } else {
         my $clusenvnode = $environments->getClusterNode($envitem);
         $host_ref = $environments->getHost($clusenvnode);
         $hostos = $host_obj->getOSVersion($host_ref);
         if ($cluster) {
-          $cluster_nodes = join(",", map { $host_obj->getHostAddr($environments->getHost($_)) } @{$environments->getClusterNodes($envitem)});
+          $cluster_nodes = join(";", map { $host_obj->getHostAddr($environments->getHost($_)) } @{$environments->getClusterNodes($envitem)});
         }
       }
 
