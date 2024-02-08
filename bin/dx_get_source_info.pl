@@ -136,12 +136,19 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $dbitem ( @{$db_list} ) {
     my $dbobj = $databases->getDB($dbitem);
 
+    my $sourcedb;
+    if ($dbobj->getSourceConfigName() eq 'N/A') {
+      $sourcedb = "stg push"
+    } else {
+      $sourcedb = $dbobj->getSourceConfigName();
+    }
+
     if (defined($details)) {
       $output->addLine(
         $engine,
         $dbobj->getName(),
         $groups->getName($dbobj->getGroup()),
-        $dbobj->getSourceConfigName(),
+        $sourcedb,
         $dbobj->getLogSync(),
         $dbobj->getValidatedMode(),
         $dbobj->getValidatedModeState(),
@@ -154,7 +161,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $engine,
         $dbobj->getName(),
         $groups->getName($dbobj->getGroup()),
-        $dbobj->getSourceConfigName(),
+        $sourcedb,
         $dbobj->getLogSync(),
         $dbobj->getBCT(),
         $dbobj->getValidatedMode(),

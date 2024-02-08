@@ -590,6 +590,8 @@ sub getSourceConfigName
     my $ret;
     if ($self->{sourceConfig} ne 'NA') {
         $ret = $self->{sourceConfig}->{name};
+    } else {
+      $ret = "N/A"
     }
     return $ret;
 }
