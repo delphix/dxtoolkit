@@ -304,6 +304,21 @@ sub setAuthentication {
 }
 
 
+# Procedure setPrincipal
+# parameters:
+
+
+sub setPrincipal {
+    my $self = shift;
+    my $details = shift;
+
+    logger($self->{_debug}, "Entering User_obj::setPrincipal",1);
+
+    my $user = $self->{_user};
+    $self->{_new}->{principal} = $details;
+}
+
+
 # Procedure updateUser
 # parameters:
 # Return 0 if user has been updated

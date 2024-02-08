@@ -412,6 +412,10 @@ sub updateUser
 
     my $isadminYN = $user->isAdmin();
 
+    if ($user->getAuthType() eq 'LDAP') {
+      $user->setPrincipal($principal);
+    }
+
 
     if ( ($is_admin ne '') && ($isadminYN ne (uc $is_admin)) ) {
       print "Set Delphix Admin to $is_admin .";
