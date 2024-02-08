@@ -1,3 +1,12 @@
+## 2.4.22
+
+### Added
+- flag -cluster for dx_get_env and dx_get_db_env to display a cluster nodes for dSources and VDBs
+
+### Changes:
+- fix for dx_set_envpass to support MSSQL source environments
+- [bug #234](https://github.com/delphix/dxtoolkit/issues/234) - dx_ctl_user - fix for setting principal
+
 ## 2.4.21.1
 
 ### Changes:
@@ -16,7 +25,7 @@
 
 ### Added
 - support for Staging push ( MS SQL / Oracle )
-- [bug #332](https://github.com/delphix/dxtoolkit/issues/232) - dx_snapshot_db supports staging push
+- [bug #232](https://github.com/delphix/dxtoolkit/issues/232) - dx_snapshot_db supports staging push
 
 ### Changes:
 - [bug #230](https://github.com/delphix/dxtoolkit/issues/232) - example files location
