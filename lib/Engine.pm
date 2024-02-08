@@ -1274,6 +1274,7 @@ sub checkConnectorconnectivity {
   my $username = shift;
   my $password = shift;
   my $host = shift;
+  my $proxy = shift;
 
   logger($self->{_debug}, "Entering Engine::checkConnectorconnectivity",1);
 
@@ -1286,6 +1287,11 @@ sub checkConnectorconnectivity {
       },
       "username" => $username
   );
+
+
+  if (defined($proxy) && ($proxy ne "N/A")) {
+    $conn_hash{'proxy'} = $proxy;
+  }
 
   my $json_data = to_json(\%conn_hash, {pretty=>1});
 
