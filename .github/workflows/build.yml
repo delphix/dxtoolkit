@@ -488,9 +488,9 @@ jobs:
         name: oel8build
 
     - name: Download Amazon 2023
-    uses: actions/download-artifact@v1
-    with:
-      name: amazon2023
+      uses: actions/download-artifact@v1
+      with:
+        name: amazon2023
 
     - name: Say
       run: |
