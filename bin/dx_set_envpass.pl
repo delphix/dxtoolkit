@@ -146,7 +146,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     } else {
       if ( $hostref ne 'CLUSTER' ) {
         my $nodeaddr = $hosts->getHostAddr($hostref);
-        ($connfault, $result) =  $engine_obj->checkConnectorconnectivity($username, $password, $nodeaddr);
+        ($connfault, $result) =  $engine_obj->checkConnectorconnectivity($username, $password, $nodeaddr, $environments->getProxy($envitem));
       }
 
 

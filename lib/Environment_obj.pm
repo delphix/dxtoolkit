@@ -681,7 +681,7 @@ sub getEnvironmentUserByName {
         logger($self->{_debug}, "Environment ref ". Dumper $name , 2);
         logger($self->{_debug}, "Environment users ". Dumper $users , 2);
         logger($self->{_debug}, "Looking for user ". Dumper $username , 2);
-        my @t = grep { $users->{$_}->{name} eq $username } keys %{$users};
+        my @t = grep { lc $users->{$_}->{name} eq lc $username } keys %{$users};
         logger($self->{_debug}, "matching users ". Dumper \@t , 2);
         # if (defined($users->{$username})) {
         #     $ret = $users->{$username}->{reference};
@@ -702,7 +702,7 @@ sub getEnvironmentUserByName {
                 logger($self->{_debug}, "Environment name ". Dumper $name , 2);
                 logger($self->{_debug}, "Environment users ". Dumper $users , 2);
                 logger($self->{_debug}, "Looking for user ". Dumper $username , 2);
-                my @t = grep { $users->{$_}->{name} eq $username } keys %{$users};
+                my @t = grep { lc $users->{$_}->{name} eq lc $username } keys %{$users};
                 logger($self->{_debug}, "matching users ". Dumper \@t , 2);
                 if (scalar(@t) > 1) {
                   print "Too many users found\n";

@@ -90,7 +90,8 @@ GetOptions(
   'version' => \(my $print_version),
   'nohead' => \(my $nohead),
   'snappervdb' => \(my $snappervdb),
-  'configfile|c=s' => \(my $config_file)
+  'configfile|c=s' => \(my $config_file),
+  'cluster' => \(my $cluster)
 ) or pod2usage(-verbose => 1,  -input=>\*DATA);
 
 pod2usage(-verbose => 2,  -input=>\*DATA) && exit if $help;
@@ -233,22 +234,26 @@ if (defined($backup)) {
       {'Masking job', 15}
     );
   } else {
-    $output->addHeader(
-      {'Appliance'      ,20},
-      {$hostenv_head    ,20},
-      {'Database'       ,30},
-      {'Group'          ,15},
-      {'Type'            ,8},
-      {'SourceDB'       ,30},
-      {$parentlast_head ,35},
-      {Toolkit_helpers::get_unit('Used',$output_unit)       ,10},
-      {'Status'         ,10},
-      {'Enabled'        ,10},
-      {'Unique Name'    ,30},
-      {'Parent time'    ,35},
-      {'VDB creation time',35},
-      {'VDB refresh time' ,35}
-    );
+    my @headerlist;
+    push(@headerlist, {'Appliance'      ,20} );
+    push(@headerlist, {$hostenv_head    ,20} );
+    push(@headerlist, {'Database'       ,30} );
+    push(@headerlist, {'Group'          ,15} );
+    push(@headerlist, {'Type'            ,8} );
+    push(@headerlist, {'SourceDB'       ,30} );
+    push(@headerlist, {$parentlast_head ,35} );
+    push(@headerlist, {Toolkit_helpers::get_unit('Used',$output_unit)       ,10});
+    push(@headerlist, {'Status'         ,10});
+    push(@headerlist, {'Enabled'        ,10});
+    push(@headerlist, {'Unique Name'    ,30});
+    push(@headerlist, {'Parent time'    ,35});
+    push(@headerlist, {'VDB creation time',35});
+    push(@headerlist, {'VDB refresh time' ,35});
+    if (defined($cluster) && (lc $hostenv eq 'e')) {
+      push(@headerlist, {'Host list' ,35});
+    }
+    $output->addHeader(@headerlist);
+
   }
 }
 
@@ -373,7 +378,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if (lc $hostenv eq 'h') {
-      $hostenv_line = $dbobj->getHost();
+      $hostenv_line = $dbobj->getHost($cluster);
     } else {
       $hostenv_line = $dbobj->getEnvironmentName();
     }
@@ -534,22 +539,25 @@ for my $engine ( sort (@{$engine_list}) ) {
         );
       } else {
 
-        $output->addLine(
-          $engine,
-          $hostenv_line,
-          $dbobj->getName(),
-          $groupname,
-          $dbobj->getType(),
-          $parentname,
-          $snaptime,
-          Toolkit_helpers::print_size($capacity->getDatabaseUsage($dbobj->getReference()), 'G', $output_unit),
-          $dbobj->getRuntimeStatus(),
-          $dbobj->getEnabled(),
-          $uniquename,
-          $parenttime,
-          $crtime,
-          $refreshdate
-        );
+        my @printarray;
+        push(@printarray,$engine);
+        push(@printarray,$hostenv_line);
+        push(@printarray,$dbobj->getName());
+        push(@printarray,$groupname);
+        push(@printarray,$dbobj->getType());
+        push(@printarray,$parentname);
+        push(@printarray,$snaptime);
+        push(@printarray,Toolkit_helpers::print_size($capacity->getDatabaseUsage($dbobj->getReference()), 'G', $output_unit));
+        push(@printarray,$dbobj->getRuntimeStatus());
+        push(@printarray,$dbobj->getEnabled());
+        push(@printarray,$uniquename);
+        push(@printarray,$parenttime);
+        push(@printarray,$crtime);
+        push(@printarray,$refreshdate);
+        if (defined($cluster) && (lc $hostenv eq 'e')) {
+          push(@printarray, $dbobj->getHost($cluster));
+        }
+        $output->addLine(@printarray);
       }
 
     }
@@ -616,6 +624,7 @@ __DATA__
                   [-backup path]
                   [-hostenv h|e]
                   [-offset]
+                  [-cluster]
                   [-output_unit K|M|G|T]
                   [-format csv|json ]
                   [-help|? ] [ -debug ]
@@ -738,6 +747,13 @@ Print database timestamp with offset rather then timezone name
 Display usage using different unit. By default GB are used
 Use K for KiloBytes, G for GigaBytes and M for MegaBytes, T for TeraBytes
 
+=item B<-cluster>
+If hostenv is set to h (default)
+Print ; segrageted list of cluster nodes from the environment into hostname column
+If hostenc is set to e
+Print ; segrageted list of cluster nodes from the environment into a new column called Host list
+
+
 =item B<-format>
 Display output in csv or json format
 If not specified pretty formatting is used.
@@ -793,6 +809,8 @@ Columns description
 =item B<VDB creation time> - VDB creation time
 
 =item B<VDB refresh time> - Last refresh time for VDB
+
+=item B<Host list> - List of hosts in the environment 
 
 =back
 
@@ -868,6 +886,26 @@ List masking status and jobs
  Delphix32  10.0.0.152           test1                          Sources         dSource                                 NO
  Delphix32  10.0.0.152           maskvdb                        Test            VDB      test1                          YES        SCOTT_JOB
 
+Print cluster nodes in the host mode
+
+ dx_get_db_env -d mssqlao -cluster
+
+ Appliance            Hostname             Database                       Group           Type     SourceDB                       Parent snapshot                     Used [GB]  Status     Enabled    Unique Name                    Parent time                         VDB creation time                   VDB refresh time
+ -------------------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ---------- ------------------------------ ----------------------------------- ----------------------------------- -----------------------------------
+ mssqlao              host1.co;host2.co    DBOMSR1C571E                   Sources         dSource                                 N/A                                       1.67 RUNNING    enabled    DBOMSR1C571E                   N/A                                 2024-01-29 13:34:08                 N/A
+ mssqlao              host1.co;host2.co    slon                           Sources         VDB      DBOMSR1C571E                   2024-01-29 07:35:06 EST                   1.37 INACTIVE   enabled    slon                           2024-01-29 07:35:06 EST             2024-01-29 13:37:25                 2024-01-29 13:37:33
+ mssqlao              10.43.81.230;10.43.8 SQL2019DB                      Untitled        dSource                                 N/A                                       0.01 UNKNOWN    enabled    N/A                            N/A                                 2023-12-21 02:30:12                 N/A
+
+
+Print cluster nodes in the environment mode
+
+ dx_get_db_env -d mssqlao -cluster -hostenv e
+
+ Appliance            Env. name            Database                       Group           Type     SourceDB                       Parent snapshot                     Used [GB]  Status     Enabled    Unique Name                    Parent time                         VDB creation time                   VDB refresh time                    Host list
+ -------------------- -------------------- ------------------------------ --------------- -------- ------------------------------ ----------------------------------- ---------- ---------- ---------- ------------------------------ ----------------------------------- ----------------------------------- ----------------------------------- -----------------------------------
+ mssqlao              dxrac                DBOMSR1C571E                   Sources         dSource                                 N/A                                       1.67 RUNNING    enabled    DBOMSR1C571E                   N/A                                 2024-01-29 13:34:08                 N/A                                 host1.co;host2.co
+ mssqlao              dxrac                slon                           Sources         VDB      DBOMSR1C571E                   2024-01-29 07:35:06 EST                   1.37 INACTIVE   enabled    slon                           2024-01-29 07:35:06 EST             2024-01-29 13:37:25                 2024-01-29 13:37:33                 host1.co;host2.co
+ mssqlao              win19fleet-src       SQL2019DB                      Untitled        dSource                                 N/A                                       0.01 UNKNOWN    enabled    N/A                            N/A                                 2023-12-21 02:30:12                 N/A                                 10.43.81.230;10.43.81.205
 
 
 =cut

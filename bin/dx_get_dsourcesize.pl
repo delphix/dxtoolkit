@@ -166,9 +166,18 @@ for my $engine ( sort (@{$engine_list}) ) {
     for my $dbitem ( @{$db_list} ) {
       my $dbobj = $databases->getDB($dbitem);
 
+      my $envname;
+
+      if ($dbobj->getEnvironmentName() eq 'NA') {
+        # staging push
+        $envname = $dbobj->getStagingEnvironment();
+      } else {
+        $envname = $dbobj->getEnvironmentName();
+      }
+
       $output->addLine(
         $engine,
-        $dbobj->getEnvironmentName(),
+        $envname,
         $groups->getName($dbobj->getGroup()),
         $dbobj->getName(),
         Toolkit_helpers::print_size($dbobj->getRuntimeSize(), 'G', $output_unit),
