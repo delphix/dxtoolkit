@@ -2,6 +2,7 @@
 
 ### Added
 - flag -cluster for dx_get_env and dx_get_db_env to display a cluster nodes for dSources and VDBs
+- support for Amazon Linux 2023
 
 ### Changes:
 - fix for dx_set_envpass to support MSSQL source environments
