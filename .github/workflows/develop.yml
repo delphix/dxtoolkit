@@ -479,7 +479,7 @@ jobs:
 
 
   amazon2023:
-
+    needs: [centos7]
     runs-on: ubuntu-latest
     steps:
     - name: checkout dxtoolkit code

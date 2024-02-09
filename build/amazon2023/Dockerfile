@@ -43,6 +43,7 @@ RUN mkdir -p /github/workspace
 RUN mkdir -p /github/home
 RUN mkdir -p /github/workflow
 COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 WORKDIR /github/workspace
 
 ENTRYPOINT ["/entrypoint.sh"]
