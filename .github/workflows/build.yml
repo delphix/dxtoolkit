@@ -392,9 +392,66 @@ jobs:
         path: ${{ env.FILENAME }}
 
 
+  amazon2023:
+    needs: [centos7]
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/pioroamazon:2023
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: add examples
+      run: |
+        ls -l 
+        gzip -d dxtoolkit.tar.gz
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
+        gzip dxtoolkit.tar
+
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload amazon 2023
+      uses: actions/upload-artifact@v1
+      with:
+        name: amazon2023
+        path: ${{ env.FILENAME }}
+            
+
   release:
     runs-on: ubuntu-latest
-    needs: [centos6, centos7, windows, ubuntu, osx]
+    needs: [centos6, centos7, windows, ubuntu, osx, amazon2023]
     permissions:
       contents: write
     steps:
@@ -430,6 +487,10 @@ jobs:
       with:
         name: oel8build
 
+    - name: Download Amazon 2023
+    uses: actions/download-artifact@v1
+    with:
+      name: amazon2023
 
     - name: Say
       run: |
@@ -442,12 +503,13 @@ jobs:
       run: |
         SOURCE_TAG=${GITHUB_REF#refs/tags/}
         FILENAMERH7="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
-        FILENAMERH6="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
         FILENAMERH8="dxtoolkit2-${SOURCE_TAG}-redhat8-installer.tar.gz"
+        FILENAMERH6="dxtoolkit2-${SOURCE_TAG}-redhat6-installer.tar.gz"
         FILENAMEUBUNTU="dxtoolkit2-${SOURCE_TAG}-ubuntu1804-installer.tar.gz"
         FILENAMEWIN="dxtoolkit2-${SOURCE_TAG}-win64-installer.zip"
         FILENAMEOSX="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
-
+        FILENAMEAMZ="dxtoolkit2-${SOURCE_TAG}-amazon2023-installer.tar.gz"
+        
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAMERH7=$FILENAMERH7 >> $GITHUB_ENV
         echo FILENAMERH6=$FILENAMERH6 >> $GITHUB_ENV
@@ -455,6 +517,7 @@ jobs:
         echo FILENAMEUBUNTU=$FILENAMEUBUNTU >> $GITHUB_ENV
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
+        echo FILENAMEAMZ=$FILENAMEAMZ >> $GITHUB_ENV
 
     - name: Create Release
       id: create_release
@@ -464,5 +527,5 @@ jobs:
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},oel8build/${{ env.FILENAMERH8 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }}"
+        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},oel8build/${{ env.FILENAMERH8 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }},amazon2023/${{ env.FILENAMEAMZ }}"
         tag: ${{ env.SOURCE_TAG }}
