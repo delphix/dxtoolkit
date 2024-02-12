@@ -510,7 +510,7 @@ jobs:
         else
           exit 1
         fi
-        FILENAME="dxtoolkit2-${SOURCE_TAG}-redhat7-installer.tar.gz"
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-amazon2023-installer.tar.gz"
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAME=$FILENAME >> $GITHUB_ENV
 
