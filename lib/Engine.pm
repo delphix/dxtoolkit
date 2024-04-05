@@ -950,7 +950,8 @@ sub login {
   my $domain;
   my %mylogin;
 
-  if (($domain) = $user =~ /(\w+)@(\w+)/) {
+  # allows dots in the user name when specified with domain or SYSTEM
+  if (($domain) = $user =~ /([\w\.]+)@(\w+)/) {
     if (uc $2 eq "DOMAIN") {
       $domain = "DOMAIN";
       $user = $1;

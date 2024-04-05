@@ -293,9 +293,16 @@ sub snapshot
           # backupUUID: (required)
 
           if ( $frombackup eq "yes" ) {
-            %snapshot_type = (
-                "type" => "MSSqlExistingMostRecentBackupSyncParameters"
-            );
+            if (defined($uuid)) {
+              %snapshot_type = (
+                  "type" => "MSSqlExistingSpecificBackupSyncParameters",
+                  "backupUUID" => $uuid
+              );
+            } else {
+              %snapshot_type = (
+                  "type" => "MSSqlExistingMostRecentBackupSyncParameters"
+              );
+            }
           } else {
 
             if ($self->getStagingPush() eq 'yes') {
