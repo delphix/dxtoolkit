@@ -1,3 +1,9 @@
+## 2.4.22.1
+
+### Changes
+- Fix to support backupuuid in dx_snapshot_db
+- Fix to support dots in the user names while using @DOMAIN or @SYSTEM
+
 ## 2.4.22
 
 ### Added
