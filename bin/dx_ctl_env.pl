@@ -410,7 +410,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         } elsif (lc $repotype eq 'postgresql') {
           my %native_params;
           my %plugin_params_hash = (
-            "prettyName" => $dbname
+            "name" => $dbname
           );
           if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
             print "Can't add Postgresql $dbname \n";

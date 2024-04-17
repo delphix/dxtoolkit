@@ -776,7 +776,9 @@ sub timezone_fix {
 	if ($timezone eq 'Etc/GMT+0') {
 			$timezone = 'GMT';
 	}
-
+	if ($timezone eq 'EST') {
+			$timezone = 'US/Eastern';
+	}
 	return $timezone;
 }
 
@@ -865,18 +867,21 @@ sub convert_timezone {
 	$timestamp =~ s/T/ /;
 	$timestamp =~ s/\.000Z//;
 
-
 	$err = $dt->parse($timestamp);
-
 	if ($err) {
 		return undef;
 	}
 
-	my $dttemp = $dt->value();
+	my $dttemp = $dt->value();	
 	($err,$date,$offset,$isdst,$abbrev) = $tz->convert($dttemp, $src, $dst);
 	my $ts;
 
 	if ($err) {
+		# 0  No error
+		# 1  Invalid arguments
+		# 2  Invalid FROM zone
+		# 3  Invalid TO zone
+		# 4  Invalid date
 		return undef;
 	}
 
@@ -958,7 +963,7 @@ sub print_size {
 		$decnum = 2;
 	}
 
-	if ($bytes eq 'N/A') {
+	if (($bytes eq 'N/A') || ($bytes eq 'NA')) {
 		return 'N/A';
 	}
 

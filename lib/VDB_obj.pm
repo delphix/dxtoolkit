@@ -864,6 +864,12 @@ sub getdSourceBackup
     my $vendor = $self->{_dbtype};
     my $rephome = $self->getHome();
 
+    my $plugin = 0;
+
+    if (defined($self->{_pluginbased}) && ($self->{_pluginbased} eq 1) ) {
+      $plugin = 1;
+    }
+
     $dbhostname = $self->getSourceConfigName();
 
     if (! defined($dbhostname)) {
@@ -882,12 +888,33 @@ sub getdSourceBackup
     my $restore_args = "dx_ctl_dsource$suffix -d $engine -action create -group \"$groupname\" -creategroup ";
     $restore_args = $restore_args . "-dsourcename \"$dbn\"  -type $vendor ";
 
-    if (($staging_push eq 'no') || ($staging_push eq 'N/A')) {
-      # for normal dsources
-      $restore_args = $restore_args . "-sourcename \"$dbhostname\" "; 
-      $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
-      my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
+
+    if ($plugin eq 0) {
+      if (($staging_push eq 'no') || ($staging_push eq 'N/A')) {
+        # for normal dsources
+        $restore_args = $restore_args . "-sourcename \"$dbhostname\" "; 
+        $restore_args = $restore_args . "-sourceinst \"$rephome\" -sourceenv \"" . $self->getEnvironmentName() . "\" -source_os_user \"$osuser\" ";
+        my $logsync = $self->getLogSync() eq 'ACTIVE'? 'yes' : 'no' ;
+        my $dbuser = $self->getDbUser();
+
+        if ($dbuser ne 'N/A') {
+          if ($dbuser =~ /dbusertype environment/ ) {
+            $restore_args = $restore_args . " $dbuser ";
+          } else {
+            # this is for all users but not an dbuser type environent for ms sql
+            $restore_args = $restore_args . "-dbuser $dbuser -password xxxxxxxx ";
+          }
+        }
+
+        $restore_args = $restore_args . " -logsync $logsync";
+      } 
+    } else {
+      # for plugin based dSources
+
       my $dbuser = $self->getDbUser();
+
+      $restore_args = $restore_args . "-sourcename \"$dbhostname\" "; 
+      $restore_args = $restore_args . "-stageinst \"$rephome\" -stageenv \"" . $self->getEnvironmentName() . "\" -stage_os_user \"$osuser\" ";
 
       if ($dbuser ne 'N/A') {
         if ($dbuser =~ /dbusertype environment/ ) {
@@ -898,8 +925,8 @@ sub getdSourceBackup
         }
       }
 
-      $restore_args = $restore_args . " -logsync $logsync";
-    } 
+
+    }
 
     $restore_args = $restore_args . " -hooks " . File::Spec->catfile($backup,$dbn.'.dbhooks') . " ";
     $restore_args = $restore_args . $self->getConfig(undef, 1);
@@ -922,14 +949,14 @@ sub getCurrentTimeflow
 }
 
 
-# Procedure getStagingEnvironment
+# Procedure getStagingEnvironmentName
 # parameters: none
 # Return database staging environment
 
-sub getStagingEnvironment
+sub getStagingEnvironmentName
 {
     my $self = shift;
-    logger($self->{_debug}, "Entering VDB_obj::getStagingEnvironment",1);
+    logger($self->{_debug}, "Entering VDB_obj::getStagingEnvironmentName",1);
     my $ret;
     if (defined($self->{staging_environment}->{name})) {
       $ret = $self->{staging_environment}->{name};
@@ -2582,6 +2609,7 @@ sub setHook {
       $self->{"source"} = $self->{_source}->refreshSource($self->{"source"}->{"reference"});
 
     } else {
+      print Dumper "settuke";
       if (defined($self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype})) {
         @hook_array = @{$self->{"NEWDB"}->{"source"}->{"operations"}->{$hooktype}};
         push(@hook_array, \%hook_hash);
@@ -3189,27 +3217,6 @@ sub snapshot
 }
 
 
-
-########################
-
-package PostgresVDB_obj;
-use Data::Dumper;
-use JSON;
-use Toolkit_helpers qw (logger);
-our @ISA = qw(VDB_obj);
-
-sub new {
-    my $class  = shift;
-    my $dlpxObject = shift;
-    my $debug = shift;
-    logger($debug, "Entering PostgresVDB_obj::constructor",1);
-    # call VDB_obj constructor
-    my $self       = $class->SUPER::new($dlpxObject, $debug);
-
-    $self->{_dbtype} = 'postgresql';
-
-    return $self;
-}
 
 #
 # End of package

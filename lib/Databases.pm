@@ -41,6 +41,8 @@ use MSSQLVDB_obj;
 use SybaseVDB_obj;
 use AppDataVDB_obj;
 use DB2VDB_obj;
+use PluginVDB_obj;
+use PostgresVDB_obj;
 use Toolkit_obj;
 use Toolkit_helpers qw (logger);
 use Encode qw(decode_utf8);
@@ -136,10 +138,6 @@ sub LoadDBList
         {
             $db = MSSQLVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
         }
-        elsif ($dbitem->{type} eq 'PgSQLDatabaseContainer' )
-        {
-            $db = PostgresVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
-        }
         elsif ($dbitem->{type} eq 'ASEDBContainer' )
         {
             $db = SybaseVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
@@ -153,6 +151,8 @@ sub LoadDBList
             if (defined($dbitem->{toolkit}) && defined($toolkits->getName($dbitem->{toolkit})) ) {
                 if ($toolkits->getName($dbitem->{toolkit}) eq 'db2db') {
                   $db = DB2VDB_obj->new($self->{_dlpxObject}, $self->{_debug});
+                } elsif ($toolkits->getName($dbitem->{toolkit}) eq 'postgres-vsdk') {
+                  $db = PostgresVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
                 } else {
                   $db = AppDataVDB_obj->new($self->{_dlpxObject}, $self->{_debug});
                 }
