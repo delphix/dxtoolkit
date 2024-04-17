@@ -89,6 +89,17 @@ GetOptions(
   'uniqname=s'  => \(my $uniqname),
   'template=s' => \(my $template),
   'oracledbtype=s' => \(my $oracledbtype),
+  'sourcehostname=s' => \(my $sourcehostname),
+  'sourceport=n' => \(my $sourceport),
+  'ingestiontype=s' => \(my $ingestiontype),
+  'singledbname=s' => \(my $singledbname),
+  'stagingport=n' => \(my $stagingport),
+  'dumpdir=s' => \(my $dumpdir),
+  'restorejobs=n' => \(my $restorejobs),
+  'dumpjobs=n' => \(my $dumpjobs),
+  'customparameters=s@' => \(my $customparameters),
+  'backup_dir_log=s' => \(my $backup_dir_log),
+  'keepinsync=s' => \(my $keepinsync),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -134,13 +145,13 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
     exit (1);
   }
 
-  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') || ( lc $type eq 'db2') ) ) ) {
+  if ( defined ($type) && ( ! ( ( lc $type eq 'oracle') || ( lc $type eq 'sybase') || ( lc $type eq 'mssql') || ( lc $type eq 'vfiles') || ( lc $type eq 'db2') || ( lc $type eq 'postgresql') ) ) ) {
     print "Option -type has invalid parameter - $type \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
   }
 
-  if (((lc $type eq 'vfiles') || (lc $type eq 'db2')) && (lc $action eq 'attach')) {
+  if (((lc $type eq 'vfiles') || ( lc $type eq 'db2') || ( lc $type eq 'postgresql')) && (lc $action eq 'attach')) {
     print "Can't attach $type dSource\n";
     exit (1);
   }
@@ -153,7 +164,7 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
       exit (1);
     }
   }
-  elsif ( ( lc $type ne 'db2' ) && ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) )  {
+  elsif ( ( lc $type ne 'postgresql' ) && ( lc $type ne 'db2' ) && ( ! ( defined($type) && defined($sourcename) && defined($dsourcename)  && defined($source_os_user) && defined($group) ) ) )  {
     print "Options -sourcename, -dsourcename, -group, -source_os_user are required. \n";
     pod2usage(-verbose => 1,  -input=>\*DATA);
     exit (1);
@@ -175,7 +186,7 @@ if (! (($action eq 'detach') || ($action eq 'update')) )  {
 
 
 } else {
-  if (defined ($type) && ((lc $type eq 'vfiles') || (lc $type eq 'db2') ) && (lc $action eq 'detach')) {
+  if (defined ($type) && ((lc $type eq 'vfiles') || (lc $type eq 'db2') || ( lc $type eq 'postgresql') ) && (lc $action eq 'detach')) {
     print "Can't deattach $type dSource\n";
     exit (1);
   }
@@ -229,6 +240,12 @@ for my $engine ( sort (@{$engine_list}) ) {
             pod2usage(-verbose => 1,  -input=>\*DATA);
             exit (1)
           }
+      } elsif (lc $type eq 'postgresql') {
+        if ( lc $ingestiontype ne 'externalbackup' ) {
+          print "Options -dbuser and -password are required for non vFiles dsources. \n";
+          pod2usage(-verbose => 1,  -input=>\*DATA);
+          exit (1);   
+        }
       } else {
         print "Options -dbuser and -password are required for non vFiles dsources. \n";
         pod2usage(-verbose => 1,  -input=>\*DATA);
@@ -410,6 +427,17 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
       $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr);
     }
+    elsif ($type eq 'postgresql') {
+      my $db = new PostgresVDB_obj($engine_obj,$debug);
+      if (addhooks($hooks, $db, $presync, $postsync)) {
+        $ret = $ret + 1;
+        last;
+      }
+      $jobno = $db->addSource($sourcename,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, 
+               $sourcehostname, $sourceport, $ingestiontype, $dumpdir, $restorejobs, $dumpjobs, $stagingport, $singledbname, $mountbase,
+               $customparameters, $backup_dir, $backup_dir_log, $keepinsync);
+
+    }
 
     # we are adding only one dSource - so one job
     $ret = $ret + Toolkit_helpers::waitForAction($engine_obj, $jobno, "Action completed with success", "There were problems with dSource action");
@@ -508,6 +536,17 @@ __DATA__
                 [-postsync [hookname,]template|filename[,OS_shell] ]
                 [-stagingpush]
                 [-oracledbtype nonmt|cdb|pdb]
+                [-customparameters (param_name=value)|(#param_name)]
+                [-ingestiontype single|initalized|externalbackup ] 
+                [-sourcehostname hostname ] 
+                [-sourceport xxx]
+                [-singledbname dbname]
+                [-stagingport xxx ]
+                [-dumpdir directory]
+                [-restorejobs x]
+                [-dumpjobs x]
+                [-backup_dir_log directory]
+                [-keepinsync yes|no]
                 [-debug ]
                 [-version ]
                 [-help|? ]
@@ -659,6 +698,40 @@ Exclude path for vFiles dSources
 =item B<-hooks path_to_hooks>
 Import hooks exported using dx_get_hooks
 
+=item B<-customparameters (param_name=value)|(#param_name)>
+Provide a custom parameter for Postgresql. For more then one parameter, use -customparameters multiple times.
+To comment an existing variable inside Postgresql VDB, put a # sign before a parameter.
+
+=item B<-ingestiontype single|initalized|externalbackup >
+Postgresql dSource ingestion type
+
+=item B<-sourcehostname hostname>
+Postgresql dSource source host
+
+=item B<-sourceport xxx>
+Postgresql dSource source port
+
+=item B<-singledbname dbname>
+Postgresql dSource single database name
+
+=item B<-stagingport xxx>
+Postgresql dSource staging port
+
+=item B<-dumpdir directory>
+Postgresql dSource single database dump directory
+
+=item B<-restorejobs x>
+Postgresql dSource single database number of restore jobs
+
+=item B<-dumpjobs x>
+Postgresql dSource single database number of dump joba
+
+=item B<-backup_dir_log>
+Location of WAL logs for external Postgresql ingestion
+
+=item B<-keepinsync yes|no->
+Keep a dSource in sync using Postgresql replication. If value set to yes, replication parameters are mandatory
+
 =back
 
 =head2 Hooks
@@ -808,6 +881,27 @@ Adding a vFiles dSource
  Waiting for all actions to complete. Parent action is ACTION-2919
  Action completed with success
 
+Adding a Posgresql dSource using Delphix initialized backup
+
+ dx_ctl_dsource -d dxtest -action create -group "Untitled" -creategroup -dsourcename "postdsource"  -type postgresql -sourcename "postdsource" -stageinst "Postgres vFiles (15.2)" \
+                -stageenv "POSTSTG" -stage_os_user "postgres" -mountbase "/mnt/provision/postdsource" -password xxxxxxxxx -stagingport 5433 -ingestiontype initiated \
+                -dbuser "delphix" -sourcehostname "sourceserver" -sourceport 5432 -customparameters "deadlock_timeout=123s"
+ Waiting for all actions to complete. Parent action is ACTION-734
+ Action completed with success
+
+Adding a Posgresql dSource using single database ingestion
+
+dx_ctl_dsource -d dxtest -action create -group "Untitled" -creategroup -dsourcename "postdsource"  -type postgresql -sourcename "postdsource_cluster" -stageinst "Postgres vFiles (15.2)" \
+               -stageenv "POSTSTG" -mountbase "/mnt/provision/pioro" -dbuser "postgres" -password xxxxxxxxx -stagingport 5433 -sourcehostname "sourceserver" \
+               -ingestiontype single  -sourceport 5432 -singledbname "singleDB" -dumpdir "/home/postgres" -restorejobs 2 -dumpjobs 2
+
+Adding a Postgresql dSource using external backup
+
+ dx_ctl_dsource -d dxtest -action create -group "Untitled" -creategroup -dsourcename "extbac" -type postgresql -sourcename "extbac" -stageinst "Postgres vFiles (15.2)" \
+                -stageenv "POSTSTG"  -mountbase "/mnt/provision/extbac" -stagingport 5434 -ingestiontype externalbackup \
+                -backup_dir "/home/postgres/backup" -backup_dir_log "/home/postgres/backup" -keepinsync no
+
+
 Updating a backup path and validated sync mode for Sybase
 
  dx_ctl_dsource -d Landshark5 -action update -validatedsync ENABLED -backup_dir "/u02/sybase_back" -dsourcename pubs3
@@ -837,6 +931,8 @@ Update a staging server and instace for Sybase or MS SQL based on group
   Action completed with success
   Waiting for all actions to complete. Parent action is ACTION-8594
   Action completed with success
+
+
 
 
 =cut

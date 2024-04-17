@@ -350,7 +350,7 @@ sub getConfig
       } else {
 
         my $staging_user = $self->getStagingUser();
-        my $staging_env = $self->getStagingEnvironment();
+        my $staging_env = $self->getStagingEnvironmentName();
         my $staging_inst = $self->getStagingInst();
 
         $config = join($joinsep,($config, "-sourcename \"" . $self->{staging_sourceConfig}->{databaseName} . "\""));
