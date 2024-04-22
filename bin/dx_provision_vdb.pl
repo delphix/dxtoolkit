@@ -51,6 +51,7 @@ use MaskingJob_obj;
 my $version = $Toolkit_helpers::version;
 
 my $archivelog = 'yes';
+my $datapatch = 'no';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -123,6 +124,7 @@ GetOptions(
   'tdecdbpassword=s' => \(my $tdecdbpassword),
   'tdekeyid=s' => \(my $tdekeyid),
   'customparameters=s@' => \(my $customparameters),
+  'datapatch=s' => \($datapatch),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -557,7 +559,15 @@ for my $engine ( sort (@{$engine_list}) ) {
       $db->setNewDBID();
     }
 
-
+    if (defined($datapatch)) {
+      if ((lc $datapatch ne 'no') || ( lc $datapatch eq 'yes') ) {
+        $db->setDataPatch($datapatch);
+      } else {
+        print "Datapatch argument should be yes or no. VDB won't be created\n" ;
+        $ret = $ret + 1;
+        next;
+      }
+    }
 
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {

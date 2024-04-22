@@ -217,6 +217,8 @@ sub createBookmark
         $bookmark_timeflow_type = 'AppDataTimeflowPoint'
     } elsif ($db->getDBType() eq 'vFiles') {
         $bookmark_timeflow_type = 'AppDataTimeflowPoint'
+    } elsif ($db->getDBType() eq 'postgresql') {
+        $bookmark_timeflow_type = 'AppDataTimeflowPoint'
     } else {
       print "Can't determine a DB type. Exiting\n";
       return 1;

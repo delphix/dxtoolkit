@@ -318,6 +318,11 @@ sub getConfig
         $config = join($joinsep,($config, $tde));
       }
 
+      my $datapatch = $self->getDataPatch();
+      if (defined($datapatch)) {
+          $config = join($joinsep,($config, "-datapatch $datapatch"));
+      }
+
 
     } else {
       # dSource config for Oracle
@@ -1065,6 +1070,47 @@ sub setMountPoint {
     logger($self->{_debug}, "Entering OracleVDB_obj::setMountPoint",1);
     $self->{"NEWDB"}->{"source"}->{"mountBase"} = $mountpoint;
 }
+
+
+# Procedure getDataPatch
+# parameters:
+# Get mountpoint of DB.
+
+sub getDataPatch {
+    my $self = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::getDataPatch",1);
+    my $ret;
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.26)) {
+      if ($self->{"source"}->{"invokeDatapatch"}) {
+        $ret = "yes";
+      } else {
+        $ret = "no";
+      }
+    } 
+    return $ret;
+}
+
+# Procedure setDataPatch
+# parameters:
+# - mountpoint - mount point
+# Set mountpoint for new db.
+
+sub setDataPatch {
+    my $self = shift;
+    my $datapatch = shift;
+    logger($self->{_debug}, "Entering OracleVDB_obj::setDataPatch",1);
+
+    if (version->parse($self->{_dlpxObject}->getApi()) >= version->parse(1.11.26)) {
+      # only for 15 and higher
+      if (lc $datapatch eq 'no') {
+        $self->{"NEWDB"}->{"source"}->{"invokeDatapatch"} = JSON::false;
+      }
+      elsif (lc $datapatch eq 'yes') {
+        $self->{"NEWDB"}->{"source"}->{"invokeDatapatch"} = JSON::true;
+      } 
+    }
+}
+
 
 # Procedure setArchivelog
 # parameters:
