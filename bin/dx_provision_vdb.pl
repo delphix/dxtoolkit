@@ -560,7 +560,7 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
 
     if (defined($datapatch)) {
-      if ((lc $datapatch ne 'no') || ( lc $datapatch eq 'yes') ) {
+      if ((lc $datapatch eq 'no') || ( lc $datapatch eq 'yes') ) {
         $db->setDataPatch($datapatch);
       } else {
         print "Datapatch argument should be yes or no. VDB won't be created\n" ;

@@ -1,3 +1,9 @@
+## 2.4.23
+
+### Added
+- Support for Postgresql ( dSource / VDB )
+- Data patch flag added for Oracle VDBs
+
 ## 2.4.22.1
 
 ### Changes
