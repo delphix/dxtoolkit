@@ -51,6 +51,7 @@ use MaskingJob_obj;
 my $version = $Toolkit_helpers::version;
 
 my $archivelog = 'yes';
+my $datapatch = 'no';
 
 GetOptions(
   'help|?' => \(my $help),
@@ -122,6 +123,8 @@ GetOptions(
   'tdeexportsecret=s' => \(my $tdeexportsecret),
   'tdecdbpassword=s' => \(my $tdecdbpassword),
   'tdekeyid=s' => \(my $tdekeyid),
+  'customparameters=s@' => \(my $customparameters),
+  'datapatch=s' => \($datapatch),
   'dever=s' => \(my $dever),
   'debug:n' => \(my $debug),
   'all' => (\my $all),
@@ -171,7 +174,7 @@ if ( defined($archivelog) && (! ( ( $archivelog eq 'yes') || ( $archivelog eq 'n
 }
 
 
-if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') || ( $type eq 'mysql') ||( $type eq 'db2') || ( $type eq 'vFiles') ) )  {
+if ( ! ( ( $type eq 'oracle') || ( $type eq 'mssql') || ( $type eq 'sybase') || ( $type eq 'mysql') ||( $type eq 'db2') || ( $type eq 'vFiles') || ( $type eq 'postgresql') ) )  {
   print "Option -type has invalid parameter - $type \n";
   pod2usage(-verbose => 1, -input=>\*DATA);
   exit (1);
@@ -288,6 +291,8 @@ for my $engine ( sort (@{$engine_list}) ) {
     $db = new DB2VDB_obj($engine_obj,$debug);
   } elsif ($type eq 'vFiles') {
     $db = new AppDataVDB_obj($engine_obj,$debug);
+  } elsif ($type eq 'postgresql') {
+    $db = new PostgresVDB_obj($engine_obj,$debug);
   }
 
   # common database code
@@ -554,7 +559,15 @@ for my $engine ( sort (@{$engine_list}) ) {
       $db->setNewDBID();
     }
 
-
+    if (defined($datapatch)) {
+      if ((lc $datapatch eq 'no') || ( lc $datapatch eq 'yes') ) {
+        $db->setDataPatch($datapatch);
+      } else {
+        print "Datapatch argument should be yes or no. VDB won't be created\n" ;
+        $ret = $ret + 1;
+        next;
+      }
+    }
 
     if ( defined($template) ) {
       if ( $db->setTemplate($template) ) {
@@ -688,6 +701,16 @@ for my $engine ( sort (@{$engine_list}) ) {
     }
     $db->setName($targetname, $dbname);
     $jobno = $db->createVDB($group,$environment,$envinst);
+  } elsif ($type eq 'postgresql') {
+    if (! defined($port)) {
+        print "Port not defined. VDB won't be created.\n";
+        $ret = $ret + 1;
+        next;
+    }
+
+    $db->setName($targetname, $dbname);    
+    $jobno = $db->createVDB($group,$environment,$envinst,$mntpoint,$port, $customparameters);
+  
   }
 
   if (defined($snapshotpolicy_ref)) {
@@ -778,13 +801,14 @@ __DATA__
                    -tdeexportsecret tde_export_secret]
                   [-tdekeyid tde_key_id]
                   [-tdecdbpassword tde_cdb_keystore_password]
+                  [-customparameters (param_name=value)|(#param_name)]
                   [-help] [-debug]
 
 
 =head1 DESCRIPTION
 
 Provision VDB from a defined source on the defined target environment.
-
+dx_provision_vdb.pl -d dxtest -type postgresql -group "Untitled" -creategroup -sourcename "pioro"  -srcgroup "Untitled" -targetname "postvdb"  -dbname "postvdb" -environment "marcinposttgt.dlpxdc.co"  -envinst "Postgres vFiles (15.2)"  -envUser "postgres"  -hooks /tmp/postvdb.dbhooks  -mntpoint "/mnt/provision/postvdb" -port "5444" -customparameters "deadlock_timeout=123s" -customparameters "#max_connections"
 =head1 ARGUMENTS
 
 =head2 Delphix Engine selection - if not specified a default host(s) from dxtools.conf will be used.
@@ -1006,6 +1030,9 @@ Key id to use for Oracle TDE MT support (this is an optional parameter)
 =item B<-tdecdbpassword tde_cdb_keystore_password>
 Password for an existing target CDB keystore (this is an optional parameter is password of the CDB is already set)
 
+=item B<-customparameters (param_name=value)|(#param_name)>
+Provide a custom parameter for Postgresql. For more then one parameter, use -customparameters multiple times.
+To comment an existing variable inside Postgresql VDB, put a # sign before a parameter.
 
 =back
 
@@ -1159,4 +1186,11 @@ Provision a MS SQL using a snapshot from "2015-09-23 10:23"
  Job JOB-158167 finised with state: COMPLETED VDB created.
 
 
+Provision a Postgresql VDB 
+
+ dx_provision_vdb -d dxtest -type postgresql -group "Untitled" -sourcename "pioro" -targetname "postvdb"  -dbname "postvdb" -environment "POSTTGT"  -envinst "Postgres vFiles (15.2)"  -mntpoint "/mnt/provision/postvdb" -port "5444" -customparameters "deadlock_timeout=123s" -customparameters "#max_connections"
+ Starting job - JOB-608
+ 0 - 7 - 11 - 18 - 75 - 100
+ Job JOB-608 finished with state: COMPLETED
+ VDB created.
 =cut

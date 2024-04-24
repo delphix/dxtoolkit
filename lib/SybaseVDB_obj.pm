@@ -311,7 +311,7 @@ sub getConfig
       }
     } elsif ($self->getType() eq 'dSource') {
       my $staging_user = $self->getStagingUser();
-      my $staging_env = $self->getStagingEnvironment();
+      my $staging_env = $self->getStagingEnvironmentName();
       my $staging_inst = $self->getStagingInst();
 
       $config = join($joinsep,($config, "-stageinst \"$staging_inst\""));

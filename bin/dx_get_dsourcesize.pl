@@ -170,7 +170,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
       if ($dbobj->getEnvironmentName() eq 'NA') {
         # staging push
-        $envname = $dbobj->getStagingEnvironment();
+        $envname = $dbobj->getStagingEnvironmentName();
       } else {
         $envname = $dbobj->getEnvironmentName();
       }
