@@ -915,7 +915,7 @@ Updating a backup path and validated sync mode for Sybase
   Action completed with success
 
 
-Update a staging server and instace for Sybase or MS SQL
+Update a staging server and instance for Sybase or MS SQL
 
   dx_ctl_dsource -d Landshark5 -action update -dsourcename pubs3 -backup_dir /u02/sybase_backup -stageinst LINUXTARGET -stageenv linuxtarget
   Waiting for all actions to complete. Parent action is ACTION-8576
@@ -924,7 +924,7 @@ Update a staging server and instace for Sybase or MS SQL
   Action completed with success
 
 
-Update a staging server and instace for Sybase or MS SQL based on group
+Update a staging server and instance for Sybase or MS SQL based on group
 
   dx_ctl_dsource -d Landshark5 -action update -group SybaseSource -backup_dir /u02/sybase_backup -stageinst LINUXTARGET -stageenv linuxtarget
   Waiting for all actions to complete. Parent action is ACTION-8593

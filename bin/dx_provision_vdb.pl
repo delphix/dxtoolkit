@@ -742,8 +742,8 @@ __DATA__
                   -targetname targ_name
                   -dbname db_name | -path vfiles_mountpoint
                   -environment environment_name
-                  -type oracle|mssql|sybase|vFiles
-                  -envinst OracleHome/MSSQLinstance/SybaseServer
+                  -type oracle|mssql|sybase|vFiles|postgresql
+                  -envinst OracleHome/MSSQLinstance/SybaseServer|Postgresql
                   [-creategroup]
                   [-srcgroup Source group]
                   [-timestamp LATEST_SNAPSHOT|LATEST_POINT|time_stamp]
@@ -802,6 +802,7 @@ __DATA__
                   [-tdekeyid tde_key_id]
                   [-tdecdbpassword tde_cdb_keystore_password]
                   [-customparameters (param_name=value)|(#param_name)]
+                  [-datapatch no|yes]
                   [-help] [-debug]
 
 
@@ -1033,6 +1034,9 @@ Password for an existing target CDB keystore (this is an optional parameter is p
 =item B<-customparameters (param_name=value)|(#param_name)>
 Provide a custom parameter for Postgresql. For more then one parameter, use -customparameters multiple times.
 To comment an existing variable inside Postgresql VDB, put a # sign before a parameter.
+
+=item B<-datapatch no|yes>
+Invoke datapatch for Oracle database. Default value is no
 
 =back
 
