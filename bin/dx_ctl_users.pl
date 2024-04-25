@@ -515,15 +515,16 @@ Add user to one engine using users file and profile file
 
 Example csv user file:
 
- # operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user
- # comment - create a new user with Delphix authentication
- C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y
- # comment - create a new user with LDAP
- C,testuser2,Test,User2,test.user@test.mail.com,555-111-111,555-222-222,555-333- 333,LDAP,"testuser@test.domain.com",,Y
- # update existing user - non-empty values will be updated, password can't be modified in this version
- U,user11,FirstName,LastName,newemail@test.com,,,,,,, U,testuser,Test,User,test.user@test.com,,555-222-333,,NATIVE,,password,Y
- # delete user
- D,testuser2,,,,,,,,,,
+#operation,username,first_name,last_name,email address,work_phone,home_phone,cell_phone,type(NATIVE|LDAP),principal_credential,password,admin_priv,js_user,timeout,apiUser
+# comment - create a new user with Delphix authentication
+C,testuser,Test,User,test.user@test.mail.com,,555-222-222,,NATIVE,,password,Y,N,60,N
+# comment - create a new user with LDAP
+C,testuser2,Test,User2,test.user@test.mail.com,555-111-111,555-222-222,555-333-333,LDAP,"testuser@test.domain.com",,Y,N,60,N
+# update existing user - non-empty values will be updated, password can't be modified in this version
+U,user11,FirstName,LastName,newemail@test.com,,,,,,,
+U,testuser,Test,User,test.user@test.com,,555-222-333,,NATIVE,,password,,Y
+# delete user
+D,testuser2,,,,,,,,,,,
 
 Example csv profile file:
 
