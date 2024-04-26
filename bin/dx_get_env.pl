@@ -108,6 +108,7 @@ if (defined($userlist)) {
   $output->addHeader(
     {'Appliance',         20},
     {'Environment Name',  30},
+    {'Environment Users',  30},
     {'Type',              25},
     {'Host name',         30},
     {'User Name',         30},
@@ -133,6 +134,7 @@ else {
     {'Appliance', 20},
     {'Environment Name',  30},
     {'Type',      25},
+    {'Environment Users',  30},
     {'Status',     8},
     {'OS Version', 50}
   );
@@ -251,7 +253,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $config = $environments->getConfig($envitem, $host_obj);
         $output->addLine(
          $engine,
-         $envname,
+                 $envname,
          $envtype,
          $hostname,
          $user,
@@ -262,6 +264,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       }
     } else {
       my $cluster_nodes;
+      my $user = $environments->getPrimaryUserName($envitem);
       my $host_ref = $environments->getHost($envitem);
       my $hostos;
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
@@ -285,16 +288,28 @@ for my $engine ( sort (@{$engine_list}) ) {
           $hostos,
           $cluster_nodes
         );
-      } else {
-        $output->addLine(
-          $engine,
-          $environments->getName($envitem),
-          $environments->getType($envitem),
-          $environments->getStatus($envitem),
-          $hostos
-        );
       }
-    }
+      else {
+              $output->addLine(
+                $engine,
+                $environments->getName($envitem),
+                $environments->getType($envitem),
+                '*' . $environments->getPrimaryUserName($envitem),
+                $environments->getStatus($envitem),
+                $hostos
+              );
+              for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
+                      $output->addLine(
+                        '',
+                        '',
+                        '',
+                        $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
+                        '',
+                        ''
+                      );
+              }
+      }
+}
 
     $save_state{$envitem} = $environments->getStatus($envitem);
 
@@ -413,13 +428,13 @@ Display all environments
 
  dx_get_env -d Landshark
 
- Appliance            Reference                      Environment Name               Type                      Status
- -------------------- ------------------------------ ------------------------------ ------------------------- --------
- Landshark5           ORACLE_CLUSTER-11              racattack-cl                   rac                       enabled
- Landshark5           UNIX_HOST_ENVIRONMENT-1        LINUXTARGET                    unix                      enabled
- Landshark5           UNIX_HOST_ENVIRONMENT-44       LINUXSOURCE                    unix                      enabled
- Landshark5           WINDOWS_HOST_ENVIRONMENT-48    WINDOWSTARGET                  windows                   enabled
- Landshark5           WINDOWS_HOST_ENVIRONMENT-49    WINDOWSSOURCE                  windows                   enabled
+ Appliance            Environment Name               Type                      Environment Users       Status          OS Version
+ -------------------- ------------------------------ ------------------------- ----------------------- --------------- --------------------------------------------------------
+ Landshark5           racattack-cl                   rac                       *delphix                enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)
+ Landshark5           LINUXTARGET                    unix                      *delphix                enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)
+ Landshark5           LINUXSOURCE                    unix                      *delphix                enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)
+ Landshark5           WINDOWSTARGET                  windows                   *delphix                enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)
+ Landshark5           WINDOWSSOURCE                  windows                   *delphix                enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)
 
 Display all environments with repositories list
 
@@ -446,6 +461,30 @@ Display all environments with repositories list
                                                      MSSQLSERVER
                                                      MSSQL2012
 
+Display all environments with cluster list
+
+dx_get_env -d Landshark -cluster
+
+ Appliance            Environment Name               Type                      Status          OS Version                                               Hostname
+ -------------------- ------------------------------ ------------------------- --------------- -------------------------------------------------------- ---------------------
+ Landshark5           racattack-cl                   rac                       enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server1;10.***.**.01
+ Landshark5           LINUXTARGET                    unix                      enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server2;10.***.**.02
+ Landshark5           LINUXSOURCE                    unix                      enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server3;10.***.**.03
+ Landshark5           WINDOWSTARGET                  windows                   enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server4;10.***.**.04
+ Landshark5           WINDOWSSOURCE                  windows                   enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server5;10.***.**.05
+
+
+Display all environments with user list
+
+dx_get_env -d Landshark -userlist
+
+ Appliance            Environment Name               User name               Status          Auth Type
+ -------------------- ------------------------------ ----------------------- --------------- ---------------
+ Landshark5           racattack-cl                   *delphix                enabled         password
+ Landshark5           LINUXTARGET                    *delphix                enabled         password
+ Landshark5           LINUXSOURCE                    *delphix                enabled         systemkey
+ Landshark5           WINDOWSTARGET                  *delphix                enabled         password
+ Landshark5           WINDOWSSOURCE                  *delphix                enabled         systemkey
 
 
 =cut
