@@ -102,7 +102,8 @@ $output->addHeader(
     {'Bookmark snapshot',     30},
     {Toolkit_helpers::get_unit('Bookmark snap size',$output_unit),    20},
     {'Parent snapshot',       30},
-    {Toolkit_helpers::get_unit('Parent snap size',$output_unit),      20}
+    {Toolkit_helpers::get_unit('Parent snap size',$output_unit),      20},
+    {'Parent name',           30}
 );
 
 
@@ -179,8 +180,7 @@ for my $engine ( sort (@{$engine_list}) ) {
 
     my $tfrangearray;
     my %timeflowranges;
-
-
+    my $parentname;
 
     for my $dbref (keys %dbarray) {
 
@@ -191,6 +191,7 @@ for my $engine ( sort (@{$engine_list}) ) {
       # load database snapshots for parent
       my $dbobj = $databases->getDB($dbref);
       my $snapshots = new Snapshot_obj( $engine_obj, $dbobj->getParentContainer(), undef, $debug);
+      $snapshots->getSnapshotList($dbobj->getParentContainer());
       $snapshots->getSnapshotList(keys %dbarray);
 
       # for all timeflows generate timeflow range for bookmarks,
@@ -223,6 +224,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         if (!defined($snapshotname)) {
           $snapshotname = "deleted";
           $snapsize = 'N/A';
+          $parentname = 'N/A';
         } else {
           if (!defined($snapshot_sizes{$snapref})) {
             $snapsize = $snapshots->getSnapshotSize($snapref);
@@ -235,6 +237,7 @@ for my $engine ( sort (@{$engine_list}) ) {
           } else {
             $snapsize = $snapshot_sizes{$snapref};
           }
+          $parentname = $databases->getDB($snapshots->getSnapshotContainer($snapref))->getName();
         }
 
         if (defined($operation_for_conttf)) {
@@ -251,7 +254,8 @@ for my $engine ( sort (@{$engine_list}) ) {
             'N/A',
             'N/A',
             $snapshotname,
-            $snapsize
+            $snapsize,
+            $parentname
           );
         } else {
           $output->addLine(
@@ -264,7 +268,8 @@ for my $engine ( sort (@{$engine_list}) ) {
             'N/A',
             'N/A',
             $snapshotname,
-            $snapsize
+            $snapsize,
+            $parentname
           );
         }
 
@@ -356,7 +361,9 @@ for my $engine ( sort (@{$engine_list}) ) {
         if (!defined($parentsnapshotname)) {
           $parentsnapshotname = "deleted";
           $parentsnapsize = 'N/A';
+          $parentname = 'N/A';
         } else {
+          $parentname = $databases->getDB($snapshots->getSnapshotContainer($parentsnapshotref))->getName();
           if (!defined($snapshot_sizes{$parentsnapshotref})) {
             $parentsnapsize = $snapshots->getSnapshotSize($parentsnapshotref);
             if (defined($parentsnapsize)) {
@@ -393,7 +400,8 @@ for my $engine ( sort (@{$engine_list}) ) {
           $contsnapshotname,
           $snapsize,
           $parentsnapshotname,
-          $parentsnapsize
+          $parentsnapsize,
+          $parentname
         );
 
 
