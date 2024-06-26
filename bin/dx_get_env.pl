@@ -40,6 +40,8 @@ use Environment_obj;
 use Toolkit_helpers;
 use Repository_obj;
 use Host_obj;
+use SourceConfig_obj;
+use Databases;
 
 my $version = $Toolkit_helpers::version;
 
@@ -53,6 +55,8 @@ GetOptions(
   'cluster' => \(my $cluster),
   'backup=s' => \(my $backup),
   'replist' => \(my $replist),
+  'sourcelist' => \(my $sourcelist),
+  'dbname=s' => \(my $dbname),
   'nohead' => \(my $nohead),
   'format=s' => \(my $format),
   'debug:i' => \(my $debug),
@@ -71,6 +75,12 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($dbname) && (!defined($envname))) {
+  print "Option -dbname requires environemnt name -name to be specified \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -104,7 +114,17 @@ if (defined($userlist)) {
     {'Environment Name',  30},
     {'Repository list',   30}
   );
-} elsif (defined($config)) {
+} elsif (defined($sourcelist)) {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Environment Name',  30},
+    {'Repository',        30},
+    {'DB name',           30},
+    {'DB type',           30},
+    {'dSource/VDB',       10},
+    {'dSource/VDB name',  30}
+  );
+}elsif (defined($config)) {
   $output->addHeader(
     {'Appliance',         20},
     {'Environment Name',  30},
@@ -152,10 +172,24 @@ for my $engine ( sort (@{$engine_list}) ) {
   };
 
   # load objects for current engine
-  my $environments = new Environment_obj( $engine_obj, $debug);
-  my $repository_obj = new Repository_obj($engine_obj, $debug);
-  my $host_obj = new Host_obj ( $engine_obj, $debug );
+  my $environments;
+  my $repository_obj;
+  my $host_obj;
+  my $toolkits;
+  my $sourceconfigs;
+  my $databases;
 
+  if (defined($sourcelist)) {
+    $toolkits = new Toolkit_obj($engine_obj, $debug);
+    $databases = new Databases( $engine_obj, $debug );
+    $sourceconfigs = $databases->{_sourceconfigs};
+    $environments = $databases->{_environments};
+    $repository_obj = $databases->{_repositories};
+  } else {
+    $environments = new Environment_obj( $engine_obj, $debug);
+    $repository_obj = new Repository_obj($engine_obj, $debug);
+    $host_obj = new Host_obj ( $engine_obj, $debug );
+  }
 
   # filter implementation
 
@@ -185,81 +219,13 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $envitem ( @env_list ) {
 
     if (defined($userlist)) {
-      $output->addLine(
-        $engine,
-        $environments->getName($envitem),
-        '*' . $environments->getPrimaryUserName($envitem),
-        $environments->getPrimaryUserAuth($envitem)
-      );
-      for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
-        $output->addLine(
-          '',
-          '',
-          $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
-          $environments->getEnvironmentUserAuth($envitem,$useritem)
-        );
-      }
+      print_users($output, $engine, $environments, $envitem);
     } elsif (defined($replist)) {
-      $output->addLine(
-        $engine,
-        $environments->getName($envitem),
-        ''
-      );
-      my $reparray = $repository_obj->getRepositoryByEnv($envitem);
-      for my $repitem (@{$reparray}) {
-        $output->addLine(
-          '',
-          '',
-          $repository_obj->getName($repitem)
-        );
-      }
-
+      print_repo($output, $engine, $environments, $envitem, $repository_obj);
+    } elsif (defined($sourcelist)) {
+      $ret = $ret + print_source($output, $engine, $envitem, $databases, $toolkits, $dbname);
     } elsif (defined($config) || defined($backup)) {
-
-      my $envtype = $environments->getType($envitem);
-      my $host_ref = $environments->getHost($envitem);
-      my $envname = $environments->getName($envitem);
-      my $userauth = $environments->getPrimaryUserAuth($envitem);
-      my $hostname;
-      my $user = $environments->getPrimaryUserName($envitem);
-
-      if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
-        $hostname = $host_obj->getHostAddr($host_ref);
-      } else {
-        my $clusenvnode = $environments->getClusterNode($envitem);
-        $host_ref = $environments->getHost($clusenvnode);
-        $hostname = $host_obj->getHostAddr($host_ref);
-      }
-
-
-
-      if (defined($backup)) {
-
-        my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
-        $output->addLine(
-          $backup
-        );
-
-        #add users
-
-        $environments->getUsersBackup($envitem,$output,$engine);
-
-
-
-      } else {
-
-        $config = $environments->getConfig($envitem, $host_obj);
-        $output->addLine(
-         $engine,
-         $envname,
-         $envtype,
-         $hostname,
-         $user,
-         $userauth,
-         $config
-        );
-
-      }
+      gen_backup_config($output, $engine, $environments, $envitem, $backup, $host_obj);
     } else {
       my $cluster_nodes;
       my $host_ref = $environments->getHost($envitem);
@@ -328,7 +294,226 @@ if (defined($backup)) {
 
 exit $ret;
 
+sub print_users {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
 
+  $output->addLine(
+    $engine,
+    $environments->getName($envitem),
+    '*' . $environments->getPrimaryUserName($envitem),
+    $environments->getPrimaryUserAuth($envitem)
+  );
+  for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
+    $output->addLine(
+      '',
+      '',
+      $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
+      $environments->getEnvironmentUserAuth($envitem,$useritem)
+    );
+  }
+}
+
+sub print_repo {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
+  my $repository_obj = shift;
+
+  $output->addLine(
+    $engine,
+    $environments->getName($envitem),
+    ''
+  );
+  my $reparray = $repository_obj->getRepositoryByEnv($envitem);
+  for my $repitem (@{$reparray}) {
+    $output->addLine(
+      '',
+      '',
+      $repository_obj->getName($repitem)
+    );
+  }
+}
+  
+sub print_source {
+  my $output = shift;
+  my $engine = shift;
+  my $envitem = shift;
+  my $databases = shift;
+  my $toolkits = shift;
+  my $filter_db_name = shift;
+
+  my $sourceconfigs = $databases->{_sourceconfigs};
+  my $environments = $databases->{_environments};
+  my $repository_obj = $databases->{_repositories};
+  my $sources = $databases->{_source};
+
+  my $envname = $environments->getName($envitem);
+
+
+  my $rdbms;
+  my $sourceconfig;
+  my $source;
+  my $dbobj;
+  my $reponame;
+  my $dbname;
+  my $dbtype;
+  my $delphixname;
+  my $ret = 0;
+
+  my $reparray = $repository_obj->getRepositoryByEnv($envitem);
+  for my $repitem (@{$reparray}) {
+    $reponame = $repository_obj->getName($repitem);
+    my $dbarray = $sourceconfigs->getSourceConfigsListForRepo($repitem);
+
+    my @outputdbarray;
+    my $outputdbarray_pointer;
+    if (defined($filter_db_name)) {
+      for my $dbitem (@{$dbarray}) {
+        $sourceconfig = $sourceconfigs->getSourceConfig($dbitem);
+        if (defined($sourceconfig->{'toolkit'})) {
+          $dbname = $sourceconfigs->getName($dbitem);
+        } else {
+          $dbname = $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+        }
+        if ($dbname eq $filter_db_name) {
+          push(@outputdbarray, $dbitem);
+        }
+      }
+      if (scalar(@outputdbarray)>0) {
+        $ret = 0;
+      } else {
+        $ret = 1;
+      }
+      $outputdbarray_pointer = \@outputdbarray;
+
+    } else {
+      $outputdbarray_pointer = $dbarray;
+    }
+
+    for my $dbitem (@{$outputdbarray_pointer}) {
+      # print Dumper "databases";
+      # print Dumper $dbitem;
+      # print Dumper $sourceconfigs->getName($dbitem);
+      # print Dumper $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+
+      # $dbname = 'slon';
+
+      $sourceconfig = $sourceconfigs->getSourceConfig($dbitem);
+      if (defined($sourceconfig->{'toolkit'})) {
+        if ($toolkits->getName($sourceconfig->{'toolkit'}) eq 'postgres-vsdk') {
+          $rdbms = 'postgresql';
+        } elsif ($toolkits->getName($sourceconfig->{'toolkit'}) eq 'db2db') {
+          $rdbms = 'db2';
+        } else {
+          $rdbms = 'unknown';
+        }
+        $dbname = $sourceconfigs->getName($dbitem);
+      } else {
+        $dbname = $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+        if ($dbitem =~ /^MSSQL/) {
+          $rdbms = "mssql";
+        } elsif ($dbitem =~ /^ORACLE/) {
+          if (defined($sourceconfig->{'cdbType'})) {
+            if ($sourceconfig->{'cdbType'} eq 'NON_CDB') {
+              $rdbms = "oracle";
+            } elsif ($sourceconfig->{'cdbType'} eq 'ROOT_CDB') {
+              $rdbms = "oracle CDB";
+            } 
+          } elsif (defined($sourceconfig->{'cdbConfig'})) {
+            $rdbms = "oracle PDB";
+          } else {
+            $rdbms = "unknown oracle";
+          }
+        } elsif ($dbitem =~ /^ASE/) {
+          $rdbms = "sybase";
+        }
+      }
+
+      $source = $sources->getSourceByConfig($dbitem);
+      if (defined($source)) {
+        $dbobj = $databases->getDB($source->{'container'});
+        $delphixname = $dbobj->getName();
+        $dbtype = $dbobj->getType();
+      } else {
+        # not ingested
+        $dbtype = '';
+        $delphixname = 'not ingested';
+      }
+
+
+      
+      $output->addLine(
+        $engine,
+        $envname,
+        $reponame,
+        $dbname,
+        $rdbms,
+        $dbtype,
+        $delphixname
+      )
+    }
+  }
+
+  return $ret;
+}
+
+sub gen_backup_config {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
+  my $backup = shift;
+  my $host_obj = shift;
+
+  my $envtype = $environments->getType($envitem);
+  my $host_ref = $environments->getHost($envitem);
+  my $envname = $environments->getName($envitem);
+  my $userauth = $environments->getPrimaryUserAuth($envitem);
+  my $hostname;
+  my $user = $environments->getPrimaryUserName($envitem);
+
+  if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
+    $hostname = $host_obj->getHostAddr($host_ref);
+  } else {
+    my $clusenvnode = $environments->getClusterNode($envitem);
+    $host_ref = $environments->getHost($clusenvnode);
+    $hostname = $host_obj->getHostAddr($host_ref);
+  }
+
+
+
+  if (defined($backup)) {
+
+    my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
+    $output->addLine(
+      $backup
+    );
+
+    #add users
+
+    $environments->getUsersBackup($envitem,$output,$engine);
+
+
+
+  } else {
+
+    $config = $environments->getConfig($envitem, $host_obj);
+    $output->addLine(
+      $engine,
+      $envname,
+      $envtype,
+      $hostname,
+      $user,
+      $userauth,
+      $config
+    );
+
+  }
+}
 __DATA__
 
 =head1 SYNOPSIS
@@ -337,6 +522,7 @@ __DATA__
             [-name env_name | -reference reference ]
             [-backup]
             [-replist ]
+            [-userlist ]
             [-cluster ]
             [-format csv|json ]
             [-help|? ]

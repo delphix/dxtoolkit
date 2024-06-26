@@ -412,6 +412,31 @@ for my $engine ( sort (@{$engine_list}) ) {
           my %plugin_params_hash = (
             "name" => $dbname
           );
+
+          my $dbarray = $sourceconfig_obj->getSourceConfigsListForRepo($repo->{reference});
+          my $sourceconfig;
+          my $existing_db_name;
+          my $db_exist = 0;
+
+          for my $dbitem (@{$dbarray}) {
+            $sourceconfig = $sourceconfig_obj->getSourceConfig($dbitem);
+            if (defined($sourceconfig->{'toolkit'})) {
+              $existing_db_name = $sourceconfig_obj->getName($dbitem);
+            } else {
+              $existing_db_name = $sourceconfig_obj->getSourceConfig($dbitem)->{'databaseName'};
+            }
+            if ($dbname eq $existing_db_name) {
+              print "Database $dbname already exist. Skipping\n";
+              $ret = $ret + 1;
+              $db_exist = 1;
+              last;
+            }
+          }
+
+          if ($db_exist == 1) {
+            next;
+          }
+
           if ($sourceconfig_obj->createSourceConfig('plugin', $repo->{reference}, $dbname, \%native_params, \%plugin_params_hash)) {
             print "Can't add Postgresql $dbname \n";
             $ret = $ret + 1;

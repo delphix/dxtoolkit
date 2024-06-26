@@ -972,7 +972,7 @@ sub login {
        }
     );
   } else {
-    #  keep this for backward compability of dxtools.conf file
+    #  keep this for backward compatibility of dxtools.conf file
     #  if sysadmin is defined there we need to be able to login
     %mylogin =
     (
