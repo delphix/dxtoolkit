@@ -31,7 +31,7 @@
 - support for object level stats in the dx_get_capacity_history
 
 ### Changes:
-- compability with new engines (up to 16)
+- compatibility with new engines (up to 16)
 - fixes in the timestamp support (-st) and (-et)
 
 ## 2.4.20
@@ -42,7 +42,7 @@
 
 ### Changes:
 - [bug #230](https://github.com/delphix/dxtoolkit/issues/232) - example files location
-- compability with new engines (up to 12)
+- compatibility with new engines (up to 12)
 
 ## 2.4.19.2
 
