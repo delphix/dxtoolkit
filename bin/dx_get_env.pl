@@ -40,6 +40,8 @@ use Environment_obj;
 use Toolkit_helpers;
 use Repository_obj;
 use Host_obj;
+use SourceConfig_obj;
+use Databases;
 
 my $version = $Toolkit_helpers::version;
 
@@ -53,6 +55,8 @@ GetOptions(
   'cluster' => \(my $cluster),
   'backup=s' => \(my $backup),
   'replist' => \(my $replist),
+  'sourcelist' => \(my $sourcelist),
+  'dbname=s' => \(my $dbname),
   'nohead' => \(my $nohead),
   'format=s' => \(my $format),
   'debug:i' => \(my $debug),
@@ -71,6 +75,12 @@ $engine_obj->load_config($config_file);
 
 if (defined($all) && defined($dx_host)) {
   print "Option all (-all) and engine (-d|engine) are mutually exclusive \n";
+  pod2usage(-verbose => 1,  -input=>\*DATA);
+  exit (1);
+}
+
+if (defined($dbname) && (!defined($envname))) {
+  print "Option -dbname requires environemnt name -name to be specified \n";
   pod2usage(-verbose => 1,  -input=>\*DATA);
   exit (1);
 }
@@ -104,7 +114,17 @@ if (defined($userlist)) {
     {'Environment Name',  30},
     {'Repository list',   30}
   );
-} elsif (defined($config)) {
+} elsif (defined($sourcelist)) {
+  $output->addHeader(
+    {'Appliance', 20},
+    {'Environment Name',  30},
+    {'Repository',        30},
+    {'DB name',           30},
+    {'DB type',           30},
+    {'dSource/VDB',       10},
+    {'dSource/VDB name',  30}
+  );
+}elsif (defined($config)) {
   $output->addHeader(
     {'Appliance',         20},
     {'Environment Name',  30},
@@ -134,7 +154,8 @@ else {
     {'Environment Name',  30},
     {'Type',      25},
     {'Status',     8},
-    {'OS Version', 50}
+    {'OS Version', 50},
+    {'Environment Users',  30}
   );
 }
 
@@ -152,10 +173,24 @@ for my $engine ( sort (@{$engine_list}) ) {
   };
 
   # load objects for current engine
-  my $environments = new Environment_obj( $engine_obj, $debug);
-  my $repository_obj = new Repository_obj($engine_obj, $debug);
-  my $host_obj = new Host_obj ( $engine_obj, $debug );
+  my $environments;
+  my $repository_obj;
+  my $host_obj;
+  my $toolkits;
+  my $sourceconfigs;
+  my $databases;
 
+  if (defined($sourcelist)) {
+    $toolkits = new Toolkit_obj($engine_obj, $debug);
+    $databases = new Databases( $engine_obj, $debug );
+    $sourceconfigs = $databases->{_sourceconfigs};
+    $environments = $databases->{_environments};
+    $repository_obj = $databases->{_repositories};
+  } else {
+    $environments = new Environment_obj( $engine_obj, $debug);
+    $repository_obj = new Repository_obj($engine_obj, $debug);
+    $host_obj = new Host_obj ( $engine_obj, $debug );
+  }
 
   # filter implementation
 
@@ -185,83 +220,16 @@ for my $engine ( sort (@{$engine_list}) ) {
   for my $envitem ( @env_list ) {
 
     if (defined($userlist)) {
-      $output->addLine(
-        $engine,
-        $environments->getName($envitem),
-        '*' . $environments->getPrimaryUserName($envitem),
-        $environments->getPrimaryUserAuth($envitem)
-      );
-      for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
-        $output->addLine(
-          '',
-          '',
-          $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
-          $environments->getEnvironmentUserAuth($envitem,$useritem)
-        );
-      }
+      print_users($output, $engine, $environments, $envitem);
     } elsif (defined($replist)) {
-      $output->addLine(
-        $engine,
-        $environments->getName($envitem),
-        ''
-      );
-      my $reparray = $repository_obj->getRepositoryByEnv($envitem);
-      for my $repitem (@{$reparray}) {
-        $output->addLine(
-          '',
-          '',
-          $repository_obj->getName($repitem)
-        );
-      }
-
+      print_repo($output, $engine, $environments, $envitem, $repository_obj);
+    } elsif (defined($sourcelist)) {
+      $ret = $ret + print_source($output, $engine, $envitem, $databases, $toolkits, $dbname);
     } elsif (defined($config) || defined($backup)) {
-
-      my $envtype = $environments->getType($envitem);
-      my $host_ref = $environments->getHost($envitem);
-      my $envname = $environments->getName($envitem);
-      my $userauth = $environments->getPrimaryUserAuth($envitem);
-      my $hostname;
-      my $user = $environments->getPrimaryUserName($envitem);
-
-      if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
-        $hostname = $host_obj->getHostAddr($host_ref);
-      } else {
-        my $clusenvnode = $environments->getClusterNode($envitem);
-        $host_ref = $environments->getHost($clusenvnode);
-        $hostname = $host_obj->getHostAddr($host_ref);
-      }
-
-
-
-      if (defined($backup)) {
-
-        my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
-        $output->addLine(
-          $backup
-        );
-
-        #add users
-
-        $environments->getUsersBackup($envitem,$output,$engine);
-
-
-
-      } else {
-
-        $config = $environments->getConfig($envitem, $host_obj);
-        $output->addLine(
-         $engine,
-         $envname,
-         $envtype,
-         $hostname,
-         $user,
-         $userauth,
-         $config
-        );
-
-      }
+      gen_backup_config($output, $engine, $environments, $envitem, $backup, $host_obj);
     } else {
       my $cluster_nodes;
+      my $user = $environments->getPrimaryUserName($envitem);
       my $host_ref = $environments->getHost($envitem);
       my $hostos;
       if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
@@ -285,16 +253,21 @@ for my $engine ( sort (@{$engine_list}) ) {
           $hostos,
           $cluster_nodes
         );
-      } else {
-        $output->addLine(
-          $engine,
-          $environments->getName($envitem),
-          $environments->getType($envitem),
-          $environments->getStatus($envitem),
-          $hostos
-        );
       }
-    }
+      else {
+              my $users = join(";", map { $environments->getEnvironmentUserNamebyRef($envitem,$_) } @{$environments->getEnvironmentNotPrimaryUsers($envitem)});
+              $users = '*' . $environments->getPrimaryUserName($envitem) . ';' . $users;
+              $output->addLine(
+                $engine,
+                $environments->getName($envitem),
+                $environments->getType($envitem),
+                $environments->getStatus($envitem),
+                $hostos,
+                $users
+              );
+
+      }
+}
 
     $save_state{$envitem} = $environments->getStatus($envitem);
 
@@ -328,7 +301,226 @@ if (defined($backup)) {
 
 exit $ret;
 
+sub print_users {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
 
+  $output->addLine(
+    $engine,
+    $environments->getName($envitem),
+    '*' . $environments->getPrimaryUserName($envitem),
+    $environments->getPrimaryUserAuth($envitem)
+  );
+  for my $useritem (@{$environments->getEnvironmentNotPrimaryUsers($envitem)}) {
+    $output->addLine(
+      '',
+      '',
+      $environments->getEnvironmentUserNamebyRef($envitem,$useritem),
+      $environments->getEnvironmentUserAuth($envitem,$useritem)
+    );
+  }
+}
+
+sub print_repo {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
+  my $repository_obj = shift;
+
+  $output->addLine(
+    $engine,
+    $environments->getName($envitem),
+    ''
+  );
+  my $reparray = $repository_obj->getRepositoryByEnv($envitem);
+  for my $repitem (@{$reparray}) {
+    $output->addLine(
+      '',
+      '',
+      $repository_obj->getName($repitem)
+    );
+  }
+}
+  
+sub print_source {
+  my $output = shift;
+  my $engine = shift;
+  my $envitem = shift;
+  my $databases = shift;
+  my $toolkits = shift;
+  my $filter_db_name = shift;
+
+  my $sourceconfigs = $databases->{_sourceconfigs};
+  my $environments = $databases->{_environments};
+  my $repository_obj = $databases->{_repositories};
+  my $sources = $databases->{_source};
+
+  my $envname = $environments->getName($envitem);
+
+
+  my $rdbms;
+  my $sourceconfig;
+  my $source;
+  my $dbobj;
+  my $reponame;
+  my $dbname;
+  my $dbtype;
+  my $delphixname;
+  my $ret = 0;
+
+  my $reparray = $repository_obj->getRepositoryByEnv($envitem);
+  for my $repitem (@{$reparray}) {
+    $reponame = $repository_obj->getName($repitem);
+    my $dbarray = $sourceconfigs->getSourceConfigsListForRepo($repitem);
+
+    my @outputdbarray;
+    my $outputdbarray_pointer;
+    if (defined($filter_db_name)) {
+      for my $dbitem (@{$dbarray}) {
+        $sourceconfig = $sourceconfigs->getSourceConfig($dbitem);
+        if (defined($sourceconfig->{'toolkit'})) {
+          $dbname = $sourceconfigs->getName($dbitem);
+        } else {
+          $dbname = $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+        }
+        if ($dbname eq $filter_db_name) {
+          push(@outputdbarray, $dbitem);
+        }
+      }
+      if (scalar(@outputdbarray)>0) {
+        $ret = 0;
+      } else {
+        $ret = 1;
+      }
+      $outputdbarray_pointer = \@outputdbarray;
+
+    } else {
+      $outputdbarray_pointer = $dbarray;
+    }
+
+    for my $dbitem (@{$outputdbarray_pointer}) {
+      # print Dumper "databases";
+      # print Dumper $dbitem;
+      # print Dumper $sourceconfigs->getName($dbitem);
+      # print Dumper $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+
+      # $dbname = 'slon';
+
+      $sourceconfig = $sourceconfigs->getSourceConfig($dbitem);
+      if (defined($sourceconfig->{'toolkit'})) {
+        if ($toolkits->getName($sourceconfig->{'toolkit'}) eq 'postgres-vsdk') {
+          $rdbms = 'postgresql';
+        } elsif ($toolkits->getName($sourceconfig->{'toolkit'}) eq 'db2db') {
+          $rdbms = 'db2';
+        } else {
+          $rdbms = 'unknown';
+        }
+        $dbname = $sourceconfigs->getName($dbitem);
+      } else {
+        $dbname = $sourceconfigs->getSourceConfig($dbitem)->{'databaseName'};
+        if ($dbitem =~ /^MSSQL/) {
+          $rdbms = "mssql";
+        } elsif ($dbitem =~ /^ORACLE/) {
+          if (defined($sourceconfig->{'cdbType'})) {
+            if ($sourceconfig->{'cdbType'} eq 'NON_CDB') {
+              $rdbms = "oracle";
+            } elsif ($sourceconfig->{'cdbType'} eq 'ROOT_CDB') {
+              $rdbms = "oracle CDB";
+            } 
+          } elsif (defined($sourceconfig->{'cdbConfig'})) {
+            $rdbms = "oracle PDB";
+          } else {
+            $rdbms = "unknown oracle";
+          }
+        } elsif ($dbitem =~ /^ASE/) {
+          $rdbms = "sybase";
+        }
+      }
+
+      $source = $sources->getSourceByConfig($dbitem);
+      if (defined($source)) {
+        $dbobj = $databases->getDB($source->{'container'});
+        $delphixname = $dbobj->getName();
+        $dbtype = $dbobj->getType();
+      } else {
+        # not ingested
+        $dbtype = '';
+        $delphixname = 'not ingested';
+      }
+
+
+      
+      $output->addLine(
+        $engine,
+        $envname,
+        $reponame,
+        $dbname,
+        $rdbms,
+        $dbtype,
+        $delphixname
+      )
+    }
+  }
+
+  return $ret;
+}
+
+sub gen_backup_config {
+  my $output = shift;
+  my $engine = shift;
+  my $environments = shift;
+  my $envitem = shift;
+  my $backup = shift;
+  my $host_obj = shift;
+
+  my $envtype = $environments->getType($envitem);
+  my $host_ref = $environments->getHost($envitem);
+  my $envname = $environments->getName($envitem);
+  my $userauth = $environments->getPrimaryUserAuth($envitem);
+  my $hostname;
+  my $user = $environments->getPrimaryUserName($envitem);
+
+  if (($host_ref ne 'CLUSTER') && ($host_ref ne 'NA')) {
+    $hostname = $host_obj->getHostAddr($host_ref);
+  } else {
+    my $clusenvnode = $environments->getClusterNode($envitem);
+    $host_ref = $environments->getHost($clusenvnode);
+    $hostname = $host_obj->getHostAddr($host_ref);
+  }
+
+
+
+  if (defined($backup)) {
+
+    my $backup = $environments->getBackup($envitem, $host_obj, $engine, $envname, $envtype, $hostname, $user, $userauth);
+    $output->addLine(
+      $backup
+    );
+
+    #add users
+
+    $environments->getUsersBackup($envitem,$output,$engine);
+
+
+
+  } else {
+
+    $config = $environments->getConfig($envitem, $host_obj);
+    $output->addLine(
+      $engine,
+      $envname,
+      $envtype,
+      $hostname,
+      $user,
+      $userauth,
+      $config
+    );
+
+  }
+}
 __DATA__
 
 =head1 SYNOPSIS
@@ -337,6 +529,7 @@ __DATA__
             [-name env_name | -reference reference ]
             [-backup]
             [-replist ]
+            [-userlist ]
             [-cluster ]
             [-format csv|json ]
             [-help|? ]
@@ -413,13 +606,15 @@ Display all environments
 
  dx_get_env -d Landshark
 
- Appliance            Reference                      Environment Name               Type                      Status
- -------------------- ------------------------------ ------------------------------ ------------------------- --------
- Landshark5           ORACLE_CLUSTER-11              racattack-cl                   rac                       enabled
- Landshark5           UNIX_HOST_ENVIRONMENT-1        LINUXTARGET                    unix                      enabled
- Landshark5           UNIX_HOST_ENVIRONMENT-44       LINUXSOURCE                    unix                      enabled
- Landshark5           WINDOWS_HOST_ENVIRONMENT-48    WINDOWSTARGET                  windows                   enabled
- Landshark5           WINDOWS_HOST_ENVIRONMENT-49    WINDOWSSOURCE                  windows                   enabled
+ Appliance            Environment Name               Type                      Status   OS Version                                         Environment Users
+ -------------------- ------------------------------ ------------------------- -------- -------------------------------------------------- ------------------------------
+ dxtest               marcinsybasesrc.xxx.com        unix                      enabled  Red Hat Enterprise Linux release 8.3 (Ootpa)       *sybase;
+ dxtest               marcinorasrc.xxx.com           unix                      enabled  Red Hat Enterprise Linux Server release 7.8 (Maipo *oracle;oracle2
+ dxtest               marcinposttgt.xxx.com          unix                      enabled  Red Hat Enterprise Linux release 8.6 (Ootpa)       *postgres;
+ dxtest               marcinoratgt.xxx.com           unix                      enabled  Red Hat Enterprise Linux Server release 7.8 (Maipo *oracle;
+ dxtest               marcinsybasetgt.xxx.com        unix                      enabled  Red Hat Enterprise Linux release 8.3 (Ootpa)       *sybase;
+ dxtest               marcinmssqltgt.xxx.com         windows                   enabled  Windows Server 2016 Standard                       *QA-AD\ADuser;
+ dxtest               marcinmssqlsrc.xxx.com         windows                   enabled  Windows Server 2016 Standard                       *QA-AD\ADuser;
 
 Display all environments with repositories list
 
@@ -446,6 +641,71 @@ Display all environments with repositories list
                                                      MSSQLSERVER
                                                      MSSQL2012
 
+Display all environments with cluster list
 
+dx_get_env -d Landshark -cluster
+
+ Appliance            Environment Name               Type                      Status          OS Version                                               Hostname
+ -------------------- ------------------------------ ------------------------- --------------- -------------------------------------------------------- ---------------------
+ Landshark5           racattack-cl                   rac                       enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server1;10.***.**.01
+ Landshark5           LINUXTARGET                    unix                      enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server2;10.***.**.02
+ Landshark5           LINUXSOURCE                    unix                      enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server3;10.***.**.03
+ Landshark5           WINDOWSTARGET                  windows                   enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server4;10.***.**.04
+ Landshark5           WINDOWSSOURCE                  windows                   enabled         Red Hat Enterprise Linux Server release 7.9 (Maipo)      server5;10.***.**.05
+
+
+Display all environments with user list
+
+dx_get_env -d Landshark -userlist
+
+ Appliance            Environment Name               User name               Status          Auth Type
+ -------------------- ------------------------------ ----------------------- --------------- ---------------
+ Landshark5           racattack-cl                   *delphix                enabled         password
+ Landshark5           LINUXTARGET                    *delphix                enabled         password
+ Landshark5           LINUXSOURCE                    *delphix                enabled         systemkey
+ Landshark5           WINDOWSTARGET                  *delphix                enabled         password
+ Landshark5           WINDOWSSOURCE                  *delphix                enabled         systemkey
+
+
+Display all databases
+
+ dx_get_env -d dxtest -sourcelist
+ 
+ Appliance            Environment Name               Repository                     DB name                        DB type                        dSource/VD dSource/VDB name
+ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ ---------- ------------------------------
+ dxtest               marcinsybasesrc.xxx.com        ASE160_SRC                     db_rhel83_160_0                sybase                                    not ingested
+ dxtest               marcinsybasesrc.xxx.com        ASE160_SRC                     db_rhel83_160_1                sybase                         dSource    db_rhel83_160_1
+ dxtest               marcinsybasesrc.xxx.com        ASE160_SRC                     db_rhel83_160_2                sybase                                    not ingested
+ dxtest               marcinsybasesrc.xxx.com        ASE160_SRC                     db_rhel83_160_3                sybase                                    not ingested
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 ORACLEXXCA1DPDB1               oracle PDB                     dSource    ORACLEXXCA1DPDB1
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 ORACLEXXCA1DPDB2               oracle PDB                                not ingested
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 ORACLEXXCA1DPDB3               oracle PDB                                not ingested
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 ORACLESI                       oracle                         dSource    ORACLESI85E9
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 ORACLEXX                       oracle CDB                     CDB        CDOMLOSRCA1D
+ dxtest               marcinorasrc.xxx.com           /u01/app/oracle/product/19.0.0 CDOMSHSR                       oracle CDB                     CDB        CDOMSHSRF517
+ dxtest               marcinposttgt.xxx.com          Postgres vFiles (15.2)         Postgres-5444 - /mnt/provision postgresql                     VDB        postsing
+ dxtest               marcinposttgt.xxx.com          Postgres vFiles (15.2)         Postgres-5445 - /mnt/provision postgresql                     VDB        post
+ dxtest               marcinposttgt.xxx.com          Postgres vFiles (15.2)         singledb                       postgresql                     dSource    singledb
+ dxtest               marcinposttgt.xxx.com          Postgres vFiles (15.2)         postds                         postgresql                     dSource    postds
+ dxtest               marcinposttgt.xxx.com          Postgres vFiles (15.2)         dxttest3                       postgresql                                not ingested
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 tdetest                        oracle PDB                     VDB        tdetest
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 pdbtest                        oracle PDB                     VDB        pdbtest
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 pdbtest2                       oracle PDB                     VDB        pdbtest2
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 oratest                        oracle                         VDB        oratest
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 oratest2                       oracle                         VDB        oratest2
+ dxtest               marcinsybasetgt.xxx.com        ASE160_TGT                     dxrnuv2Prvcrr93H7A_l83_160_1   sybase                         dSource    db_rhel83_160_1
+ dxtest               marcinsybasetgt.xxx.com        ASE160_TGT                     sybasetest                     sybase                         VDB        sybasetest
+ dxtest               marcinmssqltgt.xxx.com         SQL2016                        dummystg                       mssql                          dSource    dummystg
+ dxtest               marcinmssqltgt.xxx.com         SQL2016                        ec2d3f84-b46d-75e3-0c32-04d637 mssql                          dSource    SourceXYZ
+ dxtest               marcinmssqltgt.xxx.com         SQL2016                        mssqltest                      mssql                          VDB        mssqltest
+ dxtest               marcinmssqlsrc.xxx.com         SQL2016                        SourceXYZ                      mssql                          dSource    SourceXYZ
+
+Test if one database have been discovered on the environment
+
+ dx_get_env -d dxtest -sourcelist -dbname oratest -name marcinoratgt.xxx.com  
+ 
+ Appliance            Environment Name               Repository                     DB name                        DB type                        dSource/VD dSource/VDB name
+ -------------------- ------------------------------ ------------------------------ ------------------------------ ------------------------------ ---------- ------------------------------
+ dxtest               marcinoratgt.xxx.com           /u01/app/oracle/product/19.0.0 oratest                        oracle                         VDB        oratest
 
 =cut

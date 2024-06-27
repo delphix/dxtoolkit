@@ -21,14 +21,6 @@ $server2->host('127.0.0.1');
 $server2->background();
 
 
-
-# $server->set_dir('dupazbita');
-# my $ala = $server->get_dir();
-#
-# print Dumper $ala;
-#
-# exit(1);
-
 script_compiles('../../bin/dx_get_hierarchy.pl');
 
 script_runs(['../../bin/dx_get_hierarchy.pl', '-d', 'local32', '-format','csv','-nohead'] ,  "All hierachy test");

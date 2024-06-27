@@ -1014,44 +1014,6 @@ sub setEnabled {
   
 }
 
-# Procedure setType
-# parameters:
-# - repobj
-# - type
-# Set a proper objectlist type
 
-# sub setType {
-#   my $self      = shift;
-#   my $repobj = shift;
-#   my $type = shift;
-
-#   logger( $self->{_debug}, "Entering Replication_obj::setType", 1 );
-#   if (lc $type eq 'replica') {
-#     $repobj->{"objectSpecification"}->{type} = 'ReplicationList';
-#   } elsif (lc $type eq 'sdd') {
-#     $repobj->{"objectSpecification"}->{type} = 'ReplicationSecureList';
-#   } else {
-#     print Dumper "wrong type";
-#     return undef;
-#   }    
-# }
-
-
-# {
-#     "type": "ReplicationSpec",
-#     "name": "dupazbita",
-#     "targetHost": "10.0.0.1",
-#     "targetPrincipal": "admin",
-#     "targetCredential": {
-#         "type": "PasswordCredential",
-#         "password": "dupa"
-#     },
-#     "objectSpecification": {
-#         "type": "ReplicationList",
-#         "objects": [
-#             "ORACLE_DB_CONTAINER-5"
-#         ]
-#     }
-# }
 
 1;

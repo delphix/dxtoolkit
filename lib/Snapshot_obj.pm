@@ -38,7 +38,6 @@ use Toolkit_helpers qw (logger);
 # - container - database reference
 # - debug - debug flag (debug on if defined)
 
-
 sub new {
     my $classname  = shift;
     my $dlpxObject = shift;
@@ -92,7 +91,7 @@ sub getContainer {
 sub getSnapshotContainer {
     my $self = shift;
     my $reference = shift;
-    logger($self->{_debug}, "Entering Snapshot_obj::getContainer",1);
+    logger($self->{_debug}, "Entering Snapshot_obj::getSnapshotContainer",1);
 
     return $self->{_snapshots}->{$reference}->{container};
 }
