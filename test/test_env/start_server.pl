@@ -1,4 +1,4 @@
-use lib '/Users/mprzepiorowski/Documents/oss_dxtoolkit/dxtoolkit/test/';
+use lib '/home/pioro/oss_delphix/dxtoolkit/test/test_env';
 use server;
 use Log::Log4perl qw(:easy);
 
