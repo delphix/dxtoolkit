@@ -531,6 +531,7 @@ __DATA__
             [-replist ]
             [-userlist ]
             [-cluster ]
+            [-sourcelist [-dbname name]]
             [-format csv|json ]
             [-help|? ]
             [-debug ]
@@ -587,6 +588,14 @@ Display repository list (Orcle Home / MS SQL instance / etc ) for environment
 =item B<-cluster>
 Print ; segrageted list of cluster nodes from the environment into a new column called cluster nodes
 
+=item B<-userlist>
+Print list of user for each environment 
+
+=item B<-sourcelist>
+Print list of source databases ( discovered or added )
+
+=item B<-dbname name>
+Print source database(s) with the "name"
 
 =item B<-format>
 Display output in csv or json format
