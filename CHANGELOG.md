@@ -1,154 +1,155 @@
+## 2.4.24
+
+### Added
+- Added support to list environment users.
+- Added support to list environment databases.
+- Fixed self-service snapshot list issue in dx_get_js_snapshots
+- Fixed dx_ctl_env to prevent adding same database twice for PostgreSQL
+
 ## 2.4.23
 
 ### Added
-- Support for Postgresql ( dSource / VDB )
+- Support for PostgreSQL (dSource/VDB)
 - Data patch flag added for Oracle VDBs
 
 ## 2.4.22.1
 
 ### Changes
-- Fix to support backupuuid in dx_snapshot_db
-- Fix to support dots in the user names while using @DOMAIN or @SYSTEM
+- Fix to support backup UUID in dx_snapshot_db
+- Fix to support dots in usernames while using @DOMAIN or @SYSTEM
 
 ## 2.4.22
 
 ### Added
-- flag -cluster for dx_get_env and dx_get_db_env to display a cluster nodes for dSources and VDBs
-- support for Amazon Linux 2023
+- Flag -cluster for dx_get_env and dx_get_db_env to display cluster nodes for dSources and VDBs
+- Support for Amazon Linux 2023
 
-### Changes:
-- fix for dx_set_envpass to support MSSQL source environments
-- [bug #234](https://github.com/delphix/dxtoolkit/issues/234) - dx_ctl_user - fix for setting principal
+### Changes
+- Fix for dx_set_envpass to support MSSQL source environments
+- [Bug #234](https://github.com/delphix/dxtoolkit/issues/234) - dx_ctl_user - fix for setting principal
 
 ## 2.4.21.1
 
-### Changes:
-- group name added to dx_get_vdbthroughput - new parameter fullname
+### Changes
+- Group name added to dx_get_vdbthroughput - new parameter fullname
 
 ## 2.4.21
 
 ### Added
-- support for object level stats in the dx_get_capacity_history
+- Support for object level stats in dx_get_capacity_history
 
-### Changes:
-- compability with new engines (up to 16)
-- fixes in the timestamp support (-st) and (-et)
+### Changes
+- Compatibility with new engines (up to 16)
+- Fixes in the timestamp support (-st) and (-et)
 
 ## 2.4.20
 
 ### Added
-- support for Staging push ( MS SQL / Oracle )
-- [bug #232](https://github.com/delphix/dxtoolkit/issues/232) - dx_snapshot_db supports staging push
+- Support for Staging push (MS SQL/Oracle)
+- [Bug #232](https://github.com/delphix/dxtoolkit/issues/232) - dx_snapshot_db supports staging push
 
-### Changes:
-- [bug #230](https://github.com/delphix/dxtoolkit/issues/232) - example files location
-- compability with new engines (up to 12)
+### Changes
+- [Bug #230](https://github.com/delphix/dxtoolkit/issues/232) - Example files location
+- Compatibility with new engines (up to 12)
 
 ## 2.4.19.2
 
 ### Added
-- [bug #224](https://github.com/delphix/dxtoolkit/issues/224) - dx_get_hierarchy - print parent name
+- [Bug #224](https://github.com/delphix/dxtoolkit/issues/224) - dx_get_hierarchy - print parent name
 
 ## 2.4.19
 
-### Changes:
-- [bug #227](https://github.com/delphix/dxtoolkit/issues/227) - snapshot order fixed
-- [bug #226](https://github.com/delphix/dxtoolkit/issues/226) - link / unlink (attach / detech) works for vPDB and CDB
-- build fixes
+### Changes
+- [Bug #227](https://github.com/delphix/dxtoolkit/issues/227) - Snapshot order fixed
+- [Bug #226](https://github.com/delphix/dxtoolkit/issues/226) - Link/unlink (attach/detach) works for vPDB and CDB
+- Build fixes
 
 ### Added
-- [bug #225](https://github.com/delphix/dxtoolkit/issues/225) - support for vPDB/vCDB with TDE
-
+- [Bug #225](https://github.com/delphix/dxtoolkit/issues/225) - Support for vPDB/vCDB with TDE
 
 ## 2.4.18
 
 ### Added
-- [bug #206](https://github.com/delphix/dxtoolkit/issues/206) - dsource hooks support
-- [bug #217](https://github.com/delphix/dxtoolkit/issues/217) - dx_ctl_namespace added with option to failover and delete a namespace
-- [bug #220](https://github.com/delphix/dxtoolkit/issues/220) - Support for different metrics - MB/TB/GB/KB added to commands displaying space
+- [Bug #206](https://github.com/delphix/dxtoolkit/issues/206) - dSource hooks support
+- [Bug #217](https://github.com/delphix/dxtoolkit/issues/217) - dx_ctl_namespace added with options to failover and delete a namespace
+- [Bug #220](https://github.com/delphix/dxtoolkit/issues/220) - Support for different metrics (MB/TB/GB/KB) added to commands displaying space
 
-
-
-### Changes:
-- [bug #223](https://github.com/delphix/dxtoolkit/issues/223) - dx_ctl_js_container fix with return code
-- [bug #222](https://github.com/delphix/dxtoolkit/issues/222) - db_get_db_env backup is now generating proper output for masked child VDB
-- [bug #221](https://github.com/delphix/dxtoolkit/issues/221) - dbname for Oracle PDB can be now up to 30 characters
-- build fixes
-
-
+### Changes
+- [Bug #223](https://github.com/delphix/dxtoolkit/issues/223) - dx_ctl_js_container fix with return code
+- [Bug #222](https://github.com/delphix/dxtoolkit/issues/222) - dx_get_db_env backup is now generating proper output for masked child VDB
+- [Bug #221](https://github.com/delphix/dxtoolkit/issues/221) - dbname for Oracle PDB can now be up to 30 characters
+- Build fixes
 
 ## 2.4.17.2
 
-### Changes:
+### Changes
 - dx_v2p - fix for MS SQL database to support file mapping
-- Fix for various commands for better support of Delphix Engine timezones ( ex. dx_get_jobs and similar ) 
+- Fix for various commands for better support of Delphix Engine timezones (e.g., dx_get_jobs and similar)
 
 ## 2.4.17
 
 <B>Breaking change</B> 
-If dx_ctl_replication script is used please review your scipts
-and add <i>-action replicate</i> to keep current functionality
+If dx_ctl_replication script is used, please review your scripts and add <i>-action replicate</i> to keep current functionality.
 
 ### Changes
 
--  dx_ctl_replication - <b>Breaking change</b> - More functionality (create/update/delete profile) has been added and parameter <i>-action</i> is required 
--  dx_get_replication - backup of the replication profiles has been added 
--  dx_get_osversion - fix
--  dx_get_config - backup of engine configuration to the JSON file has been added
--  fix to issue with some database names / comments 
--  [bug #218](https://github.com/delphix/dxtoolkit/issues/218) - fix in dx_v2p
--  [bug #214](https://github.com/delphix/dxtoolkit/issues/214) - fix to no of CPU
--  [bug #208](https://github.com/delphix/dxtoolkit/issues/208) - fix to limited user privileges
+- dx_ctl_replication - <b>Breaking change</b> - More functionality (create/update/delete profile) has been added, and parameter <i>-action</i> is required 
+- dx_get_replication - backup of the replication profiles has been added 
+- dx_get_osversion - fix
+- dx_get_config - backup of engine configuration to the JSON file has been added
+- Fix to issue with some database names/comments 
+- [Bug #218](https://github.com/delphix/dxtoolkit/issues/218) - Fix in dx_v2p
+- [Bug #214](https://github.com/delphix/dxtoolkit/issues/214) - Fix to number of CPU
+- [Bug #208](https://github.com/delphix/dxtoolkit/issues/208) - Fix to limited user privileges
 
 ### Added
 
--  dx_ctl_config - initialise and configure engine using JSON file
--  dx_get_namespace - list all replicated namespace
--  dx_ctl_namespace - failover or delete namespace
+- dx_ctl_config - initialize and configure engine using JSON file
+- dx_get_namespace - list all replicated namespaces
+- dx_ctl_namespace - failover or delete namespace
+
 ## 2.4.16.3
 
 ### Changes
 
-- fix to disable debug data in various scripts
-- [bug #215](https://github.com/delphix/dxtoolkit/issues/215) - v2p for MS SQL fix for 6.0.14 and higher
+- Fix to disable debug data in various scripts
+- [Bug #215](https://github.com/delphix/dxtoolkit/issues/215) - v2p for MS SQL fix for 6.0.14 and higher
+
 ## 2.4.16.2
 
 ### Added
 
 - dx_get_osversion - will report an upgrade verification status 
-- dx_get_appliance - will show UUID and engine type (masking / virtualisation )
+- dx_get_appliance - will show UUID and engine type (masking/virtualization)
 
 ## 2.4.16.0
 
 ### Added
 
 - dx_get_db_env has a new column showing last VDB refresh time
-- TDE support for an Oracle MT
+- TDE support for Oracle MT
 - OAuth2 support - Bearer token access
 
-
 ### Changed
- - dx_get_vdbsize - documentation fix
- - dx_ctl_env - set TDE password for CDB
- - dx_provision_db - support for Oracle MT TDE
- - dx_get_osversion - print upgrade verification results
+- dx_get_vdbsize - documentation fix
+- dx_ctl_env - set TDE password for CDB
+- dx_provision_db - support for Oracle MT TDE
+- dx_get_osversion - print upgrade verification results
 
 ## 2.4.15.1
 
 ### Added
-- [enhancement #194](https://github.com/delphix/dxtoolkit/issues/194) Last refresh date added to dx_get_db_env as a new column
-- dx_get_source_info is displaying now a status for Validated Sync opertion for MS SQL and Sybase
+- [Enhancement #194](https://github.com/delphix/dxtoolkit/issues/194) - Last refresh date added to dx_get_db_env as a new column
+- dx_get_source_info now displays a status for Validated Sync operation for MS SQL and Sybase
 - dx_get_db_env has a new column showing last VDB refresh time
 - dx_get_vdbsize - new script to display total storage used by VDB
 
-
 ### Changed
-- [bug #197](https://github.com/delphix/dxtoolkit/issues/197) dx_get_db_env is displaying now a parent snapshot / time of the parent dSource / VDB - not a rollback one
-- [bug #185](https://github.com/delphix/dxtoolkit/issues/185) dx_get_db_env is not displaying errors for replicated objects
-- [bug #190](https://github.com/delphix/dxtoolkit/issues/190) dx_provision_db works with None snapshot policy
-- [bug #198](https://github.com/delphix/dxtoolkit/issues/198) dx_get_source_info failing with vFiles dSources
-- [bug #199](https://github.com/delphix/dxtoolkit/issues/199) reserved space added to dx_get_appliance
-
+- [Bug #197](https://github.com/delphix/dxtoolkit/issues/197) - dx_get_db_env is now displaying a parent snapshot/time of the parent dSource/VDB - not a rollback one
+- [Bug #185](https://github.com/delphix/dxtoolkit/issues/185) - dx_get_db_env is not displaying errors for replicated objects
+- [Bug #190](https://github.com/delphix/dxtoolkit/issues/190) - dx_provision_db works with None snapshot policy
+- [Bug #198](https://github.com/delphix/dxtoolkit/issues/198) - dx_get_source_info failing with vFiles dSources
+- [Bug #199](https://github.com/delphix/dxtoolkit/issues/199) - Reserved space added to dx_get_appliance
 
 ## 2.4.14.1
 
@@ -161,19 +162,18 @@ and add <i>-action replicate</i> to keep current functionality
 
 ### Added
 
-- support for 6.0.11 engine
-- dx_ctl_engine_upgrade - action apply allows to select upgrade type - deferred or full
-- dx_ctl_engine_upgrade - action delete allows to delete old OS
-- dx_get_db_env new flag to speed up a command output for engines with many snapshots - dx_get_db_env -snappervdb
-- new filter based on repository name ( ORACLE_HOME, MS SQL instance, etc) added to dx_get_db_env and dx_ctl_db
+- Support for 6.0.11 engine
+- dx_ctl_engine_upgrade - action apply allows selection of upgrade type - deferred or full
+- dx_ctl_engine_upgrade - action delete allows deletion of old OS
+- dx_get_db_env - new flag to speed up command output for engines with many snapshots - dx_get_db_env -snappervdb
+- New filter based on repository name (ORACLE_HOME, MS SQL instance, etc.) added to dx_get_db_env and dx_ctl_db
 
 ### Changed
-- dx_ctl_engine_upgrade apply action fixed - it monitors now a whole upgrade process, including engine reboot
-- [fix for #195](https://github.com/delphix/dxtoolkit/issues/195) - this was generic issue with snapshot paging
-- [fix for #193](https://github.com/delphix/dxtoolkit/issues/193) - dx_get_env creates different envtype than what dx_create_env expects
-- fix for backup metadata in dx_get_db_env
-- fix for printing hierarchy in dx_get_hierarchy for objects with same reference across 2 engines
-
+- dx_ctl_engine_upgrade apply action fixed - it now monitors the whole upgrade process, including engine reboot
+- [Fix for #195](https://github.com/delphix/dxtoolkit/issues/195) - generic issue with snapshot paging
+- [Fix for #193](https://github.com/delphix/dxtoolkit/issues/193) - dx_get_env creates a different envtype than what dx_create_env expects
+- Fix for backup metadata in dx_get_db_env
+- Fix for printing hierarchy in dx_get_hierarchy for objects with the same reference across two engines
 
 ## 2.4.13
 
@@ -181,23 +181,22 @@ and add <i>-action replicate</i> to keep current functionality
 - Support for Commvault in adding MSSQL dSource
 
 ### Changed
-- remove bookmark in self service fix
-- fix for snapshot size reporting
-
+- Remove bookmark in self-service fix
+- Fix for snapshot size reporting
 
 ## 2.4.12
 
 ### Added
-- skipdefault flag added to dx_ctl_policy to skip updating existing default polices
-- [fix for #180](https://github.com/delphix/dxtoolkit/issues/180) - exclude parameter added to dx_ctl_dsource to ingest vfiles with exclude list
-- support for password passed through environment variable - see example config file
-- support for password passed via external script - see example config file
+- Skipdefault flag added to dx_ctl_policy to skip updating existing default policies
+- [Fix for #180](https://github.com/delphix/dxtoolkit/issues/180) - Exclude parameter added to dx_ctl_dsource to ingest vFiles with exclude list
+- Support for password passed through environment variable - see example config file
+- Support for password passed via external script - see example config file
 
 ### Changed
-- fix for applying policy to group
-- fix to uploading upgrade in engines in version 6.0.X
-- fix for same users in DOMAIN and SYSTEM with dash in name
-- [fix for #181](https://github.com/delphix/dxtoolkit/issues/181) Fix for disable / enbable LogSync
+- Fix for applying policy to group
+- Fix to uploading upgrade in engines in version 6.0.X
+- Fix for same users in DOMAIN and SYSTEM with dash in the name
+- [Fix for #181](https://github.com/delphix/dxtoolkit/issues/181) - Fix for disable/enable LogSync
 
 ## 2.4.11
 

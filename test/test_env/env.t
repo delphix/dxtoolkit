@@ -1,6 +1,6 @@
 use strict;
 use Data::Dumper;
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Test::Script;
 use Test::Files;
 use File::Spec;
@@ -23,9 +23,9 @@ script_compiles('../../bin/dx_get_env.pl');
 script_runs(['../../bin/dx_get_env.pl', '-d', 'local', '-format','csv',  "list environments"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Environment Name,Type,Status,OS Version
-local,marcinoraclesrc.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago)
-local,marcinoracletgt.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago)
+#Appliance,Environment Name,Type,Status,OS Version,Environment Users
+local,marcinoraclesrc.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago),*ora12102;
+local,marcinoracletgt.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago),*ora12102;
 EOF
 
 script_stdout_is $expected_stdout, "list environments results compare";
@@ -33,15 +33,15 @@ script_stdout_is $expected_stdout, "list environments results compare";
 script_runs(['../../bin/dx_get_env.pl', '-d', 'local', '-format','csv','-name','marcinoracletgt.dcenter.delphix.com',  "list one environment"]);
 
 my $expected_stdout = <<EOF;
-#Appliance,Environment Name,Type,Status,OS Version
-local,marcinoracletgt.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago)
+#Appliance,Environment Name,Type,Status,OS Version,Environment Users
+local,marcinoracletgt.dcenter.delphix.com,unix,enabled,Red Hat Enterprise Linux Server release 6.5 (Santiago),*ora12102;
 EOF
 
 script_stdout_is $expected_stdout, "list one environment results compare";
 
 script_runs(['../../bin/dx_get_env.pl', '-d', 'local', '-format','csv', '-replist', "list repos"]);
 
-my $expected_stdout = <<EOF;
+$expected_stdout = <<EOF;
 #Appliance,Environment Name,Repository list
 local,marcinoraclesrc.dcenter.delphix.com,
 ,,Unstructured Files
@@ -62,11 +62,21 @@ my $other_file = File::Spec->catfile( "./backup_env_orig.txt" );
 compare_ok($some_file, $other_file, "backup file looks OK");
 
 
+script_runs(['../../bin/dx_get_env.pl', '-d', 'local', '-format','csv', '-userlist', "list users"]);
+$expected_stdout = <<EOF;
+#Appliance,Environment Name,User name,Auth Type
+local,marcinoraclesrc.dcenter.delphix.com,*ora12102,systemkey
+local,marcinoracletgt.dcenter.delphix.com,*ora12102,systemkey
+EOF
+
+script_stdout_is $expected_stdout, "list userlist results compare";
+
+
 script_compiles('../../bin/dx_ctl_env.pl');
 
 script_runs(['../../bin/dx_ctl_env.pl', '-d', 'local', '-name','marcinoracletgt.dcenter.delphix.com','-action','refresh',  "refresh environment"]);
 
-my $expected_stdout = <<EOF;
+$expected_stdout = <<EOF;
 Refreshing environment marcinoracletgt.dcenter.delphix.com
 Starting job JOB-7 for environment marcinoracletgt.dcenter.delphix.com.
 100

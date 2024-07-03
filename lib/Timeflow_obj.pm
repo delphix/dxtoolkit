@@ -95,7 +95,6 @@ sub getParentSnapshot {
         $snap = $self->{_timeflows}->{$reference}->{parentSnapshot};
       }
     }
-
     return defined($snap) ? $snap : '';
 }
 
@@ -598,13 +597,16 @@ sub findParentTimeflow
     my $parent;
     my $topchild;
     my $stop = 0;
+    my $clean_parent;
 
-    logger($self->{_debug}, "Find parent timeflow for " . $ref, 2);
+    my $local_ref = $ref . "\@l";
 
+    logger($self->{_debug}, "Find parent timeflow for " . $local_ref, 2);
     my $ref_container = $self->getContainer($ref);
 
     do {
-      $parent = $hier->{$ref}->{parent};
+      $parent = $hier->{$local_ref}->{parent};
+      ($clean_parent) = $parent =~ /(.*)\@l/;
 
       if (!defined($parent) || ($parent eq 'deleted')) {
         # for JS issue - ex. parent was deleted - can happen if container created from not refreshed VDB
@@ -614,14 +616,13 @@ sub findParentTimeflow
         $stop = 1;
       } else {
         logger($self->{_debug}, "Parent " . $parent . " for " . $ref, 2);
-        # print Dumper "Parent " . $parent . " for " . $ref;
-        if ($self->getContainer($parent) ne $ref_container) {
+        if ($self->getContainer($clean_parent) ne $ref_container) {
           $topchild = $ref;
-          $retparent = $parent;
+          $retparent = $clean_parent;
           $stop = 1;
         } else {
           $topchild = $ref;
-          $ref = $parent;
+          $local_ref = $parent;
         }
 
       }
