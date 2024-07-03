@@ -286,7 +286,7 @@ jobs:
 
   osx:
     needs: [centos7]
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
     - name: checkout dxtoolkit code
@@ -304,6 +304,113 @@ jobs:
           exit 1
         fi
         FILENAME="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: install perl
+      run: |
+        # have a static version of perl 5.30.2_1
+        #brew uninstall --ignore-dependencies perl
+        #brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8ff2935985d6da4f2f463ea2666545e6017c4d54/Formula/perl.rb
+        #brew install pioro/repo/perl@5.30
+        #brew install cpanminus
+        CELL=`brew --prefix perl`
+        $CELL/bin/perl -MCPAN -e 'install App::cpanminus'
+        #brew install openssl@1.1
+        $CELL/bin/cpanm Crypt::CBC@2.33
+        $CELL/bin/cpanm Crypt::Blowfish
+        # export OPENSSL_PREFIX=`brew --prefix openssl@1.1`
+        # echo $OPENSSL_PREFIX
+        # export LIBS="-d=$OPENSSL_PREFIX"
+        # $CELL/bin/cpanm --configure-args=$LIBS Filter::Crypto::Decrypt
+        $CELL/bin/cpanm Filter::Crypto::Decrypt
+        $CELL/bin/cpanm JSON
+        $CELL/bin/cpanm Date::Manip
+        # force requires after 1/1/2020 ?
+        $CELL/bin/cpanm -f Date::Parse
+        $CELL/bin/cpanm DateTime::Event::Cron::Quartz
+        $CELL/bin/cpanm DateTime::Format::DateParse
+        $CELL/bin/cpanm Text::CSV
+        $CELL/bin/cpanm LWP::UserAgent
+        $CELL/bin/cpanm --force Net::SSLeay
+        $CELL/bin/cpanm Mozilla::CA@20180117
+        $CELL/bin/cpanm -f IO::Socket::SSL@2.068
+        $CELL/bin/cpanm LWP::Protocol::https
+        $CELL/bin/cpanm Term::ReadKey
+        $CELL/bin/cpanm -f Archive::Zip
+        $CELL/bin/cpanm utf8
+        $CELL/bin/cpanm PAR::Packer
+        $CELL/bin/cpanm List::MoreUtils::PP
+
+    - name: Compile
+      run: |
+          #CELL=`brew --prefix pioro/repo/perl@5.30`
+          CELL=`brew --prefix perl`
+          OPENLIB=`brew --prefix openssl@3`
+          CDIR=`pwd`
+          export PP=${CELL}/bin/pp
+          export LIBS="-l ${OPENLIB}/lib/libssl.dylib -l ${OPENLIB}/lib/libcrypto.dylib"
+          echo $LIBS
+          mkdir dxtoolkit2
+          cd ./lib
+          mv dbutils.pm dbutils.orig.pm
+          cat dbutils.orig.pm | sed -e "s/put your encryption key here/${{ secrets.ENCKEY }}/" > dbutils.pm
+          cd ../bin
+          $PP -u -I ../lib ${LIBS} -M Text::CSV_PP -M List::MoreUtils::PP -M Crypt::Blowfish  \
+          -F Crypto=dbutils\.pm$ -M Filter::Crypto::Decrypt -o ../dxtoolkit2/runner `ls dx_*.pl | xargs`
+          cd ${CDIR}/dxtoolkit2
+          #for i in ${CDIR}/bin/dx_*.pl ; do name=`basename -s .pl $i`; ln -s runner $name; done
+
+          echo #!/bin/bash > install.sh
+          echo LIST_OF_SCRIPTS=\( >> install.sh
+
+          for i in ${CDIR}/bin/dx_*.pl ; do
+              name=`basename -s .pl $i`;
+              echo $name >> install.sh
+          done
+
+          echo \) >> install.sh
+          echo >> install.sh
+          echo >> install.sh
+          echo for i in \"\$\{LIST_OF_SCRIPTS\[\@\]\}\" >> install.sh
+          echo do >> install.sh
+          echo   echo \$i >> install.sh
+          echo   ln -sf runner \$i >> install.sh
+          echo done >> install.sh
+
+          cp ${CDIR}/bin/dxtools.conf.example ${CDIR}/bin/dxusers.csv.example ${CDIR}/dxtoolkit2
+
+
+          cd ${CDIR}
+          ls -l ./dxtoolkit2
+          tar czvf ${{ env.FILENAME }} dxtoolkit2/
+
+    - name: Upload OSX
+      uses: actions/upload-artifact@v1
+      with:
+        name: osxbuild
+        path: ${{ env.FILENAME }}
+
+  osx-m1:
+    needs: [centos7]
+    runs-on: macos-14
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-osx-m1.tar.gz"
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAME=$FILENAME >> $GITHUB_ENV
 
