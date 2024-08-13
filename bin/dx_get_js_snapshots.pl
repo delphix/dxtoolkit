@@ -237,7 +237,12 @@ for my $engine ( sort (@{$engine_list}) ) {
           } else {
             $snapsize = $snapshot_sizes{$snapref};
           }
-          $parentname = $databases->getDB($snapshots->getSnapshotContainer($snapref))->getName();
+          my $parentdbobj = $databases->getDB($snapshots->getSnapshotContainer($snapref));
+          if (defined($parentdbobj)) {
+            $parentname = $parentdbobj->getName();
+          } else {
+            $parentname = 'N/A';
+          }
         }
 
         if (defined($operation_for_conttf)) {

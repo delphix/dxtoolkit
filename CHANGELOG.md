@@ -1,3 +1,8 @@
+## 2.4.24.1
+
+### Changes
+- fix for dx_get_js_snapshots preventing crash
+
 ## 2.4.24
 
 ### Added
