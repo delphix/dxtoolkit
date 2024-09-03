@@ -564,38 +564,38 @@ jobs:
     steps:
 
     - name: Download centos7
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: cento7build
 
     - name: Download centos6
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: cento6build
 
     - name: Download windows
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: windowsbuild
 
     - name: Download ubuntu
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: ubuntubuild
 
     - name: Download osx
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: osxbuild
 
 
     - name: Download OEL8
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: oel8build
 
     - name: Download Amazon 2023
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4.1.7
       with:
         name: amazon2023
 
