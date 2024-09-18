@@ -57,7 +57,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 7
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento7build
         path: ${{ env.FILENAME }}
@@ -152,7 +152,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload ubuntu
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntubuild
         path: ${{ env.FILENAME }}
@@ -208,7 +208,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload ubuntu
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntu22build
         path: ${{ env.FILENAME }}
@@ -265,7 +265,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 6
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento6build
         path: ${{ env.FILENAME }}
@@ -321,7 +321,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload oel 8
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: oel8build
         path: ${{ env.FILENAME }}
@@ -368,7 +368,7 @@ jobs:
       shell: powershell
 
     # - name: Upload enc
-    #   uses: actions/upload-artifact@v1
+    #   uses: actions/upload-artifact@v4
     #   with:
     #     name: windowsbuild-enc
     #     path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
@@ -401,7 +401,7 @@ jobs:
       shell: powershell
 
     - name: Upload windows
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: windowsbuild
         path: ${{ env.FILENAME }}
@@ -529,7 +529,7 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
@@ -656,7 +656,7 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
@@ -714,7 +714,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload amazon 2023
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: amazon2023
         path: ${{ env.FILENAME }}
