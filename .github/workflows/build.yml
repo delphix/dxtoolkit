@@ -553,9 +553,6 @@ jobs:
         name: ubuntu22build
         path: ${{ env.FILENAME }}
             
-      
-
-
   amazon2023:
     needs: [centos7]
     runs-on: ubuntu-latest
@@ -615,7 +612,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [centos6, centos7, windows, ubuntu, osx, amazon2023, oel8, docker]
+    needs: [centos6, centos7, windows, ubuntu, osx, amazon2023, oel8, docker, ubuntu22]
     permissions:
       contents: write
     steps:
@@ -657,9 +654,9 @@ jobs:
         name: amazon2023
 
     - name: Download Amazon 2023
-    uses: actions/download-artifact@v4
-    with:
-      name: ubuntu22build
+      uses: actions/download-artifact@v4
+      with:
+        name: ubuntu22build
 
     - name: Say
       run: |
