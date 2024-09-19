@@ -702,5 +702,5 @@ jobs:
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},oel8build/${{ env.FILENAMERH8 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }},amazon2023/${{ env.FILENAMEAMZ }},cento7build/${{ env.FILENAMEUBUNTU22 }},osxbuild/${{ env.FILENAMEOSXM1 }}"
+        artifacts: "${{ env.FILENAMERH7 }},${{ env.FILENAMERH6 }},${{ env.FILENAMERH8 }},${{ env.FILENAMEUBUNTU }},${{ env.FILENAMEWIN }},${{ env.FILENAMEOSX }},${{ env.FILENAMEAMZ }},${{ env.FILENAMEUBUNTU22 }},${{ env.FILENAMEOSXM1 }}"
         tag: ${{ env.SOURCE_TAG }}
