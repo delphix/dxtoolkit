@@ -57,7 +57,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 7
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento7build
         path: ${{ env.FILENAME }}
@@ -152,10 +152,68 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload ubuntu
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntubuild
         path: ${{ env.FILENAME }}
+
+
+  ubuntu22:
+    needs: [centos7]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlubuntu22:526
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu2204-installer.tar.gz"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
+        gzip dxtoolkit.tar
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload ubuntu
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu22build
+        path: ${{ env.FILENAME }}
+      
+
 
   centos6:
     needs: [centos7]
@@ -207,7 +265,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 6
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento6build
         path: ${{ env.FILENAME }}
@@ -263,7 +321,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload oel 8
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: oel8build
         path: ${{ env.FILENAME }}
@@ -310,7 +368,7 @@ jobs:
       shell: powershell
 
     # - name: Upload enc
-    #   uses: actions/upload-artifact@v1
+    #   uses: actions/upload-artifact@v4
     #   with:
     #     name: windowsbuild-enc
     #     path: D:\a\dxtoolkit\dxtoolkit\lib\dbutils.pm
@@ -343,7 +401,7 @@ jobs:
       shell: powershell
 
     - name: Upload windows
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: windowsbuild
         path: ${{ env.FILENAME }}
@@ -471,7 +529,7 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
@@ -598,7 +656,7 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
@@ -656,7 +714,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload amazon 2023
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: amazon2023
         path: ${{ env.FILENAME }}

@@ -1,3 +1,8 @@
+## 2.4.24.2
+
+### Added
+- Ubuntu 22 build
+
 ## 2.4.24.1
 
 ### Changes

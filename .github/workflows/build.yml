@@ -45,7 +45,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 7
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento7build
         path: ${{ env.FILENAME }}
@@ -119,7 +119,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload ubuntu
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ubuntubuild
         path: ${{ env.FILENAME }}
@@ -165,7 +165,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload centos 6
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: cento6build
         path: ${{ env.FILENAME }}
@@ -216,7 +216,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload oel 8
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: oel8build
         path: ${{ env.FILENAME }}
@@ -278,7 +278,7 @@ jobs:
       shell: powershell
 
     - name: Upload windows
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: windowsbuild
         path: ${{ env.FILENAME }}
@@ -386,7 +386,7 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
@@ -493,10 +493,67 @@ jobs:
           tar czvf ${{ env.FILENAME }} dxtoolkit2/
 
     - name: Upload OSX
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: osxbuild
         path: ${{ env.FILENAME }}
+
+  ubuntu22:
+    needs: [centos7]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout dxtoolkit code
+      uses: actions/checkout@master
+
+    - name: add version 
+      run: |
+          mkdir dxtoolkit2
+          chmod 777 dxtoolkit2
+          cd ./lib
+          mv Toolkit_helpers.pm Toolkit_helpers.orig.pm
+          cat Toolkit_helpers.orig.pm | sed -r -e "s/([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.?[[:digit:]]?)/\1-dev-${GITHUB_SHA}/" > Toolkit_helpers.pm
+          grep "version" Toolkit_helpers.pm
+
+    - name: Set up a Perl container
+      #uses: pioro/dxtoolkit@develop
+      uses: docker://pioro/dxperlubuntu22:526
+      with:
+        ENCKEY: ${{ secrets.ENCKEY }}
+
+    - name: Get the version
+      id: get_version
+      run: |
+        if (echo ${GITHUB_REF} | grep "/tags/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/tags/}
+        elif (echo ${GITHUB_REF} | grep "/heads/" > /dev/null); then
+          SOURCE_TAG=${GITHUB_REF#refs/heads/}
+        else
+          exit 1
+        fi
+        FILENAME="dxtoolkit2-${SOURCE_TAG}-ubuntu2204-installer.tar.gz"
+        echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
+        echo FILENAME=$FILENAME >> $GITHUB_ENV
+
+    - name: add examples
+      run: |
+        gzip -d dxtoolkit.tar.gz
+        cp bin/dxtools.conf.example dxtoolkit2/dxtools.conf.example
+        cp bin/dxusers.csv.example dxtoolkit2/dxusers.csv.example
+        tar -rvf dxtoolkit.tar dxtoolkit2/dxtools.conf.example dxtoolkit2/dxusers.csv.example
+        gzip dxtoolkit.tar
+
+    - name: compress toolkit
+      run: |
+        mv dxtoolkit.tar.gz ${{ env.FILENAME }}
+
+    - name: Upload ubuntu
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu22build
+        path: ${{ env.FILENAME }}
+            
+      
 
 
   amazon2023:
@@ -550,7 +607,7 @@ jobs:
         mv dxtoolkit.tar.gz ${{ env.FILENAME }}
 
     - name: Upload amazon 2023
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: amazon2023
         path: ${{ env.FILENAME }}
@@ -564,40 +621,45 @@ jobs:
     steps:
 
     - name: Download centos7
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: cento7build
 
     - name: Download centos6
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: cento6build
 
     - name: Download windows
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: windowsbuild
 
     - name: Download ubuntu
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: ubuntubuild
 
     - name: Download osx
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: osxbuild
 
 
     - name: Download OEL8
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: oel8build
 
     - name: Download Amazon 2023
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: amazon2023
+
+    - name: Download Amazon 2023
+    uses: actions/download-artifact@v4
+    with:
+      name: ubuntu22build
 
     - name: Say
       run: |
@@ -616,6 +678,7 @@ jobs:
         FILENAMEWIN="dxtoolkit2-${SOURCE_TAG}-win64-installer.zip"
         FILENAMEOSX="dxtoolkit2-${SOURCE_TAG}-osx.tar.gz"
         FILENAMEAMZ="dxtoolkit2-${SOURCE_TAG}-amazon2023-installer.tar.gz"
+        FILENAMEUBUNTU22="dxtoolkit2-${SOURCE_TAG}-ubuntu2204-installer.tar.gz"
         
         echo SOURCE_TAG=$SOURCE_TAG >> $GITHUB_ENV
         echo FILENAMERH7=$FILENAMERH7 >> $GITHUB_ENV
@@ -625,6 +688,7 @@ jobs:
         echo FILENAMEWIN=$FILENAMEWIN >> $GITHUB_ENV
         echo FILENAMEOSX=$FILENAMEOSX >> $GITHUB_ENV
         echo FILENAMEAMZ=$FILENAMEAMZ >> $GITHUB_ENV
+        echo FILENAMEUBUNTU22=$FILENAMEUBUNTU22 >> $GITHUB_ENV
 
     - name: Create Release
       id: create_release
@@ -634,5 +698,5 @@ jobs:
         name: Release ${{ env.SOURCE_TAG }}
         draft: true
         prerelease: true
-        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},oel8build/${{ env.FILENAMERH8 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }},amazon2023/${{ env.FILENAMEAMZ }}"
+        artifacts: "cento7build/${{ env.FILENAMERH7 }},cento6build/${{ env.FILENAMERH6 }},oel8build/${{ env.FILENAMERH8 }},ubuntubuild/${{ env.FILENAMEUBUNTU }},windowsbuild/${{ env.FILENAMEWIN }},osxbuild/${{ env.FILENAMEOSX }},amazon2023/${{ env.FILENAMEAMZ }},cento7build/${{ env.FILENAMEUBUNTU22 }}"
         tag: ${{ env.SOURCE_TAG }}
