@@ -98,6 +98,7 @@ GetOptions(
   'restorejobs=n' => \(my $restorejobs),
   'dumpjobs=n' => \(my $dumpjobs),
   'customparameters=s@' => \(my $customparameters),
+  'encryptionmklabel=s' => \(my $encryptionmklabel),
   'backup_dir_log=s' => \(my $backup_dir_log),
   'keepinsync=s' => \(my $keepinsync),
   'dever=s' => \(my $dever),
@@ -425,7 +426,7 @@ for my $engine ( sort (@{$engine_list}) ) {
         $ret = $ret + 1;
         last;
       }
-      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr);
+      $jobno = $db->addSource($sourcename,$sourceinst,$sourceenv,$source_os_user,$dbuser,$password,$dsourcename,$group,$logsync,$stageenv,$stageinst,$stage_os_user, $backup_dir, $hadr, $encryptionmklabel);
     }
     elsif ($type eq 'postgresql') {
       my $db = new PostgresVDB_obj($engine_obj,$debug);
@@ -547,6 +548,8 @@ __DATA__
                 [-dumpjobs x]
                 [-backup_dir_log directory]
                 [-keepinsync yes|no]
+                [-hadr hadrPrimarySVC:XXX,hadrPrimaryHostname:hostname,hadrStandbySVC:YYY]
+                [-encryptionmklabel label]
                 [-debug ]
                 [-version ]
                 [-help|? ]
@@ -691,6 +694,11 @@ Parameter hadrTargetList is optional.
 
 ex.
 hadrPrimarySVC:50001,hadrPrimaryHostname:marcindb2src.dcenter,hadrStandbySVC:50011,hadrTargetList:marcindb2src.dcenter:50001
+
+
+=item B<-encryptionmklabel label>
+Add DB2 dSource backup encryption label 
+
 
 =item B<-exclude path>
 Exclude path for vFiles dSources

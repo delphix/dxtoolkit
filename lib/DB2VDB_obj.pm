@@ -25,7 +25,7 @@ use Data::Dumper;
 use JSON;
 use version;
 use Toolkit_helpers qw (logger);
-our @ISA = qw(VDB_obj);
+our @ISA = qw(PluginVDB_obj);
 
 sub new {
     my $class  = shift;
@@ -413,74 +413,43 @@ sub createVDB {
 
 sub addSource {
     my $self = shift;
-    my $source = shift;
+    my $sourcename = shift;
     my $source_inst = shift;
     my $source_env = shift;
     my $source_osuser = shift;
     my $dbuser = shift;
     my $password = shift;
-    my $dsource_name = shift;
+    my $dsourcename = shift;
     my $group = shift;
     my $logsync = shift;
-    my $env = shift;
-    my $inst = shift;
-    my $stage_osuser = shift;
+    my $stageenv = shift;
+    my $stageinst = shift;
+    my $stage_os_user = shift;
     my $backup_dir = shift;
     my $hadr = shift;
+    my $encryptionMasterKeyLabel = shift;
 
     logger($self->{_debug}, "Entering DB2VDB_obj::addSource",1);
-
-    my $config = $self->setConfig($source, $inst, $env);
-
-    if (! defined($config)) {
-        print "Source database $source not found\n";
-        return undef;
-    }
-
-    if ( $self->setGroup($group) ) {
-        print "Group $group not found. dSource won't be created\n";
-        return undef;
-    }
-
-    if ( $self->setEnvironment($env) ) {
-        print "Staging environment $env not found. dSource won't be created\n";
-        return undef;
-    }
-
-    if ( $self->setHome($inst) ) {
-        print "Staging instance $inst in environment $env not found. dSource won't be created\n";
-        return undef;
-    }
-
-    my $stage_osuser_ref = $self->{_environment}->getEnvironmentUserByName($env,$stage_osuser);
-
-    if (!defined($stage_osuser_ref)) {
-        print "Source OS user $stage_osuser not found\n";
-        return undef;
-    }
-
+    
     my @configset;
 
-    my %dsource_params = (
-      "type" => "LinkParameters",
-      "group" => $self->{"NEWDB"}->{"container"}->{"group"},
-      "name" => $dsource_name,
-      "linkData" => {
-          "type" => "AppDataStagedLinkData",
-          "config" => $config->{reference},
-          "environmentUser" => $stage_osuser_ref,
-          "stagingEnvironment" => $self->{'_newenv'},
-          "stagingEnvironmentUser" => $stage_osuser_ref,
-          "parameters" => {
+    my %parameters = (
               "monitorHADR" => JSON::false,
               "toolkitHookFlag" => JSON::false,
               "config_settings_stg" => \@configset,
-              "dbName" => $source,
+              "dbName" => $sourcename,
               "backupPath" => $backup_dir
-          }
-      }
     );
 
+
+
+
+
+    if (defined($encryptionMasterKeyLabel)) {
+      $parameters{encryptedBackup} = JSON::true;
+      $parameters{encryptionMasterKeyLabel} = $encryptionMasterKeyLabel;
+
+    }
 
 
     if (defined($hadr)) {
@@ -499,35 +468,59 @@ sub addSource {
       for my $l (@hadrarray) {
         my @line = split(":", $l, 2);
         if (defined($line[0]) && defined($hadrhash{$line[0]}) ) {
-          $dsource_params{linkData}{parameters}{$line[0]} = $line[1];
+          $parameters{$line[0]} = $line[1];
         }
       }
 
-      $dsource_params{linkData}{parameters}{monitorHADR} = JSON::true;
+      $parameters{monitorHADR} = JSON::true;
 
-      if (scalar(grep { ($hadrhash{$_} eq 'm') && defined($dsource_params{linkData}{parameters}{$_})  } keys (%hadrhash)) < 3) {
+      if (scalar(grep { ($hadrhash{$_} eq 'm') && defined($parameters{$_})  } keys (%hadrhash)) < 3) {
         print "Please provide all HADR mandatory parameters\n";
         return undef;
       }
 
     }
 
-    my $ds_hooks = $self->set_dsource_hooks();
-    if (defined($ds_hooks)) {
-      if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
-        $dsource_params{"source"}{"operations"} = $ds_hooks;
-      } else {
-        $dsource_params{"linkData"}{"operations"} = $ds_hooks;
-      }
-    }
+    # my $ds_hooks = $self->set_dsource_hooks();
+    # if (defined($ds_hooks)) {
+    #   if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.8.0)) {
+    #     $dsource_params{"source"}{"operations"} = $ds_hooks;
+    #   } else {
+    #     $dsource_params{"linkData"}{"operations"} = $ds_hooks;
+    #   }
+    # }
 
-    my $operation = 'resources/json/delphix/database/link';
-    my $json_data = to_json(\%dsource_params, {pretty=>1});
-    #my $json_data = encode_json(\%dsource_params, pretty=>1);
+    # my $operation = 'resources/json/delphix/database/link';
+    # my $json_data = to_json(\%dsource_params, {pretty=>1});
+    # #my $json_data = encode_json(\%dsource_params, pretty=>1);
 
-    logger($self->{_debug}, $json_data, 1);
+    # logger($self->{_debug}, $json_data, 1);
 
-    return $self->runJobOperation($operation,$json_data, 'ACTION');
+    # return $self->runJobOperation($operation,$json_data, 'ACTION');
+
+
+    return $self->PluginVDB_obj::addSource(
+        $sourcename,
+        $dbuser,
+        $password,
+        $dsourcename,
+        $group,
+        $logsync,
+        $stageenv,
+        $stageinst,
+        $stage_os_user,
+        $backup_dir ,
+        $sourcehostname,
+        $sourceport,
+        $ingestiontype,
+        $dumpdir,
+        $restorejobs,
+        $dumpjobs,
+        $staging_port,
+        $singledbname,
+        $mountbase,
+        \%parameters
+    ) ;
 
   }
 
@@ -693,6 +686,27 @@ sub getVersion {
     }
 
     return $version;
+
+}
+
+
+# parameters:
+# - force
+# Disable database
+# Return job number if job started or undef otherwise
+
+sub disable
+{
+    my $self = shift;
+    my $force = shift;
+    logger($self->{_debug}, "Entering DB2VDB_obj::disable",1);
+
+    if  (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.41)) {
+      return $self->VDB_obj::disable($force,'SourceDisableParameters') ;
+    } else {
+      # above 29
+      return $self->VDB_obj::disable($force,'AppDataDisableParameters') ;
+    }
 
 }
 

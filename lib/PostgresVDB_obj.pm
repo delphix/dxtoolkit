@@ -626,6 +626,27 @@ sub getDatabaseName
     return $self->{source}->{name};
 }
 
+# Procedure disable
+# parameters:
+# - force
+# Disable database
+# Return job number if job started or undef otherwise
+
+sub disable
+{
+    my $self = shift;
+    my $force = shift;
+    logger($self->{_debug}, "Entering PostgresVDB_obj::disable",1);
+
+    if  (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.41)) {
+      return $self->VDB_obj::disable($force,'SourceDisableParameters') ;
+    } else {
+      # above 29
+      return $self->VDB_obj::disable($force,'AppDataDisableParameters') ;
+    }
+
+}
+
 #
 # End of package
 

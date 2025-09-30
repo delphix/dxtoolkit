@@ -113,7 +113,48 @@ sub addSource
 
 
 
-    my %dsource_params = (
+    # my %dsource_params = (
+    #   "type" => "LinkParameters",
+    #   "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+    #   "name" => $dsourcename,
+    #   "linkData" => {
+    #       "type" => "AppDataStagedLinkData",
+    #       "config" => $config->{reference},
+    #       "environmentUser" => $stage_osuser_ref,
+    #       "stagingEnvironment" => $self->{'_newenv'},
+    #       "stagingEnvironmentUser" => $stage_osuser_ref,
+    #       "parameters" => $plugin_parameters,
+    #       "syncParameters" => {
+    #           "type"=> "AppDataSyncParameters",
+    #           "parameters" => {
+    #             "resync" => JSON::true
+    #           }
+    #       }
+    #   }
+    # );
+
+
+    my %dsource_params;
+
+    if (version->parse($self->{_dlpxObject}->getApi()) < version->parse(1.11.5)) {
+      # until 6.0.5
+      %dsource_params = (
+      "type" => "LinkParameters",
+      "group" => $self->{"NEWDB"}->{"container"}->{"group"},
+      "name" => $dsourcename,
+      "linkData" => {
+          "type" => "AppDataStagedLinkData",
+          "config" => $config->{reference},
+          "environmentUser" => $stage_osuser_ref,
+          "stagingEnvironment" => $self->{'_newenv'},
+          "stagingEnvironmentUser" => $stage_osuser_ref,
+          "parameters" => $plugin_parameters
+      }
+      );
+    } else {
+      # for 6.0.6 and higher
+
+      %dsource_params = (
       "type" => "LinkParameters",
       "group" => $self->{"NEWDB"}->{"container"}->{"group"},
       "name" => $dsourcename,
@@ -125,13 +166,15 @@ sub addSource
           "stagingEnvironmentUser" => $stage_osuser_ref,
           "parameters" => $plugin_parameters,
           "syncParameters" => {
-              "type"=> "AppDataSyncParameters",
-              "parameters" => {
-                "resync" => JSON::true
-              }
+            "type"=> "AppDataSyncParameters",
+            "parameters" => {
+              "resync" => JSON::true
+            }
           }
       }
-    );
+      );
+
+    }
 
 
     my $ds_hooks = $self->set_dsource_hooks();
