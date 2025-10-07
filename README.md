@@ -1,5 +1,11 @@
 # dxtoolkit
 
+> [!CAUTION]
+>
+> ## Deprecated
+>
+> This project is now in long-term stasis. If you are using the dxtoolkit today, we recommend that you adopt Data Control Tower (DCT) and migrate your automation to the [DCT Toolkit](https://help.delphix.com/dct/current/content/dct_toolkit.htm). The dxtoolkit was a key input into the introduction of the fully Delphix supported DCT Toolkit.
+
 ## What is it
 
 Dxtoolkit is a set of scripts, which are delivered by Delphix professional services team.
