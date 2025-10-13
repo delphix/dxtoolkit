@@ -1,3 +1,13 @@
+## 2.4.25
+
+### Added
+- DB2 TDE support 
+
+### Changes
+- Support for new engines up to 2025.5
+
+
+
 ## 2.4.24.2
 
 ### Added
