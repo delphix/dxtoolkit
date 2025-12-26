@@ -77,7 +77,8 @@ class AnalyticIOObj(AnalyticObj):
 
     def doAggregation(self):
         if 'nfs-all' in self._name:
-            self.doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w,cache_hit_ratio')
+            # Include IOPS metrics for NFS to match Perl aggregated outputs
+            self.doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w,cache_hit_ratio,iops_r,iops_w,iops')
         else:
             self.doAggregation_worker('throughput_r,throughput_w,throughput_t,latency_r,latency_w,iops_r,iops_w,iops')
 
@@ -185,10 +186,10 @@ class AnalyticIOObj(AnalyticObj):
                     self.aggregation(ts_date, aggregation, 'none', 'throughput_r', read_tp_mb)
                     self.aggregation(ts_date, aggregation, 'none', 'throughput_w', write_tp_mb)
                     self.aggregation(ts_date, aggregation, 'none', 'throughput_t', total_tp_mb)
-                    if 'nfs' not in self._name:
-                        self.aggregation(ts_date, aggregation, 'none', 'iops_r', read_iops)
-                        self.aggregation(ts_date, aggregation, 'none', 'iops_w', write_iops)
-                        self.aggregation(ts_date, aggregation, 'none', 'iops', read_iops+write_iops)
+                    # Aggregate IOPS for NFS as well to achieve parity
+                    self.aggregation(ts_date, aggregation, 'none', 'iops_r', read_iops)
+                    self.aggregation(ts_date, aggregation, 'none', 'iops_w', write_iops)
+                    self.aggregation(ts_date, aggregation, 'none', 'iops', read_iops+write_iops)
                     if r_latency != 'N/A':
                         self.aggregation(ts_date, aggregation, 'none', 'latency_r', r_latency)
                     if w_latency != 'N/A':
@@ -241,10 +242,10 @@ class AnalyticIOObj(AnalyticObj):
                         self.aggregation(ts_date, aggregation, dc_cur, 'throughput_r', read_tp_mb)
                         self.aggregation(ts_date, aggregation, dc_cur, 'throughput_w', write_tp_mb)
                         self.aggregation(ts_date, aggregation, dc_cur, 'throughput_t', total_tp_mb)
-                        if 'nfs' not in self._name:
-                            self.aggregation(ts_date, aggregation, dc_cur, 'iops_r', read_iops)
-                            self.aggregation(ts_date, aggregation, dc_cur, 'iops_w', write_iops)
-                            self.aggregation(ts_date, aggregation, dc_cur, 'iops', read_iops+write_iops)
+                        # Aggregate IOPS for NFS client metrics as well
+                        self.aggregation(ts_date, aggregation, dc_cur, 'iops_r', read_iops)
+                        self.aggregation(ts_date, aggregation, dc_cur, 'iops_w', write_iops)
+                        self.aggregation(ts_date, aggregation, dc_cur, 'iops', read_iops+write_iops)
                         if r_latency != 'N/A':
                             self.aggregation(ts_date, aggregation, dc_cur, 'latency_r', r_latency)
                         if w_latency != 'N/A':

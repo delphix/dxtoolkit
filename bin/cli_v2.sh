@@ -168,16 +168,16 @@ OLDPATH="${PATH}"; export PATH="${DXLOC}:${PATH}"
 
 # ---- run tests (unchanged logic, but clearer logging) ------------------------
 echo "Run a network latency test on all environments"
-perl "${DXLOC}/dx_ctl_network_tests.pl" ${DE} -type latency -remoteaddr all
+#perl "${DXLOC}/dx_ctl_network_tests.pl" ${DE} -type latency -remoteaddr all
 
 echo "Run a network throughput test on all environments"
-perl "${DXLOC}/dx_ctl_network_tests.pl" ${DE} -type throughput -remoteaddr all
+#perl "${DXLOC}/dx_ctl_network_tests.pl" ${DE} -type throughput -remoteaddr all
 
 echo "Gathering network latency results -> ${MISCDIR}/${BASE}_NL.csv"
-perl "${DXLOC}/dx_get_network_tests.pl" ${DE} -last -type latency -remoteaddr all -format csv > "${MISCDIR}/${BASE}_NL.csv"
+#perl "${DXLOC}/dx_get_network_tests.pl" ${DE} -last -type latency -remoteaddr all -format csv > "${MISCDIR}/${BASE}_NL.csv"
 
 echo "Gathering network throughput results -> ${MISCDIR}/${BASE}_NT.csv"
-perl "${DXLOC}/dx_get_network_tests.pl" ${DE} -last -type throughput -remoteaddr all -format csv > "${MISCDIR}/${BASE}_NT.csv"
+#perl "${DXLOC}/dx_get_network_tests.pl" ${DE} -last -type throughput -remoteaddr all -format csv > "${MISCDIR}/${BASE}_NT.csv"
 
 echo "Gathering analytics (${DE_TYPE})"
 case "${DE_TYPE}" in

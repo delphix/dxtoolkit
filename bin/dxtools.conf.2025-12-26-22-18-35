@@ -1,0 +1,16 @@
+{
+	"data": [
+		{
+			"engine": "uvo1qgq8qlkdq9kziy6.vm.cld.sr",
+			"hostname": "uvo1qgq8qlkdq9kziy6.vm.cld.sr",
+			"ip_address": "uvo1qgq8qlkdq9kziy6.vm.cld.sr",
+			"username": "admin",
+			"password": "Delphix_123!",
+			"port": 80,
+			"protocol": "http",
+			"default": "true",
+			"encrypted": "false",
+			"timeout": "60"
+		}
+	]
+}

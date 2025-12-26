@@ -473,11 +473,21 @@ def main():
             with open(misc_dir / f"{base}_NT.csv", "w") as f:
                 f.write(stdout)
 
-        print("Gathering analytics metadata (Python control)")
+        # Determine analytics types based on args.type (win/unix/both) to match bash behavior
+        print(f"Gathering analytics ({args.type})")
+        if args.type == "win":
+            analytics_types = "cpu,disk,iscsi,network"
+        elif args.type == "unix":
+            analytics_types = "cpu,disk,nfs,network"
+        elif args.type == "both":
+            analytics_types = "cpu,disk,iscsi,nfs,network"
+        else:
+            print("Invalid -t (use win|unix|both)")
+            sys.exit(1)
 
         # Analytics raw + aggregated export (Python-only) and normalize filenames to match legacy bash outputs
         rc_analytics = run_command(
-            [sys.executable, str(dx_path / PY_DX_GET_ANALYTICS), *f"{de} -i 60 -outdir {perf_data} -type standard -format csv".split()],
+            [sys.executable, str(dx_path / PY_DX_GET_ANALYTICS), *f"{de} -i 60 -outdir {perf_data} -type {analytics_types}".split()],
             cwd=dx_path,
             env=env_base,
         )
