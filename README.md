@@ -23,6 +23,21 @@ python3 bin/dx_get_network_tests.py -d <engine> -type latency -remoteaddr all -f
 python3 bin/dx_get_network_tests.py -d <engine> -type throughput -remoteaddr all -last -format csv
 
 python3 bin/dx_get_analytics.py -d <engine> -type standard -i 60 -outdir /tmp -format csv
+
+## Building standalone binaries (PyInstaller)
+
+Run on each target platform to produce native binaries (macOS/Linux/Windows). Binaries land in `dist/`.
+Note: For Windows you must build on Windows (PowerShell/cmd) with Python+PyInstaller installed; WSL builds Linux ELF, not .exe.
+
+```bash
+pip install -r requirements.txt
+tools/build_binaries.sh
+```
+
+Environment overrides:
+- `PYTHON_BIN` (default: `python3`)
+- `DIST_DIR` (default: `dist`)
+- `WORK_DIR` (default: `build/pyinstaller`)
 ```
 
 The `bin/cli_v2.py` flow now uses these Python scripts to generate:
