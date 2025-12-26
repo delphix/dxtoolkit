@@ -1,0 +1,28 @@
+{
+	"data": [
+		{
+			"engine": "uvo16q97x1884fhr7oq.vm.cld.sr",
+			"hostname": "uvo16q97x1884fhr7oq.vm.cld.sr",
+			"ip_address": "uvo16q97x1884fhr7oq.vm.cld.sr",
+			"username": "admin",
+			"password": "Delphix_123!",
+			"port": 443,
+			"protocol": "https",
+			"default": "true",
+			"encrypted": "false",
+			"timeout": "60"
+		},
+		{
+			"engine": "uvo16q97x1884fhr7oq.vm.cld.srsys",
+			"hostname": "uvo16q97x1884fhr7oq.vm.cld.sr",
+			"ip_address": "uvo16q97x1884fhr7oq.vm.cld.sr",
+			"username": "sysadmin",
+			"password": "Delphix_123!",
+			"port": 443,
+			"protocol": "https",
+			"default": "false",
+			"encrypted": "false",
+			"timeout": "60"
+		}
+	]
+}

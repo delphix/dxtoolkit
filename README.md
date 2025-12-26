@@ -10,6 +10,32 @@
 
 Dxtoolkit is a set of scripts, which are delivered by Delphix professional services team.
 Dxtoolkit scripts look and feel like UNIX executables, following the typical conventions of using flags for arguments.  Dxtoolkit is written in Perl, but no knowledge of Perl is required unless you want to extend it.  In fact, no programming experience whatsoever is required to use the dxtoolkit.
+### Python-only Usage (Lightweight Ports)
+
+Recent additions provide Python equivalents for common analytics and network reports:
+- `bin/dx_get_network_tests.py`: export latency/throughput test results to CSV/JSON.
+- `bin/dx_get_analytics.py`: export analytics raw + aggregated CSV/JSON for `cpu, disk, nfs, network`.
+
+Example commands:
+
+```bash
+python3 bin/dx_get_network_tests.py -d <engine> -type latency -remoteaddr all -format csv
+python3 bin/dx_get_network_tests.py -d <engine> -type throughput -remoteaddr all -last -format csv
+
+python3 bin/dx_get_analytics.py -d <engine> -type standard -i 60 -outdir /tmp -format csv
+```
+
+The `bin/cli_v2.py` flow now uses these Python scripts to generate:
+- Network latency `*_NL.csv` and throughput `*_NT.csv` into `misc/`.
+- Analytics raw and aggregated CSVs into `analytics/`.
+
+### Local runs without an Engine
+
+For smoke testing without a Delphix Engine, a mock is provided:
+- `lib/py/mock_engine.py` implements a `MockEngine` with minimal responses.
+Tests demonstrate monkeypatching the `engine` module to use it.
+See `test/test_json_outputs.py` for examples.
+
 
 ## What's new
 
