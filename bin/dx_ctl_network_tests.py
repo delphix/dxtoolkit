@@ -12,7 +12,7 @@ from engine import Engine
 from network_obj import NetworkObj
 from host_obj import HostObj
 from jobs_obj import JobsObj
-from toolkit_helpers import get_engine_list
+from toolkit_helpers import get_engine_list, ensure_config_file
 
 
 def parse_args(argv):
@@ -51,8 +51,18 @@ def main(argv):
         print(version)
         return 0
 
+    if not ensure_config_file(args.config_file):
+        return 1
+
     eng = Engine(args.dever, args.debug)
-    eng.load_config(args.config_file)
+    try:
+        eng.load_config(args.config_file)
+    except FileNotFoundError:
+        print(f"ERROR: config file not found: {args.config_file}")
+        return 1
+    except Exception as exc:
+        print(f"ERROR: failed to load config file {args.config_file}: {exc}")
+        return 1
 
     if args.all and args.dx_host:
         print('Option all (-all) and engine (-d|engine) are mutually exclusive')

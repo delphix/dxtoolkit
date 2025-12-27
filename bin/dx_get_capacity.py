@@ -61,6 +61,9 @@ def main(argv):
         print(toolkit_helpers.version)
         return 0
 
+    if not toolkit_helpers.ensure_config_file(args.config_file):
+        return 1
+
     unit = str(args.output_unit or 'G').upper()
     if unit not in ('K', 'M', 'G', 'T'):
         print("Option -output_unit can be only K for KB, M for MB, G for GB and T for TB")
@@ -79,7 +82,14 @@ def main(argv):
         return 1
 
     eng = Engine(args.dever, args.debug)
-    eng.load_config(args.config_file)
+    try:
+        eng.load_config(args.config_file)
+    except FileNotFoundError:
+        print(f"ERROR: config file not found: {args.config_file}")
+        return 1
+    except Exception as exc:
+        print(f"ERROR: failed to load config file {args.config_file}: {exc}")
+        return 1
 
     engine_list = toolkit_helpers.get_engine_list(args.all, args.dx_host, eng)
     if not engine_list:

@@ -97,6 +97,17 @@ def main(argv):
         print(toolkit_helpers.version)
         return 0
 
+    # Validate required options early with friendly messages
+    if not args.config_file:
+        print("ERROR: config file is required (-configfile)")
+        return 1
+    if not os.path.exists(args.config_file):
+        print(f"ERROR: config file not found: {args.config_file}")
+        return 1
+    if not args.outdir:
+        print("ERROR: output directory is required (-outdir)")
+        return 1
+
     if args.all and args.dx_host:
         print('Option all (-all) and engine (-d|engine) are mutually exclusive')
         return 1
@@ -107,7 +118,14 @@ def main(argv):
 
     # Create engine first to get timezone for timestamp conversion
     eng = Engine(args.dever, args.debug)
-    eng.load_config(args.config_file)
+    try:
+        eng.load_config(args.config_file)
+    except FileNotFoundError:
+        print(f"ERROR: config file not found: {args.config_file}")
+        return 1
+    except Exception as exc:
+        print(f"ERROR: failed to load config file {args.config_file}: {exc}")
+        return 1
     
     # Get first engine to determine timezone for timestamp parsing
     engine_list = toolkit_helpers.get_engine_list(args.all, args.dx_host, eng)

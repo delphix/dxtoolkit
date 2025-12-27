@@ -6,6 +6,21 @@ from decimal import Decimal, ROUND_HALF_UP
 version = '2.4.24.2'
 
 
+def ensure_config_file(cfg_path):
+    """Validate the provided config file path and emit a friendly error.
+    
+    Allows None to use defaults (DXTOOLKIT_CONF env or lib/py/dxtools.conf),
+    but validates if an explicit path is provided.
+    """
+    if not cfg_path:
+        # Allow None - will use defaults in Engine.load_config()
+        return True
+    if not os.path.exists(cfg_path):
+        print(f"ERROR: config file not found: {cfg_path}")
+        return False
+    return True
+
+
 def logger(debug, msg, verbose=None):
     """Lightweight logger that mirrors Perl semantics for verbosity levels."""
     if debug is None:

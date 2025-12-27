@@ -34,6 +34,9 @@ def main():
         print(version)
         sys.exit(0)
 
+    if not toolkit_helpers.ensure_config_file(args.config_file):
+        sys.exit(1)
+
     if not (args.type and args.action):
         print("Option -action and -type are mandatory")
         parser.print_help()
@@ -49,7 +52,14 @@ def main():
         sys.exit(1)
 
     engine_obj = Engine(args.dever, args.debug)
-    engine_obj.load_config(args.config_file)
+    try:
+        engine_obj.load_config(args.config_file)
+    except FileNotFoundError:
+        print(f"ERROR: config file not found: {args.config_file}")
+        sys.exit(1)
+    except Exception as exc:
+        print(f"ERROR: failed to load config file {args.config_file}: {exc}")
+        sys.exit(1)
 
     engine_list = toolkit_helpers.get_engine_list(args.all, args.dx_host, engine_obj)
     ret = 0
